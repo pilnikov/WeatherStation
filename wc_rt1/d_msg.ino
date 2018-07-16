@@ -391,7 +391,7 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-        "Today is " + String(dayStr(weekday())) + ' ' + String(day()) + ' ' + monthStr(month()) + ' ' + String(year()) + ' ';
+        str = "Today is " + String(dayStr(weekday())) + ' ' + String(day()) + ' ' + monthStr(month()) + ' ' + String(year()) + ' ';
         break;
       case 2:
         str = (snr_data.t1 < 99 ?  "Inside " + String(snr_data.t1) + grad + "C " : ' ')
@@ -423,23 +423,25 @@ String pr_str(uint8_t num)
               + (snr_data.p > 700 ? "давление " + String(snr_data.p) + "мм " : "Нет данных от датчика давления - проверьте настройки ");
         break;
       case 3:
-        str = (web_ap ? "Нет связи с внешним миром проверьте WiFi" : "");
-
-        if (conf_data.use_pp == 1)
+        switch (conf_data.use_pp)
         {
-          str = (wf_data.temp_min > -99 ? "Прогноз погоды от GM на" + f_dsp.td_name_r(wf_data.tod) + String(wf_data.day) + f_dsp.month_name_r(wf_data.month) + " : "
-                 + " температура " + String(wf_data.temp_min) + " " + String(wf_data.temp_max) + grad + "C "
-                 + "ветер" + f_dsp.wind_dir_r(wf_data.wind_dir) + String(wf_data.wind_max) + "-" + String(wf_data.wind_min) + "м/с " + f_dsp.prc_type_r(wf_data.prec, wf_data.spower, wf_data.rpower)
-                 + "oтн. влажность " + String(wf_data.hum_max) + "% "
-                 + "давление " + String(wf_data.press_max) + "мм " : "Нет данных по прогнозу погоды - проверьте настройки ");
-        }
-        if (conf_data.use_pp == 2)
-        {
-          str = (wf_data.temp_min > -99 ? "Прогноз погоды от OWM на " + String(wf_data.day) + f_dsp.month_name_r(wf_data.month) + " : "
-                 + wf_data.descript + " температура " + String(wf_data.temp_min) + " " + String(wf_data.temp_max) + grad + "C "
-                 + "ветер" + f_dsp.wind_dir_r(wf_data.wind_dir) + String(wf_data.wind_min) + "м/с "
-                 + "oтн. влажность " + String(wf_data.hum_min) + "% "
-                 + "давление " + String(wf_data.press_min) + "мм " : "Нет данных по прогнозу погоды - проверьте настройки ");
+          case 0:
+            str = "";
+            break;
+          case 1:
+            str = (wf_data.temp_min > -99 ? "Прогноз погоды от GM на" + f_dsp.td_name_r(wf_data.tod) + String(wf_data.day) + f_dsp.month_name_r(wf_data.month) + " : "
+                   + " температура " + String(wf_data.temp_min) + " " + String(wf_data.temp_max) + grad + "C "
+                   + "ветер" + f_dsp.wind_dir_r(wf_data.wind_dir) + String(wf_data.wind_max) + "-" + String(wf_data.wind_min) + "м/с " + f_dsp.prc_type_r(wf_data.prec, wf_data.spower, wf_data.rpower)
+                   + "oтн. влажность " + String(wf_data.hum_max) + "% "
+                   + "давление " + String(wf_data.press_max) + "мм " : "Нет данных по прогнозу погоды - проверьте настройки ");
+            break;
+          case 2:
+            str = (wf_data.temp_min > -99 ? "Прогноз погоды от OWM на " + String(wf_data.day) + f_dsp.month_name_r(wf_data.month) + " : "
+                   + wf_data.descript + " температура " + String(wf_data.temp_min) + " " + String(wf_data.temp_max) + grad + "C "
+                   + "ветер" + f_dsp.wind_dir_r(wf_data.wind_dir) + String(wf_data.wind_min) + "м/с "
+                   + "oтн. влажность " + String(wf_data.hum_min) + "% "
+                   + "давление " + String(wf_data.press_min) + "мм " : "Нет данных по прогнозу погоды - проверьте настройки ");
+            break;
         }
         break;
       case 4:
