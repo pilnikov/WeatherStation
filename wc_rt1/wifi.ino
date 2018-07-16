@@ -144,9 +144,8 @@ void start_wifi()
   if (WiFi.status() == 3)
   {
     web_cli = true;
-    IP_Addr = WiFi.localIP();
-    st1 = "Your IP: " + f_dsp.IP_to_str(IP_Addr[0], IP_Addr[1], IP_Addr[2], IP_Addr[3]) + " ";
-    if (conf_data.rus_disp)  st1 = "Ваш IP: " + f_dsp.IP_to_str(IP_Addr[0], IP_Addr[1], IP_Addr[2], IP_Addr[3]) + " ";
+    st1 = "Your IP: " + WiFi.localIP().toString() + " ";
+    if (conf_data.rus_disp)  st1 = "Ваш IP: " + WiFi.localIP().toString() + " ";
   }
   else web_ap = true;
 }

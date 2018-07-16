@@ -384,7 +384,7 @@ String pr_str(uint8_t num)
   String grad = "\xB0";
   if (ram_data.type_disp == 1) grad = "\xEF";
 
-  String str = "Your IP is " + f_dsp.IP_to_str(IP_Addr[0], IP_Addr[1], IP_Addr[2], IP_Addr[3]) + " ";
+  String str = "Your IP is " + WiFi.localIP().toString() + " ";
 
   if (!conf_data.rus_disp)
   {
@@ -447,7 +447,7 @@ String pr_str(uint8_t num)
       case 4:
         str = "Будильник " + (rtc_data.a_hour < 24 && rtc_data.a_min < 59 ? "зазвонит в " + String(rtc_data.a_hour) + ':' + String(rtc_data.a_min) : "не установлен ")
               + " Текущая яркость: " + String(cur_br)
-              + " Ваш IP: " + f_dsp.IP_to_str(IP_Addr[0], IP_Addr[1], IP_Addr[2], IP_Addr[3])  + " ";
+              + " Ваш IP: " +  WiFi.localIP().toString() + " ";
         break;
     }
   }
