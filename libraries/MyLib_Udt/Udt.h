@@ -41,7 +41,7 @@ typedef struct
     uint8_t  hum_min   =   0; //
     int8_t   heat_max  =  99; // комфорт - температура воздуха по ощущению одетого по сезону человека, выходящего на улицу
     int8_t   heat_min  = -99; //
-    String   descript  = "additional info"; // дополнительное описание состояния погоды 
+    String   descript  =  ""; // дополнительное описание состояния погоды 
  } wf_data_t;
 
 typedef struct 
