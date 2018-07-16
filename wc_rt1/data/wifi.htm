@@ -1,0 +1,104 @@
+<html>
+  <head>
+    <title>Wifi Clock Settings Wifi</title>
+    <meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
+    <style>
+       body,td{font-family:tahoma,arial,helvetica,sans-serif;}
+       table.t td.h{background-color:#C9C9C0;font-size:12px;font-weight:bold;text-align:center;}
+       table.t td  {background-color:#E2E2DB;font-size:12px;text-align:center;}
+    </style>
+  </head>
+  
+  <body onload='loadValues();'>
+    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+    	<tr>
+    	  <td align='center' class='h' width='5%'><a href='time.htm'>Time</a></td>
+    	  <td align='center' class='h' width='5%'><a href='wifi.htm'>WiFi</a></td>
+    	  <td align='center' class='h' width='5%'><a href='clock.htm'>Clock</a></td>
+    	  <td align='center' class='h' width='5%'><a href='disp.htm'>Display</a></td>
+    	  <td align='center' class='h' width='5%'><a href='sens.htm'>Sensor</a></td>
+    	  <td align='center' class='h' width='5%'><a href='alarm.htm'>Alarm</a></td>
+    	  <td align='center' class='h' width='5%'><a href='/edit'>Edit</a></td>
+    	  <td align='center' class='h' width='5%'><a href='/exit'>Restart</a></td>
+    	</tr>
+      <tr><td colspan='8' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
+    </table>
+
+    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+
+       <tr><td colspan='8' class='h'>Точка доступа</td></tr>
+
+       <tr><td width='35%'>SSID</td><td><input type='text' size='10' id='aps' name='aps'   style='text-align:center;' /></td></tr>
+       <tr><td>Password</td><td><input type='password' size='10' id='app' name='app'  style='text-align:center;' /></td></tr>
+
+       <tr><td colspan='8' class='h'>Клиент</td></tr>
+
+       <tr><td>SSID</td><td><input type='text' size='10' id='stas' name='stas' style='text-align:center;' /></td></tr>
+       <tr><td>Password</td><td><input type='password' size='10' id='stap' name='stap'   style='text-align:center;' /></td></tr>
+
+       <tr><td colspan='8' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td></tr>
+   
+       <tr><td colspan='8' class='e'>&nbsp;</td></tr>
+       <tr><td colspan='8' class='h'><a href='update'>Обновление прошивки</a></td></tr>
+    </table>
+  
+    <script>
+   
+      function loadValues()
+      {
+        var xh = new XMLHttpRequest();
+        xh.onreadystatechange =  function()
+        {
+          if (xh.readyState == 4 && xh.status == 200) 
+            {
+              var res = JSON.parse(xh.responseText);
+              document.getElementById('aps' ).value = res.apid;
+        	    document.getElementById('app' ).value = res.appas;
+        	    document.getElementById('stas').value = res.staid;
+        	    document.getElementById('stap').value = res.stapas;
+        	  }
+          }
+         xh.open("GET", "/jwifi", true);
+         xh.send(null);
+      }
+
+
+      function process()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open("GET", "/jact", true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState == 4 && xh.status == 200) 
+          {
+            var res = JSON.parse(xh.responseText);
+            document.getElementById('cur_time').value = res.tstr;
+          }
+        }
+        xh.send(null);
+        setTimeout('process()',500);
+      }
+    
+      function set_wifi()
+      {
+      	as = document.getElementById('aps').value;
+      	ap = document.getElementById('app').value;
+      	ss = document.getElementById('stas').value;
+      	sp = document.getElementById('stap').value;
+
+      	url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp;
+
+        var xh = new XMLHttpRequest();
+        xh.open('GET', url, true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadValues();
+        }      
+        xh.send(null);
+      }
+
+      process();
+    
+    </script>
+  </body>
+</html>

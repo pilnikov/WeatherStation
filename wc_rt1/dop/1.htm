@@ -1,0 +1,12 @@
+<script>
+function change(idName) {
+  if(document.getElementById(idName).style.display=='none') {
+    document.getElementById(idName).style.display = '';
+  } else {
+    document.getElementById(idName).style.display = 'none';
+  }
+  return false;
+}
+</script>
+<div style="display:none" id="test">Hi World! </div>
+<a href="#" onclick="change('test')">Change</a>
