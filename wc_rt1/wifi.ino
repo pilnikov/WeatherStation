@@ -145,7 +145,6 @@ void start_wifi()
   {
     web_cli = true;
     st1 = "Your IP: " + WiFi.localIP().toString() + " ";
-    if (conf_data.rus_disp)  st1 = "Ваш IP: " + WiFi.localIP().toString() + " ";
   }
   else web_ap = true;
 }

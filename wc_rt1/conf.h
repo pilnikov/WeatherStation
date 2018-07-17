@@ -252,7 +252,7 @@ conf_data_t conf_data;
 ram_data_t ram_data;
 rtc_data_t rtc_data;
 
-// ----------------------------------- Include
+// ----------------------------------- Internal header files
 #include "disp.h"
 #include "rtc.h"
 #include "web.h"

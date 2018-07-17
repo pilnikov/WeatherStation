@@ -19,8 +19,7 @@ void matrix_init();
 void matrix_time();
 void m1632_init();
 void m1632_time();
-void matrix_mov_str(Adafruit_GFX *driver, String, uint8_t, unsigned long);
-void lcd_mov_str(String, uint8_t, unsigned long);
+void mov_str(uint8_t, uint8_t, String, uint8_t, unsigned long);
 uint16_t auto_br(uint16_t, uint16_t*);
 void procherk (uint8_t, uint8_t);
 
@@ -119,7 +118,7 @@ uint8_t point = 0;
 int cur_sym_pos[2] = {0, 0};
 unsigned long lcd_scroll_time[lcd_row] = {millis(), millis()};
 bool str_run;
-String st1 = " Running String ";
+String st1 = String();
 
 //---------------------------------------------------------------------------HT1621
 //буфер экрана

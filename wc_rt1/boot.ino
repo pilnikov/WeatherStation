@@ -65,9 +65,9 @@ void irq_set()
       irq_end[9] = millis();
       break;
   }
-  if (ram_data.type_disp == 1 && disp_on) lcd_mov_str(st1, 0, 190);
-  if (ram_data.type_disp == 4 && str_run) matrix_mov_str(m7219, st1, 0, 40);
-  if (ram_data.type_disp == 8 && disp_on) matrix_mov_str(m1632, st1, 0, 40);
+  if (ram_data.type_disp == 1 && disp_on) mov_str(ram_data.type_disp,          lcd_col, st1, 0, 190);
+  if (ram_data.type_disp == 4 && str_run) mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, 40);
+  if (ram_data.type_disp == 8 && disp_on) mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, 40);
 }
 
 void firq1()

@@ -193,13 +193,18 @@ void  matrix_refresh()
   }
 }
 
-//-------------------------------------------------------------- Отображение бегущей строки на матричном дисплее
-void matrix_mov_str(Adafruit_GFX * driver, String tape, uint8_t dline, unsigned long dutty)
+//-------------------------------------------------------------- Отображение бегущей строки
+void mov_str(uint8_t dtype, uint8_t d_wdt, String tape, uint8_t dline, unsigned long dutty)
 {
   uint8_t f_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
-  if (ram_data.type_disp == 1) f_wdt = 1;
 
-  if (cur_sym_pos[dline] <= f_wdt * tape.length() + driver -> width() - spacer) //текущая позиция <= длины строки в пикселях + ширина матрицы (32) - 1
+  if (dtype == 1)
+  {
+    f_wdt = 1;
+    spacer = 0;
+  }
+
+  if (cur_sym_pos[dline] <= f_wdt * tape.length() + d_wdt - spacer) //текущая позиция <= длины строки в пикселях + ширина матрицы (32) - 1
   {
     str_run = true;
     if (millis() - lcd_scroll_time[dline] > dutty)
@@ -207,29 +212,31 @@ void matrix_mov_str(Adafruit_GFX * driver, String tape, uint8_t dline, unsigned 
       lcd_scroll_time[dline] = millis();
       cur_sym_pos[dline]++; //перемещение по строке вправо на один пиксель
     }
-    if (ram_data.type_disp == 4 || ram_data.type_disp == 8)
+
+    if (dtype == 4 || dtype == 8)
     {
-      ///
-      int16_t letter = cur_sym_pos[dline] / f_wdt;                     //        номер крайнего правого отображаемого символа
-      int8_t x = (driver -> width() - 1) - cur_sym_pos[dline] % f_wdt; // координата х крайнего правого отображаемого символа
-      uint8_t y = dline * 8;                                           // координата y строки
-      uint8_t bg = 0;                                                  // цвет фона
-      if (ram_data.type_disp == 8) bg = 3;
+      int16_t letter = cur_sym_pos[dline] / f_wdt;         //        номер крайнего правого отображаемого символа
+      int8_t x = (d_wdt - 1) - cur_sym_pos[dline] % f_wdt; // координата х крайнего правого отображаемого символа
+      uint8_t y = dline * 8;                               // координата y строки
+      uint8_t bg = 0;                                      // цвет фона
+      if (dtype == 8) bg = 3;
 
       while ( x + f_wdt - spacer >= 0 && letter >= 0 )
         //for (uint8_t i = 0; i < num; i++)
       {
         if (letter < tape.length())
         {
-          driver -> drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 4) m7219 -> drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 8) m1632 -> drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
         }
         letter--;   // смещение на символ влево по строке
         x -= f_wdt; // смещение на ширину символа влево по х
       }
-      if (ram_data.type_disp == 4) m7219 -> write(); // Send bitmap to display
-      if (ram_data.type_disp == 8) m1632 -> render(); // Send bitmap to display
+      if (dtype == 4) m7219 -> write(); // Send bitmap to display
+      if (dtype == 8) m1632 -> render(); // Send bitmap to display
     }
-    if (ram_data.type_disp == 1)
+
+    if (dtype == 1)
     {
       int16_t letter = cur_sym_pos[dline]; // номер крайнего правого отображаемого символа
       int8_t x = lcd_col - 1;       // координата х крайнего правого отображаемого символа
@@ -250,45 +257,10 @@ void matrix_mov_str(Adafruit_GFX * driver, String tape, uint8_t dline, unsigned 
   else //end of scrolling
   {
     str_run = false;
-    if (ram_data.type_disp == 1 || ram_data.type_disp == 8) cur_sym_pos[dline] = 0;
+    if (dtype == 1 || dtype == 8) cur_sym_pos[dline] = 0;
     num_st++; //Перебор строк.
     if (num_st > max_st) num_st = 1;
-    st1 = fsys.utf8rus(pr_str(num_st));
+    if (dtype == 4 || dtype == 8) st1 = fsys.utf8rus(pr_str(num_st));
+    if (dtype == 1)  st1 = fsys.lcd_rus(pr_str(num_st));
   }
 }
-
-//-------------------------------------------------------------- Отображение бегущей строки на lcd дисплее
-void lcd_mov_str(String tape, uint8_t dline, unsigned long dutty)
-{
-  if (cur_sym_pos[dline] < tape.length() + lcd_col)
-  {
-    if (millis() - lcd_scroll_time[dline] > dutty)
-    {
-      lcd_scroll_time[dline] = millis();
-      cur_sym_pos[dline]++;
-    }
-
-    int16_t letter = cur_sym_pos[dline]; // номер крайнего правого отображаемого символа
-    int8_t x = lcd_col - 1;       // координата х крайнего правого отображаемого символа
-
-    while ( x >= 0 && letter >= 0 )
-    {
-
-      if (letter < tape.length())
-      {
-        lcd -> setCursor(x, dline);
-        lcd -> print(tape[letter]); //Draw char in lcd
-      }
-      letter--;   // смещение на символ влево по строке
-      x--;
-    }
-  }
-  else
-  {
-    cur_sym_pos[dline] = 0; // End of scrolling
-    num_st++; //Перебор строк.
-    if (num_st > max_st) num_st = 1;
-    st1 = fsys.lcd_rus(pr_str(num_st));
-  }
-}
-
