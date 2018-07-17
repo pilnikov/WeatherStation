@@ -29,7 +29,6 @@ class SF
   public:
     void i2c_scan_do();
 	void i2c_parse();
-	String Serial_Read(); 
     byte   roll_seg (byte); //переворот сегмента
     byte   mir_seg (byte); //адаптация для мах7219
     String lcd_rus(String);
