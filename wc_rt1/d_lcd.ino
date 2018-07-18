@@ -14,15 +14,17 @@ void lcd_init()
 
   lcd -> backlight(); //Включаем подсветку
 
+  st1 = "Hello";
+  if (conf_data.rus_disp) st1 = "Привет";
   lcd -> setCursor(5, 0);
-  if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("Привет"));
-  else lcd -> print("Hello");
+  lcd -> print (f_dsp.lcd_rus(st1));
+  st1 = "World";
+  if (conf_data.rus_disp) st1 = "Мир!!!";
   lcd -> setCursor(5, 1);
-  if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("Мир!!!"));
-  else lcd -> print("World");
+  lcd -> print (f_dsp.lcd_rus(st1));
 }
 
-void Time_LCD()
+void lcd_time()
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A

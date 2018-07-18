@@ -5,7 +5,7 @@ void m1632_init()
 #if defined(ESP8266) || defined(ESP32)
 
   digHt = 16; // Высота матрици в пикселях
-  
+
   m1632 = new HT1632Class(CLK_PIN, CS_PIN, WRCLK_PIN, DATA_PIN);
   m1632 -> setBrightness(12); // Use a value between 0 and 15 for brightness
   m1632 -> cp437(true);
@@ -13,22 +13,23 @@ void m1632_init()
   m1632 -> setTextWrap(false); // Allow text to run off right edge
 
   m1632 -> clear();
+
+  st1 = "Hello";
+  if (conf_data.rus_disp) st1 = "Салют";
+
   m1632 -> setCursor(2, 0);
   m1632 -> setTextColor(1, 3);
+  m1632 -> print(f_dsp.utf8rus(st1));
+  m1632 -> render();
 
-  st1 = ("Hello");
-  if (conf_data.rus_disp) st1 = fsys.utf8rus("Салют");
-  
-  m1632 -> print(st1);
+  st1 = "World!";
+  if (conf_data.rus_disp) st1 = " Мир! ";
 
   m1632 -> setCursor(0, 8);
   m1632 -> setTextColor(0, 3);
-
-  st1 = ("World!");
-  if (conf_data.rus_disp) st1 = fsys.utf8rus(" Мир! ");
-
-  m1632 -> print(st1);
+  m1632 -> print(f_dsp.utf8rus(st1));
   m1632 -> render();
+
   delay(300);
 #endif
 }

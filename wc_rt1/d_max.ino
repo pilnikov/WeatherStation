@@ -1,5 +1,5 @@
 
-void matrix_init()
+void m7219_init()
 {
   digHt = 8;  // Высота матрицы в пикселях
 
@@ -13,15 +13,15 @@ void matrix_init()
   m7219 -> fillScreen(LOW);
   m7219 -> setCursor(1, 0);
   
-  st1 = ("Hello");
-  if (conf_data.rus_disp) st1 = fsys.utf8rus("Салют");
+  st1 = "Hello";
+  if (conf_data.rus_disp) st1 = "Салют";
   
-  m7219 -> print(st1);
+  m7219 -> print(f_dsp.utf8rus(st1));
   m7219 -> write();
   delay(300);
 }
 
-void matrix_time()
+void m7219_time()
 {
   if (cur_br != cur_br_buf)
   {

@@ -93,7 +93,7 @@ void setup()
       sevenseg_init();
       break;
     case 4:
-      matrix_init();
+      m7219_init();
       break;
     case 5:
       sevenseg_init();

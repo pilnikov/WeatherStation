@@ -115,7 +115,7 @@ void stop_wifi()
 void configModeCallback (WiFiManager *myWiFiManager)
 {
   st1 = "Please reboot and connect to " + String(conf_data.ap_ssid) + " with pass " + String(conf_data.ap_pass) + " for configure your WiFi connection! ";
-  if (conf_data.rus_disp)  st1 = fsys.utf8rus("Перезагрузитесь и подключитесь к " + String(conf_data.ap_ssid) + " с паролем " + String(conf_data.ap_pass) + " для настройки подключения к вашей WiFi");
+  if (conf_data.rus_disp)  st1 = "Перезагрузитесь и подключитесь к " + String(conf_data.ap_ssid) + " с паролем " + String(conf_data.ap_pass) + " для настройки подключения к вашей WiFi";
 }
 
 //-------------------------------------------------------------- Start_wifi
@@ -145,6 +145,7 @@ void start_wifi()
   {
     web_cli = true;
     st1 = "Your IP: " + WiFi.localIP().toString() + " ";
+    if (conf_data.rus_disp) st1 = "Ваш IP: " + WiFi.localIP().toString() + " ";
   }
   else web_ap = true;
 }

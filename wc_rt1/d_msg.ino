@@ -11,16 +11,16 @@ void ts_msg(byte disp, bool dir)
       lcd -> setCursor(0, 0);
       if (dir)
       {
-        if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("Берем инфу c TS"));
+        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Берем инфу c TS"));
         else lcd -> print("Get data from TS");
       }
       else
       {
-        if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("Шлем инфу на TS"));
+        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Шлем инфу на TS"));
         else lcd -> print("Put data to TS");
       }
       lcd -> setCursor(2, 1);
-      if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("Минуточку!"));
+      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Минуточку!"));
       else lcd -> print("Please wait!");
       break;
     case 2:
@@ -51,19 +51,19 @@ void ts_msg(byte disp, bool dir)
       dig[0] = 0x78; /* t */
       dig[1] = 0x6D; /* 5 */
       procherk(2, 2);
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
     case 6:
       dig[0] = 0x78; /* t */
       dig[1] = 0x6D; /* 5 */
       procherk(2, 2);
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
     case 7:
       digit (0x1, dig[0]);
@@ -97,10 +97,10 @@ void ntp_msg(byte disp)
     case 1:
       lcd -> clear();
       lcd -> setCursor(0, 0);
-      if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("Берем инфу c NTP"));
+      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Берем инфу c NTP"));
       else lcd -> print("Sync with NTP");
       lcd -> setCursor(2, 1);
-      if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("Минуточку!"));
+      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Минуточку!"));
       else lcd -> print("Please wait!");
       break;
     case 2:
@@ -127,7 +127,7 @@ void ntp_msg(byte disp)
     case 4:
       m7219 -> fillScreen(LOW);
       m7219 -> setCursor(1, 0);
-      if (conf_data.rus_disp) m7219 -> print(fsys.utf8rus("-НТП-"));
+      if (conf_data.rus_disp) m7219 -> print(f_dsp.utf8rus("-НТП-"));
       else m7219 -> print( "-NTP-");
       m7219 -> write(); // Send bitmap to display
       break;
@@ -136,10 +136,10 @@ void ntp_msg(byte disp)
       dig[1] = ( numbertable[19]); // "t"
       dig[2] = ( numbertable[22]); // "П"
       dig[3] = ( numbertable[23]); // "-"
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
 
     case 6:
@@ -147,10 +147,10 @@ void ntp_msg(byte disp)
       dig[1] = ( numbertable[19]); // "t"
       dig[2] = ( numbertable[22]); // "П"
       dig[3] = ( numbertable[23]); // "-"
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
 
     case 7:
@@ -164,7 +164,7 @@ void ntp_msg(byte disp)
       m1632 -> clear ();
       m1632 -> setTextColor(0, 3);
       m1632 -> setCursor(0, 1);
-      if (conf_data.rus_disp) m1632 -> print(fsys.utf8rus("-НТП-"));
+      if (conf_data.rus_disp) m1632 -> print(f_dsp.utf8rus("-НТП-"));
       else m1632 -> print( "-NTP-");
       m1632 -> render(); // Send bitmap to display
       break;
@@ -188,12 +188,12 @@ void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
       lcd -> setCursor(_row, _colum);
       if (sta)
       {
-        if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("    Успешно!    "));
+        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("    Успешно!    "));
         else lcd ->                                 print("    Sucsess!    ");
       }
       else
       {
-        if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("    Косяк!      "));
+        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("    Косяк!      "));
         else lcd ->                                 print("    Failed!     ");
       }
       delay(_delay);
@@ -221,12 +221,12 @@ void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
       m7219 -> setCursor(_colum, _row);
       if (sta)
       {
-        if (conf_data.rus_disp) m7219 -> print(fsys.utf8rus("Успех"));
+        if (conf_data.rus_disp) m7219 -> print(f_dsp.utf8rus("Успех"));
         else m7219 -> print( "Sucs!");
       }
       else
       {
-        if (conf_data.rus_disp) m7219 -> print(fsys.utf8rus("Косяк"));
+        if (conf_data.rus_disp) m7219 -> print(f_dsp.utf8rus("Косяк"));
         else m7219 -> print( "Fail!");
       }
       m7219 -> write();
@@ -238,20 +238,20 @@ void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
     case 5:
       if (sta) dig[3] = 0x62; /* u */
       else     dig[3] = 0x54; /* п */
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       delay(_delay);
       break;
 
     case 6:
       if (sta) dig[3] = 0x62; /* u */
       else     dig[3] = 0x54; /* п */
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       delay(_delay);
       break;
 
@@ -268,12 +268,12 @@ void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
       m1632 -> setCursor(_colum, _row);
       if (sta)
       {
-        if (conf_data.rus_disp) m1632 -> print(fsys.utf8rus("Успех"));
+        if (conf_data.rus_disp) m1632 -> print(f_dsp.utf8rus("Успех"));
         else m1632 -> print( "Sucs!");
       }
       else
       {
-        if (conf_data.rus_disp) m1632 -> print(fsys.utf8rus("Косяк"));
+        if (conf_data.rus_disp) m1632 -> print(f_dsp.utf8rus("Косяк"));
         else m1632 -> print( "Fail!");
       }
       m1632 -> render();
@@ -301,14 +301,14 @@ void alarm_msg(byte num, byte disp)
       lcd -> setCursor(2, 0);
       if (conf_data.rus_disp)
       {
-        lcd -> print(fsys.lcd_rus("Будильник N")); lcd -> print(num);
+        lcd -> print(f_dsp.lcd_rus("Будильник N")); lcd -> print(num);
       }
       else
       {
         lcd -> print("Alarm #"); lcd -> print(num); lcd -> print(" is");
       }
       lcd -> setCursor(2, 1);
-      if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus("сработал!!!"));
+      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("сработал!!!"));
       else lcd -> print("triggered!!!");
       break;
     case 2:
@@ -344,20 +344,20 @@ void alarm_msg(byte num, byte disp)
       dig[1] = 0x38; /* L */
       dig[2] = 0x40; /* - */
       dig[3] = numbertable[num];
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
     case 6:
       dig[0] = 0x77; /* A */
       dig[1] = 0x38; /* L */
       dig[2] = 0x40; /* - */
       dig[3] = numbertable[num];
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
     case 7:
       digit (0x1, dig[0]);
@@ -496,12 +496,12 @@ void wifi_conn( byte par, byte sta, byte disp)
         lcd -> setCursor(0, 0);
       }
       if ( par == 1)
-      { if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus( "Подключаемся к" ));
+      { if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus( "Подключаемся к" ));
         else lcd -> print( "True connect to" );
       }
       if ( par == 2)
       {
-        if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus( "Создаем" ));
+        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus( "Создаем" ));
         else lcd -> print( " True create a" );
       };
       if (par < 3) lcd -> setCursor(0, 1);
@@ -510,7 +510,7 @@ void wifi_conn( byte par, byte sta, byte disp)
 
       if ( par == 2)
       {
-        if (conf_data.rus_disp) lcd -> print(fsys.lcd_rus( "точку доступа" ));
+        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus( "точку доступа" ));
         else lcd -> print( "SoftAP" );
       }
       if ( par == 3)
@@ -690,10 +690,10 @@ void wifi_conn( byte par, byte sta, byte disp)
           DBG_OUT_PORT.printf("Invalid par type %u/n", par);
           break;
       }
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
     case 6:
       switch (par) // Отображаем инфу выбранного параметра
@@ -731,10 +731,10 @@ void wifi_conn( byte par, byte sta, byte disp)
           break;
       }
 
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
 
     case 7:

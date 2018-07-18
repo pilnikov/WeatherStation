@@ -65,9 +65,35 @@ void irq_set()
       irq_end[9] = millis();
       break;
   }
-  if (ram_data.type_disp == 1 && disp_on) mov_str(ram_data.type_disp,          lcd_col, st1, 0, 190);
-  if (ram_data.type_disp == 4 && str_run) mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, 40);
-  if (ram_data.type_disp == 8 && disp_on) mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, 40);
+
+  long dutty = 190;
+  if (ram_data.type_disp == 4 || ram_data.type_disp == 8) dutty = 40;
+
+  if (millis() - scroll_time[0] > dutty)
+  {
+    scroll_time[0] = millis();
+    if (!end_run_st) cur_sym_pos[0]++; //перемещение по строке вправо на один пиксель
+  }
+
+  if (ram_data.type_disp == 1 && disp_on) end_run_st = mov_str(ram_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
+  if (ram_data.type_disp == 4)            end_run_st = mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
+  if (ram_data.type_disp == 8 && disp_on) end_run_st = mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
+
+  if (end_run_st != end_run_st_buf)
+  {
+    end_run_st_buf = end_run_st;
+
+    if (end_run_st)
+    {
+      cur_sym_pos[0] = 0;
+
+      num_st++; //Перебор строк.
+      if (num_st > max_st) num_st = 1;
+      st1 = pr_str(num_st);
+
+      if (ram_data.type_disp == 1 || ram_data.type_disp == 8) end_run_st = false; // перезапуск бегущей строки;
+    }
+  }
 }
 
 void firq1()
@@ -86,7 +112,7 @@ void firq1()
 
 void firq4()
 {
-  if (!str_run  && !nm_is_on) str_run = true;
+  if (!nm_is_on) end_run_st = false; // запуск бегущей строки
 }
 
 void firq6()
@@ -104,13 +130,13 @@ void firq6()
       snr_data.ft = cur_br;
     }
 
-    if (ram_data.type_disp == 1)  Time_LCD();
+    if (ram_data.type_disp == 1) lcd_time();
     if (ram_data.type_disp == 2 || ram_data.type_disp == 3 || ram_data.type_disp == 5 || ram_data.type_disp == 6 || ram_data.type_disp == 7) sevenseg();
-    if (ram_data.type_disp == 4 && !str_run)
+    if (ram_data.type_disp == 4 && end_run_st)
     {
       matrix_refresh();
 #ifndef new_max
-      matrix_time();
+      m7219_time();
       cur_sym_pos[0] = 0;
 #endif
     }
@@ -147,11 +173,7 @@ void firq7()
 void firq9()
 {
 # ifdef new_max
-  if (ram_data.type_disp == 4 && !str_run)
-  {
-    matrix_time();
-    cur_sym_pos[0] = 0;
-  }
-  if (ram_data.type_disp == 8 && disp_on) m1632_time();
+  if (ram_data.type_disp == 4 && end_run_st)  m7219_time();
+  if (ram_data.type_disp == 8 && disp_on)     m1632_time();
 #endif
 }

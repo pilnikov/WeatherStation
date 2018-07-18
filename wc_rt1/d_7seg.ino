@@ -398,22 +398,22 @@ void sevenseg()
 
     case 5:
       max7 -> setIntensity(0, cur_br);
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
       break;
 
     case 6:
       max7 -> setIntensity(0, cur_br);
-      max7 -> setRow(0, 0, fsys.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, fsys.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, fsys.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, fsys.mir_seg(dig[3]));
-      max7 -> setRow(0, 4, fsys.mir_seg(dig[4]));
-      max7 -> setRow(0, 5, fsys.mir_seg(dig[5]));
-      max7 -> setRow(0, 6, fsys.mir_seg(dig[6]));
-      max7 -> setRow(0, 7, fsys.mir_seg(dig[7]));
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      max7 -> setRow(0, 4, f_dsp.mir_seg(dig[4]));
+      max7 -> setRow(0, 5, f_dsp.mir_seg(dig[5]));
+      max7 -> setRow(0, 6, f_dsp.mir_seg(dig[6]));
+      max7 -> setRow(0, 7, f_dsp.mir_seg(dig[7]));
       break;
 
     case 7:

@@ -194,73 +194,69 @@ void  matrix_refresh()
 }
 
 //-------------------------------------------------------------- Отображение бегущей строки
-void mov_str(uint8_t dtype, uint8_t d_wdt, String tape, uint8_t dline, unsigned long dutty)
+bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur_sym_pos)
 {
-  uint8_t f_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
-
+ /*
+  DBG_OUT_PORT.print("cur_sym_pos..");
+  DBG_OUT_PORT.println(cur_sym_pos);
+  DBG_OUT_PORT.print("tape length..");
+  DBG_OUT_PORT.println(tape.length());
+*/
+  String instr = f_dsp.utf8rus(tape);
+  if (dtype == 1) instr = f_dsp.lcd_rus(tape);
+  
+  uint8_t sym_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
+  bool e_run_st;
   if (dtype == 1)
   {
-    f_wdt = 1;
+    sym_wdt = 1;
     spacer = 0;
   }
 
-  if (cur_sym_pos[dline] <= f_wdt * tape.length() + d_wdt - spacer) //текущая позиция <= длины строки в пикселях + ширина матрицы (32) - 1
+  if (cur_sym_pos < sym_wdt * instr.length() + dsp_wdt - spacer)  //текущая позиция < (длина строки + ширина дисплея)
   {
-    str_run = true;
-    if (millis() - lcd_scroll_time[dline] > dutty)
-    {
-      lcd_scroll_time[dline] = millis();
-      cur_sym_pos[dline]++; //перемещение по строке вправо на один пиксель
-    }
+    e_run_st = false; // флаг работы бегущей строки
 
     if (dtype == 4 || dtype == 8)
     {
-      int16_t letter = cur_sym_pos[dline] / f_wdt;         //        номер крайнего правого отображаемого символа
-      int8_t x = (d_wdt - 1) - cur_sym_pos[dline] % f_wdt; // координата х крайнего правого отображаемого символа
-      uint8_t y = dline * 8;                               // координата y строки
-      uint8_t bg = 0;                                      // цвет фона
+      int16_t letter = cur_sym_pos / sym_wdt;           //        номер крайнего правого отображаемого символа
+      int8_t x = (dsp_wdt - 1) - cur_sym_pos % sym_wdt; // координата х крайнего правого отображаемого символа
+      uint8_t y = nline * 8;                            // координата y строки
+      uint8_t bg = 0;                                   // цвет фона
       if (dtype == 8) bg = 3;
 
-      while ( x + f_wdt - spacer >= 0 && letter >= 0 )
-        //for (uint8_t i = 0; i < num; i++)
+      while ( x + sym_wdt - spacer >= 0 && letter >= 0 )
       {
-        if (letter < tape.length())
+        if (letter < instr.length())
         {
-          if (dtype == 4) m7219 -> drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
-          if (dtype == 8) m1632 -> drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 4) m7219 -> drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 8) m1632 -> drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
         }
-        letter--;   // смещение на символ влево по строке
-        x -= f_wdt; // смещение на ширину символа влево по х
+        letter--;     // смещение на символ влево по строке
+        x -= sym_wdt; // смещение на ширину символа влево по х
       }
-      if (dtype == 4) m7219 -> write(); // Send bitmap to display
+      if (dtype == 4) m7219 -> write();  // Send bitmap to display
       if (dtype == 8) m1632 -> render(); // Send bitmap to display
     }
 
     if (dtype == 1)
     {
-      int16_t letter = cur_sym_pos[dline]; // номер крайнего правого отображаемого символа
-      int8_t x = lcd_col - 1;       // координата х крайнего правого отображаемого символа
+      int16_t letter = cur_sym_pos; //        номер крайнего правого отображаемого символа
+      int8_t x = dsp_wdt - 1;       // координата х крайнего правого отображаемого символа
 
       while ( x >= 0 && letter >= 0 )
       {
 
-        if (letter < tape.length())
+        if (letter < instr.length())
         {
-          lcd -> setCursor(x, dline);
-          lcd -> print(tape[letter]); //Draw char in lcd
+          lcd -> setCursor(x, nline);
+          lcd -> print(instr[letter]); //Draw char in lcd
         }
         letter--;   // смещение на символ влево по строке
         x--;
       }
     }
   }
-  else //end of scrolling
-  {
-    str_run = false;
-    if (dtype == 1 || dtype == 8) cur_sym_pos[dline] = 0;
-    num_st++; //Перебор строк.
-    if (num_st > max_st) num_st = 1;
-    if (dtype == 4 || dtype == 8) st1 = fsys.utf8rus(pr_str(num_st));
-    if (dtype == 1)  st1 = fsys.lcd_rus(pr_str(num_st));
-  }
+  else e_run_st = true; //end of scrolling
+  return e_run_st;
 }

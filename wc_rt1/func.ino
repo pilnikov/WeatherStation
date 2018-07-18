@@ -352,17 +352,7 @@ void keyb_read()
     if (disp_mode > 10) disp_mode = 0;
     if (num_st    >  4) num_st    = 1;
 
-    if (ram_data.type_disp == 4 || ram_data.type_disp == 8)
-    {
-      str_run = true;
-      st1 = fsys.utf8rus(pr_str(num_st));
-    }
-    if (ram_data.type_disp == 1)
-    {
-      str_run = true;
-      st1 = fsys.lcd_rus(pr_str(num_st));
-    }
-    cur_sym_pos[0] = 0;
+    end_run_st = false; //Запуск бегущей строки;
 
     but0_press = but0_pressed;
   }

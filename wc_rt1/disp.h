@@ -1,9 +1,9 @@
 
+#include <Adafruit_GFX.h>
 #include <LiquidCrystal_I2C.h>
 #include <Adafruit_LEDBackpack.h>
 #include <LedControl.h>
 #include <Max72xxPanel.h>
-#include <Adafruit_GFX.h>
 #include <TM1637Display.h>
 
 void sevenseg_init();
@@ -14,12 +14,12 @@ void sevenseg();
 
 void lcd_init();
 String pr_str(uint8_t);
-void Time_LCD();
-void matrix_init();
-void matrix_time();
+void lcd_time();
+void m7219_init();
+void m7219_time();
 void m1632_init();
 void m1632_time();
-void mov_str(uint8_t, uint8_t, String, uint8_t, unsigned long);
+bool mov_str(uint8_t, uint8_t, String, uint8_t, int);
 uint16_t auto_br(uint16_t, uint16_t*);
 void procherk (uint8_t, uint8_t);
 
@@ -116,8 +116,8 @@ static uint8_t digtrans[num];                       // позиция цифры
 uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
 uint8_t point = 0;
 int cur_sym_pos[2] = {0, 0};
-unsigned long lcd_scroll_time[lcd_row] = {millis(), millis()};
-bool str_run;
+unsigned long scroll_time[lcd_row] = {millis(), millis()};
+bool end_run_st, end_run_st_buf;
 String st1 = String();
 
 //---------------------------------------------------------------------------HT1621
