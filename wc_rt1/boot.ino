@@ -75,10 +75,13 @@ void irq_set()
     if (!end_run_st) cur_sym_pos[0]++; //перемещение по строке вправо на один пиксель
   }
 
-  if (ram_data.type_disp == 1 && disp_on) end_run_st = mov_str(ram_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
-  if (ram_data.type_disp == 4)            end_run_st = mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
-  if (ram_data.type_disp == 8 && disp_on) end_run_st = mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
-
+  if (!end_run_st)
+  {
+    if (ram_data.type_disp == 1 && disp_on) end_run_st = mov_str(ram_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
+    if (ram_data.type_disp == 4)            end_run_st = mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
+    if (ram_data.type_disp == 8 && disp_on) end_run_st = mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
+  }
+  
   if (end_run_st != end_run_st_buf)
   {
     end_run_st_buf = end_run_st;

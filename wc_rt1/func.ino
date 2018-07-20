@@ -87,8 +87,8 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   DeserializationError error = deserializeJson(jsonBuf, line);
   if (error)
   {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.c_str());
+    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+    DBG_OUT_PORT.println(error.c_str());
     return prog;
   }
   JsonObject root = jsonBuf.as<JsonObject>();

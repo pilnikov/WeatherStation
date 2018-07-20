@@ -1,6 +1,6 @@
 void ts_msg(byte disp, bool dir)
 {
-  switch (disp) // Отображаем время на выбранном дисплее
+  switch (disp)
   {
     case 0:
       if (dir) DBG_OUT_PORT.println("True get data from TS. Please wait!");
@@ -11,17 +11,20 @@ void ts_msg(byte disp, bool dir)
       lcd -> setCursor(0, 0);
       if (dir)
       {
-        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Берем инфу c TS"));
-        else lcd -> print("Get data from TS");
+        st1 = "Get data from TS";
+        if (conf_data.rus_disp) st1 = "Берем инфу c TS";
       }
       else
       {
-        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Шлем инфу на TS"));
-        else lcd -> print("Put data to TS");
+        st1 = "Put data to TS";
+        if (conf_data.rus_disp) st1 = "Шлем инфу на TS";
       }
+      lcd -> print(f_dsp.lcd_rus(st1));
+
       lcd -> setCursor(2, 1);
-      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Минуточку!"));
-      else lcd -> print("Please wait!");
+      st1 = "Please wait!";
+      if (conf_data.rus_disp) st1 = "Минуточку!";
+      lcd -> print(f_dsp.lcd_rus(st1));
       break;
     case 2:
       dig[0] = 0x78; /* t */
@@ -88,8 +91,8 @@ void ts_msg(byte disp, bool dir)
 
 void ntp_msg(byte disp)
 {
-  uint8_t            dig[4] = {0};
-  switch (disp) // Отображаем время на выбранном дисплее
+  uint8_t dig[4] = {0};
+  switch (disp)
   {
     case 0:
       DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
@@ -97,11 +100,15 @@ void ntp_msg(byte disp)
     case 1:
       lcd -> clear();
       lcd -> setCursor(0, 0);
-      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Берем инфу c NTP"));
-      else lcd -> print("Sync with NTP");
+      
+      st1 = "Sync with NTP";
+      if (conf_data.rus_disp) st1 = "Берем инфу c NTP";
+      lcd -> print(f_dsp.lcd_rus(st1));
+      
       lcd -> setCursor(2, 1);
-      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("Минуточку!"));
-      else lcd -> print("Please wait!");
+      st1 = "Please wait!";
+      if (conf_data.rus_disp) st1 = "Минуточку!";
+      lcd -> print(f_dsp.lcd_rus(st1));
       break;
     case 2:
       dig[0] = ( numbertable[16]); // "H"
@@ -127,8 +134,9 @@ void ntp_msg(byte disp)
     case 4:
       m7219 -> fillScreen(LOW);
       m7219 -> setCursor(1, 0);
-      if (conf_data.rus_disp) m7219 -> print(f_dsp.utf8rus("-НТП-"));
-      else m7219 -> print( "-NTP-");
+      st1 =  "-NTP-";
+      if (conf_data.rus_disp) st1 = "-НТП-";
+      m7219 -> print(f_dsp.utf8rus(st1));
       m7219 -> write(); // Send bitmap to display
       break;
     case 5:
@@ -164,8 +172,9 @@ void ntp_msg(byte disp)
       m1632 -> clear ();
       m1632 -> setTextColor(0, 3);
       m1632 -> setCursor(0, 1);
-      if (conf_data.rus_disp) m1632 -> print(f_dsp.utf8rus("-НТП-"));
-      else m1632 -> print( "-NTP-");
+      st1 =  "-NTP-";
+      if (conf_data.rus_disp) st1 = "-НТП-";
+      m1632 -> print(f_dsp.utf8rus(st1));
       m1632 -> render(); // Send bitmap to display
       break;
 
@@ -188,14 +197,15 @@ void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
       lcd -> setCursor(_row, _colum);
       if (sta)
       {
-        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("    Успешно!    "));
-        else lcd ->                                 print("    Sucsess!    ");
+        st1 = "    Sucsess!    ";
+        if (conf_data.rus_disp) st1 = "    Успешно!    ";
       }
       else
       {
-        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("    Косяк!      "));
-        else lcd ->                                 print("    Failed!     ");
+        st1 = "    Failed!     ";
+        if (conf_data.rus_disp) st1 = "    Косяк!      ";
       }
+      lcd -> print(f_dsp.lcd_rus(st1));
       delay(_delay);
       lcd -> clear();
       break;
@@ -221,14 +231,15 @@ void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
       m7219 -> setCursor(_colum, _row);
       if (sta)
       {
-        if (conf_data.rus_disp) m7219 -> print(f_dsp.utf8rus("Успех"));
-        else m7219 -> print( "Sucs!");
+        st1 = "Sucs!";
+        if (conf_data.rus_disp) st1 = "Успех";
       }
       else
       {
-        if (conf_data.rus_disp) m7219 -> print(f_dsp.utf8rus("Косяк"));
-        else m7219 -> print( "Fail!");
+        st1 = "Fail!";
+        if (conf_data.rus_disp) st1 = "Косяк";
       }
+      m7219 -> print(f_dsp.utf8rus(st1));
       m7219 -> write();
       delay(_delay);
       m7219 -> fillScreen(LOW);
@@ -268,14 +279,15 @@ void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
       m1632 -> setCursor(_colum, _row);
       if (sta)
       {
-        if (conf_data.rus_disp) m1632 -> print(f_dsp.utf8rus("Успех"));
-        else m1632 -> print( "Sucs!");
+        st1 = "Sucs!";
+        if (conf_data.rus_disp) st1 = "Успех";
       }
       else
       {
-        if (conf_data.rus_disp) m1632 -> print(f_dsp.utf8rus("Косяк"));
-        else m1632 -> print( "Fail!");
+        st1 = "Fail!";
+        if (conf_data.rus_disp) st1 = "Косяк";
       }
+      m1632 -> print(f_dsp.utf8rus(st1));
       m1632 -> render();
       delay(_delay);
       m1632 -> clear();
@@ -299,17 +311,14 @@ void alarm_msg(byte num, byte disp)
     case 1:
       lcd -> clear();
       lcd -> setCursor(2, 0);
-      if (conf_data.rus_disp)
-      {
-        lcd -> print(f_dsp.lcd_rus("Будильник N")); lcd -> print(num);
-      }
-      else
-      {
-        lcd -> print("Alarm #"); lcd -> print(num); lcd -> print(" is");
-      }
+      st1 = "Alarm #" + String(num) + " is";
+      if (conf_data.rus_disp) st1 = "Будильник N" + String(num);
+      lcd -> print(f_dsp.lcd_rus(st1));
+
       lcd -> setCursor(2, 1);
-      if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus("сработал!!!"));
-      else lcd -> print("triggered!!!");
+      st1 = "triggered!!!";
+      if (conf_data.rus_disp) st1 = "сработал!!!";
+      lcd -> print(f_dsp.lcd_rus(st1));
       break;
     case 2:
       dig[0] = 0x77; /* A */
@@ -328,8 +337,6 @@ void alarm_msg(byte num, byte disp)
       dig[1] = 0x38; /* L */
       dig[2] = 0x40; /* - */
       dig[3] = numbertable[num];
-
-      //      if (conf_data.rus_disp) dig[2] = roll_seg (dig[2]);
       tm1637 -> setSegments(dig);
       break;
     case 4:
@@ -419,7 +426,7 @@ String pr_str(uint8_t num)
                   "Снаружи "
                   + (conf_data.use_pp == 2 ? wf_data_cur.descript + " ветер" + f_dsp.wind_dir_r(wf_data_cur.wind_dir) + String(wf_data_cur.wind_min) + "м/с " : "")
                   + (snr_data.t2 < 99 ? String(snr_data.t2) + grad + "C " : ' ') + (snr_data.h2 > 0 ? String(snr_data.h2) + "% " : ' ')
-                  : " Нет данных от внешних датчиков - проверьте настройки")
+                  : " Нет данных от внешних датчиков - проверьте настройки ")
               + (snr_data.p > 700 ? "давление " + String(snr_data.p) + "мм " : "Нет данных от датчика давления - проверьте настройки ");
         break;
       case 3:
@@ -496,23 +503,30 @@ void wifi_conn( byte par, byte sta, byte disp)
         lcd -> setCursor(0, 0);
       }
       if ( par == 1)
-      { if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus( "Подключаемся к" ));
-        else lcd -> print( "True connect to" );
+      { 
+        st1 = "True connect to";
+        if (conf_data.rus_disp) st1 = "Подключаемся к";
       }
+      lcd -> print(f_dsp.lcd_rus(st1));
+
       if ( par == 2)
       {
-        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus( "Создаем" ));
-        else lcd -> print( " True create a" );
-      };
+        st1 = " True create a";
+        if (conf_data.rus_disp) st1 = "Создаем";
+      }
+      lcd -> print(f_dsp.lcd_rus(st1));
+
       if (par < 3) lcd -> setCursor(0, 1);
 
       if ( par == 1) lcd -> print( conf_data.sta_ssid );
 
       if ( par == 2)
       {
-        if (conf_data.rus_disp) lcd -> print(f_dsp.lcd_rus( "точку доступа" ));
-        else lcd -> print( "SoftAP" );
+        st1 = "SoftAP";
+        if (conf_data.rus_disp) st1 = "точку доступа";
       }
+      lcd -> print(f_dsp.lcd_rus(st1));
+
       if ( par == 3)
       {
         lcd -> setCursor(15, 1);
