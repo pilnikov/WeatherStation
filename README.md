@@ -46,4 +46,6 @@ https://yadi.sk/i/os1wRLuz3Hg493
 Куда чего подключать смотрим в Conf.h
 Файлы из папки Data необходимо залить на SPIFFS плагином "ESP8266 sketch data uploader" https://github.com/esp8266/arduino-esp8266fs-plugin
 
+Подключение к WiFi через коннект менеджер (подробности тут https://github.com/tzapu/WiFiManager/tree/development)
+
 По умолчанию первый раз запускается точка доступа с именем  Web_Clock и паролем 12345678 (задается в файле config.json из папки data перед загрузкой в SPIFFS строкой  "ap_ssid":"Web_Clock","ap_pass":"12345678"). К ней нужно успеть подключиться не дольше чем за 30 секунд, иначе нужен перезапуск. После конфигурации вашего wifi можно заходить в веб интерфейс.
