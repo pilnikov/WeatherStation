@@ -287,9 +287,6 @@ String gs_rcv (unsigned long);
 String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
 String ts_snd (String);
-void ntp_msg(byte);
-void sta_msg(byte, uint8_t, uint8_t, bool, uint16_t);
-void alarm_msg(byte);
 
 // ----------------------------------- NTP
 NTPTime NTP_t;

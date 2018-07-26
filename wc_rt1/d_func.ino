@@ -22,15 +22,13 @@ uint8_t mod_sel()
   return disp_mode;
 }
 
-//-------------------------------------------------------------- Прочерк
-inline void procherk (uint8_t pos, uint8_t q)
-{
-  for (uint8_t i = pos; i < pos + q; i++)  dig[i] = ( numbertable[23]);
-}
-
 //-------------------------------------------------------------- Выбор дня недели
-inline void dow_sel(uint8_t _dow)
+String dow_sel(uint8_t _dow)
 {
+  const String ndow[7] = {"Bc", "ПН", "Bt", "CP", "Чt", "Пt", "СБ"};
+
+  String sbuf = ndow[_dow - 1];
+
   buf[22] &= 0x3;
   buf[23] =  0x0;
   buf[24] &= 0xE;
@@ -38,54 +36,40 @@ inline void dow_sel(uint8_t _dow)
   switch (_dow)
   {
     case 2:
-      dig[0] = numbertable[22];
-      dig[1] = numbertable[16]; //ПН
       buf[23] |= 0x1;
       break;
     case 3:
-      dig[0] = numbertable[ 8];
-      dig[1] = numbertable[19]; //Bt
       buf[23] |= 0x2;
       break;
     case 4:
-      dig[0] = numbertable[12];
-      dig[1] = numbertable[18]; //CP
       buf[23] |= 0x4;
       break;
     case 5:
-      dig[0] = numbertable[ 4];
-      dig[1] = numbertable[19]; //Чt
       buf[23] |= 0x8;
       break;
     case 6:
-      dig[0] = numbertable[22];
-      dig[1] = numbertable[19]; //Пt
       buf[22] |= 0x8;
       break;
     case 7:
-      dig[0] = numbertable[12];
-      dig[1] = numbertable[ 6]; //СБ
       buf[22] |= 0x4;
       break;
     case 1:
-      dig[0] = numbertable[ 8];
-      dig[1] = numbertable[12]; //BС
       buf[24] |= 0x1;
       break;
   }
-  //  return dow;
+  return sbuf;
 }
 
 inline void bat (uint8_t num) //Батарейка
 {
   buf[22] &= 0xC;
-  buf[21] = 0x0;
+  buf[21]  = 0x0;
 
   buf[21] |= (batt[num] & 0xF0) >> 4;
-  buf[22] |= batt[num] & 0x0F;
+  buf[22] |=  batt[num] & 0x0F;
 }
 
-inline void digit (uint8_t place, uint8_t num) // Большие цифры
+inline void digit(uint8_t place, uint8_t num) // Большие цифры
 {
   uint8_t place2 = place + 1;
   if (place == 7) place2 = 31;
@@ -93,11 +77,11 @@ inline void digit (uint8_t place, uint8_t num) // Большие цифры
   buf[place] = 0x0;
   buf[place2] &= 0x8;
 
-  buf[place] |= (dig1[num] & 0xF0) >> 4;
-  buf[place2] |= dig1[num] & 0x0F;
+  buf[place]  |= (dig1[num] & 0xF0) >> 4;
+  buf[place2] |=  dig1[num] & 0x0F;
 }
 
-inline void mon_day (uint8_t mon, uint8_t _day) //Маленькие цифры (Месяц, число, год)
+inline void mon_day(uint8_t mon, uint8_t _day) //Маленькие цифры (Месяц, число, год)
 {
   buf[25] = 0x0;
   buf[26] = 0x0;
@@ -116,7 +100,7 @@ inline void mon_day (uint8_t mon, uint8_t _day) //Маленькие цифры 
   buf[29] |= (dig2[mon % 10] & 0x0F) + (mon / 10);
 }
 
-inline void ala (uint8_t num) //Будильник
+inline void ala(uint8_t num) //Будильник
 {
   buf[0] &= 0x1;
   buf[6] &= 0x7;
@@ -141,17 +125,17 @@ inline void ala (uint8_t num) //Будильник
 //-------------------------------------------------------------- Размещение в определенном месте экрана
 inline void render_number_in_place(int number, int _colum, int _row)
 {
-  byte digit = 1; // Кол-во разрядов в number
+  byte _dig = 1; // Кол-во разрядов в number
 
-  if (number > 9999) digit = 5;
-  else if (number > 999 ) digit = 4;
-  else if (number > 99  ) digit = 3;
-  else if (number > 9   ) digit = 2;
+  if (number > 9999) _dig = 5;
+  else if (number > 999 ) _dig = 4;
+  else if (number > 99  ) _dig = 3;
+  else if (number > 9   ) _dig = 2;
 
-  char msg[digit + 1];
+  char msg[_dig + 1];
   sprintf(msg, "%1u", number);
 
-  m7219 -> setCursor(_colum - (digit - 1) * 6, _row);
+  m7219 -> setCursor(_colum - (_dig - 1) * 6, _row);
   m7219 -> print(msg);
   if (debug_level == 5) DBG_OUT_PORT.print(msg);
 }
@@ -196,15 +180,15 @@ void  matrix_refresh()
 //-------------------------------------------------------------- Отображение бегущей строки
 bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur_sym_pos)
 {
- /*
-  DBG_OUT_PORT.print("cur_sym_pos..");
-  DBG_OUT_PORT.println(cur_sym_pos);
-  DBG_OUT_PORT.print("tape length..");
-  DBG_OUT_PORT.println(tape.length());
-*/
+  /*
+    DBG_OUT_PORT.print("cur_sym_pos..");
+    DBG_OUT_PORT.println(cur_sym_pos);
+    DBG_OUT_PORT.print("tape length..");
+    DBG_OUT_PORT.println(tape.length());
+  */
   String instr = f_dsp.utf8rus(tape);
   if (dtype == 1) instr = f_dsp.lcd_rus(tape);
-  
+
   uint8_t sym_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
   bool e_run_st;
   if (dtype == 1)
@@ -260,3 +244,55 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
   else e_run_st = true; //end of scrolling
   return e_run_st;
 }
+
+void s7_write_all(uint8_t dtyp, scr_buff_t buff)
+{
+  byte dig2[8], dig3[8];
+
+  dig2[0] = buff.dig[0];
+  dig2[1] = buff.dig[1];
+  dig2[2] = buff.dig[2];
+  dig2[3] = buff.dig[3];
+  dig3[0] = buff.dig[4];
+  dig3[1] = buff.dig[5];
+  dig3[2] = buff.dig[6];
+  dig3[3] = buff.dig[7];
+
+  switch (dtyp)
+  {
+    case 2:
+      ht33 -> writeDigitRaw(0, dig2[0]);
+      ht33 -> writeDigitRaw(1, dig2[1]);
+      ht33 -> writeDigitRaw(3, dig2[2]);
+      ht33 -> writeDigitRaw(4, dig2[3]);
+      ht33 -> writeDisplay();
+      break;
+    case 3:
+      tm1637 -> setSegments(dig2);
+      break;
+    case 5:
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig2[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig2[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig2[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig2[3]));
+      break;
+    case 6:
+      max7 -> setRow(0, 0, f_dsp.mir_seg(dig2[0]));
+      max7 -> setRow(0, 1, f_dsp.mir_seg(dig2[1]));
+      max7 -> setRow(0, 2, f_dsp.mir_seg(dig2[2]));
+      max7 -> setRow(0, 3, f_dsp.mir_seg(dig2[3]));
+      max7 -> setRow(0, 4, f_dsp.mir_seg(dig3[0]));
+      max7 -> setRow(0, 5, f_dsp.mir_seg(dig3[1]));
+      max7 -> setRow(0, 6, f_dsp.mir_seg(dig3[2]));
+      max7 -> setRow(0, 7, f_dsp.mir_seg(dig3[3]));
+      break;
+    case 7:
+      digit (0x1, dig2[3]);
+      digit (0x3, dig2[2]);
+      digit (0x5, dig2[1]);
+      digit (0x7, dig2[0]);
+      ht21 -> write_all(buf);
+      break;
+  }
+}
+

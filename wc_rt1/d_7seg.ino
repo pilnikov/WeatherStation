@@ -7,29 +7,18 @@ void sevenseg_init()
     case 2:
       ht33 = new Adafruit_7segment;
       ht33 -> begin(ram_data.ht_addr);
-      dig[0] = 0x06; /* 1 */
-      dig[1] = 0x7D; /* 6 */
-      dig[2] = 0x4F; /* 3 */
-      dig[3] = 0x4F; /* 3 */
-
-      ht33 -> writeDigitRaw(0, dig[0]);
-      ht33 -> writeDigitRaw(1, dig[1]);
-      ht33 -> writeDigitRaw(3, dig[2]);
-      ht33 -> writeDigitRaw(4, dig[3]);
       ht33 -> setBrightness(0xf);
-      ht33 -> writeDisplay();
+      st1 = "1633";
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(ram_data.type_disp, s7dig);
       break;
 
     case 3:
-      dig[0] = 0x06; /* 1 */
-      dig[1] = 0x7D; /* 6 */
-      dig[2] = 0x4F; /* 3 */
-      dig[3] = 0x07; /* 7 */
-      //if (conf_data.rus_disp) dig[2] = roll_seg (dig[2]);
-
       tm1637 = new TM1637Display(TM1637_CLK, TM1637_DIO);
       tm1637 -> setBrightness(0xf);
-      tm1637 -> setSegments(dig);
+      st1 = "1637";
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(ram_data.type_disp, s7dig);
       break;
 
     case 5:
@@ -96,10 +85,10 @@ void sevenseg_init()
       ht21 -> clear_all();
       for (i = 0; i < 32; i++) buf[i] = 0x0;
 
-      digit (1, 1); /* 1 */
-      digit (3, 2); /* 2 */
-      digit (5, 6); /* 6 */
-      digit (7, 1); /* 1 */
+      digit(1, 1); /* 1 */
+      digit(3, 2); /* 2 */
+      digit(5, 6); /* 6 */
+      digit(7, 1); /* 1 */
 
       for (i = 1; i < 8; i++)
       {
@@ -113,323 +102,154 @@ void sevenseg_init()
   }
 }
 
-void inline ss_prep()
+scr_buff_t ss_prep()
 {
   switch (mod_sel())
   {
     case 1: //Внутренняя температура
-      dig[0] = ( numbertable[19]); // "t"
-      dig[1] = ( snr_data.t1 < 0 ? numbertable[23] : numbertable[24]); // "-"/" "
-      if ( snr_data.t1 < 99 )
-      {
-        dig[2] = ( numbertable[abs(snr_data.t1) / 10]);
-        dig[3] = ( numbertable[abs(snr_data.t1) % 10]);
-      }
-      else procherk(2, 2);
-      if (ram_data.type_disp == 6)
-      {
-        dig[4] = ( numbertable[19] | (true << 7)); // "t."
-        dig[5] = ( snr_data.t2 < 0 ? numbertable[23] : numbertable[24]); // "-"/" "
-        if ( snr_data.t2 < 99 )
-        {
-          dig[6] = ( numbertable[abs(snr_data.t2) / 10]);
-          dig[7] = ( numbertable[abs(snr_data.t2) % 10]);
-        }
-        else procherk(6, 2);
-      }
-
+      st1 = "t" + (snr_data.t1 < 0 ? String("-") : String(" ")) + (snr_data.t1 < 99 ? String(abs(snr_data.t1)) : String("--"));
+      if (ram_data.type_disp == 6) st1 += "t." + (snr_data.t2 < 0 ? String("-") : String(" ")) + (snr_data.t2 < 99 ? String(abs(snr_data.t2)) : String("--"));
       break;
 
     case 2: //Внутренняя влажность
-      dig[0] = ( numbertable[16]); // "H"
-      dig[1] = ( numbertable[24]); // " "
-      if ( snr_data.h1 > 0 )
-      {
-        dig[2] = ( numbertable[snr_data.h1 / 10]);
-        dig[3] = ( numbertable[snr_data.h1 % 10]);
-      }
-      else procherk(2, 2);
-      if (ram_data.type_disp == 6)
-      {
-        dig[4] = ( numbertable[16] | (true << 7)); // "H."
-        dig[5] = ( numbertable[24]); // " "
-        if ( snr_data.h2 > 0 ) {
-          dig[6] = ( numbertable[snr_data.h2 / 10]);
-          dig[7] = ( numbertable[snr_data.h2 % 10]);
-        }
-        else procherk(6, 2);
-
-      }
+      st1 = "H " + (snr_data.h1 > 0 ? String(snr_data.h1) : String("--"));
+      if (ram_data.type_disp == 6) st1 += "H. " + (snr_data.h2 > 0 ? String(snr_data.h2) : String("--"));
       break;
 
     case 3: //Внешняя температура
-      if (ram_data.type_disp == 6)
-      {
-        dig[0] = ( numbertable[18]); // "P"
-        if ( snr_data.p > 0 ) {
-          dig[1] = ( numbertable[snr_data.p / 100]);
-          dig[2] = ( numbertable[(snr_data.p / 10) % 10]);
-          dig[3] = ( numbertable[snr_data.p % 10]);
-          dig[4] = ( numbertable[24]);
-          dig[5] = ( numbertable[24]);
-          dig[6] = ( numbertable[24]);
-          dig[7] = ( numbertable[24]);
-        }
-        else procherk(1, 7);
-      }
-      else
-      {
-        dig[0] = ( numbertable[19] | (true << 7)); // "t."
-        dig[1] = ( snr_data.t2 < 0 ? numbertable[23] : numbertable[24]); // "-"/" "
-        if ( snr_data.t2 < 99 )
-        {
-          dig[2] = ( numbertable[abs(snr_data.t2) / 10]);
-          dig[3] = ( numbertable[abs(snr_data.t2) % 10]);
-        }
-        else procherk(2, 2);
-      }
+      st1 = "t." + (snr_data.t2 < 0 ? String("-") : String(" ")) + (snr_data.t2 < 99 ? String(abs(snr_data.t2)) : String("--"));
+      if (ram_data.type_disp == 6) st1 = "p" + (snr_data.p > 700 ? String(snr_data.p) : String("---")) + String("    ");
       break;
 
     case 4: //Внешняя влажность
-      if (ram_data.type_disp == 6)
-      {
-        dow_sel(weekday());
-        dig[2] = ( numbertable[day()   / 10]);
-        dig[3] = ( numbertable[day()   % 10]);
-        dig[4] = ( numbertable[month() / 10]);
-        dig[5] = ( numbertable[month() % 10]);
-        dig[6] = ( numbertable[year()  / 10 % 10]);
-        dig[7] = ( numbertable[year()  % 10]);
-      }
-      else
-      {
-        dig[0] = ( numbertable[16] | (true << 7)); // "H."
-        dig[1] = ( numbertable[24]); // " "
-        if ( snr_data.h2 > 0 ) {
-          dig[2] = ( numbertable[snr_data.h2 / 10]);
-          dig[3] = ( numbertable[snr_data.h2 % 10]);
-        }
-        else procherk(2, 2);
-      }
+      st1 = "H. " + (snr_data.h2 > 0 ? String(snr_data.h2) : String("--"));
+      if (ram_data.type_disp == 6) st1 = dow_sel(weekday()) + String(day()) + String(month()) + String(year() % 100);
       break;
 
     case 5: //Давление
+      st1 = "p" + (snr_data.p > 700 ? String(snr_data.p) : String("---"));
       if (ram_data.type_disp == 6)
       {
         uint8_t h = hour();
         // Do 24 hour to 12 hour format conversion when required.
         if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-        dig[0] = ( h < 10 ? numbertable[24] : numbertable[h / 10]);
-        dig[1] = ( numbertable[h % 10]);
-        dig[2] = ( numbertable[23]);
-        dig[3] = ( numbertable[minute() / 10]);
-        dig[4] = ( numbertable[minute() % 10]);
-        dig[5] = ( numbertable[23]);
-        dig[6] = ( numbertable[second() / 10]);
-        dig[7] = ( numbertable[second() % 10]);
-      }
-      else
-      {
-        dig[0] = ( numbertable[18]); // "P"
-        if ( snr_data.p > 0 ) {
-          dig[1] = ( numbertable[snr_data.p / 100]);
-          dig[2] = ( numbertable[(snr_data.p / 10) % 10]);
-          dig[3] = ( numbertable[snr_data.p % 10]);
-        }
-        else procherk(1, 7);
+        st1 = (h < 10 ? String(" ") : String("")) + String(h) + String("-")
+              + (minute() < 10 ? String("0") : String("")) + String(minute()) + String("-")
+              + (second() < 10 ? String("0") : String("")) + String(second());
       }
       break;
 
     case 6: //День недели, дата
+      st1 = dow_sel(weekday()) + String(day());
       if (ram_data.type_disp == 6)
       {
         uint8_t h = hour();
         // Do 24 hour to 12 hour format conversion when required.
         if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-        dig[0] = ( h < 10 ? numbertable[24] : numbertable[h / 10]);
-        dig[1] = ( numbertable[h % 10]);
-        dig[2] = ( numbertable[23]);
-        dig[3] = ( numbertable[minute() / 10]);
-        dig[4] = ( numbertable[minute() % 10]);
-        dig[5] = ( numbertable[23]);
-        dig[6] = ( numbertable[second() / 10]);
-        dig[7] = ( numbertable[second() % 10]);
-      }
-      else
-      {
-        dow_sel(weekday());
-        dig[2] = ( numbertable[day() / 10]);
-        dig[3] = ( numbertable[day() % 10]);
+        st1 = (h < 10 ? String(" ") : String("")) + String(h) + String("-")
+              + (minute() < 10 ? String("0") : String("")) + String(minute()) + String("-")
+              + (second() < 10 ? String("0") : String("")) + String(second());
       }
       break;
 
     case 7: //Месяц, год
+      st1 = String(month()) + String(year() % 100);
       if (ram_data.type_disp == 6)
       {
         uint8_t h = hour();
         // Do 24 hour to 12 hour format conversion when required.
         if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-        dig[0] = ( h < 10 ? numbertable[24] : numbertable[h / 10]);
-        dig[1] = ( numbertable[h % 10]);
-        dig[2] = ( numbertable[23]);
-        dig[3] = ( numbertable[minute() / 10]);
-        dig[4] = ( numbertable[minute() % 10]);
-        dig[5] = ( numbertable[23]);
-        dig[6] = ( numbertable[second() / 10]);
-        dig[7] = ( numbertable[second() % 10]);
-      }
-      else
-      {
-        dig[0] = ( numbertable[month() / 10]);
-        dig[1] = ( numbertable[month() % 10]);
-        dig[2] = ( numbertable[year() / 10 % 10]);
-        dig[3] = ( numbertable[year() % 10]);
+        st1 = (h < 10 ? String(" ") : String("")) + String(h) + String("-")
+              + (minute() < 10 ? String("0") : String("")) + String(minute()) + String("-")
+              + (second() < 10 ? String("0") : String("")) + String(second());
       }
       break;
 
     case 8: //Секунды
+      st1 = "c " + (second() < 10 ? String(" ") : String("")) + String(second());
       if (ram_data.type_disp == 6)
       {
         uint8_t h = hour();
         // Do 24 hour to 12 hour format conversion when required.
         if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-        dig[0] = ( h < 10 ? numbertable[24] : numbertable[h / 10]);
-        dig[1] = ( numbertable[h % 10]);
-        dig[2] = ( numbertable[23]);
-        dig[3] = ( numbertable[minute() / 10]);
-        dig[4] = ( numbertable[minute() % 10]);
-        dig[5] = ( numbertable[23]);
-        dig[6] = ( numbertable[second() / 10]);
-        dig[7] = ( numbertable[second() % 10]);
-      }
-      else
-      {
-        dig[0] = ( numbertable[12]);
-        dig[1] = ( numbertable[24]);
-        dig[2] = ( numbertable[second() / 10]);
-        dig[3] = ( numbertable[second() % 10]);
+        st1 = (h < 10 ? String(" ") : String("")) + String(h) + String("-")
+              + (minute() < 10 ? String("0") : String("")) + String(minute()) + String("-")
+              + (second() < 10 ? String("0") : String("")) + String(second());
       }
       break;
 
     case 9: //Актуальный будильник
-      if (rtc_data.a_hour == 62) procherk(0, 2);
-      else
-      {
-        dig[0] = ( numbertable[rtc_data.a_hour / 10]);
-        dig[1] = ( numbertable[rtc_data.a_hour % 10]);
-      }
-      if (rtc_data.a_min == 62) procherk(2, 2);
-      else
-      {
-        dig[2] = ( numbertable[rtc_data.a_min / 10]);
-        dig[3] = ( numbertable[rtc_data.a_min % 10]);
-      }
+      if (rtc_data.a_hour == 62 && rtc_data.a_min == 62) st1 = "AL--";
+      else st1 = String(rtc_data.a_hour) + String(rtc_data.a_min);
       break;
 
     case 10: //Текущая яркость
-      dig[0] = ( numbertable[17]);
-      dig[1] = ( numbertable[24]);
-      dig[2] = ( numbertable[cur_br / 10]);
-      dig[3] = ( numbertable[cur_br % 10]);
+      st1 = "L " + String(cur_br);
       break;
 
     default://Текущее время
-      if (ram_data.type_disp == 6)
-      {
-        uint8_t h = hour();
-        // Do 24 hour to 12 hour format conversion when required.
-        if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-        dig[0] = ( h < 10 ? numbertable[24] : numbertable[h / 10]);
-        dig[1] = ( numbertable[h % 10]);
-        dig[2] = ( numbertable[23]);
-        dig[3] = ( numbertable[minute() / 10]);
-        dig[4] = ( numbertable[minute() % 10]);
-        dig[5] = ( numbertable[23]);
-        dig[6] = ( numbertable[second() / 10]);
-        dig[7] = ( numbertable[second() % 10]);
-      }
-      else
-      {
-        uint8_t h = hour();
-        // Do 24 hour to 12 hour format conversion when required.
-        if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-
-        dig[0] = ( h < 10 ? numbertable[24] : numbertable[h / 10]);
-        dig[1] = ( numbertable[h % 10]);
-        dig[2] = ( numbertable[minute() / 10]);
-        dig[3] = ( numbertable[minute() % 10]);
-      }
+      uint8_t h = hour();
+      // Do 24 hour to 12 hour format conversion when required.
+      if (conf_data.use_pm && hour() > 12) h = hour() - 12;
+      st1 = (h < 10 ? String(" ") : String("")) + String(h) + (minute() < 10 ? String("0") : String("")) + String(minute());
+      if (ram_data.type_disp == 6) st1 = (h < 10 ? String(" ") : String("")) + String(h) + String("-")
+                                           + (minute() < 10 ? String("0") : String("")) + String(minute()) + String("-")
+                                           + (second() < 10 ? String("0") : String("")) + String(second());
       break;
   }
-  //  return d;
+  scr_buff_t dig1 = f_dsp.prn7(st1);
+  return dig1;
 }
 
 void sevenseg()
 {
-  ss_prep();
+  scr_buff_t buf2 = ss_prep();
 
+  //---------------------------------------------------- Двоеточие
   if (ram_data.type_disp != 6)
   {
-    dig[1] |= blinkColon << 7;
-    dig[3] |= (web_cli || web_ap) << 7;
+    buf2.dig[1] |= blinkColon << 7;
+    buf2.dig[3] |= (web_cli || web_ap) << 7;
   }
-  else dig[7] |= (web_cli || web_ap) << 7;
-
-  //  if (conf_data.rus_disp) dig[2] = roll_seg (dig[2]);
+  else buf2.dig[7] |= (web_cli || web_ap) << 7;
+  //-----------------------------------------------------
 
   switch (ram_data.type_disp)
   {
     case 2:
-      ht33 -> writeDigitRaw(0, dig[0]);
-      ht33 -> writeDigitRaw(1, dig[1]);
-      ht33 -> writeDigitRaw(3, dig[2]);
-      ht33 -> writeDigitRaw(4, dig[3]);
-
-      ht33 -> drawColon(blinkColon);
-
       ht33 -> setBrightness(cur_br);
-      ht33 -> writeDisplay();
+      s7_write_all(ram_data.type_disp, buf2);
       break;
 
     case 3:
       tm1637 -> setBrightness(cur_br);
-      tm1637 -> setSegments(dig);
+      s7_write_all(ram_data.type_disp, buf2);
       break;
 
     case 5:
       max7 -> setIntensity(0, cur_br);
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      s7_write_all(ram_data.type_disp, buf2);
       break;
 
     case 6:
       max7 -> setIntensity(0, cur_br);
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
-      max7 -> setRow(0, 4, f_dsp.mir_seg(dig[4]));
-      max7 -> setRow(0, 5, f_dsp.mir_seg(dig[5]));
-      max7 -> setRow(0, 6, f_dsp.mir_seg(dig[6]));
-      max7 -> setRow(0, 7, f_dsp.mir_seg(dig[7]));
+      s7_write_all(ram_data.type_disp, buf2);
       break;
 
     case 7:
       for (byte i = 0; i < 32; i++) buf[i] = 0x0;
 
-      digit (1, minute() % 10);
-      digit (3, minute() / 10);
+      digit(1, minute() % 10);
+      digit(3, minute() / 10);
 
       if (blinkColon) buf[4] |= 0x8; //colon
 
-      digit (5, hour() % 10);
+      digit(5, hour() % 10);
       if (hour() > 9) digit (7, hour() / 10);
 
-      dow_sel (weekday());
+      dow_sel(weekday());
 
-      mon_day (month(), day());
+      mon_day(month(), day());
       buf[24] |= 0x8; //frame
       buf[27] |= 0x8; //slash
 
@@ -440,5 +260,4 @@ void sevenseg()
       break;
   }
 }
-
 

@@ -11,7 +11,7 @@ void GetSnr()
       ts_msg(ram_data.type_disp, true); // сообщение на индикатор о начале обмена с TS
       String ts_str = ts_rcv(conf_data.ts_ch_id, conf_data.AKey_r);  // Получаем строчку данных от TS
       ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
-      sta_msg(ram_data.type_disp, 1, 1, ts_data.p > 700, 500); // сообщение на индикатор о результатах обмена с TS
+      ts_msg(ram_data.type_disp, true); // сообщение на индикатор о результатах обмена с TS
     }
     if  (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
     if (conf_data.use_pp == 2)  wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
@@ -26,7 +26,7 @@ void GetSnr()
     {
       ts_msg(ram_data.type_disp, false); // сообщение на индикатор о начале обмена с TS
       ts_snd(e_srv.put_ts(conf_data.AKey_w, conf_data.use_ts_i, conf_data.use_ts_e, conf_data.use_ts_p, snr_data)); // Отправляем инфу на TS
-      sta_msg(ram_data.type_disp, 1, 1, true, 2000); // сообщение на индикатор о результатах обмена с TS
+      ts_msg(ram_data.type_disp, true); // сообщение на индикатор о результатах обмена с TS
     }
   }
 }
@@ -303,7 +303,7 @@ void GetNtp()
   if (debug_level == 10) DBG_OUT_PORT.println("True sync time with NTP");
   if (web_cli)
   {
-    ntp_msg(ram_data.type_disp); //сообщение на индикатор
+    ntp_msg(ram_data.type_disp, 0); //сообщение на индикатор
 
     IPAddress addr(89, 109, 251, 21);
     cur_time = NTP_t.getTime(addr, conf_data.time_zone);
@@ -328,7 +328,8 @@ void GetNtp()
 
       result = true;
     }
-    sta_msg(ram_data.type_disp, 0, 1, result, 2000); //сообщение на индикатор
+    if (result) ntp_msg(ram_data.type_disp, 1); //сообщение на индикатор
+    else ntp_msg(ram_data.type_disp, 2); //сообщение на индикатор
 
     set_alarm();  //актуализируем будильники
   }

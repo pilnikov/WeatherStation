@@ -1,3 +1,4 @@
+
 void ts_msg(byte disp, bool dir)
 {
   switch (disp)
@@ -9,172 +10,65 @@ void ts_msg(byte disp, bool dir)
     case 1:
       lcd -> clear();
       lcd -> setCursor(0, 0);
+      st1 = "Put data to TS";
+      if (conf_data.rus_disp) st1 = "Шлем инфу на TS ";
       if (dir)
       {
         st1 = "Get data from TS";
-        if (conf_data.rus_disp) st1 = "Берем инфу c TS";
-      }
-      else
-      {
-        st1 = "Put data to TS";
-        if (conf_data.rus_disp) st1 = "Шлем инфу на TS";
+        if (conf_data.rus_disp) st1 = "Берем инфу c TS ";
       }
       lcd -> print(f_dsp.lcd_rus(st1));
 
       lcd -> setCursor(2, 1);
       st1 = "Please wait!";
-      if (conf_data.rus_disp) st1 = "Минуточку!";
+      if (conf_data.rus_disp) st1 = "Минуточку! ";
       lcd -> print(f_dsp.lcd_rus(st1));
       break;
     case 2:
-      dig[0] = 0x78; /* t */
-      dig[1] = 0x6D; /* 5 */
-      procherk(2, 2);
-      ht33 -> writeDigitRaw(0, dig[0]);
-      ht33 -> writeDigitRaw(1, dig[1]);
-      ht33 -> writeDigitRaw(3, dig[2]);
-      ht33 -> writeDigitRaw(4, dig[3]);
-      ht33 -> writeDisplay();
+      st1 = "> tS";
+      if (dir)st1 = "< tS";
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 3:
-      dig[0] = 0x78; /* t */
-      dig[1] = 0x6D; /* 5 */
-      procherk(2, 2);
-
-      //if (conf_data.rus_disp) dig[2] = roll_seg (dig[2]);
-      tm1637 -> setSegments(dig);
+      st1 = "> tS";
+      if (dir)st1 = "< tS";
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 4:
       m7219 -> fillScreen(LOW);
       m7219 -> setCursor(3, 0);
-      m7219 -> print( "TS--");
+      st1 = "->TS";
+      if (dir)st1 = "<-TS";
+      m7219 -> print(st1);
       m7219 -> write(); // Send bitmap to display
       break;
     case 5:
-      dig[0] = 0x78; /* t */
-      dig[1] = 0x6D; /* 5 */
-      procherk(2, 2);
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      st1 = "> tS";
+      if (dir)st1 = "< tS";
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 6:
-      dig[0] = 0x78; /* t */
-      dig[1] = 0x6D; /* 5 */
-      procherk(2, 2);
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      st1 = "> tS";
+      if (dir)st1 = "< tS";
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 7:
-      digit (0x1, dig[0]);
-      digit (0x3, dig[1]);
-      digit (0x5, dig[2]);
-      digit (0x7, dig[3]);
+      st1 = "> tS";
+      if (dir)st1 = "< tS";
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 8:
       m1632 -> clear();
       m1632 -> setTextColor(0, 3);
       m1632 -> setCursor(3, 0);
-      m1632 -> print( "TS--");
-      m1632 -> render(); // Send bitmap to display
-      break;
-
-    default:
-      DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
-      break;
-  }
-
-}
-
-void ntp_msg(byte disp)
-{
-  uint8_t dig[4] = {0};
-  switch (disp)
-  {
-    case 0:
-      DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
-      break;
-    case 1:
-      lcd -> clear();
-      lcd -> setCursor(0, 0);
-      
-      st1 = "Sync with NTP";
-      if (conf_data.rus_disp) st1 = "Берем инфу c NTP";
-      lcd -> print(f_dsp.lcd_rus(st1));
-      
-      lcd -> setCursor(2, 1);
-      st1 = "Please wait!";
-      if (conf_data.rus_disp) st1 = "Минуточку!";
-      lcd -> print(f_dsp.lcd_rus(st1));
-      break;
-    case 2:
-      dig[0] = ( numbertable[16]); // "H"
-      dig[1] = ( numbertable[19]); // "t"
-      dig[2] = ( numbertable[22]); // "П"
-      dig[3] = ( numbertable[23]); // "-"
-
-      ht33 -> writeDigitRaw(0, dig[0]);
-      ht33 -> writeDigitRaw(1, dig[1]);
-      ht33 -> writeDigitRaw(3, dig[2]);
-      ht33 -> writeDigitRaw(4, dig[3]);
-      ht33 -> writeDisplay();
-      break;
-    case 3:
-      dig[0] = ( numbertable[16]); // "H"
-      dig[1] = ( numbertable[19]); // "t"
-      dig[2] = ( numbertable[22]); // "П"
-      dig[3] = ( numbertable[23]); // "-"
-
-      //if (conf_data.rus_disp) dig[2] = roll_seg (dig[2]);
-      tm1637 -> setSegments(dig);
-      break;
-    case 4:
-      m7219 -> fillScreen(LOW);
-      m7219 -> setCursor(1, 0);
-      st1 =  "-NTP-";
-      if (conf_data.rus_disp) st1 = "-НТП-";
-      m7219 -> print(f_dsp.utf8rus(st1));
-      m7219 -> write(); // Send bitmap to display
-      break;
-    case 5:
-      dig[0] = ( numbertable[16]); // "H"
-      dig[1] = ( numbertable[19]); // "t"
-      dig[2] = ( numbertable[22]); // "П"
-      dig[3] = ( numbertable[23]); // "-"
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
-      break;
-
-    case 6:
-      dig[0] = ( numbertable[16]); // "H"
-      dig[1] = ( numbertable[19]); // "t"
-      dig[2] = ( numbertable[22]); // "П"
-      dig[3] = ( numbertable[23]); // "-"
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
-      break;
-
-    case 7:
-      digit (0x1, dig[0]);
-      digit (0x3, dig[1]);
-      digit (0x5, dig[2]);
-      digit (0x7, dig[3]);
-      break;
-
-    case 8:
-      m1632 -> clear ();
-      m1632 -> setTextColor(0, 3);
-      m1632 -> setCursor(0, 1);
-      st1 =  "-NTP-";
-      if (conf_data.rus_disp) st1 = "-НТП-";
-      m1632 -> print(f_dsp.utf8rus(st1));
+      st1 = "->TS";
+      if (dir)st1 = "<-TS";
+      m1632 -> print(st1);
       m1632 -> render(); // Send bitmap to display
       break;
 
@@ -184,120 +78,136 @@ void ntp_msg(byte disp)
   }
 }
 
-void sta_msg(byte disp, uint8_t _row, uint8_t _colum, bool sta, uint16_t _delay)
+String ntp_msg(uint8_t disp, uint8_t stage)
 {
-  //  uint8_t            dig[4] = {0};
-  switch (disp) // Отображаем инфу на выбранном дисплее
+  String bstr = String();
+  switch (stage)
   {
     case 0:
-      if (sta) DBG_OUT_PORT.println("Sucsess!");
-      else DBG_OUT_PORT.println("Failed!");
+      switch (disp)
+      {
+        case 0:
+          DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
+          break;
+        case 1:
+          bstr = "Sync with NTP";
+          if (conf_data.rus_disp) bstr = "Берем инфу c NTP ";
+          bstr = "Please wait!";
+          if (conf_data.rus_disp) bstr = "Минуточку! ";
+          break;
+        case 2:
+          bstr = "HtП-";
+          break;
+        case 3:
+          bstr = "HtП-";
+          break;
+        case 4:
+          bstr =  "-NTP-";
+          break;
+        case 5:
+          bstr = "HtП-";
+          break;
+        case 6:
+          bstr = "HtП-";
+          break;
+        case 7:
+          bstr = "HtП-";
+          break;
+        case 8:
+          bstr =  "-NTP-";
+          if (conf_data.rus_disp) bstr = "-НТП-";
+          break;
+        default:
+          DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
+          break;
+      }
       break;
+
     case 1:
-      lcd -> setCursor(_row, _colum);
-      if (sta)
+      switch (disp)
       {
-        st1 = "    Sucsess!    ";
-        if (conf_data.rus_disp) st1 = "    Успешно!    ";
+        case 0:
+          DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
+          break;
+        case 1:
+          bstr = "Sync with NTP";
+          if (conf_data.rus_disp) bstr = "Берем инфу c NTP ";
+          bstr = "Please wait!";
+          if (conf_data.rus_disp) bstr = "Минуточку! ";
+          break;
+        case 2:
+          bstr = "HtП-";
+          break;
+        case 3:
+          bstr = "HtП-";
+          break;
+        case 4:
+          bstr =  "-NTP-";
+          break;
+        case 5:
+          bstr = "HtП-";
+          break;
+        case 6:
+          bstr = "HtП-";
+          break;
+        case 7:
+          bstr = "HtП-";
+          break;
+        case 8:
+          bstr =  "-NTP-";
+          if (conf_data.rus_disp) bstr = "-НТП-";
+          break;
+        default:
+          DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
+          break;
       }
-      else
-      {
-        st1 = "    Failed!     ";
-        if (conf_data.rus_disp) st1 = "    Косяк!      ";
-      }
-      lcd -> print(f_dsp.lcd_rus(st1));
-      delay(_delay);
-      lcd -> clear();
       break;
+
     case 2:
-      if (sta) dig[3] = 0x62; /* u */
-      else     dig[3] = 0x54; /* п */
-      ht33 -> writeDigitRaw(0, dig[0]);
-      ht33 -> writeDigitRaw(1, dig[1]);
-      ht33 -> writeDigitRaw(3, dig[2]);
-      ht33 -> writeDigitRaw(4, dig[3]);
-      ht33 -> writeDisplay();
-      delay(_delay);
-      break;
-    case 3:
-      if (sta) dig[3] = 0x62; /* u */
-      else     dig[3] = 0x54; /* п */
-      //if (conf_data.rus_disp && _row == 0) dig[2] = roll_seg (dig[2]);
-      tm1637 -> setSegments(dig);
-      delay(_delay);
-      break;
-    case 4:
-      m7219 -> fillScreen(LOW);
-      m7219 -> setCursor(_colum, _row);
-      if (sta)
+      switch (disp)
       {
-        st1 = "Sucs!";
-        if (conf_data.rus_disp) st1 = "Успех";
+        case 0:
+          DBG_OUT_PORT.println("Sync with NTP server failed!");
+          break;
+        case 1:
+          bstr = "Sync with NTP";
+          if (conf_data.rus_disp) bstr = "Берем инфу c NTP ";
+          bstr = "Failed!";
+          if (conf_data.rus_disp) bstr = "Неудача! ";
+          break;
+        case 2:
+          bstr = "HtПn";
+          break;
+        case 3:
+          bstr = "HtПn";
+          break;
+        case 4:
+          bstr =  "NTP-x";
+          if (conf_data.rus_disp) bstr = "НТП-x";
+          break;
+        case 5:
+          bstr = "HtПn";
+          break;
+        case 6:
+          bstr = "HtПn";
+          break;
+        case 7:
+          bstr = "HtПn";
+          break;
+        case 8:
+          bstr =  "NTP-x";
+          if (conf_data.rus_disp) bstr = "НТП-x";
+          break;
+        default:
+          DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
+          break;
       }
-      else
-      {
-        st1 = "Fail!";
-        if (conf_data.rus_disp) st1 = "Косяк";
-      }
-      m7219 -> print(f_dsp.utf8rus(st1));
-      m7219 -> write();
-      delay(_delay);
-      m7219 -> fillScreen(LOW);
-      m7219 -> write();
       break;
-
-    case 5:
-      if (sta) dig[3] = 0x62; /* u */
-      else     dig[3] = 0x54; /* п */
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
-      delay(_delay);
-      break;
-
-    case 6:
-      if (sta) dig[3] = 0x62; /* u */
-      else     dig[3] = 0x54; /* п */
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
-      delay(_delay);
-      break;
-
-    case 7:
-      digit (0x1, dig[0]);
-      digit (0x3, dig[1]);
-      digit (0x5, dig[2]);
-      digit (0x7, dig[3]);
-      break;
-
-    case 8:
-      m1632 -> clear();
-      m1632 -> setTextColor(0, 3);
-      m1632 -> setCursor(_colum, _row);
-      if (sta)
-      {
-        st1 = "Sucs!";
-        if (conf_data.rus_disp) st1 = "Успех";
-      }
-      else
-      {
-        st1 = "Fail!";
-        if (conf_data.rus_disp) st1 = "Косяк";
-      }
-      m1632 -> print(f_dsp.utf8rus(st1));
-      m1632 -> render();
-      delay(_delay);
-      m1632 -> clear();
-      m1632 -> render();
-      break;
-
     default:
       DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
       break;
   }
+  return bstr;
 }
 
 void alarm_msg(byte num, byte disp)
@@ -316,28 +226,19 @@ void alarm_msg(byte num, byte disp)
       lcd -> print(f_dsp.lcd_rus(st1));
 
       lcd -> setCursor(2, 1);
-      st1 = "triggered!!!";
-      if (conf_data.rus_disp) st1 = "сработал!!!";
+      st1 = "triggered!!! ";
+      if (conf_data.rus_disp) st1 = "сработал!!! ";
       lcd -> print(f_dsp.lcd_rus(st1));
       break;
     case 2:
-      dig[0] = 0x77; /* A */
-      dig[1] = 0x38; /* L */
-      dig[2] = 0x40; /* - */
-      dig[3] = numbertable[num];
-
-      ht33 -> writeDigitRaw(0, dig[0]);
-      ht33 -> writeDigitRaw(1, dig[1]);
-      ht33 -> writeDigitRaw(3, dig[2]);
-      ht33 -> writeDigitRaw(4, dig[3]);
-      ht33 -> writeDisplay();
+      st1 = "AL-" + String(num);
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 3:
-      dig[0] = 0x77; /* A */
-      dig[1] = 0x38; /* L */
-      dig[2] = 0x40; /* - */
-      dig[3] = numbertable[num];
-      tm1637 -> setSegments(dig);
+      st1 = "AL-" + String(num);
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 4:
       m7219 -> fillScreen(LOW);
@@ -347,30 +248,19 @@ void alarm_msg(byte num, byte disp)
       m7219 -> write(); // Send bitmap to display
       break;
     case 5:
-      dig[0] = 0x77; /* A */
-      dig[1] = 0x38; /* L */
-      dig[2] = 0x40; /* - */
-      dig[3] = numbertable[num];
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      st1 = "AL-" + String(num);
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 6:
-      dig[0] = 0x77; /* A */
-      dig[1] = 0x38; /* L */
-      dig[2] = 0x40; /* - */
-      dig[3] = numbertable[num];
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      st1 = "AL-" + String(num);
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 7:
-      digit (0x1, dig[0]);
-      digit (0x3, dig[1]);
-      digit (0x5, dig[2]);
-      digit (0x7, dig[3]);
+      st1 = "AL-" + String(num);
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 8:
       m1632 -> clear();
@@ -471,17 +361,16 @@ void wifi_conn( byte par, byte sta, byte disp)
       switch (par) // Отображаем инфу выбранного параметра
       {
         case 1:
-          DBG_OUT_PORT.println();
-          DBG_OUT_PORT.printf( "True connect to %s", " ", conf_data.sta_ssid);
+          DBG_OUT_PORT.printf("\n True connect to %s", " ", conf_data.sta_ssid);
           break;
         case 2:
-          DBG_OUT_PORT.print( " True create a SoftAP " );
+          DBG_OUT_PORT.printf("\n True create a SoftAP %s", " ", conf_data.ap_ssid);
           break;
         case 3:
           DBG_OUT_PORT.print(sta);
           break;
         case 4:
-          DBG_OUT_PORT.print( " IP : " );
+          DBG_OUT_PORT.print( "\n IP : " );
           DBG_OUT_PORT.println(IP_Addr);
           break;
         case 5:
@@ -502,14 +391,14 @@ void wifi_conn( byte par, byte sta, byte disp)
         lcd -> clear();
         lcd -> setCursor(0, 0);
       }
-      if ( par == 1)
-      { 
+      if (par == 1)
+      {
         st1 = "True connect to";
         if (conf_data.rus_disp) st1 = "Подключаемся к";
       }
       lcd -> print(f_dsp.lcd_rus(st1));
 
-      if ( par == 2)
+      if (par == 2)
       {
         st1 = " True create a";
         if (conf_data.rus_disp) st1 = "Создаем";
@@ -518,16 +407,16 @@ void wifi_conn( byte par, byte sta, byte disp)
 
       if (par < 3) lcd -> setCursor(0, 1);
 
-      if ( par == 1) lcd -> print( conf_data.sta_ssid );
+      if (par == 1) lcd -> print( conf_data.sta_ssid );
 
-      if ( par == 2)
+      if (par == 2)
       {
         st1 = "SoftAP";
         if (conf_data.rus_disp) st1 = "точку доступа";
       }
       lcd -> print(f_dsp.lcd_rus(st1));
 
-      if ( par == 3)
+      if (par == 3)
       {
         lcd -> setCursor(15, 1);
         lcd -> print(sta);
@@ -538,95 +427,74 @@ void wifi_conn( byte par, byte sta, byte disp)
         lcd -> setCursor(0, 0);
         lcd -> print( "IP: ");
         lcd -> print(IP_Addr[3]);
-        sta_msg(disp, 0, 1, true, 2000);
+        // sta_msg(disp, true); //////////////////////
       }
 
       if (par == 6)
       {
         lcd -> clear();
-        sta_msg(disp, 0, 1, false, 2000);
+        // sta_msg(disp, false); //////////////////////
       }
       break;
     case 2:
       switch (par) // Отображаем инфу выбранного параметра
       {
         case 1:
-          dig[0] = 0x39; // C /
-          dig[1] = 0x38; // L /
-          procherk(2, 2);
+          st1 = "CL--";
           break;
         case 2:
-          dig[0] = 0x77; // A /
-          dig[1] = 0x73; // P /
-          procherk(2, 2);
+          st1 = "AP--";
           break;
         case 3:
-          dig[3] = numbertable[sta];
+          st1 = String(sta);
           break;
         case 4:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); /////////////////////////////
           break;
         case 5:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); ////////////////////////////
           break;
         case 6:
-          sta_msg(disp, 0, 0, false, 2000);
+          //sta_msg(disp, false); ///////////////////////////
           break;
         default:
           DBG_OUT_PORT.printf("Invalid par type %u/n", par);
           break;
       }
-
-      ht33 -> writeDigitRaw(0, dig[0]);
-      ht33 -> writeDigitRaw(1, dig[1]);
-      ht33 -> writeDigitRaw(3, dig[2]);
-      ht33 -> writeDigitRaw(4, dig[3]);
-      ht33 -> writeDisplay();
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 3:
       switch (par) // Отображаем инфу выбранного параметра
       {
         case 1:
-          dig[0] = 0x39; // C /
-          dig[1] = 0x38; // L /
-          procherk(2, 2);
+          st1 = "CL--";
           break;
         case 2:
-          dig[0] = 0x77; // A /
-          dig[1] = 0x73; // P /
-          procherk(2, 2);
+          st1 = "AP--";
           break;
         case 3:
-          dig[3] = numbertable[sta];
+          st1 = String(sta);
           break;
         case 4:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); ///////////////////////
           break;
         case 5:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); //////////////////////
           break;
         case 6:
-          sta_msg(disp, 0, 0, false, 2000);
+          //sta_msg(disp, false); /////////////////////
           break;
         default:
           DBG_OUT_PORT.printf("Invalid par type %u/n", par);
           break;
       }
-
-      //if (conf_data.rus_disp) dig[2] = roll_seg (dig[2]);
-      tm1637 -> setSegments(dig);
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 4:
       switch (par) // Отображаем инфу выбранного параметра
@@ -661,7 +529,7 @@ void wifi_conn( byte par, byte sta, byte disp)
           delay(2000);
           break;
         case 6:
-          sta_msg(disp, 1, 0, false, 2000);
+          //sta_msg(disp, false); ////////////////////////////////
           break;
         default:
           DBG_OUT_PORT.printf("Invalid par type %u/n", par);
@@ -673,82 +541,61 @@ void wifi_conn( byte par, byte sta, byte disp)
       switch (par) // Отображаем инфу выбранного параметра
       {
         case 1:
-          dig[0] = 0x39; // C /
-          dig[1] = 0x38; // L /
-          procherk(2, 2);
+          st1 = "CL--";
           break;
         case 2:
-          dig[0] = 0x77; // A /
-          dig[1] = 0x73; // P /
-          procherk(2, 2);
+          st1 = "AP--";
           break;
         case 3:
-          dig[3] = numbertable[sta];
+          st1 = String(sta);
           break;
         case 4:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); /////////////////////////////////////////
           break;
         case 5:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); /////////////////////////////////////////
           break;
         case 6:
-          sta_msg(disp, 0, 0, false, 2000);
+          //sta_msg(disp, false); /////////////////////////////////////////
           break;
         default:
           DBG_OUT_PORT.printf("Invalid par type %u/n", par);
           break;
       }
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
     case 6:
       switch (par) // Отображаем инфу выбранного параметра
       {
         case 1:
-          dig[0] = 0x39; // C /
-          dig[1] = 0x38; // L /
-          procherk(2, 2);
+          st1 = "CL--";
           break;
         case 2:
-          dig[0] = 0x77; // A /
-          dig[1] = 0x73; // P /
-          procherk(2, 2);
+          st1 = "AP--";
           break;
         case 3:
-          dig[3] = numbertable[sta];
+          st1 = String(sta);
           break;
         case 4:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); //////////////////////////////////
           break;
         case 5:
-          dig[0] = ( numbertable[IP_Addr[3] / 100]);
-          dig[1] = ( numbertable[(IP_Addr[3] / 10) % 10]);
-          dig[2] = ( numbertable[IP_Addr[3] % 10]);
-          sta_msg(disp, 0, 0, true, 2000);
+          st1 = String(IP_Addr[3]);
+          //sta_msg(disp, true); //////////////////////////////////
           break;
         case 6:
-          sta_msg(disp, 0, 0, false, 2000);
+          //sta_msg(disp, false); //////////////////////////////////
           break;
         default:
           DBG_OUT_PORT.printf("Invalid par type %u/n", par);
           break;
       }
-
-      max7 -> setRow(0, 0, f_dsp.mir_seg(dig[0]));
-      max7 -> setRow(0, 1, f_dsp.mir_seg(dig[1]));
-      max7 -> setRow(0, 2, f_dsp.mir_seg(dig[2]));
-      max7 -> setRow(0, 3, f_dsp.mir_seg(dig[3]));
+      s7dig = f_dsp.prn7(st1);
+      s7_write_all(disp, s7dig);
       break;
 
     case 7:
@@ -790,7 +637,7 @@ void wifi_conn( byte par, byte sta, byte disp)
           delay(2000);
           break;
         case 6:
-          sta_msg(disp, 1, 0, false, 2000);
+          //sta_msg(disp, false);///////////////////////////////////////////
           break;
         default:
           DBG_OUT_PORT.printf("Invalid par type %u/n", par);
