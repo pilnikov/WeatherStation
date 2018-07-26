@@ -8,6 +8,11 @@
 #include <WProgram.h>
 #endif
 
+typedef struct
+{
+  byte dig[8];
+} scr_buff_t;
+
 class FD
 {
   public:
@@ -27,7 +32,9 @@ class FD
     render_00number(int),  // Форматирование в  два знакоместа
     form_time_string(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, bool, bool), // Формирование строки с текущим временем для LCD
     IP_to_str (byte, byte, byte, byte); // Формирование строки IP адреса
-  private:
+    scr_buff_t prn7(String); // Печать на семисегментном дисплее
+
+	private:
   protected:
 };
 extern FD fdisp;
