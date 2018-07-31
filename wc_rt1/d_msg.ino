@@ -1,84 +1,5 @@
 
-void ts_msg(byte disp, bool dir)
-{
-  switch (disp)
-  {
-    case 0:
-      if (dir) DBG_OUT_PORT.println("True get data from TS. Please wait!");
-      else DBG_OUT_PORT.println("True put data to TS. Please wait!");
-      break;
-    case 1:
-      lcd -> clear();
-      lcd -> setCursor(0, 0);
-      st1 = "Put data to TS";
-      if (conf_data.rus_disp) st1 = "Шлем инфу на TS ";
-      if (dir)
-      {
-        st1 = "Get data from TS";
-        if (conf_data.rus_disp) st1 = "Берем инфу c TS ";
-      }
-      lcd -> print(f_dsp.lcd_rus(st1));
-
-      lcd -> setCursor(2, 1);
-      st1 = "Please wait!";
-      if (conf_data.rus_disp) st1 = "Минуточку! ";
-      lcd -> print(f_dsp.lcd_rus(st1));
-      break;
-    case 2:
-      st1 = "> tS";
-      if (dir)st1 = "< tS";
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 3:
-      st1 = "> tS";
-      if (dir)st1 = "< tS";
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 4:
-      m7219 -> fillScreen(LOW);
-      m7219 -> setCursor(3, 0);
-      st1 = "->TS";
-      if (dir)st1 = "<-TS";
-      m7219 -> print(st1);
-      m7219 -> write(); // Send bitmap to display
-      break;
-    case 5:
-      st1 = "> tS";
-      if (dir)st1 = "< tS";
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 6:
-      st1 = "> tS";
-      if (dir)st1 = "< tS";
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 7:
-      st1 = "> tS";
-      if (dir)st1 = "< tS";
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 8:
-      m1632 -> clear();
-      m1632 -> setTextColor(0, 3);
-      m1632 -> setCursor(3, 0);
-      st1 = "->TS";
-      if (dir)st1 = "<-TS";
-      m1632 -> print(st1);
-      m1632 -> render(); // Send bitmap to display
-      break;
-
-    default:
-      DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
-      break;
-  }
-}
-
-String ntp_msg(uint8_t disp, uint8_t stage)
+String callback(uint8_t disp, uint8_t type, uint8_t stage)
 {
   String bstr = String();
   switch (stage)
@@ -87,35 +8,187 @@ String ntp_msg(uint8_t disp, uint8_t stage)
       switch (disp)
       {
         case 0:
-          DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
+          switch (type)
+          {
+            case 0:
+              DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
+              break;
+            case 1:
+              DBG_OUT_PORT.println("True Put data to TS. Please wait!");
+              break;
+            case 2:
+              DBG_OUT_PORT.println("True Get data from TS. Please wait!");
+              break;
+            case 3:
+              DBG_OUT_PORT.println("True connect to WiFi. Please wait!");
+              break;
+            case 4:
+              DBG_OUT_PORT.println("True create a AP. Please wait!");
+              break;
+          }
           break;
         case 1:
-          bstr = "Sync with NTP";
-          if (conf_data.rus_disp) bstr = "Берем инфу c NTP ";
-          bstr = "Please wait!";
-          if (conf_data.rus_disp) bstr = "Минуточку! ";
+          switch (type)
+          {
+            case 0:
+              bstr = "Sync with NTP ";
+              if (conf_data.rus_disp) bstr = "Сверяемся c НТП ";
+              break;
+            case 1:
+              st1 = "Put data to TS ";
+              if (conf_data.rus_disp) st1 = "Шлем инфу на TS ";
+              break;
+            case 2:
+              st1 = "Get data from TS ";
+              if (conf_data.rus_disp) st1 = "Берем инфу c TS ";
+              break;
+            case 3:
+              st1 = "True con to WiFi ";
+              if (conf_data.rus_disp) st1 = "Цепляемся к WiFi ";
+              break;
+            case 4:
+              st1 = "True create a AP ";
+              if (conf_data.rus_disp) st1 = "Создаем Точку ";
+              break;
+          }
           break;
         case 2:
-          bstr = "HtП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 3:
-          bstr = "HtП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 4:
-          bstr =  "-NTP-";
+          switch (type)
+          {
+            case 0:
+              bstr = "<-NTP";
+            case 1:
+              bstr = "TS ->";
+              break;
+            case 2:
+              bstr = "TS ->";
+              break;
+            case 3:
+              bstr = "<- CL";
+              break;
+            case 4:
+              bstr = "AP ->";
+              break;
+          }
           break;
         case 5:
-          bstr = "HtП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 6:
-          bstr = "HtП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 7:
-          bstr = "HtП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 8:
-          bstr =  "-NTP-";
-          if (conf_data.rus_disp) bstr = "-НТП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "<-NTP";
+            case 1:
+              bstr = "TS ->";
+              break;
+            case 2:
+              bstr = "TS ->";
+              break;
+            case 3:
+              bstr = "<- CL";
+              break;
+            case 4:
+              bstr = "AP ->";
+              break;
+          }
           break;
         default:
           DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
@@ -127,35 +200,188 @@ String ntp_msg(uint8_t disp, uint8_t stage)
       switch (disp)
       {
         case 0:
-          DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
+          switch (type)
+          {
+            case 0:
+              DBG_OUT_PORT.println("Sync with NTP server. Sucsess!");
+              break;
+            case 1:
+              DBG_OUT_PORT.println("Put data to TS. Sucsess!");
+              break;
+            case 2:
+              DBG_OUT_PORT.println("Get data from TS. Sucsess!");
+              break;
+            case 3:
+              DBG_OUT_PORT.println("Connect to WiFi. Sucsess!");
+              break;
+            case 4:
+              DBG_OUT_PORT.println("Create a AP. Sucsess!");
+              break;
+          }
           break;
         case 1:
-          bstr = "Sync with NTP";
-          if (conf_data.rus_disp) bstr = "Берем инфу c NTP ";
-          bstr = "Please wait!";
-          if (conf_data.rus_disp) bstr = "Минуточку! ";
+          switch (type)
+          {
+            case 0:
+              bstr = "Time from NTP OK ";
+              if (conf_data.rus_disp) bstr = "Сверка c НТП OK ";
+              break;
+            case 1:
+              st1 = "Data to TS OK! ";
+              if (conf_data.rus_disp) st1 = "Инфа на TS OK! ";
+              break;
+            case 2:
+              st1 = "Data from TS OK! ";
+              if (conf_data.rus_disp) st1 = "Инфа c TS OK! ";
+              break;
+            case 3:
+              st1 = "WiFi connected! ";
+              if (conf_data.rus_disp) st1 = "WiFi подключено! ";
+              break;
+            case 4:
+              st1 = "AP created! ";
+              if (conf_data.rus_disp) st1 = "Точка создана! ";
+              break;
+          }
           break;
         case 2:
-          bstr = "HtП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtПu";
+              break;
+            case 1:
+              bstr = "tS>u";
+              break;
+            case 2:
+              bstr = "<tSu";
+              break;
+            case 3:
+              bstr = "<CLu";
+              break;
+            case 4:
+              bstr = "AP>u";
+              break;
+          }
           break;
         case 3:
-          bstr = "HtП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtПu";
+              break;
+            case 1:
+              bstr = "tS>u";
+              break;
+            case 2:
+              bstr = "<tSu";
+              break;
+            case 3:
+              bstr = "<CLu";
+              break;
+            case 4:
+              bstr = "AP>u";
+              break;
+          }
           break;
         case 4:
-          bstr =  "-NTP-";
+          switch (type)
+          {
+              case 0:
+              bstr = "HtПu";
+              break;
+            case 1:
+              bstr = "tS>u";
+              break;
+            case 2:
+              bstr = "<tSu";
+              break;
+            case 3:
+              bstr = "<CLu";
+              break;
+            case 4:
+              bstr = "AP>u";
+              break;
+          }
           break;
         case 5:
-          bstr = "HtП-";
+          switch (type)
+          {
+             case 0:
+              bstr = "HtПu";
+              break;
+            case 1:
+              bstr = "tS>u";
+              break;
+            case 2:
+              bstr = "<tSu";
+              break;
+            case 3:
+              bstr = "<CLu";
+              break;
+            case 4:
+              bstr = "AP>u";
+              break;
+          }
           break;
         case 6:
-          bstr = "HtП-";
+          switch (type)
+          {
+             case 0:
+              bstr = "HtПu";
+              break;
+            case 1:
+              bstr = "tS>u";
+              break;
+            case 2:
+              bstr = "<tSu";
+              break;
+            case 3:
+              bstr = "<CLu";
+              break;
+            case 4:
+              bstr = "AP>u";
+              break;
+          }
           break;
         case 7:
-          bstr = "HtП-";
+          switch (type)
+          {
+             case 0:
+              bstr = "HtПu";
+              break;
+            case 1:
+              bstr = "tS>u";
+              break;
+            case 2:
+              bstr = "<tSu";
+              break;
+            case 3:
+              bstr = "<CLu";
+              break;
+            case 4:
+              bstr = "AP>u";
+              break;
+          }
           break;
         case 8:
-          bstr =  "-NTP-";
-          if (conf_data.rus_disp) bstr = "-НТП-";
+          switch (type)
+          {
+            case 0:
+              bstr = "<-NTP";
+            case 1:
+              bstr = "TS ->";
+              break;
+            case 2:
+              bstr = "TS ->";
+              break;
+            case 3:
+              bstr = "<- CL";
+              break;
+            case 4:
+              bstr = "AP ->";
+              break;
+          }
           break;
         default:
           DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
@@ -167,42 +393,194 @@ String ntp_msg(uint8_t disp, uint8_t stage)
       switch (disp)
       {
         case 0:
-          DBG_OUT_PORT.println("Sync with NTP server failed!");
+          switch (type)
+          {
+            case 0:
+              DBG_OUT_PORT.println("True sync with NTP server. Please wait!");
+              break;
+            case 1:
+              DBG_OUT_PORT.println("True Put data to TS. Please wait!");
+              break;
+            case 2:
+              DBG_OUT_PORT.println("True Get data from TS. Please wait!");
+              break;
+            case 3:
+              DBG_OUT_PORT.println("True connect to WiFi. Please wait!");
+              break;
+            case 4:
+              DBG_OUT_PORT.println("True create a AP. Please wait!");
+              break;
+          }
           break;
         case 1:
-          bstr = "Sync with NTP";
-          if (conf_data.rus_disp) bstr = "Берем инфу c NTP ";
-          bstr = "Failed!";
-          if (conf_data.rus_disp) bstr = "Неудача! ";
+          switch (type)
+          {
+            case 0:
+              bstr = "Sync with NTP";
+              if (conf_data.rus_disp) bstr = "Сверяемся c НТП ";
+              break;
+            case 1:
+              st1 = "Put data to TS";
+              if (conf_data.rus_disp) st1 = "Шлем инфу на TS ";
+              break;
+            case 2:
+              st1 = "Get data from TS";
+              if (conf_data.rus_disp) st1 = "Берем инфу c TS ";
+              break;
+            case 3:
+              st1 = "True con to WiFi";
+              if (conf_data.rus_disp) st1 = "Цепляемся к WiFi ";
+              break;
+            case 4:
+              st1 = "True create a AP";
+              if (conf_data.rus_disp) st1 = "Создаем Точку ";
+              break;
+          }
           break;
         case 2:
-          bstr = "HtПn";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 3:
-          bstr = "HtПn";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 4:
-          bstr =  "NTP-x";
-          if (conf_data.rus_disp) bstr = "НТП-x";
+          switch (type)
+          {
+            case 0:
+              bstr = "<-NTP";
+            case 1:
+              bstr = "TS ->";
+              break;
+            case 2:
+              bstr = "TS ->";
+              break;
+            case 3:
+              bstr = "<- CL";
+              break;
+            case 4:
+              bstr = "AP ->";
+              break;
+          }
           break;
         case 5:
-          bstr = "HtПn";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 6:
-          bstr = "HtПn";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 7:
-          bstr = "HtПn";
+          switch (type)
+          {
+            case 0:
+              bstr = "HtП-";
+              break;
+            case 1:
+              bstr = "tS >";
+              break;
+            case 2:
+              bstr = "< tS";
+              break;
+            case 3:
+              bstr = "< CL";
+              break;
+            case 4:
+              bstr = "AP >";
+              break;
+          }
           break;
         case 8:
-          bstr =  "NTP-x";
-          if (conf_data.rus_disp) bstr = "НТП-x";
+          switch (type)
+          {
+            case 0:
+              bstr = "<-NTP";
+            case 1:
+              bstr = "TS ->";
+              break;
+            case 2:
+              bstr = "TS ->";
+              break;
+            case 3:
+              bstr = "<- CL";
+              break;
+            case 4:
+              bstr = "AP ->";
+              break;
+          }
           break;
         default:
           DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
           break;
       }
       break;
+
     default:
       DBG_OUT_PORT.printf("Invalid display type %u\n", disp);
       break;
@@ -350,304 +728,3 @@ String pr_str(uint8_t num)
   }
   return str;
 }
-
-//--------------------------------------------------------------------
-
-void wifi_conn( byte par, byte sta, byte disp)
-{
-  switch (disp) // Отображаем инфу на выбранном дисплее
-  {
-    case 0:
-      switch (par) // Отображаем инфу выбранного параметра
-      {
-        case 1:
-          DBG_OUT_PORT.printf("\n True connect to %s", " ", conf_data.sta_ssid);
-          break;
-        case 2:
-          DBG_OUT_PORT.printf("\n True create a SoftAP %s", " ", conf_data.ap_ssid);
-          break;
-        case 3:
-          DBG_OUT_PORT.print(sta);
-          break;
-        case 4:
-          DBG_OUT_PORT.print( "\n IP : " );
-          DBG_OUT_PORT.println(IP_Addr);
-          break;
-        case 5:
-          DBG_OUT_PORT.print( " IP : " );
-          DBG_OUT_PORT.println(IP_Addr);
-          break;
-        case 6:
-          DBG_OUT_PORT.println(" Failed");
-          break;
-        default:
-          DBG_OUT_PORT.printf("Invalid par type %u/n", par);
-          break;
-      }
-      break;
-    case 1:
-      if (par < 3)
-      {
-        lcd -> clear();
-        lcd -> setCursor(0, 0);
-      }
-      if (par == 1)
-      {
-        st1 = "True connect to";
-        if (conf_data.rus_disp) st1 = "Подключаемся к";
-      }
-      lcd -> print(f_dsp.lcd_rus(st1));
-
-      if (par == 2)
-      {
-        st1 = " True create a";
-        if (conf_data.rus_disp) st1 = "Создаем";
-      }
-      lcd -> print(f_dsp.lcd_rus(st1));
-
-      if (par < 3) lcd -> setCursor(0, 1);
-
-      if (par == 1) lcd -> print( conf_data.sta_ssid );
-
-      if (par == 2)
-      {
-        st1 = "SoftAP";
-        if (conf_data.rus_disp) st1 = "точку доступа";
-      }
-      lcd -> print(f_dsp.lcd_rus(st1));
-
-      if (par == 3)
-      {
-        lcd -> setCursor(15, 1);
-        lcd -> print(sta);
-      }
-      if (par == 4 || par == 5)
-      {
-        lcd -> clear();
-        lcd -> setCursor(0, 0);
-        lcd -> print( "IP: ");
-        lcd -> print(IP_Addr[3]);
-        // sta_msg(disp, true); //////////////////////
-      }
-
-      if (par == 6)
-      {
-        lcd -> clear();
-        // sta_msg(disp, false); //////////////////////
-      }
-      break;
-    case 2:
-      switch (par) // Отображаем инфу выбранного параметра
-      {
-        case 1:
-          st1 = "CL--";
-          break;
-        case 2:
-          st1 = "AP--";
-          break;
-        case 3:
-          st1 = String(sta);
-          break;
-        case 4:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); /////////////////////////////
-          break;
-        case 5:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); ////////////////////////////
-          break;
-        case 6:
-          //sta_msg(disp, false); ///////////////////////////
-          break;
-        default:
-          DBG_OUT_PORT.printf("Invalid par type %u/n", par);
-          break;
-      }
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 3:
-      switch (par) // Отображаем инфу выбранного параметра
-      {
-        case 1:
-          st1 = "CL--";
-          break;
-        case 2:
-          st1 = "AP--";
-          break;
-        case 3:
-          st1 = String(sta);
-          break;
-        case 4:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); ///////////////////////
-          break;
-        case 5:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); //////////////////////
-          break;
-        case 6:
-          //sta_msg(disp, false); /////////////////////
-          break;
-        default:
-          DBG_OUT_PORT.printf("Invalid par type %u/n", par);
-          break;
-      }
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 4:
-      switch (par) // Отображаем инфу выбранного параметра
-      {
-        case 1:
-          m7219 -> fillScreen(LOW);
-          m7219 -> setCursor(1, 0);
-          m7219 -> print("CL--");
-          break;
-        case 2:
-          m7219 -> fillScreen(LOW);
-          m7219 -> setCursor(1, 0);
-          m7219 -> print("AP--");
-          break;
-        case 3:
-          m7219 -> drawChar(25, -1, (sta == 3 ? 'v' : 'x'), HIGH, LOW, 1);
-          break;
-        case 4:
-          m7219 -> fillScreen(LOW);
-          m7219 -> setCursor(1, 0);
-          m7219 -> print("CL");
-          m7219 -> print(IP_Addr[3]);
-          m7219 -> write(); // Send bitmap to display
-          delay(2000);
-          break;
-        case 5:
-          m7219 -> fillScreen(LOW);
-          m7219 -> setCursor(1, 0);
-          m7219 -> print("AP");
-          m7219 -> print(IP_Addr[3]);
-          m7219 -> write(); // Send bitmap to display
-          delay(2000);
-          break;
-        case 6:
-          //sta_msg(disp, false); ////////////////////////////////
-          break;
-        default:
-          DBG_OUT_PORT.printf("Invalid par type %u/n", par);
-          break;
-      }
-      m7219 -> write(); // Send bitmap to display
-      break;
-    case 5:
-      switch (par) // Отображаем инфу выбранного параметра
-      {
-        case 1:
-          st1 = "CL--";
-          break;
-        case 2:
-          st1 = "AP--";
-          break;
-        case 3:
-          st1 = String(sta);
-          break;
-        case 4:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); /////////////////////////////////////////
-          break;
-        case 5:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); /////////////////////////////////////////
-          break;
-        case 6:
-          //sta_msg(disp, false); /////////////////////////////////////////
-          break;
-        default:
-          DBG_OUT_PORT.printf("Invalid par type %u/n", par);
-          break;
-      }
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-    case 6:
-      switch (par) // Отображаем инфу выбранного параметра
-      {
-        case 1:
-          st1 = "CL--";
-          break;
-        case 2:
-          st1 = "AP--";
-          break;
-        case 3:
-          st1 = String(sta);
-          break;
-        case 4:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); //////////////////////////////////
-          break;
-        case 5:
-          st1 = String(IP_Addr[3]);
-          //sta_msg(disp, true); //////////////////////////////////
-          break;
-        case 6:
-          //sta_msg(disp, false); //////////////////////////////////
-          break;
-        default:
-          DBG_OUT_PORT.printf("Invalid par type %u/n", par);
-          break;
-      }
-      s7dig = f_dsp.prn7(st1);
-      s7_write_all(disp, s7dig);
-      break;
-
-    case 7:
-      break;
-    case 8:
-      switch (par) // Отображаем инфу выбранного параметра
-      {
-        case 1:
-          m1632 -> clear();
-          m1632 -> setTextColor(0, 3);
-          m1632 -> setCursor(1, 0);
-          m1632 -> print("CL--");
-          break;
-        case 2:
-          m1632 -> clear();
-          m1632 -> setTextColor(0, 3);
-          m1632 -> setCursor(1, 0);
-          m1632 -> print("AP--");
-          break;
-        case 3:
-          m1632 -> drawChar(25, -1, (sta == 3 ? 'v' : 'x'), 0, 3, 1);
-          break;
-        case 4:
-          m1632 -> clear();
-          m1632 -> setTextColor(0, 3);
-          m1632 -> setCursor(1, 0);
-          m1632 -> print("CL");
-          m1632 -> print(IP_Addr[3]);
-          m1632 -> render(); // Send bitmap to display
-          delay(2000);
-          break;
-        case 5:
-          m1632 -> clear();
-          m1632 -> setTextColor(0, 3);
-          m1632 -> setCursor(1, 0);
-          m1632 -> print("AP");
-          m1632 -> print(IP_Addr[3]);
-          m1632 -> render(); // Send bitmap to display
-          delay(2000);
-          break;
-        case 6:
-          //sta_msg(disp, false);///////////////////////////////////////////
-          break;
-        default:
-          DBG_OUT_PORT.printf("Invalid par type %u/n", par);
-          break;
-      }
-      m1632 -> render(); // Send bitmap to display
-      break;
-    default:
-      DBG_OUT_PORT.printf("Invalid display type %u/n", disp);
-      break;
-  }
-}
-

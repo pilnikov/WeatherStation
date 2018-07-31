@@ -10,11 +10,9 @@ void sevenseg_init();
 String dow_sel(uint8_t);
 uint8_t mod_sel();
 
-void ts_msg(byte, bool);
-String ntp_msg(uint8_t, uint8_t);
+String callback(uint8_t, uint8_t uint8_t);
 void alarm_msg(byte, byte);
 String pr_str(uint8_t);
-void wifi_conn(byte, byte, byte);
 
 scr_buff_t ss_prep();
 void sevenseg();
