@@ -36,14 +36,13 @@ LCD I2C 16х2 дисплеи со встроеным знакогенерато�
 
 Потихоньку переползаем на ЕSP32
 
-
 Немного мультиков
 https://yadi.sk/i/UXBMaSDD3HfCZC
 https://yadi.sk/i/Ew0egvWq3Hg48u
 https://yadi.sk/i/os1wRLuz3Hg493
 
-
 Куда чего подключать смотрим в Conf.h
+
 Файлы из папки Data необходимо залить на SPIFFS плагином "ESP8266 sketch data uploader" https://github.com/esp8266/arduino-esp8266fs-plugin
 
 Подключение к WiFi через коннект менеджер (подробности тут https://github.com/tzapu/WiFiManager/tree/development)
