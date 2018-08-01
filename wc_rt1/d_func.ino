@@ -11,21 +11,21 @@ uint16_t auto_br(uint16_t lt, uint16_t lev[4])
 }
 
 //-------------------------------------------------------------- Смена содержимого экрана для 7 сегментников
-uint8_t mod_sel()
+uint8_t mod_sel(uint8_t mod)
 {
-  if (millis() - irq_end[0] > 5000)
+  if (mod != 0 & (millis() - irq_end[0] > 5000) || (mod == 0 & (millis() - irq_end[0] > 35000)))
   {
-    disp_mode++;
-    if (nm_is_on || disp_mode > 6 || second() > 35) disp_mode = 0;
+    mod++;
+    if (nm_is_on || mod > 6) mod = 0;
     irq_end[0] = millis();
   }
-  return disp_mode;
+  return mod;
 }
 
 //-------------------------------------------------------------- Выбор дня недели
 String dow_sel(uint8_t _dow)
 {
-  const String ndow[7] = {"Bc", "ПН", "Bt", "CP", "Чt", "Пt", "СБ"};
+  const String ndow[7] = {"Bc", "пН", "Bt", "сP", "Чt", "пt", "сБ"};
 
   String sbuf = ndow[_dow - 1];
 

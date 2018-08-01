@@ -8,11 +8,11 @@
 
 void sevenseg_init();
 String dow_sel(uint8_t);
-uint8_t mod_sel();
+uint8_t mod_sel(uint8_t);
 
 String pr_str(uint8_t);
 
-scr_buff_t ss_prep();
+scr_buff_t ss_prep(uint8_t);
 void sevenseg();
 
 void lcd_init();

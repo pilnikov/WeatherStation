@@ -103,11 +103,11 @@ void sevenseg_init()
   }
 }
 
-scr_buff_t ss_prep()
+scr_buff_t ss_prep(uint8_t mod)
 {
   String bstr = String();
 
-  switch (mod_sel())
+  switch (mod)
   {
     case 1: //Внутренняя температура
       bstr = "t" + (snr_data.t1 < 0 ? String("-") : String(" ")) + (snr_data.t1 < 99 ? String(abs(snr_data.t1)) : String("--"));
@@ -126,7 +126,8 @@ scr_buff_t ss_prep()
 
     case 4: //Внешняя влажность
       bstr = "H. " + (snr_data.h2 > 0 ? String(snr_data.h2) : String("--"));
-      if (ram_data.type_disp == 6) bstr = dow_sel(weekday()) + String(day()) + String(month()) + String(year() % 100);
+      if (ram_data.type_disp == 6) bstr = dow_sel(weekday()) + (day() < 10 ? String("0") : String("")) +
+                                            String(day()) + (month() < 10 ? String("0") : String("")) + String(month()) + String(year() % 100);
       break;
 
     case 5: //Давление
@@ -143,7 +144,7 @@ scr_buff_t ss_prep()
       break;
 
     case 6: //День недели, дата
-      bstr = dow_sel(weekday()) + String(day());
+      bstr = dow_sel(weekday()) + (day() < 10 ? String("0") : String("")) + String(day());
       if (ram_data.type_disp == 6)
       {
         uint8_t h = hour();
@@ -156,7 +157,7 @@ scr_buff_t ss_prep()
       break;
 
     case 7: //Месяц, год
-      bstr = String(month()) + String(year() % 100);
+      bstr = (month() < 10 ? String("0") : String("")) + String(month()) + String(year() % 100);
       if (ram_data.type_disp == 6)
       {
         uint8_t h = hour();
@@ -183,11 +184,12 @@ scr_buff_t ss_prep()
 
     case 9: //Актуальный будильник
       if (rtc_data.a_hour == 62 && rtc_data.a_min == 62) bstr = "AL--";
-      else bstr = String(rtc_data.a_hour) + String(rtc_data.a_min);
+      else bstr = (rtc_data.a_hour < 10 ? String(" ") : String("")) + String(rtc_data.a_hour) + (rtc_data.a_min < 10 ? String("0") : String(""))
+                    + String(rtc_data.a_min);
       break;
 
     case 10: //Текущая яркость
-      bstr = "L " + String(cur_br);
+      bstr = "L " + (cur_br < 10 ? String(" ") : String("")) + String(cur_br);
       break;
 
     default://Текущее время
@@ -206,7 +208,8 @@ scr_buff_t ss_prep()
 
 void sevenseg()
 {
-  scr_buff_t buf2 = ss_prep();
+  disp_mode = mod_sel(disp_mode);
+  scr_buff_t buf2 = ss_prep(disp_mode);
 
   //---------------------------------------------------- Двоеточие
   if (ram_data.type_disp != 6)

@@ -336,12 +336,14 @@ void keyb_read()
 
   if (!but0_pressed && but0_press && millis() - setting_ms > 150 && millis() - setting_ms < 400) // держим от 0,15 до 0,4 сек
   {
-    num_st ++;    // перебираем строки на матрицах и LCD
     disp_mode ++; // меняем содержимое экрана на 7ми сегментных индикаторах
-
     if (disp_mode > 10) disp_mode = 0;
-    if (num_st    >  4) num_st    = 1;
+    irq_end[0] = millis();
 
+    num_st ++;    // перебираем строки на матрицах и LCD
+    if (num_st    >  4) num_st    = 1;
+    st1 = pr_str(num_st);
+    cur_sym_pos[0] = 0;
     end_run_st = false; //Запуск бегущей строки;
 
     but0_press = but0_pressed;
