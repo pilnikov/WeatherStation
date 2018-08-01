@@ -38,4 +38,17 @@ class FD
   protected:
 };
 extern FD fdisp;
+
+class MSG // Сообщения на индикатор
+{
+  public:
+  String 
+	callback(uint8_t, uint8_t, uint8_t, bool), 
+	alarm_msg(uint8_t, uint8_t, bool); // Номер активного будильника
+	private:
+  protected:
+};
+extern MSG mdisp;
+
+
 #endif
