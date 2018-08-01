@@ -8,10 +8,10 @@ void GetSnr()
   {
     if (ram_data.type_int_snr == 1 || ram_data.type_ext_snr == 1 || ram_data.type_prs_snr == 1)
     {
-      callback(ram_data.type_disp, 2, 0); // сообщение на индикатор о начале обмена с TS
+      dmsg.callback(ram_data.type_disp, 2, 0, conf_data.rus_disp); // сообщение на индикатор о начале обмена с TS
       String ts_str = ts_rcv(conf_data.ts_ch_id, conf_data.AKey_r);  // Получаем строчку данных от TS
       ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
-      callback(ram_data.type_disp, 2, 1); // сообщение на индикатор о результатах обмена с TS
+      dmsg.callback(ram_data.type_disp, 2, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
     if  (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
     if (conf_data.use_pp == 2)  wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
@@ -24,9 +24,9 @@ void GetSnr()
   {
     if (conf_data.use_ts_i || conf_data.use_ts_e || conf_data.use_ts_p)
     {
-      callback(ram_data.type_disp, 1, 0); // сообщение на индикатор о начале обмена с TS
+      dmsg.callback(ram_data.type_disp, 1, 0, conf_data.rus_disp); // сообщение на индикатор о начале обмена с TS
       ts_snd(e_srv.put_ts(conf_data.AKey_w, conf_data.use_ts_i, conf_data.use_ts_e, conf_data.use_ts_p, snr_data)); // Отправляем инфу на TS
-      callback(ram_data.type_disp, 1, 1); // сообщение на индикатор о результатах обмена с TS
+      dmsg.callback(ram_data.type_disp, 1, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
   }
 }
@@ -229,12 +229,6 @@ String ts_snd (String inStr)
   String out = "No connect to network";
   if (web_cli)
   {
-
-    /*    String addr = "http://api.thingspeak.com";
-        addr += inStr;
-        out = nsys.http_client (addr);
-    */
-
     WiFiClient client;
 
     const int httpsPort = 80;
@@ -247,11 +241,6 @@ String ts_snd (String inStr)
     }
     else
     {
-      /*              client.print(String("GET ") + inStr + " HTTP/1.1\r\n" +
-                                 "Host: " + host + "\r\n" +
-                                 "Connection: keep-alive\r\n\r\n");
-                  "User-Agent: BuildFailureDetectorESP8266\r\n" +
-      */
       client.print(String("GET ") + inStr + " HTTP/1.1\r\n" +
                    "Host: " + host + "\r\n" +
                    "Connection: close\r\n\r\n");
@@ -303,7 +292,7 @@ void GetNtp()
   if (debug_level == 10) DBG_OUT_PORT.println("True sync time with NTP");
   if (web_cli)
   {
-    callback(ram_data.type_disp, 0, 0);; //сообщение на индикатор
+    dmsg.callback(ram_data.type_disp, 0, 0, conf_data.rus_disp);; //сообщение на индикатор
 
     IPAddress addr(89, 109, 251, 21);
     cur_time = NTP_t.getTime(addr, conf_data.time_zone);
@@ -328,8 +317,8 @@ void GetNtp()
 
       result = true;
     }
-    if (result) callback(ram_data.type_disp, 0, 1); //сообщение на индикатор
-    else callback(ram_data.type_disp, 0, 2); //сообщение на индикатор
+    if (result) dmsg.callback(ram_data.type_disp, 0, 1, conf_data.rus_disp); //сообщение на индикатор
+    else dmsg.callback(ram_data.type_disp, 0, 2, conf_data.rus_disp); //сообщение на индикатор
 
     set_alarm();  //актуализируем будильники
   }
@@ -361,18 +350,21 @@ void keyb_read()
   if ( but0_pressed && !conf_data.use_es && !serv_act && millis() - setting_ms > 2000 ) digitalWrite(LED_BUILTIN, LOW);  // Включаем светодиод
   if ( but0_pressed && !conf_data.use_es &&  serv_act && millis() - setting_ms > 2000 ) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
   if ( but0_pressed                                   && millis() - setting_ms > 9000 ) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
+
   if (!but0_pressed && but0_press && !serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)
   {
     serv_ms = millis();
     start_serv();  // держим от 2 до 9 сек - Запускаем web морду
     but0_press = but0_pressed;
   }
+
   if (!but0_pressed && but0_press &&  serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)
   {
     serv_ms = millis() + 60000L;
     stop_serv();  // держим от 2 до 9 сек - Останавливаем web морду
     but0_press = but0_pressed;
   }
+
   if ( !but0_pressed && but0_press && millis() - setting_ms > 9000 && millis() - setting_ms < 15000)
   {
     DBG_OUT_PORT.println("Reboot esp...");
@@ -380,6 +372,7 @@ void keyb_read()
     ESP.restart();// держим от 9 до 15 сек - Перезапускаемся
 #endif
   }
+
   if ( but0_pressed                            && millis() - setting_ms > 15000                               )                // держим больше 15 сек - сбрасываем усе на дефолт
   {
     if (debug_level == 10) DBG_OUT_PORT.println("Set default value and reboot...");

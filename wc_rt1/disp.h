@@ -10,8 +10,6 @@ void sevenseg_init();
 String dow_sel(uint8_t);
 uint8_t mod_sel();
 
-String callback(uint8_t, uint8_t uint8_t);
-void alarm_msg(byte, byte);
 String pr_str(uint8_t);
 
 scr_buff_t ss_prep();

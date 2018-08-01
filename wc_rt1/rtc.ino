@@ -186,7 +186,7 @@ bool Alarmed()
   {
     if (debug_level == 13) DBG_OUT_PORT.println("alarm one is run!");
 
-    alarm_msg(rtc_data.n_cur_alm, ram_data.type_disp);  // Сообщение на индикатор
+    dmsg.alarm_msg(rtc_data.n_cur_alm, ram_data.type_disp, conf_data.rus_disp);  // Сообщение на индикатор
     digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
 
     switch (conf_data.alarms[rtc_data.n_cur_alm][4])     // Выполняем экшн

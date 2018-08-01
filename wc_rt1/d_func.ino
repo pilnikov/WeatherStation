@@ -247,7 +247,7 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
 
 void s7_write_all(uint8_t dtyp, scr_buff_t buff)
 {
-  byte dig2[8], dig3[8];
+  byte dig2[4], dig3[4];
 
   dig2[0] = buff.dig[0];
   dig2[1] = buff.dig[1];
