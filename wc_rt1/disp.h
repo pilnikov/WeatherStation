@@ -4,7 +4,7 @@
 #include <Adafruit_LEDBackpack.h>
 #include <LedControl.h>
 #include <Max72xxPanel.h>
-#include <TM1637Display.h>
+#include <TM1637.h>
 
 void sevenseg_init();
 String dow_sel(uint8_t);
@@ -41,7 +41,7 @@ bool blinkColon = false;
 
 //----------------------------------------------------------------------------TM1637
 
-TM1637Display *tm1637;
+TM1637 *tm1637;
 
 //----------------------------------------------------------------------------HT1633
 

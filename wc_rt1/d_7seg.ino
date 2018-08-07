@@ -15,8 +15,9 @@ void sevenseg_init()
       break;
 
     case 3:
-      tm1637 = new TM1637Display(TM1637_CLK, TM1637_DIO);
-      tm1637 -> setBrightness(0xf);
+      tm1637 = new TM1637(TM1637_CLK, TM1637_DIO);
+      tm1637 -> init();
+      tm1637 -> set(7);
       bstr = "1637";
       s7dig = f_dsp.prn7(bstr);
       s7_write_all(ram_data.type_disp, s7dig);
@@ -228,7 +229,7 @@ void sevenseg()
       break;
 
     case 3:
-      tm1637 -> setBrightness(cur_br);
+      tm1637 -> set(cur_br);
       s7_write_all(ram_data.type_disp, buf2);
       break;
 

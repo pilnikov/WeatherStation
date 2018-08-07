@@ -229,8 +229,8 @@ bool Alarmed()
             ht33 -> writeDisplay();
             break;
           case 3:
-            tm1637 -> setBrightness(0);
-            tm1637 -> setSegments(0);
+            tm1637 -> set(0);
+            tm1637 -> clearDisplay();
             break;
           case 4:
             m7219 -> shutdown(true);

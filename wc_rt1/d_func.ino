@@ -268,7 +268,10 @@ void s7_write_all(uint8_t dtyp, scr_buff_t buff)
       ht33 -> writeDisplay();
       break;
     case 3:
-      tm1637 -> setSegments(dig2);
+      tm1637 -> display(0, dig2[0]);
+      tm1637 -> display(1, dig2[1]);
+      tm1637 -> display(2, dig2[2]);
+      tm1637 -> display(3, dig2[3]);
       break;
     case 5:
       max7 -> setRow(0, 0, f_dsp.mir_seg(dig2[0]));
