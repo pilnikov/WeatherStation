@@ -52,7 +52,7 @@ void setup()
   ram_data = fsys.i2c_scan(conf_data);
 
   //------------------------------------------------------  Инициализируем датчики
-  
+
   sens.dht_preset(DHT_PIN, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
 
   ram_data_t sens_data = ram_data;
@@ -184,8 +184,8 @@ void setup()
 
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-  Buzz.beep(BUZ_PIN);
-
+  //Buzz.beep(BUZ_PIN);
+  Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
 }
 
 void loop()
@@ -195,6 +195,9 @@ void loop()
 
   // ----------------------------------------------------- Обрабатываем клавиатуру
   keyb_read();
+
+  // ----------------------------------------------------- Доп для будильника
+  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, false);
 
   //------------------------------------------------------ Отправляем данные через UART
   if (ram_data.type_disp == 0 && !digitalRead(uart_pin)) send_uart();

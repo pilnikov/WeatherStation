@@ -192,7 +192,7 @@ bool Alarmed()
     switch (conf_data.alarms[rtc_data.n_cur_alm][4])     // Выполняем экшн
     {
       case 0:
-        Buzz.play(rtc_data.a_muz, BUZ_PIN, setting_pin);   // Играем выбранную мелодию
+        Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, true);   // Запускаем динамик на проигрывание выбранной мелодии
         break;
       case 1:
         nm_is_on = true;                       // Включаем ночной режим
@@ -267,7 +267,7 @@ bool Alarmed()
   if (al2_int || al2_oth) //Сработал будильник №2
   {
     if (debug_level == 13) DBG_OUT_PORT.println("alarm two is run!");
-    if (conf_data.every_hour_beep && !nm_is_on) Buzz.beep(BUZ_PIN); //пищим каждый час
+    if (conf_data.every_hour_beep && !nm_is_on) Buzz.play(songs[15], BUZ_PIN, true); //пищим каждый час
   }
 
   wasAlarmed = (wasAlarmed_int || wasAlarmed_oth); // Сработал один из будильников
