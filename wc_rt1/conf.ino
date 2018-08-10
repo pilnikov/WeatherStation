@@ -91,7 +91,7 @@ void saveConfig(conf_data_t data)
   if (debug_level == 3) DBG_OUT_PORT.println( "Start saving conf_data to config.json");
 
 
-  if ( data.type_disp < 0     || data.type_disp  >  8)    data.type_disp  = 0;
+  if ( data.type_disp < 0     || data.type_disp  >  9)    data.type_disp  = 0;
   if ( data.type_ext_snr < 0  || data.type_ext_snr  >  10) data.type_ext_snr  = 0;
   if ( data.type_int_snr < 0  || data.type_int_snr  >  10) data.type_int_snr  = 0;
   if ( data.type_prs_snr < 0  || data.type_prs_snr  >  10) data.type_prs_snr  = 0;

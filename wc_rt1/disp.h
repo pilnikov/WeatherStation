@@ -6,6 +6,13 @@
 #include <Max72xxPanel.h>
 #include <TM1637.h>
 
+#if defined(ESP32)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "ESP32RGBmatrixPanel.h"
+
+#endif
+
 void sevenseg_init();
 String dow_sel(uint8_t);
 uint8_t mod_sel(uint8_t);
@@ -21,6 +28,12 @@ void m7219_init();
 void m7219_time();
 void m1632_init();
 void m1632_time();
+
+#if defined(ESP32)
+void m3264_init();
+void m3264_time();
+ESP32RGBmatrixPanel *m3264;
+#endif
 
 bool mov_str(uint8_t, uint8_t, String, uint8_t, int);
 uint16_t auto_br(uint16_t, uint16_t*);

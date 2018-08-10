@@ -104,17 +104,12 @@ void stop_serv()
 //-------------------------------------------------------------- cur_time_str
 String cur_time_str()
 {
-  String st = String();
-#if defined(ESP8266)
   char str[22];
+#if !defined(ESP32)
   sprintf(str, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
           day(), month(), year(), hour(), minute(), second());
-  for (uint8_t i = 0; i < 24; i++) st += str[i];
 #endif
-#if defined(ESP32)
-  st = name_week[weekday()] + ' ' + day() + ' ' + month() + ' ' + year() + ' ' + hour() + ' ' + minute() + ' ' + second();
-#endif
-  return st;
+  return str;
 }
 
 //-------------------------------------------------------------- handlejTime

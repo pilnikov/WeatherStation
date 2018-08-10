@@ -1,4 +1,4 @@
-
+/////////////////////////////////////////////////////////////////////////////////////////
 #include "conf.h"
 
 void setup()
@@ -42,15 +42,26 @@ void setup()
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
 
 # if defined(ESP8266) || defined(ESP32)
-  Wire.begin(SDA_PIN, SCL_PIN);
+  if (conf_data.type_disp != 9) Wire.begin(SDA_PIN, SCL_PIN);
 # endif
 
 # if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
-  Wire.begin();
+  if (conf_data.type_disp != 9) Wire.begin();
 # endif
 
-  ram_data = fsys.i2c_scan(conf_data);
-
+  if (conf_data.type_disp != 9) ram_data = fsys.i2c_scan(conf_data);
+  else
+  {
+    ram_data.type_disp = conf_data.type_disp;
+    ram_data.type_rtc       = conf_data.type_rtc;
+    ram_data.type_disp      = conf_data.type_disp;
+    ram_data.type_ext_snr   = conf_data.type_ext_snr;
+    ram_data.type_int_snr   = conf_data.type_int_snr;
+    ram_data.type_prs_snr   = conf_data.type_prs_snr;
+    ram_data.bh1750_present = false;
+    ram_data.lcd_addr       = 0; //address of LCD
+    ram_data.ht_addr        = 0; //HT1633 addr
+  }
   //------------------------------------------------------  Инициализируем датчики
 
   sens.dht_preset(DHT_PIN, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
@@ -62,7 +73,7 @@ void setup()
   ram_data = sens_data;
 
   //------------------------------------------------------  Инициализируем GPIO
-  pinMode(setting_pin, INPUT);
+  pinMode(setting_pin, INPUT_PULLUP);
 # if defined(ESP8266) || defined(ESP32)
   pinMode(A0,          INPUT);
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
@@ -106,6 +117,9 @@ void setup()
       break;
     case 8:
       m1632_init();
+      break;
+    case 9:
+      m3264_init();
       break;
   }
   DBG_OUT_PORT.println("display selected");
