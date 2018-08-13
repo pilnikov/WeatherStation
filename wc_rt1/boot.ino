@@ -67,7 +67,7 @@ void irq_set()
   }
 
   long dutty = 190;
-  if (ram_data.type_disp == 4 || ram_data.type_disp == 8) dutty = 40;
+  if (ram_data.type_disp == 4 || ram_data.type_disp == 8 || ram_data.type_disp == 9) dutty = 20;
 
   if (millis() - scroll_time[0] > dutty)
   {
@@ -80,7 +80,8 @@ void irq_set()
     if (ram_data.type_disp == 1 && disp_on) end_run_st = mov_str(ram_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
     if (ram_data.type_disp == 4)            end_run_st = mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
     if (ram_data.type_disp == 8 && disp_on) end_run_st = mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
-  }
+    if (ram_data.type_disp == 9 && disp_on) end_run_st = mov_str(ram_data.type_disp, m3264 -> width(), st1, 0, cur_sym_pos[0]);
+   }
   
   if (end_run_st != end_run_st_buf)
   {
@@ -150,6 +151,13 @@ void firq6()
       m1632_time();
 #endif
     }
+    if (ram_data.type_disp == 9 && disp_on)
+    {
+      matrix_refresh();
+#ifndef new_max
+      m3264_time();
+#endif
+    }
   }
   Alarmed();
   blinkColon = !blinkColon;
@@ -178,5 +186,6 @@ void firq9()
 # ifdef new_max
   if (ram_data.type_disp == 4 && end_run_st)  m7219_time();
   if (ram_data.type_disp == 8 && disp_on)     m1632_time();
+  if (ram_data.type_disp == 9 && disp_on)     m3264_time();
 #endif
 }

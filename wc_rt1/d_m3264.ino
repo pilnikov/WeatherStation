@@ -29,6 +29,13 @@
 
 /* create a hardware timer */
 hw_timer_t* displayUpdateTimer = NULL;
+byte br = 127;
+auto white = ESP32RGBmatrixPanel::AdafruitColor(br, br, br);
+auto red   = ESP32RGBmatrixPanel::AdafruitColor(br, 0, 0);
+auto cyan  = ESP32RGBmatrixPanel::AdafruitColor(0, br, br);
+auto blue  = ESP32RGBmatrixPanel::AdafruitColor(0, 0, br);
+auto green = ESP32RGBmatrixPanel::AdafruitColor(0, br, 0);
+int pos = 64;
 
 void IRAM_ATTR onDisplayUpdate()
 {
@@ -38,13 +45,6 @@ void IRAM_ATTR onDisplayUpdate()
 void m3264_init()
 {
   digHt = 32; // Высота матрици в пикселях
-
-  byte br = 127;
-  auto white = ESP32RGBmatrixPanel::AdafruitColor(br, br, br);
-  auto red   = ESP32RGBmatrixPanel::AdafruitColor(br, 0, 0);
-  auto cyan  = ESP32RGBmatrixPanel::AdafruitColor(0, br, br);
-  auto blue  = ESP32RGBmatrixPanel::AdafruitColor(0, 0, br);
-
 
   m3264 = new ESP32RGBmatrixPanel(23, 22, 27, 26, 25, 04, 00, 02, 15, 21, 19, 18, 5); //Flexible connection
   m3264 -> setBrightness(8); // Use a value between 0 and 15 for brightness
@@ -60,27 +60,34 @@ void m3264_init()
   m3264 -> setCursor(2, 0);
   m3264 -> setTextColor(white);
   m3264 -> print(f_dsp.utf8rus(st1));
- 
+  //onDisplayUpdate();
+
   st1 = "World!";
   if (conf_data.rus_disp) st1 = " Мир! ";
 
   m3264 -> setCursor(2, 16);
   m3264 -> setTextColor(red);
   m3264 -> print(f_dsp.utf8rus(st1));
+  //onDisplayUpdate();
 
   //xTaskCreate(&loop2_task, "loop2_task", 2048, NULL, 5, NULL);
   /* 1 tick take 1/(80MHZ/80) = 1us so we set divider 80 and count up */
-  displayUpdateTimer = timerBegin(0, 80, true);
+  displayUpdateTimer = timerBegin(2, 80, true);
 
   /* Attach onTimer function to our timer */
 
   timerAttachInterrupt(displayUpdateTimer, &onDisplayUpdate, true);
-  timerAlarmWrite(displayUpdateTimer, 2, true);
+  timerAlarmWrite(displayUpdateTimer, 10, true);
   timerAlarmEnable(displayUpdateTimer);
 
-  delay(300);
+  //delay(300);
+  vTaskDelay(300);
 }
 
+void m3264_upd()
+{
+  timerAlarmWrite(displayUpdateTimer, 5, true);
+}
 
 void m3264_time()
 {
@@ -89,7 +96,7 @@ void m3264_time()
     m3264 -> setBrightness(cur_br);
     cur_br_buf = cur_br;
   }
-  m3264 -> black();
+  //m3264 -> black();
   //*----------------------------------------------------------------------
   uint8_t h = hour();
   // Do 24 hour to 12 hour format conversion when required.
@@ -150,15 +157,14 @@ void m3264_time()
 
 #ifdef new_max
   //----------------------------------------------------------------------
-
   for (uint8_t i = 0; i < num; i++)
   {
     if (!(i == 0 && h < 9))
     {
-      m3264 -> drawPartChar(digPos[i],   8,        d[i], 0, 3,   digtrans[i]); // набегает
+      m3264 -> drawPartChar(digPos[i] * 2,   16,        d[i], green, 0,   digtrans[i], 2); // набегает
       if (digtrans[i] != 7)
       {
-        m3264 -> drawPartChar(digPos[i], 8, digoldig[i], 0, 3, - digtrans[i]); // убегает
+        m3264 -> drawPartChar(digPos[i] * 2, 16, digoldig[i], green, 0, - digtrans[i], 2); // убегает
         /*
           DBG_OUT_PORT.print("pos - ");
           DBG_OUT_PORT.println(digtrans[i]);
@@ -170,7 +176,7 @@ void m3264_time()
     }
   }
 #endif
-  //  m3264 -> render(); // Send bitmap to display
+  // onDisplayUpdate();
 }
 
 
@@ -178,7 +184,7 @@ void m3264_time()
 void loop2_task(void *pvParameter)
 {
   m3264_time();
-  run_st_m3264();
+  run_st_m3264(st1);
 }
 
 
@@ -241,9 +247,8 @@ void getRGB(int hue, int sat, int val, int colors[3]) {
   }
 }
 
-void run_st_m3264()
+bool run_st_m3264(String instr)
 {
-  int pos = 64;
   m3264 -> setTextWrap(false);
   m3264 -> setTextSize(2);
   int colors[3];
@@ -253,24 +258,17 @@ void run_st_m3264()
     m3264 -> setCursor(pos, 2);
     getRGB(abs(pos / 4) % 255, 255, 255, colors);
     m3264 -> setTextColor(m3264 -> AdafruitColor(colors[0], colors[1], colors[2]));
-    m3264 -> print(st1);
+    m3264 -> print(instr);
     pos -= 1;
+    //delay(190);
     vTaskDelay(10);
-    end_run_st = false;
+    //onDisplayUpdate();
+    return false;
   }
-  else end_run_st = true;
-
-  if (end_run_st != end_run_st_buf)
+  else
   {
-    end_run_st_buf = end_run_st;
-
-    if (end_run_st)
-    {
-      num_st++; //Перебор строк.
-      if (num_st > max_st) num_st = 1;
-      st1 = pr_str(num_st);
-      end_run_st = false; // перезапуск бегущей строки;
-    }
+    pos = 64;
+    return true;
   }
 }
 

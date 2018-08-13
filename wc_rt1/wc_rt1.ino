@@ -119,7 +119,9 @@ void setup()
       m1632_init();
       break;
     case 9:
+#if defined(ESP32)
       m3264_init();
+#endif
       break;
   }
   DBG_OUT_PORT.println("display selected");
@@ -200,6 +202,7 @@ void setup()
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   //Buzz.beep(BUZ_PIN);
   Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
+  m3264_upd(); 
 }
 
 void loop()

@@ -188,20 +188,29 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
   */
   String instr = f_dsp.utf8rus(tape);
   if (dtype == 1) instr = f_dsp.lcd_rus(tape);
+  if (dtype == 9)
+  {
+    m3264 -> setTextWrap(false);
+    m3264 -> setTextSize(2);
+  }
 
+  int colors[3];
   uint8_t sym_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
-  bool e_run_st;
   if (dtype == 1)
   {
     sym_wdt = 1;
     spacer = 0;
   }
 
+  if (dtype == 9)
+  {
+    sym_wdt *= 2;
+    spacer = 2;
+  }
+
   if (cur_sym_pos < sym_wdt * instr.length() + dsp_wdt - spacer)  //текущая позиция < (длина строки + ширина дисплея)
   {
-    e_run_st = false; // флаг работы бегущей строки
-
-    if (dtype == 4 || dtype == 8)
+    if (dtype == 4 || dtype == 8 || dtype == 9)
     {
       int16_t letter = cur_sym_pos / sym_wdt;           //        номер крайнего правого отображаемого символа
       int8_t x = (dsp_wdt - 1) - cur_sym_pos % sym_wdt; // координата х крайнего правого отображаемого символа
@@ -215,12 +224,18 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
         {
           if (dtype == 4) m7219 -> drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
           if (dtype == 8) m1632 -> drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 9)
+          {
+            getRGB(abs(cur_sym_pos / 4) % 255, 255, 255, colors);
+            m3264 -> drawChar(x, y, instr[letter], m3264 -> AdafruitColor(colors[0], colors[1], colors[2]), 0, 2);
+          }
         }
         letter--;     // смещение на символ влево по строке
         x -= sym_wdt; // смещение на ширину символа влево по х
       }
       if (dtype == 4) m7219 -> write();  // Send bitmap to display
       if (dtype == 8) m1632 -> render(); // Send bitmap to display
+      //if (dtype == 9) m3216 -> update(); // Send bitmap to display
     }
 
     if (dtype == 1)
@@ -241,8 +256,8 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
       }
     }
   }
-  else e_run_st = true; //end of scrolling
-  return e_run_st;
+  else return true; //end of scrolling
+  return false;
 }
 
 void s7_write_all(uint8_t dtyp, scr_buff_t buff)
