@@ -256,39 +256,50 @@ void ESP32RGBmatrixPanel::drawBitmap(String* bytes)
 	}
 }
 
-void ESP32RGBmatrixPanel::drawPartChar(int16_t x, int16_t y, unsigned char c, uint8_t color, uint8_t bg, int8_t size)
+void ESP32RGBmatrixPanel::drawPartChar(int16_t x, int16_t y, unsigned char c, uint8_t color, uint8_t bg, int8_t pos, uint8_t size)
 {
   
   if((x > 63)      || // Clip right
      (y > 31)      || // Clip bottom
-    ((x + 5) < 0)  || // Clip left
-    ((y + 7) < 0))    // Clip top
-	  return;
+     ((x + 6 * size - 1) < 0) || // Clip left
+     ((y + 8 * size - 1) < 0))   // Clip top
+  	  return;
 
-  uint8_t a = abs(size);
+  uint8_t a = abs(pos);
   uint8_t b = 7;
 
-  if (size > 0) 
+  if (pos > 0) 
   {
 	  a = 0; 
-	  b = size;
+	  b = pos;
   }
  	  
   for (uint8_t i = 0; i < 5; i++ )
 	{ // Char bitmap = 5 columns
-		drawFastVLine(x + i, y + a, b - a, bg);
+        if(size == 1)	drawFastVLine(x + i, y + a, b - a, bg);
+		else 			writeFillRect(x + i * size, y + a * size, size, (b - a) * size, bg);	
+		
 		byte line = pgm_read_byte(&font[c * 5 + i]);
 		for (uint8_t j = a; j < b; j++)  
 		{
-			if (size > 0) 
+			if (pos > 0) 
 			{
-				if (line & 1 << (j + 7 - size)) drawPixel(x + i, y + j, color);
+				if (line & 1 << (j + 7 - pos)) 
+				{
+					if(size == 1) drawPixel(x + i, y + j, color);
+					else writeFillRect(x + i * size, y + j * size, size, size, color);
+				}
 			}
 			else 
 			{
-				if (line & 1 << (j + size)) drawPixel(x + i, y + j, color);
+				if (line & 1 << (j + pos))
+				{
+					if(size == 1) drawPixel(x + i, y + j, color);
+					else writeFillRect(x + i * size, y + j * size, size, size, color);
+				}
 			}
 		}
 	} 
-  drawFastVLine(x + 5, y + a, b - a, bg);
+    if(size == 1) drawFastVLine(x + 5, y + a, b - a, bg);
+	else		  writeFillRect(x + 5 * size, y + a * size, size, (b - a) * size, bg);
 }
