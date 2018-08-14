@@ -191,7 +191,7 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
   if (dtype == 9)
   {
     m3264 -> setTextWrap(false);
-    m3264 -> setTextSize(2);
+    m3264 -> setTextSize(TextSize);
   }
 
   int colors[3];
@@ -204,8 +204,8 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
 
   if (dtype == 9)
   {
-    sym_wdt *= 2;
-    spacer = 2;
+    sym_wdt *= TextSize;
+    spacer = TextSize;
   }
 
   if (cur_sym_pos < sym_wdt * instr.length() + dsp_wdt - spacer)  //текущая позиция < (длина строки + ширина дисплея)
@@ -227,7 +227,7 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
           if (dtype == 9)
           {
             getRGB(abs(cur_sym_pos / 4) % 255, 255, 255, colors);
-            m3264 -> drawChar(x, y, instr[letter], m3264 -> AdafruitColor(colors[0], colors[1], colors[2]), 0, 2);
+            m3264 -> drawChar(x, y, instr[letter], m3264 -> AdafruitColor(colors[0], colors[1], colors[2]), 0, TextSize);
           }
         }
         letter--;     // смещение на символ влево по строке

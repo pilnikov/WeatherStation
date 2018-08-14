@@ -42,26 +42,14 @@ void setup()
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
 
 # if defined(ESP8266) || defined(ESP32)
-  if (conf_data.type_disp != 9) Wire.begin(SDA_PIN, SCL_PIN);
+  Wire.begin(SDA_PIN, SCL_PIN);
 # endif
 
 # if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
-  if (conf_data.type_disp != 9) Wire.begin();
+  Wire.begin();
 # endif
 
-  if (conf_data.type_disp != 9) ram_data = fsys.i2c_scan(conf_data);
-  else
-  {
-    ram_data.type_disp = conf_data.type_disp;
-    ram_data.type_rtc       = conf_data.type_rtc;
-    ram_data.type_disp      = conf_data.type_disp;
-    ram_data.type_ext_snr   = conf_data.type_ext_snr;
-    ram_data.type_int_snr   = conf_data.type_int_snr;
-    ram_data.type_prs_snr   = conf_data.type_prs_snr;
-    ram_data.bh1750_present = false;
-    ram_data.lcd_addr       = 0; //address of LCD
-    ram_data.ht_addr        = 0; //HT1633 addr
-  }
+  ram_data = fsys.i2c_scan(conf_data);
   //------------------------------------------------------  Инициализируем датчики
 
   sens.dht_preset(DHT_PIN, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
@@ -80,9 +68,13 @@ void setup()
   digitalWrite(LED_BUILTIN, HIGH);
 # endif
 
+# if defined(ESP8266)
   pinMode(BUZ_PIN,    OUTPUT);
-
-  digitalWrite(setting_pin, HIGH);
+# endif
+# if defined(ESP32)
+  ledcAttachPin(BUZ2_PIN, BUZ_PIN);
+  ledcSetup(BUZ2_PIN, 2000, 8); // 2 kHz PWM, 8-bit resolution
+# endif
 
   //------------------------------------------------------  Инициализируем RTC
   if (ram_data.type_rtc > 0) rtc_init();
@@ -92,7 +84,7 @@ void setup()
   switch (ram_data.type_disp)
   {
     case 0:
-      pinMode(uart_pin, INPUT);
+      pinMode(uart_pin, INPUT_PULLUP);
       break;
     case 1:
       lcd_init();
@@ -174,6 +166,7 @@ void setup()
   //-------------------------------------------------------  Опрашиваем датчики
 
   GetSnr();
+  DBG_OUT_PORT.println("Snr data received");
 
   //-------------------------------------------------------- Гасим светодиод
 #   if defined(ESP8266) || defined(ESP32)
@@ -182,6 +175,7 @@ void setup()
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
+  DBG_OUT_PORT.println("alarm set");
 
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
@@ -202,7 +196,7 @@ void setup()
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   //Buzz.beep(BUZ_PIN);
   Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
-  m3264_upd(); 
+  m3264_upd();
 }
 
 void loop()

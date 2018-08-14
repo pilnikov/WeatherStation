@@ -45,11 +45,12 @@ void IRAM_ATTR onDisplayUpdate()
 void m3264_init()
 {
   digHt = 32; // Высота матрици в пикселях
+  TextSize = 2;
 
-  m3264 = new ESP32RGBmatrixPanel(23, 22, 27, 26, 25, 04, 00, 02, 15, 21, 19, 18, 5); //Flexible connection
+  m3264 = new ESP32RGBmatrixPanel(23, 14, 27, 26, 25, 04, 13, 02, 33, 15, 19, 18, 5); //Flexible connection
   m3264 -> setBrightness(8); // Use a value between 0 and 15 for brightness
   m3264 -> cp437(true);
-  m3264 -> setTextSize(2);
+  m3264 -> setTextSize(TextSize);
   m3264 -> setTextWrap(false); // Allow text to run off right edge
 
   m3264 -> black();
@@ -161,10 +162,10 @@ void m3264_time()
   {
     if (!(i == 0 && h < 9))
     {
-      m3264 -> drawPartChar(digPos[i] * 2,   16,        d[i], green, 0,   digtrans[i], 2); // набегает
+      m3264 -> drawPartChar(digPos[i] * TextSize,   16,        d[i], green, 0,   digtrans[i], TextSize); // набегает
       if (digtrans[i] != 7)
       {
-        m3264 -> drawPartChar(digPos[i] * 2, 16, digoldig[i], green, 0, - digtrans[i], 2); // убегает
+        m3264 -> drawPartChar(digPos[i] * TextSize, 16, digoldig[i], green, 0, - digtrans[i], TextSize); // убегает
         /*
           DBG_OUT_PORT.print("pos - ");
           DBG_OUT_PORT.println(digtrans[i]);

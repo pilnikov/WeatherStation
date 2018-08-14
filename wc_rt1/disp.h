@@ -93,6 +93,8 @@ Max72xxPanel * m7219;
 uint8_t colon; //номер разделителя
 const uint8_t num = 6;  // количество цифр
 uint8_t digHt;
+uint8_t TextSize = 1;
+
 #ifdef new_max 
 const uint8_t digPos[num] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране
 #else 

@@ -25,13 +25,4 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 
-const String html_begin_head();
-const String html_style();
-const String html_table();
-const String html_begin_body();
-const String html_end();
-const String opt_val();
-const String sel_d();
-String html_script();
-String num2_to_str(int);
-String cur_time_str();
+char * cur_time_str();
