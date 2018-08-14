@@ -29,6 +29,10 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out)
   tone(out, freq, dur);
   delay(dur);
   noTone(out);
+#else
+  ledcWriteTone(out, freq);
+  delay(dur);
+  ledcWriteTone(out, 0);
 #endif
 }
 
@@ -46,74 +50,74 @@ void Synt::play(const char * in, uint8_t out, bool rst)
 
   static byte ddu;
   static long wn;
-  static const char *p;  
-  
-  if (rst) 
+  static const char *p;
+
+  if (rst)
   {
-	  p = in;
-	  // format: d=N,o=N,b=NNN:
-	  // find the start (skip name, etc)
+    p = in;
+    // format: d=N,o=N,b=NNN:
+    // find the start (skip name, etc)
 
-	  while (*p != ':') p++;   // ignore name
-	  p++;                     // skip ':'
+    while (*p != ':') p++;   // ignore name
+    p++;                     // skip ':'
 
-	  // get default duration
-	  if (*p == 'd')
-	  {
-		p++; p++;              // skip "d="
-		num = 0;
-		while (isdigit(*p))
-		{
-		  num = (num * 10) + (*p++ - '0');
-		}
-		if (num > 0) default_dur = num;
-		p++;                   // skip comma
-	  }
+    // get default duration
+    if (*p == 'd')
+    {
+      p++; p++;              // skip "d="
+      num = 0;
+      while (isdigit(*p))
+      {
+        num = (num * 10) + (*p++ - '0');
+      }
+      if (num > 0) default_dur = num;
+      p++;                   // skip comma
+    }
 
-	#ifdef _debug
-	  DBG_OUT_PORT.print("ddur: ");
-	  DBG_OUT_PORT.println(default_dur, 10);
-	#endif
+#ifdef _debug
+    DBG_OUT_PORT.print("ddur: ");
+    DBG_OUT_PORT.println(default_dur, 10);
+#endif
 
-	  // get default octave
-	  if (*p == 'o')
-	  {
-		p++; p++;              // skip "o="
-		num = *p++ - '0';
-		if (num >= 3 && num <= 7) default_oct = num;
-		p++;                   // skip comma
-	  }
+    // get default octave
+    if (*p == 'o')
+    {
+      p++; p++;              // skip "o="
+      num = *p++ - '0';
+      if (num >= 3 && num <= 7) default_oct = num;
+      p++;                   // skip comma
+    }
 
-	#ifdef _debug
-	  DBG_OUT_PORT.print("doct: ");
-	  DBG_OUT_PORT.println(default_oct, 10);
-	#endif
+#ifdef _debug
+    DBG_OUT_PORT.print("doct: ");
+    DBG_OUT_PORT.println(default_oct, 10);
+#endif
 
-	  // get BPM
-	  if (*p == 'b')
-	  {
-		p++; p++;              // skip "b="
-		num = 0;
-		while (isdigit(*p))
-		{
-		  num = (num * 10) + (*p++ - '0');
-		}
-		bpm = num;
-		p++;                   // skip colon
-	  }
+    // get BPM
+    if (*p == 'b')
+    {
+      p++; p++;              // skip "b="
+      num = 0;
+      while (isdigit(*p))
+      {
+        num = (num * 10) + (*p++ - '0');
+      }
+      bpm = num;
+      p++;                   // skip colon
+    }
 
-	  // BPM usually expresses the number of quarter notes per minute
-	  wholenote = (60 * 1000L / bpm) * 4;  // this is the time for whole note (in milliseconds)
+    // BPM usually expresses the number of quarter notes per minute
+    wholenote = (60 * 1000L / bpm) * 4;  // this is the time for whole note (in milliseconds)
 
-	  wn = wholenote;
-	  ddu = default_dur;
- }
-  
+    wn = wholenote;
+    ddu = default_dur;
+  }
+
   // now begin note loop
-  
+
   if (*p != 'x')
   {
- 	//DBG_OUT_PORT.println(*p);
+    //DBG_OUT_PORT.println(*p);
 
     // first, get note duration, if available
     num = 0;
@@ -169,14 +173,14 @@ void Synt::play(const char * in, uint8_t out, bool rst)
     }
 
     // now, get scale
-   scale = default_oct;
- 
-   if (isdigit(*p))
+    scale = default_oct;
+
+    if (isdigit(*p))
     {
       scale = *p - '0';
       p++;
     }
- 
+
     scale += OCTAVE_OFFSET;
 
     if (*p == ',')
@@ -191,6 +195,10 @@ void Synt::play(const char * in, uint8_t out, bool rst)
       tone(out, notes[(scale - 4) * 12 + note]);
       delay(duration);
       noTone(out);
+#else
+      ledcWriteTone(out, notes[(scale - 4) * 12 + note]);
+      delay(duration);
+      ledcWriteTone(out, 0);
 #endif
     }
     else delay(duration);
