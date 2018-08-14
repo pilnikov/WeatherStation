@@ -106,7 +106,7 @@ public:
 	ESP32RGBmatrixPanel();
 	void drawPixel(int16_t x, int16_t y, uint16_t c);
 	void drawPixel(int16_t x, int16_t y, uint8 r, uint8 g, uint8 b);
-    void drawPartChar(int16_t x, int16_t y, unsigned char c, uint8_t color, uint8_t bg, int8_t pos, int8_t size);
+    void drawPartChar(int16_t x, int16_t y, unsigned char c, uint8_t color, uint8_t bg, int8_t pos, uint8_t size);
 
 
 	/* reset all Pixels to black */
