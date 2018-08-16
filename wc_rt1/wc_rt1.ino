@@ -115,8 +115,14 @@ void setup()
       m3264_init();
 #endif
       break;
+    case 10:
+#if defined(ESP32)
+      ili_init();
+#endif
+      break;
   }
-  DBG_OUT_PORT.println("display selected");
+  DBG_OUT_PORT.print("display selected...");
+  DBG_OUT_PORT.println(ram_data.type_disp);
 
   //-------------------------------------------------------- Запускаем сетевые сервисы
 # if defined(ESP8266) || defined(ESP32)
@@ -188,15 +194,17 @@ void setup()
     cur_br = conf_data.man_br;  // Man brigthness
     snr_data.ft = cur_br;
   }
+  DBG_OUT_PORT.println("brightness set");
 
   //------------------------------------------------------ Отправляем данные через UART
   if (ram_data.type_disp == 0) send_uart();
 
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-  //Buzz.beep(BUZ_PIN);
+  Buzz.beep(BUZ_PIN);
   Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
-  m3264_upd();
+  if (ram_data.type_disp == 9) m3264_upd();
+  DBG_OUT_PORT.println("End of setup");
 }
 
 void loop()

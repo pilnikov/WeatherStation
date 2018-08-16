@@ -98,6 +98,7 @@ void irq_set()
       if (ram_data.type_disp == 1 || ram_data.type_disp == 8) end_run_st = false; // перезапуск бегущей строки;
     }
   }
+  if (ram_data.type_disp == 10 && disp_on)      ili_time();
 }
 
 void firq1()
