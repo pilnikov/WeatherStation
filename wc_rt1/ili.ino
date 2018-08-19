@@ -29,7 +29,8 @@ void ili_time(void) {
   {
     sprintf(date, "%s %s %2d %4d", dayStr(weekday()), monthStr(month()), day(), year());
   }
-  tft -> drawString(SCREEN_WIDTH / 2, 6, date);
+  tft -> setCursor(SCREEN_WIDTH / 2, 6);
+  tft -> print(date);
 
   tft -> setTextSize(5);
 

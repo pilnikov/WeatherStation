@@ -81,8 +81,8 @@ void irq_set()
     if (ram_data.type_disp == 4)            end_run_st = mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
     if (ram_data.type_disp == 8 && disp_on) end_run_st = mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
     if (ram_data.type_disp == 9 && disp_on) end_run_st = mov_str(ram_data.type_disp, m3264 -> width(), st1, 0, cur_sym_pos[0]);
-   }
-  
+  }
+
   if (end_run_st != end_run_st_buf)
   {
     end_run_st_buf = end_run_st;
@@ -95,7 +95,7 @@ void irq_set()
       if (num_st > max_st) num_st = 1;
       st1 = pr_str(num_st);
 
-      if (ram_data.type_disp == 1 || ram_data.type_disp == 8) end_run_st = false; // перезапуск бегущей строки;
+      if (ram_data.type_disp == 1 || ram_data.type_disp == 8 || ram_data.type_disp == 9) end_run_st = false; // перезапуск бегущей строки;
     }
   }
   if (ram_data.type_disp == 10 && disp_on)      ili_time();
@@ -176,8 +176,8 @@ void firq7()
 
     ArduinoOTA.handle();
     yield();
-# endif
     if ((millis() - serv_ms) > 300000L && (!conf_data.use_es || (conf_data.use_es && web_ap))) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
+# endif
   }
 }
 

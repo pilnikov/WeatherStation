@@ -1,30 +1,4 @@
 
-//G1  R1 |
-//GND B1 |
-//G2  R2 |
-//GND B2 |
-//B   A  |
-//D   C  |
-//LAT CLK|
-//GND OE |
-
-
-//Default connection
-//uint8 OE = 23;
-//uint8 CLK = 22;
-//uint8 LAT = 27;
-//uint8 CH_A = 21;
-//uint8 CH_B = 19;
-//uint8 CH_C = 18;
-//uint8 CH_D = 5;
-//uint8 R1 = 26;
-//uint8 G1 = 25;
-//uint8 BL1 = 4;
-//uint8 R2 = 0;
-//uint8 G2 = 2;
-//uint8 BL2 = 15;
-
-
 #if defined(ESP32)
 
 /* create a hardware timer */
@@ -47,6 +21,16 @@ void m3264_init()
   digHt = 32; // Высота матрици в пикселях
   TextSize = 2;
 
+  //G1  R1 |
+  //GND B1 |
+  //G2  R2 |
+  //GND B2 |
+  //B   A  |
+  //D   C  |
+  //LAT CLK|
+  //GND OE |
+
+  //                             (oe,clk,lat, r1, g1, b1, r2, g2, b2,  a,  b,  c, d)
   m3264 = new ESP32RGBmatrixPanel(23, 14, 27, 26, 25, 04, 13, 02, 33, 15, 19, 18, 5); //Flexible connection
   m3264 -> setBrightness(8); // Use a value between 0 and 15 for brightness
   m3264 -> cp437(true);
@@ -73,7 +57,7 @@ void m3264_init()
 
   //xTaskCreate(&loop2_task, "loop2_task", 2048, NULL, 5, NULL);
   /* 1 tick take 1/(80MHZ/80) = 1us so we set divider 80 and count up */
-  displayUpdateTimer = timerBegin(2, 80, true);
+  displayUpdateTimer = timerBegin(3, 80, true);
 
   /* Attach onTimer function to our timer */
 
@@ -85,9 +69,10 @@ void m3264_init()
   vTaskDelay(300);
 }
 
-void m3264_upd()
+void m3264_upd(bool factor)
 {
-  timerAlarmWrite(displayUpdateTimer, 5, true);
+  if (factor)  timerAlarmWrite(displayUpdateTimer, 5, true);
+  else  timerAlarmWrite(displayUpdateTimer, 20, true);
 }
 
 void m3264_time()
@@ -97,7 +82,7 @@ void m3264_time()
     m3264 -> setBrightness(cur_br);
     cur_br_buf = cur_br;
   }
-  //m3264 -> black();
+  if (hour() == 0 && minute() == 0 && second() == 0) m3264 -> black();
   //*----------------------------------------------------------------------
   uint8_t h = hour();
   // Do 24 hour to 12 hour format conversion when required.
@@ -177,7 +162,7 @@ void m3264_time()
     }
   }
 #endif
-  // onDisplayUpdate();
+ // m3264 -> update();
 }
 
 
@@ -185,7 +170,6 @@ void m3264_time()
 void loop2_task(void *pvParameter)
 {
   m3264_time();
-  run_st_m3264(st1);
 }
 
 
@@ -245,31 +229,6 @@ void getRGB(int hue, int sat, int val, int colors[3]) {
     colors[0] = r;
     colors[1] = g;
     colors[2] = b;
-  }
-}
-
-bool run_st_m3264(String instr)
-{
-  m3264 -> setTextWrap(false);
-  m3264 -> setTextSize(2);
-  int colors[3];
-
-  if (pos > -1800)
-  {
-    m3264 -> setCursor(pos, 2);
-    getRGB(abs(pos / 4) % 255, 255, 255, colors);
-    m3264 -> setTextColor(m3264 -> AdafruitColor(colors[0], colors[1], colors[2]));
-    m3264 -> print(instr);
-    pos -= 1;
-    //delay(190);
-    vTaskDelay(10);
-    //onDisplayUpdate();
-    return false;
-  }
-  else
-  {
-    pos = 64;
-    return true;
   }
 }
 

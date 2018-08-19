@@ -10,14 +10,19 @@ void rtc_init()
 {
   if (ram_data.type_rtc == 1)
   { // set the interupt pin to input mode
-    pinMode(RtcSquareWavePin, INPUT);
+    pinMode(RtcSquareWavePin, INPUT_PULLUP);
 
     //--------RTC SETUP ------------
     DS3231.Begin();
     DS3231.Enable32kHzPin(false);
     DS3231.SetSquareWavePin(DS3231SquareWavePin_ModeAlarmBoth);
     // setup external interupt
+#if defined(ESP8266)
     attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
+#endif
+#if defined(ESP32)
+    //attachInterrupt(digitalPinToInterrupt(RtcSquareWavePin), InteruptServiceRoutine, CHANGE);
+#endif
   }
   if (ram_data.type_rtc == 3)
   { DS1307.Begin();

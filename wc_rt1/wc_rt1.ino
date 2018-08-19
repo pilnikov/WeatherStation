@@ -8,15 +8,10 @@ void setup()
   DBG_OUT_PORT.begin(4023, IPAddress(192, 168, 111, 132));
 
 #else
-
-  if (ram_data.type_disp == 0) DBG_OUT_PORT.begin(9600);
-  else
-  {
-    DBG_OUT_PORT.begin(115200);
+  DBG_OUT_PORT.begin(115200);
 #if defined(ESP8266) || defined(ESP32)
-    DBG_OUT_PORT.setDebugOutput(true);
+  DBG_OUT_PORT.setDebugOutput(true);
 #endif
-  }
 #endif
 
 
@@ -59,11 +54,12 @@ void setup()
   sens_data = sens.init(ram_data);
 
   ram_data = sens_data;
+  DBG_OUT_PORT.println("sensor inital");
 
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(setting_pin, INPUT_PULLUP);
 # if defined(ESP8266) || defined(ESP32)
-  pinMode(A0,          INPUT);
+  if (!ram_data.bh1750_present) pinMode(A0, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
   digitalWrite(LED_BUILTIN, HIGH);
 # endif
@@ -72,9 +68,11 @@ void setup()
   pinMode(BUZ_PIN,    OUTPUT);
 # endif
 # if defined(ESP32)
+  pinMode(BUZ2_PIN,    OUTPUT);
   ledcAttachPin(BUZ2_PIN, BUZ_PIN);
   ledcSetup(BUZ2_PIN, 2000, 8); // 2 kHz PWM, 8-bit resolution
 # endif
+  DBG_OUT_PORT.println("GPIO inital");
 
   //------------------------------------------------------  Инициализируем RTC
   if (ram_data.type_rtc > 0) rtc_init();
@@ -113,11 +111,6 @@ void setup()
     case 9:
 #if defined(ESP32)
       m3264_init();
-#endif
-      break;
-    case 10:
-#if defined(ESP32)
-      ili_init();
 #endif
       break;
   }
@@ -193,17 +186,22 @@ void setup()
   {
     cur_br = conf_data.man_br;  // Man brigthness
     snr_data.ft = cur_br;
+    DBG_OUT_PORT.println("brightness set");
   }
-  DBG_OUT_PORT.println("brightness set");
 
   //------------------------------------------------------ Отправляем данные через UART
-  if (ram_data.type_disp == 0) send_uart();
+  if (ram_data.type_disp == 0)
+  {
+    DBG_OUT_PORT.end();
+    DBG_OUT_PORT.begin(9600);
+    send_uart();
+  }
 
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-  Buzz.beep(BUZ_PIN);
+  //Buzz.beep(BUZ_PIN);
   Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
-  if (ram_data.type_disp == 9) m3264_upd();
+  if (ram_data.type_disp == 9) m3264_upd(true);
   DBG_OUT_PORT.println("End of setup");
 }
 

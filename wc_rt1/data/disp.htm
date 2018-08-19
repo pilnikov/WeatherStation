@@ -38,7 +38,8 @@
         <option value = '6'>MAX7219_7S8D</option>
         <option value = '7'>HT1621</option>
         <option value = '8'>HT1632</option>
-        <option value = '9'>M3216</option>
+        <option value = '9'>M3264</option>
+        <option value ='10'>ILI9341</option>
         </select></td></tr>
       
         <tr><td>Руский язык</td><td><input type='checkbox' id='rdsp' name='rdsp'/></td></tr>
@@ -189,7 +190,7 @@
            showHide('brd4',  false);
          }
       
-         if (dtyp == 1 || dtyp == 4 || dtyp == 8) showHide('rdsp',  true);
+         if (dtyp == 1 || dtyp == 4 || dtyp >= 8) showHide('rdsp',  true);
          else  showHide('rdsp',  false);
       }
 

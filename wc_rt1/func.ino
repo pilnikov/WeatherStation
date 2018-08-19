@@ -3,6 +3,7 @@ void GetSnr()
 {
   snr_data_t ts_data;
   snr_data_t es_data;
+  if (ram_data.type_disp == 9) m3264_upd(false);
 
   if (web_cli)
   {
@@ -29,11 +30,14 @@ void GetSnr()
       dmsg.callback(ram_data.type_disp, 1, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
   }
+  if (ram_data.type_disp == 9) m3264_upd(true);
+
 }
 
 //------------------------------------------------------  Делаем запрос данных с Gismeteo
 String gs_rcv (unsigned long city_id)
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   if (debug_level == 10) DBG_OUT_PORT.println("True get data from GisMeteo");
   String out = "No connect to network";
   if (web_cli)
@@ -44,6 +48,7 @@ String gs_rcv (unsigned long city_id)
     out = nsys.http_client (addr);
   }
   if (debug_level == 10) DBG_OUT_PORT.println(out);
+  if (ram_data.type_disp == 9) m3264_upd(true);
   return out;
 }
 
@@ -56,6 +61,7 @@ const char *owmHost = "api.openweathermap.org";
 
 wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   wf_data_t prog;
 
   String out = "No connect to network";
@@ -104,6 +110,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   prog.cloud     = root["list"]["clouds"]["all"];
   prog.wind_dir  = rumb_conv(dir);
 
+  if (ram_data.type_disp == 9) m3264_upd(true);
   return prog;
 }
 
@@ -113,6 +120,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
 
 wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   wf_data_t prog;
 
   String out = "No connect to network";
@@ -165,6 +173,7 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   prog.day       = day(dt);
   prog.month     = month(dt);
   prog.wind_dir = rumb_conv(dir);
+  if (ram_data.type_disp == 9) m3264_upd(true);
   return prog;
 }
 
@@ -190,6 +199,7 @@ String tvoday(String line) {
 //------------------------------------------------------  Делаем запрос данных с внешнего сервера
 String es_rcv (char es_addr[17])
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   if (debug_level == 10) DBG_OUT_PORT.println("True get data from ext server");
   String out = "No connect to network";
   if (web_cli)
@@ -200,12 +210,14 @@ String es_rcv (char es_addr[17])
     out = nsys.http_client (addr);
   }
   if (debug_level == 10) DBG_OUT_PORT.println(out);
+  if (ram_data.type_disp == 9) m3264_upd(true);
   return out;
 }
 
 //------------------------------------------------------  Делаем запрос данных с ThingSpeak
 String ts_rcv (unsigned long id, char api[17])
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   if (debug_level == 10) DBG_OUT_PORT.println("True get data from TS");
   String out = "No connect to network";
   if (web_cli)
@@ -219,12 +231,14 @@ String ts_rcv (unsigned long id, char api[17])
   //if (debug_level == 10)
   DBG_OUT_PORT.print("TS<-R response from ts ");
   DBG_OUT_PORT.println(out);
+  if (ram_data.type_disp == 9) m3264_upd(true);
   return out;
 }
 
 //------------------------------------------------------  Отправляем данные на ThingSpeak
 String ts_snd (String inStr)
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   if (debug_level == 10) DBG_OUT_PORT.println("True put data to TS");
   String out = "No connect to network";
   if (web_cli)
@@ -252,12 +266,14 @@ String ts_snd (String inStr)
   //if (debug_level == 10)
   DBG_OUT_PORT.print("TS->W response from ts ");
   DBG_OUT_PORT.println(out);
+  if (ram_data.type_disp == 9) m3264_upd(true);
   return out;
 }
 
 //------------------------------------------------------  Управляем радиоприемничком по телнету
 String radio_snd (String cmd)
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   if (debug_level == 10) DBG_OUT_PORT.println("True put data to Radio");
   String out = "No connect with Radio";
   if (web_cli)
@@ -280,6 +296,7 @@ String radio_snd (String cmd)
   //if (debug_level == 10)
   DBG_OUT_PORT.print("Response from Radio: ");
   DBG_OUT_PORT.println(out);
+  if (ram_data.type_disp == 9) m3264_upd(true);
   return out;
 }
 
@@ -287,6 +304,7 @@ String radio_snd (String cmd)
 //-------------------------------------------------------- Получаем точное время с НТП сервера
 void GetNtp()
 {
+  if (ram_data.type_disp == 9) m3264_upd(false);
   bool result = false;
 
   if (debug_level == 10) DBG_OUT_PORT.println("True sync time with NTP");
@@ -324,6 +342,7 @@ void GetNtp()
   }
   if (result)   DBG_OUT_PORT.println("Sucsess !!!");
   else   DBG_OUT_PORT.println("Failed !!!");
+  if (ram_data.type_disp == 9) m3264_upd(true);
 }
 
 //------------------------------------------------------  Обрабатываем клавиатуру
@@ -449,7 +468,11 @@ void nm_veri(void)
 
 void fs_setup()
 {
-  if (!SPIFFS.begin())     DBG_OUT_PORT.print("\n Failed to mount file system \n");
+  if (!SPIFFS.begin())
+  {
+    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
+    SPIFFS.format();
+  }
   else
   {
 #if defined(ESP8266)

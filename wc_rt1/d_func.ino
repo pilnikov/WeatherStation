@@ -25,7 +25,7 @@ uint8_t mod_sel(uint8_t mod)
 //-------------------------------------------------------------- Выбор дня недели
 String dow_sel(uint8_t _dow)
 {
-  const String ndow[7] = {"Bc", "пН", "Bt", "сP", "Чt", "пt", "сБ"};
+  const String ndow[7] = {"Вc", "пН", "Вt", "сP", "Чt", "пt", "сБ"};
 
   String sbuf = ndow[_dow - 1];
 
@@ -180,19 +180,19 @@ void  matrix_refresh()
 //-------------------------------------------------------------- Отображение бегущей строки
 bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur_sym_pos)
 {
-  /*
-    DBG_OUT_PORT.print("cur_sym_pos..");
-    DBG_OUT_PORT.println(cur_sym_pos);
-    DBG_OUT_PORT.print("tape length..");
-    DBG_OUT_PORT.println(tape.length());
-  */
+  // DBG_OUT_PORT.print("cur_sym_pos..");
+  // DBG_OUT_PORT.println(cur_sym_pos);
   String instr = f_dsp.utf8rus(tape);
+
   if (dtype == 1) instr = f_dsp.lcd_rus(tape);
   if (dtype == 9)
   {
     m3264 -> setTextWrap(false);
     m3264 -> setTextSize(TextSize);
   }
+
+  //  DBG_OUT_PORT.print("input string length..");
+  //  DBG_OUT_PORT.println(instr.length());
 
   int colors[3];
   uint8_t sym_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
