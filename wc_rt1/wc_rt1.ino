@@ -201,7 +201,9 @@ void setup()
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   //Buzz.beep(BUZ_PIN);
   Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
+#if defined(ESP32)
   if (ram_data.type_disp == 9) m3264_upd(true);
+#endif
   DBG_OUT_PORT.println("End of setup");
 }
 

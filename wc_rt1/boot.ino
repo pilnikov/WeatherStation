@@ -80,7 +80,9 @@ void irq_set()
     if (ram_data.type_disp == 1 && disp_on) end_run_st = mov_str(ram_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
     if (ram_data.type_disp == 4)            end_run_st = mov_str(ram_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
     if (ram_data.type_disp == 8 && disp_on) end_run_st = mov_str(ram_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
+#if defined(ESP32)
     if (ram_data.type_disp == 9 && disp_on) end_run_st = mov_str(ram_data.type_disp, m3264 -> width(), st1, 0, cur_sym_pos[0]);
+#endif
   }
 
   if (end_run_st != end_run_st_buf)
@@ -187,6 +189,8 @@ void firq9()
 # ifdef new_max
   if (ram_data.type_disp == 4 && end_run_st)  m7219_time();
   if (ram_data.type_disp == 8 && disp_on)     m1632_time();
+#if defined(ESP32)
   if (ram_data.type_disp == 9 && disp_on)     m3264_time();
+#endif
 #endif
 }

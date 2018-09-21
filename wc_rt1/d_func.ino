@@ -185,11 +185,13 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
   String instr = f_dsp.utf8rus(tape);
 
   if (dtype == 1) instr = f_dsp.lcd_rus(tape);
+#if defined(ESP32)
   if (dtype == 9)
   {
     m3264 -> setTextWrap(false);
     m3264 -> setTextSize(TextSize);
   }
+#endif
 
   //  DBG_OUT_PORT.print("input string length..");
   //  DBG_OUT_PORT.println(instr.length());
@@ -202,11 +204,13 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
     spacer = 0;
   }
 
+#if defined(ESP32)
   if (dtype == 9)
   {
     sym_wdt *= TextSize;
     spacer = TextSize;
   }
+#endif
 
   if (cur_sym_pos < sym_wdt * instr.length() + dsp_wdt - spacer)  //текущая позиция < (длина строки + ширина дисплея)
   {
@@ -224,11 +228,13 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
         {
           if (dtype == 4) m7219 -> drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
           if (dtype == 8) m1632 -> drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+#if defined(ESP32)
           if (dtype == 9)
           {
             getRGB(abs(cur_sym_pos / 4) % 255, 255, 255, colors);
             m3264 -> drawChar(x, y, instr[letter], m3264 -> AdafruitColor(colors[0], colors[1], colors[2]), 0, TextSize);
           }
+#endif
         }
         letter--;     // смещение на символ влево по строке
         x -= sym_wdt; // смещение на ширину символа влево по х
