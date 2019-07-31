@@ -9,7 +9,7 @@ void set_alarm();
 bool Alarmed();
 void ds3231_write();
 void man_set_time();
-void InteruptServiceRoutine();
+void ICACHE_RAM_ATTR InteruptServiceRoutine();
 
 // ----------------------------------- RTC
 const int RtcSquareWaveInterrupt =  5; // Номер прерывания
@@ -27,5 +27,3 @@ RtcDS1307<TwoWire> DS1307(Wire);
 
 // ----------------------------------- Конструктор DS1302
 DS1302RTC DS1302(kCePin, kDiPin, kClPin);
-
-

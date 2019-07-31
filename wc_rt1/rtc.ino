@@ -299,7 +299,7 @@ void man_set_time()
   set_alarm();
 }
 
-void InteruptServiceRoutine()
+void ICACHE_RAM_ATTR InteruptServiceRoutine()
 {
   // since this interupted any other running code,
   // don't do anything that takes long and especially avoid
