@@ -264,7 +264,7 @@ bool Alarmed()
       conf_data.alarms[rtc_data.n_cur_alm][0] = 0; //Сбрасываем одноразовый будильник если это был он
 
       strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
-      saveConfig(conf_data);
+      saveConfig(conf_f, conf_data);
     }
     digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
   }
@@ -307,4 +307,3 @@ void InteruptServiceRoutine()
   interuptCount++;
   interuptFlag = true;
 }
-

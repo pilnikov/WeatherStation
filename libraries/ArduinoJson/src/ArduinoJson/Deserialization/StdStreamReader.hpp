@@ -1,5 +1,5 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2018
+// Copyright Benoit Blanchon 2014-2019
 // MIT License
 
 #pragma once
@@ -8,8 +8,7 @@
 
 #include <istream>
 
-namespace ArduinoJson {
-namespace Internals {
+namespace ARDUINOJSON_NAMESPACE {
 
 class StdStreamReader {
   std::istream& _stream;
@@ -19,12 +18,8 @@ class StdStreamReader {
   explicit StdStreamReader(std::istream& stream)
       : _stream(stream), _current(0) {}
 
-  bool ended() const {
-    return _stream.eof();
-  }
-
-  char read() {
-    return static_cast<char>(_stream.get());
+  int read() {
+    return _stream.get();
   }
 
  private:
@@ -34,7 +29,6 @@ class StdStreamReader {
 inline StdStreamReader makeReader(std::istream& input) {
   return StdStreamReader(input);
 }
-}  // namespace Internals
-}  // namespace ArduinoJson
+}  // namespace ARDUINOJSON_NAMESPACE
 
 #endif

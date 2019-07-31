@@ -434,7 +434,7 @@ snr_data_t SNR::read_snr(uint8_t type_int, uint8_t type_ext, uint8_t type_press,
 {
   snr_data_t data;
 
-  float h = 0, t = 0, p = 700;   
+  float h = 0, t = 99, p = 700;   
 
   data.h1 = 0; data.h2 = 0; data.t1 = 99; data.t2 = 99; data.p = 700;
 
@@ -502,7 +502,7 @@ snr_data_t SNR::read_snr(uint8_t type_int, uint8_t type_ext, uint8_t type_press,
   DBG_OUT_PORT.print("Type external sensor..");
   DBG_OUT_PORT.println(type_ext);
 
-  t = 0;
+  t = 99;
   h = 0;
 
   switch (type_ext)

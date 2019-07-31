@@ -1,13 +1,12 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2018
+// Copyright Benoit Blanchon 2014-2019
 // MIT License
 
 #pragma once
 
 #if ARDUINOJSON_ENABLE_PROGMEM
 
-namespace ArduinoJson {
-namespace Internals {
+namespace ARDUINOJSON_NAMESPACE {
 class UnsafeFlashStringReader {
   const char* _ptr;
 
@@ -15,13 +14,8 @@ class UnsafeFlashStringReader {
   explicit UnsafeFlashStringReader(const __FlashStringHelper* ptr)
       : _ptr(reinterpret_cast<const char*>(ptr)) {}
 
-  char read() {
+  int read() {
     return pgm_read_byte_near(_ptr++);
-  }
-
-  bool ended() const {
-    // this reader cannot detect the end
-    return false;
   }
 };
 
@@ -33,12 +27,11 @@ class SafeFlashStringReader {
   explicit SafeFlashStringReader(const __FlashStringHelper* ptr, size_t size)
       : _ptr(reinterpret_cast<const char*>(ptr)), _end(_ptr + size) {}
 
-  char read() {
-    return pgm_read_byte_near(_ptr++);
-  }
-
-  bool ended() const {
-    return _ptr == _end;
+  int read() {
+    if (_ptr < _end)
+      return pgm_read_byte_near(_ptr++);
+    else
+      return -1;
   }
 };
 
@@ -50,7 +43,6 @@ inline SafeFlashStringReader makeReader(const __FlashStringHelper* input,
                                         size_t size) {
   return SafeFlashStringReader(input, size);
 }
-}  // namespace Internals
-}  // namespace ArduinoJson
+}  // namespace ARDUINOJSON_NAMESPACE
 
 #endif

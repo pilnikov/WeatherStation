@@ -25,6 +25,8 @@ display	KEYWORD2
 clearDisplay	KEYWORD2
 set	KEYWORD2
 point	KEYWORD2
+coding	KEYWORD2
+coding	KEYWORD2
 bitDelay	KEYWORD2
 
 #######################################

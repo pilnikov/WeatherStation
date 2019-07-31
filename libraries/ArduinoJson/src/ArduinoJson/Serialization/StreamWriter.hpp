@@ -1,5 +1,5 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2018
+// Copyright Benoit Blanchon 2014-2019
 // MIT License
 
 #pragma once
@@ -10,8 +10,7 @@
 
 #include <ostream>
 
-namespace ArduinoJson {
-namespace Internals {
+namespace ARDUINOJSON_NAMESPACE {
 
 class StreamWriter {
  public:
@@ -34,7 +33,6 @@ class StreamWriter {
 
   std::ostream& _os;
 };
-}  // namespace Internals
-}  // namespace ArduinoJson
+}  // namespace ARDUINOJSON_NAMESPACE
 
 #endif  // ARDUINOJSON_ENABLE_STD_STREAM

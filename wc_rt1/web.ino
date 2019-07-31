@@ -88,7 +88,7 @@ void start_serv()
   if (web_cli || web_ap)
   {
     server.begin();
-    if (debug_level == 14) DBG_OUT_PORT.println( "Server started");
+    DBG_OUT_PORT.println( "Server started");
   }
 }
 
@@ -115,7 +115,7 @@ char * cur_time_str()
 //-------------------------------------------------------------- handlejTime
 void handlejTime()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["jhour"]  = hour();
@@ -173,7 +173,7 @@ void handleNTP()
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["apid"]   = conf_data.ap_ssid;
@@ -198,7 +198,7 @@ void handleSetWiFi()
   strcpy(conf_data.sta_ssid, server.arg("ss").c_str());
   strcpy(conf_data.sta_pass, server.arg("sp").c_str());
 
-  saveConfig(conf_data);
+  saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -206,7 +206,7 @@ void handleSetWiFi()
 //-------------------------------------------------------------- handlejPard
 void handlejPard()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["font"] = conf_data.type_font;
@@ -233,12 +233,12 @@ void handleSetFont()
 
   conf_data.type_font = server.arg("tfnt").toInt();
   strcpy(conf_data.test, "ok");
-  saveConfig(conf_data);
+  saveConfig(conf_f, conf_data);
   if (debug_level == 14) DBG_OUT_PORT.printf("font is.... %u", conf_data.type_font);
 
   set_type_font();
 
-  saveConfig(conf_data);
+  saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -265,7 +265,7 @@ void handleSetPard()
   if (val == conf_data.br_level[0]) conf_data.br_level[3] = val + 1;
   else conf_data.br_level[3] = val;
 
-  saveConfig(conf_data);
+  saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
   if (dtyp_buf != conf_data.type_disp) handleExit();
@@ -274,7 +274,7 @@ void handleSetPard()
 //-------------------------------------------------------------- handlejTS
 void handlejTS()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["tssi"] = conf_data.use_ts_i;
@@ -294,7 +294,7 @@ void handlejTS()
 //-------------------------------------------------------------- handlejPars
 void handlejPars()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["cyid"] = conf_data.pp_city_id;
@@ -318,7 +318,7 @@ void handlejPars()
 //-------------------------------------------------------------- handlejSnr
 void handlejSnr()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["tint"] = snr_data.t1;
@@ -362,7 +362,7 @@ void handleSetPars()
   conf_data.type_prs_snr = server.arg("psnr_t").toInt();
   strcpy(conf_data.owm_key, server.arg("owmk_t").c_str());
 
-  saveConfig(conf_data);
+  saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 
@@ -379,7 +379,7 @@ void handleSetPars()
 //-------------------------------------------------------------- handlejParc
 void handlejParc()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["tzon"] = conf_data.time_zone;
@@ -410,7 +410,7 @@ void handleSetParc()
   conf_data.every_hour_beep = (server.arg("ehb") == "1");
   conf_data.type_rtc = server.arg("srtyp").toInt();
 
-  saveConfig(conf_data);
+  saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -418,7 +418,7 @@ void handleSetParc()
 //-------------------------------------------------------------- handlejAlarm
 void handlejAlarm()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["anum"] = rtc_data.a_num;
@@ -457,7 +457,7 @@ void handleSetAlarm()
     DBG_OUT_PORT.println();
   }
 
-  saveConfig(conf_data);
+  saveConfig(conf_f, conf_data);
   set_alarm();
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -485,7 +485,7 @@ void handlejUart()
 //-------------------------------------------------------------- handlejAct
 void handlejAct()
 {
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["tstr"] = cur_time_str();

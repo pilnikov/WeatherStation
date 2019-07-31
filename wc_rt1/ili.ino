@@ -16,7 +16,7 @@ void ili_time(void) {
 
   tft -> fillRect(0, 0, SCREEN_WIDTH, 55, ILI9341_BLACK);
 
-  tft -> setTextAlignment(TEXT_ALIGN_CENTER);
+//  tft -> setTextAlignment(TEXT_ALIGN_CENTER);
   tft -> setTextSize(2);
   tft -> setTextColor(ILI9341_WHITE);
   char date[30];
@@ -44,10 +44,10 @@ void ili_time(void) {
   else
   {
 //    sprintf(time_str, "%02d:%02d:%02d\n", hour(), minute(), second());
-    tft -> drawString(SCREEN_WIDTH / 2, 20, time_str);
+//    tft -> drawString(SCREEN_WIDTH / 2, 20, time_str);
   }
 
-  tft -> setTextAlignment(TEXT_ALIGN_LEFT);
+//  tft -> setTextAlignment(TEXT_ALIGN_LEFT);
   tft -> setTextSize(2);
   tft -> setTextColor(ILI9341_BLUE);
   if (conf_data.use_pm)
@@ -70,7 +70,7 @@ void drawWifiQuality()
   int8_t quality = getWifiQuality();
   tft -> setTextColor(ILI9341_WHITE);
   tft -> setTextSize(1);
-  tft -> setTextAlignment(TEXT_ALIGN_RIGHT);
+//  tft -> setTextAlignment(TEXT_ALIGN_RIGHT);
   tft -> setCursor(228, 9);
   tft -> print(String(quality) + "%");
 
@@ -88,5 +88,3 @@ int8_t getWifiQuality()
   else if (dbm >= -50) return 100;
   else return 2 * (dbm + 100);
 }
-
-

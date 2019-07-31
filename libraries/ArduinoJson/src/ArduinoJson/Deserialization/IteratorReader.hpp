@@ -1,11 +1,10 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2018
+// Copyright Benoit Blanchon 2014-2019
 // MIT License
 
 #pragma once
 
-namespace ArduinoJson {
-namespace Internals {
+namespace ARDUINOJSON_NAMESPACE {
 
 template <typename TIterator>
 class IteratorReader {
@@ -15,12 +14,11 @@ class IteratorReader {
   explicit IteratorReader(TIterator begin, TIterator end)
       : _ptr(begin), _end(end) {}
 
-  bool ended() const {
-    return _ptr == _end;
-  }
-
-  char read() {
-    return char(*_ptr++);
+  int read() {
+    if (_ptr < _end)
+      return static_cast<unsigned char>(*_ptr++);
+    else
+      return -1;
   }
 };
 
@@ -30,5 +28,4 @@ inline IteratorReader<typename TInput::const_iterator> makeReader(
   return IteratorReader<typename TInput::const_iterator>(input.begin(),
                                                          input.end());
 }
-}  // namespace Internals
-}  // namespace ArduinoJson
+}  // namespace ARDUINOJSON_NAMESPACE

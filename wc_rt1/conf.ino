@@ -1,92 +1,110 @@
 #if defined(ESP8266) || defined(ESP32)
 
-conf_data_t loadConfig()
+
+conf_data_t loadConfig(const char *filename)
 {
   conf_data_t data;
 
-  File configFile = SPIFFS.open("/config.json", "r");
-  // Allocate the document on the stack.
-  // Don't forget to change the capacity to match your requirements.
-  // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument jsonBuffer;
+  File file = SPIFFS.open(filename, "r");
 
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(jsonBuffer, configFile);
-  configFile.close();
-  if (error)
+  if (!file)
   {
-    DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
-
+    DBG_OUT_PORT.println("Failed to open config file for reading");
     data = defaultConfig();
-    return data;
   }
-
-  // Get the root object in the document
-  JsonObject json = jsonBuffer.as<JsonObject>();
-
-  strncpy(data.sta_ssid,   " ", 33);
-  strncpy(data.sta_pass,   " ", 33);
-  strncpy(data.ap_ssid,    " ", 17);
-  strncpy(data.ap_pass ,   " ", 17);
-  strncpy(data.AKey_r,     " ", 17);
-  strncpy(data.AKey_w,     " ", 17);
-  strncpy(data.esrv_addr,  " ", 17);
-  strncpy(data.radio_addr, " ", 17);
-  strncpy(data.owm_key,    " ", 35);
-
-  strncpy(data.sta_ssid,  json["sta_ssid"],  33);
-  strncpy(data.sta_pass,  json["sta_pass"],  33);
-  strncpy(data.ap_ssid,   json["ap_ssid"],   17);
-  strncpy(data.ap_pass,   json["ap_pass"],   17);
-  strncpy(data.AKey_r,    json["AKey_r"],    17);
-  strncpy(data.AKey_w,    json["AKey_w"],    17);
-  strncpy(data.esrv_addr, json["esrv_addr"], 17);
-  strncpy(data.radio_addr, json["radio_addr"], 17);
-  strncpy(data.owm_key,   json["owm_key"], 32);
-
-  data.auto_corr        = json["auto_corr"];
-  data.use_pm           = json["use_pm"];
-  data.every_hour_beep  = json["every_hour_beep"];
-  data.rus_disp         = json["rus_disp"];
-  data.use_ts_i         = json["use_ts_i"];
-  data.use_ts_e         = json["use_ts_e"];
-  data.use_ts_p         = json["use_ts_p"];
-  data.use_es           = json["use_es"];
-  data.use_pp           = json["use_pp"];
-  data.time_zone        = json["time_zone"];
-  data.type_disp        = json["type_disp"];
-  data.type_int_snr     = json["type_int_snr"];
-  data.type_ext_snr     = json["type_ext_snr"];
-  data.type_prs_snr     = json["type_prs_snr"];
-  data.type_rtc         = json["type_rtc"];
-  data.night_mode_start = json["night_mode_start"];
-  data.night_mode_stop  = json["night_mode_stop"];
-  data.ts_ch_id         = json["ts_ch_id"];
-  data.pp_city_id       = json["pp_city_id"];
-  data.period           = json["period"]; // minutes
-  data.man_br           = json["man_br"];
-  data.auto_br          = json["auto_br"];
-
-  for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = json["br_level"][i];
-
-  data.type_font        = json["type_font"];
-
-  for (uint8_t j = 0; j <= 4; j++)
+  else
   {
-    data.alarms[0][j] = json["alarms"]["0"][j];
-    data.alarms[1][j] = json["alarms"]["1"][j];
-    data.alarms[2][j] = json["alarms"]["2"][j];
-    data.alarms[3][j] = json["alarms"]["3"][j];
-    data.alarms[4][j] = json["alarms"]["4"][j];
-    data.alarms[5][j] = json["alarms"]["5"][j];
-    data.alarms[6][j] = json["alarms"]["6"][j];
-  }
-  //  data = defaultConfig();
 
+    // Allocate the document on the stack.
+    // Don't forget to change the capacity to match your requirements.
+    // Use arduinojson.org/assistant to compute the capacity.
+
+
+    DynamicJsonDocument doc(2900);
+
+    // Deserialize the JSON document
+    DeserializationError error = deserializeJson(doc, file);
+    file.close();
+
+    if (!error)
+    {
+      DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
+
+      // Get the root object in the document
+      //JsonObject json = jsonBuffer.as<JsonObject>();
+
+      strncpy(data.sta_ssid,   " ", 33);
+      strncpy(data.sta_pass,   " ", 33);
+      strncpy(data.ap_ssid,    " ", 17);
+      strncpy(data.ap_pass ,   " ", 17);
+      strncpy(data.AKey_r,     " ", 17);
+      strncpy(data.AKey_w,     " ", 17);
+      strncpy(data.esrv_addr,  " ", 17);
+      strncpy(data.radio_addr, " ", 17);
+      strncpy(data.owm_key,    " ", 35);
+
+      strncpy(data.sta_ssid,  doc["sta_ssid"],  33);
+      strncpy(data.sta_pass,  doc["sta_pass"],  33);
+      strncpy(data.ap_ssid,   doc["ap_ssid"],   17);
+      strncpy(data.ap_pass,   doc["ap_pass"],   17);
+      strncpy(data.AKey_r,    doc["AKey_r"],    17);
+      strncpy(data.AKey_w,    doc["AKey_w"],    17);
+      strncpy(data.esrv_addr, doc["esrv_addr"], 17);
+      strncpy(data.radio_addr, doc["radio_addr"], 17);
+      strncpy(data.owm_key,   doc["owm_key"], 32);
+
+      data.auto_corr        = doc["auto_corr"];
+      data.use_pm           = doc["use_pm"];
+      data.every_hour_beep  = doc["every_hour_beep"];
+      data.rus_disp         = doc["rus_disp"];
+      data.use_ts_i         = doc["use_ts_i"];
+      data.use_ts_e         = doc["use_ts_e"];
+      data.use_ts_p         = doc["use_ts_p"];
+      data.use_es           = doc["use_es"];
+      data.use_pp           = doc["use_pp"];
+      data.time_zone        = doc["time_zone"];
+      data.type_disp        = doc["type_disp"];
+      data.type_int_snr     = doc["type_int_snr"];
+      data.type_ext_snr     = doc["type_ext_snr"];
+      data.type_prs_snr     = doc["type_prs_snr"];
+      data.type_rtc         = doc["type_rtc"];
+      data.night_mode_start = doc["night_mode_start"];
+      data.night_mode_stop  = doc["night_mode_stop"];
+      data.ts_ch_id         = doc["ts_ch_id"];
+      data.pp_city_id       = doc["pp_city_id"];
+      data.period           = doc["period"]; // minutes
+      data.man_br           = doc["man_br"];
+      data.auto_br          = doc["auto_br"];
+
+      for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = doc["br_level"][i];
+
+      data.type_font        = doc["type_font"];
+
+      for (uint8_t j = 0; j <= 4; j++)
+      {
+        data.alarms[0][j] = doc["alarms"]["0"][j];
+        data.alarms[1][j] = doc["alarms"]["1"][j];
+        data.alarms[2][j] = doc["alarms"]["2"][j];
+        data.alarms[3][j] = doc["alarms"]["3"][j];
+        data.alarms[4][j] = doc["alarms"]["4"][j];
+        data.alarms[5][j] = doc["alarms"]["5"][j];
+        data.alarms[6][j] = doc["alarms"]["6"][j];
+      }
+      //  data = defaultConfig();
+    }
+    else
+    {
+      DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+      DBG_OUT_PORT.println(error.c_str());
+      DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
+
+      data = defaultConfig();
+    }
+  }
   return data;
 }
 
-void saveConfig(conf_data_t data)
+void saveConfig(const char *filename, conf_data_t data)
 {
   if (debug_level == 3) DBG_OUT_PORT.println( "Start saving conf_data to config.json");
 
@@ -97,8 +115,8 @@ void saveConfig(conf_data_t data)
   if ( data.type_prs_snr < 0  || data.type_prs_snr  >  10) data.type_prs_snr  = 0;
   if ( data.ap_ssid[0] == ' ' || data.ap_ssid[0] == 0) strncpy( data.ap_ssid, ap_ssid_def, sizeof(ap_ssid_def));
 
-  DynamicJsonDocument jsonBuffer;
-  JsonObject json = jsonBuffer.to<JsonObject>();
+  DynamicJsonDocument doc(2900);
+  JsonObject json = doc.to<JsonObject>();
 
   json["sta_ssid"]            = data.sta_ssid;
   json["sta_pass"]            = data.sta_pass;
@@ -137,8 +155,10 @@ void saveConfig(conf_data_t data)
 
   json["type_font"]           = data.type_font;
 
-  DynamicJsonDocument jsonBuffer2;
-  JsonObject json2 = jsonBuffer2.to<JsonObject>();
+  //DynamicJsondocument jsonBuffer2(128);
+  // JsonObject json2 = doc.to<JsonObject>();
+  DynamicJsonDocument doc2(700);
+  JsonObject json2 = doc2.to<JsonObject>();
 
   JsonArray al0 = json2.createNestedArray("0");
   JsonArray al1 = json2.createNestedArray("1");
@@ -167,14 +187,17 @@ void saveConfig(conf_data_t data)
   alarms["5"] = al5;
   alarms["6"] = al6;
 
-  File configFile = SPIFFS.open("/config.json", "w");
+  // Delete existing file, otherwise the configuration is appended to the file
+  SPIFFS.remove(filename);
+
+  File configFile = SPIFFS.open(filename, "w"); //Open config file for writing
 
   if (!configFile)
   {
     DBG_OUT_PORT.println("Failed to open config file for writing");
     return;
   }
-  if (serializeJson(jsonBuffer, configFile) == 0) DBG_OUT_PORT.println(F("Failed to write to file"));
+  if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed to write to file"));
   DBG_OUT_PORT.println( "End write buffer to file");
   configFile.close();
 }

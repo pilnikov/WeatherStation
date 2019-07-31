@@ -8,12 +8,12 @@ snr_data_t ES::get_ts(String inStr)
 
 //  data.h1 = 0; data.t1 = 99; data.h2 = 0; data.t2 = 99; data.p = 0;
 
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
 
   DeserializationError error = deserializeJson(jsonBuffer, inStr);
   if (error)
   {
-    DBG_OUT_PORT.println(F("Failed to read inStr, data not be modifed"));
+    DBG_OUT_PORT.println(F("Read data from TS failed!!! Check connections."));
   }
   else
   {
@@ -357,14 +357,14 @@ wf_data_t ES::get_gm(String inStr)
 snr_data_t ES::get_es(String inStr)
 {
   snr_data_t data;
-  data.h1 = 0; data.h2 = 0; data.t1 = 99; data.t2 = 99; data.p = 0; data.ft = 255;
+  data.h1 = 0; data.h2 = 0; data.t1 = 99; data.t2 = 99; data.p = 700; data.ft = 255;
 
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(1024);
 
   DeserializationError error = deserializeJson(jsonBuffer, inStr);
   if (error)
   {
-    DBG_OUT_PORT.println(F("Failed to read inStr, data not be modifed"));
+    DBG_OUT_PORT.println(F("Read data from Ext server failed!!! Check connections."));
   }
   else
   {

@@ -97,7 +97,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
 
   DBG_OUT_PORT.println("\n Now " + line);
 
-  DynamicJsonDocument jsonBuf;
+  DynamicJsonDocument jsonBuf(1024);
   DeserializationError error = deserializeJson(jsonBuf, line);
   if (error)
   {
@@ -161,7 +161,7 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   String tempz = tvoday(line);
   DBG_OUT_PORT.println("\n" + tempz);
 
-  DynamicJsonDocument jsonBuf;
+  DynamicJsonDocument jsonBuf(512);
   DeserializationError error = deserializeJson(jsonBuf, tempz);
   if (error)
   {
@@ -339,7 +339,7 @@ void GetNtp()
 #endif
   bool result = false;
 
-  if (debug_level == 10) DBG_OUT_PORT.println("True sync time with NTP");
+  DBG_OUT_PORT.println("True sync time with NTP");
   if (web_cli)
   {
     dmsg.callback(ram_data.type_disp, 0, 0, conf_data.rus_disp);; //сообщение на индикатор
@@ -432,7 +432,7 @@ void keyb_read()
   {
     if (debug_level == 10) DBG_OUT_PORT.println("Set default value and reboot...");
     conf_data = defaultConfig();
-    saveConfig(conf_data);
+    saveConfig(conf_f, conf_data);
     WiFi.disconnect();
 #if defined(ESP8266) || defined(ESP32)
     WiFi.mode(WIFI_OFF);
@@ -499,6 +499,25 @@ void nm_veri(void)
 
 //------------------------------------------------------  Внутренняя флэшка SPIFFS
 # if defined(ESP8266) || defined(ESP32)
+
+void printFile(const char *filename) {
+  // Open file for reading
+  File file = SPIFFS.open(filename, "r");
+  if (!file) {
+    DBG_OUT_PORT.println(F("Failed to read file"));
+    return;
+  }
+
+  // Extract each characters by one by one
+  while (file.available()) {
+    DBG_OUT_PORT.print((char)file.read());
+  }
+  DBG_OUT_PORT.println();
+
+  // Close the file
+  file.close();
+}
+
 
 void fs_setup()
 {

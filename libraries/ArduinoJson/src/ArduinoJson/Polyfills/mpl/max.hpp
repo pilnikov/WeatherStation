@@ -1,13 +1,12 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2018
+// Copyright Benoit Blanchon 2014-2019
 // MIT License
 
 #pragma once
 
-#include <stdlib.h>  // for size_t
+#include <stddef.h>  // for size_t
 
-namespace ArduinoJson {
-namespace Internals {
+namespace ARDUINOJSON_NAMESPACE {
 
 // A meta-function that returns the highest value
 template <size_t X, size_t Y, bool MaxIsX = (X > Y)>
@@ -22,5 +21,4 @@ template <size_t X, size_t Y>
 struct Max<X, Y, false> {
   static const size_t value = Y;
 };
-}  // namespace Internals
-}  // namespace ArduinoJson
+}  // namespace ARDUINOJSON_NAMESPACE

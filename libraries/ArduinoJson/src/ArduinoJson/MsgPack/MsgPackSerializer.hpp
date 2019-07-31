@@ -1,17 +1,16 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2018
+// Copyright Benoit Blanchon 2014-2019
 // MIT License
 
 #pragma once
 
-#include "../JsonVariant.hpp"
 #include "../Polyfills/type_traits.hpp"
 #include "../Serialization/measure.hpp"
 #include "../Serialization/serialize.hpp"
-#include "./endianess.hpp"
+#include "../Variant/VariantData.hpp"
+#include "endianess.hpp"
 
-namespace ArduinoJson {
-namespace Internals {
+namespace ARDUINOJSON_NAMESPACE {
 
 template <typename TWriter>
 class MsgPackSerializer {
@@ -19,13 +18,14 @@ class MsgPackSerializer {
   MsgPackSerializer(TWriter& writer) : _writer(&writer), _bytesWritten(0) {}
 
   template <typename T>
-  typename enable_if<sizeof(T) == 4>::type acceptFloat(T value32) {
+  typename enable_if<sizeof(T) == 4>::type visitFloat(T value32) {
     writeByte(0xCA);
     writeInteger(value32);
   }
 
   template <typename T>
-  typename enable_if<sizeof(T) == 8>::type acceptFloat(T value64) {
+  ARDUINOJSON_NO_SANITIZE("float-cast-overflow")
+  typename enable_if<sizeof(T) == 8>::type visitFloat(T value64) {
     float value32 = float(value64);
     if (value32 == value64) {
       writeByte(0xCA);
@@ -36,7 +36,7 @@ class MsgPackSerializer {
     }
   }
 
-  void acceptArray(const JsonArray& array) {
+  void visitArray(const CollectionData& array) {
     size_t n = array.size();
     if (n < 0x10) {
       writeByte(uint8_t(0x90 + array.size()));
@@ -47,13 +47,12 @@ class MsgPackSerializer {
       writeByte(0xDD);
       writeInteger(uint32_t(n));
     }
-    for (JsonArray::const_iterator it = array.begin(); it != array.end();
-         ++it) {
-      it->visit(*this);
+    for (VariantSlot* slot = array.head(); slot; slot = slot->next()) {
+      slot->data()->accept(*this);
     }
   }
 
-  void acceptObject(const JsonObject& object) {
+  void visitObject(const CollectionData& object) {
     size_t n = object.size();
     if (n < 0x10) {
       writeByte(uint8_t(0x80 + n));
@@ -64,14 +63,13 @@ class MsgPackSerializer {
       writeByte(0xDF);
       writeInteger(uint32_t(n));
     }
-    for (JsonObject::const_iterator it = object.begin(); it != object.end();
-         ++it) {
-      acceptString(it->key);
-      it->value.visit(*this);
+    for (VariantSlot* slot = object.head(); slot; slot = slot->next()) {
+      visitString(slot->key());
+      slot->data()->accept(*this);
     }
   }
 
-  void acceptString(const char* value) {
+  void visitString(const char* value) {
     if (!value) return writeByte(0xC0);  // nil
 
     size_t n = strlen(value);
@@ -91,12 +89,12 @@ class MsgPackSerializer {
     writeBytes(reinterpret_cast<const uint8_t*>(value), n);
   }
 
-  void acceptRawJson(const char* data, size_t size) {
+  void visitRawJson(const char* data, size_t size) {
     writeBytes(reinterpret_cast<const uint8_t*>(data), size);
   }
 
-  void acceptNegativeInteger(JsonUInt value) {
-    JsonUInt negated = JsonUInt(~value + 1);
+  void visitNegativeInteger(UInt value) {
+    UInt negated = UInt(~value + 1);
     if (value <= 0x20) {
       writeInteger(int8_t(negated));
     } else if (value <= 0x80) {
@@ -109,7 +107,7 @@ class MsgPackSerializer {
       writeByte(0xD2);
       writeInteger(int32_t(negated));
     }
-#if ARDUINOJSON_USE_LONG_LONG || ARDUINOJSON_USE_INT64
+#if ARDUINOJSON_USE_LONG_LONG
     else {
       writeByte(0xD3);
       writeInteger(int64_t(negated));
@@ -117,7 +115,7 @@ class MsgPackSerializer {
 #endif
   }
 
-  void acceptPositiveInteger(JsonUInt value) {
+  void visitPositiveInteger(UInt value) {
     if (value <= 0x7F) {
       writeInteger(uint8_t(value));
     } else if (value <= 0xFF) {
@@ -130,7 +128,7 @@ class MsgPackSerializer {
       writeByte(0xCE);
       writeInteger(uint32_t(value));
     }
-#if ARDUINOJSON_USE_LONG_LONG || ARDUINOJSON_USE_INT64
+#if ARDUINOJSON_USE_LONG_LONG
     else {
       writeByte(0xCF);
       writeInteger(uint64_t(value));
@@ -138,11 +136,11 @@ class MsgPackSerializer {
 #endif
   }
 
-  void acceptBoolean(bool value) {
+  void visitBoolean(bool value) {
     writeByte(value ? 0xC3 : 0xC2);
   }
 
-  void acceptNull() {
+  void visitNull() {
     writeByte(0xC0);
   }
 
@@ -168,25 +166,21 @@ class MsgPackSerializer {
   TWriter* _writer;
   size_t _bytesWritten;
 };
-}  // namespace Internals
 
 template <typename TSource, typename TDestination>
 inline size_t serializeMsgPack(const TSource& source, TDestination& output) {
-  using namespace Internals;
   return serialize<MsgPackSerializer>(source, output);
 }
 
 template <typename TSource, typename TDestination>
 inline size_t serializeMsgPack(const TSource& source, TDestination* output,
                                size_t size) {
-  using namespace Internals;
   return serialize<MsgPackSerializer>(source, output, size);
 }
 
 template <typename TSource>
 inline size_t measureMsgPack(const TSource& source) {
-  using namespace Internals;
   return measure<MsgPackSerializer>(source);
 }
 
-}  // namespace ArduinoJson
+}  // namespace ARDUINOJSON_NAMESPACE

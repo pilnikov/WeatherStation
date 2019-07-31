@@ -57,6 +57,9 @@
 
 #if defined (ARDUINO_ARCH_ARC32) || defined (ARDUINO_MAXIM)
   #define SPI_DEFAULT_FREQ  16000000
+// Teensy 3.0, 3.1/3.2, 3.5, 3.6
+#elif defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+  #define SPI_DEFAULT_FREQ  40000000
 #elif defined (__AVR__) || defined(TEENSYDUINO)
   #define SPI_DEFAULT_FREQ  8000000
 #elif defined(ESP8266) || defined(ESP32)
@@ -94,14 +97,56 @@ Adafruit_ILI9341::Adafruit_ILI9341(int8_t cs, int8_t dc, int8_t mosi,
 
 /**************************************************************************/
 /*!
-    @brief  Instantiate Adafruit ILI9341 driver with hardware SPI
-    @param    cs    Chip select pin #
-    @param    dc    Data/Command pin #
-    @param    rst   Reset pin # (optional, pass -1 if unused)
+    @brief  Instantiate Adafruit ILI9341 driver with hardware SPI using the
+            default SPI peripheral.
+    @param  cs   Chip select pin # (OK to pass -1 if CS tied to GND).
+    @param  dc   Data/Command pin # (required).
+    @param  rst  Reset pin # (optional, pass -1 if unused).
 */
 /**************************************************************************/
-Adafruit_ILI9341::Adafruit_ILI9341(int8_t cs, int8_t dc, int8_t rst) : Adafruit_SPITFT(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT, cs, dc, rst) {
+Adafruit_ILI9341::Adafruit_ILI9341(int8_t cs, int8_t dc, int8_t rst) :
+  Adafruit_SPITFT(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT, cs, dc, rst) {
 }
+
+#if !defined(ESP8266)
+/**************************************************************************/
+/*!
+    @brief  Instantiate Adafruit ILI9341 driver with hardware SPI using
+            a specific SPI peripheral (not necessarily default).
+    @param  spiClass  Pointer to SPI peripheral (e.g. &SPI or &SPI1).
+    @param  dc        Data/Command pin # (required).
+    @param  cs        Chip select pin # (optional, pass -1 if unused and
+                      CS is tied to GND).
+    @param  rst       Reset pin # (optional, pass -1 if unused).
+*/
+/**************************************************************************/
+Adafruit_ILI9341::Adafruit_ILI9341(
+  SPIClass *spiClass, int8_t dc, int8_t cs, int8_t rst) :
+  Adafruit_SPITFT(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT, spiClass, cs, dc, rst) {
+}
+#endif // end !ESP8266
+
+/**************************************************************************/
+/*!
+    @brief  Instantiate Adafruit ILI9341 driver using parallel interface.
+    @param  busWidth  If tft16 (enumeration in Adafruit_SPITFT.h), is a
+                      16-bit interface, else 8-bit.
+    @param  d0        Data pin 0 (MUST be a byte- or word-aligned LSB of a
+                      PORT register -- pins 1-n are extrapolated from this).
+    @param  wr        Write strobe pin # (required).
+    @param  dc        Data/Command pin # (required).
+    @param  cs        Chip select pin # (optional, pass -1 if unused and CS
+                      is tied to GND).
+    @param  rst       Reset pin # (optional, pass -1 if unused).
+    @param  rd        Read strobe pin # (optional, pass -1 if unused).
+*/
+/**************************************************************************/
+Adafruit_ILI9341::Adafruit_ILI9341(tftBusWidth busWidth,
+  int8_t d0, int8_t wr, int8_t dc, int8_t cs, int8_t rst, int8_t rd) :
+  Adafruit_SPITFT(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT, busWidth,
+    d0, wr, dc, cs, rst, rd) {
+}
+
 
 static const uint8_t PROGMEM initcmd[] = {
   0xEF, 3, 0x03, 0x80, 0x02,
@@ -139,24 +184,24 @@ static const uint8_t PROGMEM initcmd[] = {
 */
 /**************************************************************************/
 void Adafruit_ILI9341::begin(uint32_t freq) {
-    if(!freq) freq = SPI_DEFAULT_FREQ;
-    _freq = freq;
 
+    if(!freq) freq = SPI_DEFAULT_FREQ;
     initSPI(freq);
 
-    startWrite();
+    if(_rst < 0) {                     // If no hardware reset pin...
+        sendCommand(ILI9341_SWRESET); // Engage software reset
+        delay(150);
+    }
 
     uint8_t        cmd, x, numArgs;
     const uint8_t *addr = initcmd;
     while((cmd = pgm_read_byte(addr++)) > 0) {
-        writeCommand(cmd);
-        x       = pgm_read_byte(addr++);
+        x = pgm_read_byte(addr++);
         numArgs = x & 0x7F;
-        while(numArgs--) spiWrite(pgm_read_byte(addr++));
-        if(x & 0x80) delay(120);
+        sendCommand(cmd, addr, numArgs);
+        addr += numArgs;
+        if(x & 0x80) delay(150);
     }
-
-    endWrite();
 
     _width  = ILI9341_TFTWIDTH;
     _height = ILI9341_TFTHEIGHT;
@@ -194,10 +239,7 @@ void Adafruit_ILI9341::setRotation(uint8_t m) {
             break;
     }
 
-    startWrite();
-    writeCommand(ILI9341_MADCTL);
-    spiWrite(m);
-    endWrite();
+    sendCommand(ILI9341_MADCTL, &m, 1);
 }
 
 /**************************************************************************/
@@ -206,10 +248,8 @@ void Adafruit_ILI9341::setRotation(uint8_t m) {
     @param   invert True to invert, False to have normal color
 */
 /**************************************************************************/
-void Adafruit_ILI9341::invertDisplay(boolean invert) {
-    startWrite();
-    writeCommand(invert ? ILI9341_INVON : ILI9341_INVOFF);
-    endWrite();
+void Adafruit_ILI9341::invertDisplay(bool invert) {
+    sendCommand(invert ? ILI9341_INVON : ILI9341_INVOFF);
 }
 
 /**************************************************************************/
@@ -219,136 +259,67 @@ void Adafruit_ILI9341::invertDisplay(boolean invert) {
 */
 /**************************************************************************/
 void Adafruit_ILI9341::scrollTo(uint16_t y) {
-    startWrite();
-    writeCommand(ILI9341_VSCRSADD);
-    SPI_WRITE16(y);
-    endWrite();
+    uint8_t data[2];
+    data[0] = y >> 8;
+    data[1] = y & 0xff;
+    sendCommand(ILI9341_VSCRSADD, (uint8_t*) data, 2);
 }
 
 /**************************************************************************/
 /*!
-    @brief   Set the "address window" - the rectangle we will write to RAM with the next chunk of SPI data writes. The ILI9341 will automatically wrap the data as each row is filled
-    @param   x  TFT memory 'x' origin
-    @param   y  TFT memory 'y' origin
-    @param   w  Width of rectangle
-    @param   h  Height of rectangle
+    @brief   Set the height of the Top and Bottom Scroll Margins
+    @param   top The height of the Top scroll margin
+    @param   bottom The height of the Bottom scroll margin
+ */
+/**************************************************************************/
+void Adafruit_ILI9341::setScrollMargins(uint16_t top, uint16_t bottom) {
+  // TFA+VSA+BFA must equal 320
+  if (top + bottom <= ILI9341_TFTHEIGHT) {
+    uint16_t middle = ILI9341_TFTHEIGHT - top + bottom;
+    uint8_t data[6];
+    data[0] = top >> 8;
+    data[1] = top & 0xff;
+    data[2] = middle >> 8;
+    data[3] = middle & 0xff;
+    data[4] = bottom >> 8;
+    data[5] = bottom & 0xff;
+    sendCommand(ILI9341_VSCRDEF, (uint8_t*) data, 6);
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief   Set the "address window" - the rectangle we will write to RAM with the next chunk of      SPI data writes. The ILI9341 will automatically wrap the data as each row is filled
+    @param   x1  TFT memory 'x' origin
+    @param   y1  TFT memory 'y' origin
+    @param   w   Width of rectangle
+    @param   h   Height of rectangle
 */
 /**************************************************************************/
-void Adafruit_ILI9341::setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
-    uint32_t xa = ((uint32_t)x << 16) | (x+w-1);
-    uint32_t ya = ((uint32_t)y << 16) | (y+h-1);
-    writeCommand(ILI9341_CASET); // Column addr set
-    SPI_WRITE32(xa);
-    writeCommand(ILI9341_PASET); // Row addr set
-    SPI_WRITE32(ya);
-    writeCommand(ILI9341_RAMWR); // write to RAM
+void Adafruit_ILI9341::setAddrWindow(
+  uint16_t x1, uint16_t y1, uint16_t w, uint16_t h) {
+    uint16_t x2 = (x1 + w - 1),
+             y2 = (y1 + h - 1);
+    writeCommand(ILI9341_CASET); // Column address set
+    SPI_WRITE16(x1);
+    SPI_WRITE16(x2);
+    writeCommand(ILI9341_PASET); // Row address set
+    SPI_WRITE16(y1);
+    SPI_WRITE16(y2);
+    writeCommand(ILI9341_RAMWR); // Write to RAM
 }
 
 /**************************************************************************/
 /*!
-   @brief  Read 8 bits of data from ILI9341 configuration memory. NOT from RAM!
-           This is highly undocumented/supported, it's really a hack but kinda works?
-    @param    command  The command register to read data from
+    @brief  Read 8 bits of data from ILI9341 configuration memory. NOT from RAM!
+            This is highly undocumented/supported, it's really a hack but kinda works?
+    @param    commandByte  The command register to read data from
     @param    index  The byte index into the command to read from
     @return   Unsigned 8-bit data read from ILI9341 register
-*/
+ */
 /**************************************************************************/
-uint8_t Adafruit_ILI9341::readcommand8(uint8_t command, uint8_t index) {
-    uint32_t freq = _freq;
-    if(_freq > 24000000) _freq = 24000000;
-    startWrite();
-    writeCommand(0xD9);  // woo sekret command?
-    spiWrite(0x10 + index);
-    writeCommand(command);
-    uint8_t r = spiRead();
-    endWrite();
-    _freq = freq;
-    return r;
-}
-
-void Adafruit_ILI9341::drawString(int16_t xMove, int16_t yMove, String strUser) {
-  uint16_t lineHeight = 0;
-
-  // char* text must be freed!
-  char* text = utf8ascii(strUser);
-
-  uint16_t yOffset = 0;
-  // If the string should be centered vertically too
-  // we need to now how heigh the string is.
-  if (textAlignment == TEXT_ALIGN_CENTER_BOTH) {
-    uint16_t lb = 0;
-    // Find number of linebreaks in text
-    for (uint16_t i=0;text[i] != 0; i++) {
-      lb += (text[i] == 10);
-    }
-    // Calculate center
-    yOffset = (lb * lineHeight) >> 2;
-  }
-
-  uint16_t line = 0;
-  char* textPart = strtok(text,"\n");
-  while (textPart != NULL) {
-    uint16_t length = strlen(textPart);
-    textPart = strtok(NULL, "\n");
-  }
-  free(text);
-}
-
-// Code form http://playground.arduino.cc/Main/Utf8ascii
-uint8_t Adafruit_ILI9341::utf8ascii(byte ascii) {
-  static uint8_t LASTCHAR;
-
-  if ( ascii < 128 ) { // Standard ASCII-set 0..0x7F handling
-    LASTCHAR = 0;
-    return ascii;
-  }
-
-  uint8_t last = LASTCHAR;   // get last char
-  LASTCHAR = ascii;
-
-  switch (last) {    // conversion depnding on first UTF8-character
-   case 0xD0: if (ascii == 0x81) return (0xA8); //Ё
-      else if (ascii >= 0x90 && ascii <= 0xBF) return (ascii + 0x30);
-      break;
-   case 0xD1: if (ascii == 0x91) return (0xB8); //ё
-      else if (ascii >= 0x80 && ascii <= 0x8F) return (ascii + 0x70);
-      break;
-   case 0xC2: return  (ascii);  break;
-   case 0xC3: return  (ascii | 0xC0);  break;
-   case 0x82: if (ascii == 0xAC) return (0x80);    // special case Euro-symbol
-  }
-
-  return  0; // otherwise: return zero, if character has to be ignored
-}
-
-// You need to free the char!
-char* Adafruit_ILI9341::utf8ascii(String str) {
-  uint16_t k = 0;
-  uint16_t length = str.length() + 1;
-
-  // Copy the string into a char array
-  char* s = (char*) malloc(length * sizeof(char));
-  if(!s) {
-    //DEBUG_OLEDDISPLAY("[OLEDDISPLAY][utf8ascii] Can't allocate another char array. Drop support for UTF-8.\n");
-    return (char*) str.c_str();
-  }
-  str.toCharArray(s, length);
-
-  length--;
-
-  for (uint16_t i=0; i < length; i++) {
-    char c = utf8ascii(s[i]);
-    if (c!=0) {
-      s[k++]=c;
-    }
-  }
-
-  s[k]=0;
-
-  // This will leak 's' be sure to free it in the calling function.
-  return s;
-}
-
-void Adafruit_ILI9341::setTextAlignment(TEXT_ALIGNMENT textAlignment) {
-  this->textAlignment = textAlignment;
+uint8_t Adafruit_ILI9341::readcommand8(uint8_t commandByte, uint8_t index) {
+  uint8_t data = 0x10 + index;
+  sendCommand(0xD9, &data, 1); // Set Index Register
+  return Adafruit_SPITFT::readcommand8(commandByte);
 }

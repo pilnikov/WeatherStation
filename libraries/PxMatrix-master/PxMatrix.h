@@ -10,13 +10,23 @@ BSD license, check license.txt for more information
 #define _PxMATRIX_H
 
 // This is how many color levels the display shows - the more the slower the update
-#define color_depth 8
+#ifndef PxMATRIX_COLOR_DEPTH
+#define PxMATRIX_COLOR_DEPTH 8
+#endif
+
+#ifndef PxMATRIX_MAX_HEIGHT
+#define PxMATRIX_MAX_HEIGHT 64
+#endif
+
+#ifndef PxMATRIX_MAX_WIDTH
+#define PxMATRIX_MAX_WIDTH 64
+#endif
+
 //#define double_buffer
 
 #include "Adafruit_GFX.h"
 #include "Arduino.h"
 #include <SPI.h>
-
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
@@ -33,9 +43,6 @@ BSD license, check license.txt for more information
 #endif
 
 #include <stdlib.h>
-#include "gamma.h"
-#include <glcdfont.c>
-
 
 // Sometimes some extra width needs to be passed to Adafruit GFX constructor
 // to render text close to the end of the display correctly
@@ -55,16 +62,15 @@ enum mux_patterns {BINARY, STRAIGHT};
 
 // This is how the scanning is implemented. LINE just scans it left to right,
 // ZIGZAG jumps 4 rows after every byte, ZAGGII alse revereses every second byte
-enum scan_patterns {LINE, ZIGZAG, ZAGGIZ};
+enum scan_patterns {LINE, ZIGZAG, ZAGGIZ, WZAGZIG, VZAG};
 
-#define max_matrix_width 64
-#define max_matrix_height 64
-#define color_step 256 / color_depth
+#define max_matrix_pixels PxMATRIX_MAX_HEIGHT * PxMATRIX_MAX_WIDTH
+#define color_step 256 / PxMATRIX_COLOR_DEPTH
 #define color_half_step int(color_step / 2)
 #define color_third_step int(color_step / 3)
 #define color_two_third_step int(color_third_step*2)
 
-#define buffer_size max_matrix_width * max_matrix_height * 3 / 8
+#define buffer_size max_matrix_pixels * 3 / 8
 
 class PxMATRIX : public Adafruit_GFX {
  public:
@@ -91,15 +97,13 @@ class PxMATRIX : public Adafruit_GFX {
   inline void drawPixelRGB888(int16_t x, int16_t y, uint8_t r, uint8_t g,uint8_t b);
   inline void drawPixelRGB888(int16_t x, int16_t y, uint8_t r, uint8_t g,uint8_t b, bool selected_buffer);
 
-  void drawPartChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, int8_t size);
   // Does nothing for now
   uint8_t getPixel(int8_t x, int8_t y);
 
   // Converts RGB888 to RGB565
   uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
 
-  uint16_t ColorHSV(long hue, uint8_t sat, uint8_t val, boolean gflag);
- // Helpful for debugging (place in display update loop)
+  // Helpful for debugging (place in display update loop)
   inline void displayTestPattern(uint16_t showtime);
 
   // Helpful for debugging (place in display update loop)
@@ -129,13 +133,17 @@ class PxMATRIX : public Adafruit_GFX {
   // Set the number of panels that make up the display area width
   inline void setPanelsWidth(uint8_t panels);
 
+  // Set the brightness of the panels
+  inline void setBrightness(uint8_t brightness);
+
+
  private:
 
  // the display buffer for the LED matrix
 #ifdef double_buffer
-  uint8_t PxMATRIX_buffer[color_depth][2*buffer_size];// = {0x00 };
+  uint8_t PxMATRIX_buffer[PxMATRIX_COLOR_DEPTH][2*buffer_size];// = {0x00 };
 #else
-  uint8_t PxMATRIX_buffer[color_depth][buffer_size];// = {0x00 };
+  uint8_t PxMATRIX_buffer[PxMATRIX_COLOR_DEPTH][buffer_size];// = {0x00 };
 #endif
 
   // GPIO pins
@@ -158,11 +166,14 @@ class PxMATRIX : public Adafruit_GFX {
   uint8_t _color_G_offset;
   uint8_t _color_B_offset;
 
+  // Panel Brightness
+  uint8_t _brightness;
+
   // Color pattern that is pushed to the display
   uint8_t _display_color;
 
   // Holds some pre-computed values for faster pixel drawing
-  uint32_t _row_offset[64];
+  uint32_t _row_offset[PxMATRIX_MAX_HEIGHT];
 
   // Holds the display row pattern type
   uint8_t _row_pattern;
@@ -220,8 +231,21 @@ inline void PxMATRIX::init(uint8_t width, uint8_t height,uint8_t LATCH, uint8_t 
   _A_PIN = A;
   _B_PIN = B;
 
+  if (width > PxMATRIX_MAX_WIDTH){
+    #ifdef DEBUG_ESP_PORT
+      DEBUG_ESP_PORT.print("[PxMatrix] Width larger than PxMATRIX_MAX_WIDTH.\n");
+    #endif
+  }
+
+ if (height > PxMATRIX_MAX_HEIGHT){
+    #ifdef DEBUG_ESP_PORT
+      DEBUG_ESP_PORT.print("[PxMatrix] Height larger than PxMATRIX_MAX_HEIGHT.\n");
+    #endif
+  }
+
   _width = width;
   _height = height;
+  _brightness=255;
   _panels_width = 1;
 
   _rows_per_buffer = _height/2;
@@ -276,6 +300,11 @@ inline void PxMATRIX::setRotate(bool rotate) {
 inline void PxMATRIX::setFastUpdate(bool fast_update) {
   _fast_update=fast_update;
 }
+
+inline void PxMATRIX::setBrightness(uint8_t brightness) {
+  _brightness=brightness;
+}
+
 
 inline PxMATRIX::PxMATRIX(uint8_t width, uint8_t height,uint8_t LATCH, uint8_t OE, uint8_t A,uint8_t B) : Adafruit_GFX(width+ADAFRUIT_GFX_EXTRA, height)
 {
@@ -356,9 +385,52 @@ inline void PxMATRIX::fillMatrixBuffer(int16_t x, int16_t y, uint8_t r, uint8_t 
   uint32_t total_offset_g=0;
   uint32_t total_offset_b=0;
 
+  if (_scan_pattern==WZAGZIG || _scan_pattern==VZAG)
+  {
+    // get block coordinates and constraints
+    uint8_t rows_per_buffer = _height/2;
+    uint8_t rows_per_block = rows_per_buffer/2;
+    // this is a defining characteristic of WZAGZIG and VZAG:
+    // two byte alternating chunks bottom up for WZAGZIG
+    // two byte up down down up for VZAG
+    uint8_t cols_per_block = 16;
+    uint8_t panel_width = _width/_panels_width;
+    uint8_t blocks_x_per_panel = panel_width/cols_per_block;
+    uint8_t panel_index = x/panel_width;
+    // strip down to single panel coordinates, restored later using panel_index
+    x = x%panel_width;
+    uint8_t base_y_offset = y/rows_per_buffer;
+    uint8_t buffer_y = y%rows_per_buffer;
+    uint8_t block_x = x/cols_per_block;
+    uint8_t block_x_mod = x%cols_per_block;
+    uint8_t block_y = buffer_y/rows_per_block; // can only be 0/1 for height/pattern=4
+    uint8_t block_y_mod = buffer_y%rows_per_block;
+
+    // translate block address to new block address
+    // invert block_y so remaining translation will be more sane
+    uint8_t block_y_inv = 1 - block_y;
+    uint8_t block_x_inv = blocks_x_per_panel - block_x - 1;
+    uint8_t block_linear_index;
+    if (_scan_pattern==WZAGZIG)
+    {
+      // apply x/y block transform for WZAGZIG, only works for height/pattern=4
+      block_linear_index = block_x_inv * 2 + block_y_inv;
+    }
+    else if (_scan_pattern==VZAG)
+    {
+      // apply x/y block transform for VZAG, only works for height/pattern=4 and 32x32 panels until a larger example is found
+      block_linear_index = block_x_inv * 3 * block_y + block_y_inv  * (block_x_inv + 1);
+    }
+    // render block linear index back into normal coordinates
+    uint8_t new_block_x = block_linear_index % blocks_x_per_panel;
+    uint8_t new_block_y = 1 - block_linear_index/blocks_x_per_panel;
+    x = new_block_x * cols_per_block + block_x_mod + panel_index * panel_width;
+    y = new_block_y * rows_per_block + block_y_mod + base_y_offset * rows_per_buffer;
+  }
+
   // This code sections supports panels that have a row-changin scanning pattern
   // It does support chaining however only of height/pattern=2
-  if (_scan_pattern!=LINE)
+  if (_scan_pattern!=LINE && _scan_pattern!=WZAGZIG && _scan_pattern!=VZAG)
   {
     // Precomputed row offset values
 #ifdef double_buffer
@@ -376,44 +448,23 @@ inline void PxMATRIX::fillMatrixBuffer(int16_t x, int16_t y, uint8_t r, uint8_t 
         total_offset_r=base_offset-row_sector__offset*row_sector-(_scan_pattern==ZIGZAG ? 1: 0);
       row_sector++;
     }
-
-    total_offset_g=total_offset_r-_pattern_color_bytes;
-    total_offset_b=total_offset_g-_pattern_color_bytes;
   }
   else
   {
-
-    if (_panels_width>1)
-    {
-      // can only be non-zero when _height/(2 inputs per panel)/_row_pattern > 1
-      // i.e.: 32x32 panel with 1/8 scan (A/B/C lines) -> 32/2/8 = 2
-      uint8_t vert_index_in_buffer = (y%_rows_per_buffer)/_row_pattern; // which set of rows per buffer
-      // can only ever be 0/1 since there are only ever 2 separate input sets present for this variety of panels (R1G1B1/R2G2B2)
-      uint8_t which_buffer = y/_rows_per_buffer;
-      uint8_t x_byte = x/8;
-      // assumes panels are only ever chained for more width
-      uint8_t which_panel = x_byte/_panel_width_bytes;
-      uint8_t in_row_byte_offset = x_byte%_panel_width_bytes;
-      // this could be pretty easily extended to vertical stacking as well
-      total_offset_r = _row_offset[y] - in_row_byte_offset - _panel_width_bytes*(_row_sets_per_buffer*(_panels_width*which_buffer + which_panel) + vert_index_in_buffer);
+    // can only be non-zero when _height/(2 inputs per panel)/_row_pattern > 1
+    // i.e.: 32x32 panel with 1/8 scan (A/B/C lines) -> 32/2/8 = 2
+    uint8_t vert_index_in_buffer = (y%_rows_per_buffer)/_row_pattern; // which set of rows per buffer
+    // can only ever be 0/1 since there are only ever 2 separate input sets present for this variety of panels (R1G1B1/R2G2B2)
+    uint8_t which_buffer = y/_rows_per_buffer;
+    uint8_t x_byte = x/8;
+    // assumes panels are only ever chained for more width
+    uint8_t which_panel = x_byte/_panel_width_bytes;
+    uint8_t in_row_byte_offset = x_byte%_panel_width_bytes;
+    // this could be pretty easily extended to vertical stacking as well
+    total_offset_r = _row_offset[y] - in_row_byte_offset - _panel_width_bytes*(_row_sets_per_buffer*(_panels_width*which_buffer + which_panel) + vert_index_in_buffer);
 #ifdef double_buffer
-      total_offset_r += buffer_size*selected_buffer;
+    total_offset_r -= buffer_size*selected_buffer;
 #endif
-    }
-    else
-    {
-      // Precomputed row offset values
-      base_offset=_row_offset[y]-(x/8);
-
-#ifdef double_buffer
-      base_offset-=buffer_size*selected_buffer;
-#endif
-
-      // relies on integer truncation, do not simplify
-      uint8_t vert_sector = y/_row_pattern;
-      total_offset_r=base_offset-vert_sector*_width/8;
-
-    }
   }
 
   total_offset_g=total_offset_r-_pattern_color_bytes;
@@ -424,7 +475,7 @@ inline void PxMATRIX::fillMatrixBuffer(int16_t x, int16_t y, uint8_t r, uint8_t 
       bit_select = 7-bit_select;
 
   //Color interlacing
-  for (int this_color=0; this_color<color_depth; this_color++)
+  for (int this_color=0; this_color<PxMATRIX_COLOR_DEPTH; this_color++)
   {
     uint8_t color_tresh = this_color*color_step+color_half_step;
 
@@ -434,14 +485,14 @@ inline void PxMATRIX::fillMatrixBuffer(int16_t x, int16_t y, uint8_t r, uint8_t 
       PxMATRIX_buffer[this_color][total_offset_r] &= ~_BV(bit_select);
 
     if (g > color_tresh+_color_G_offset)
-      PxMATRIX_buffer[(this_color+color_third_step)%color_depth][total_offset_g] |=_BV(bit_select);
+      PxMATRIX_buffer[(this_color+color_third_step)%PxMATRIX_COLOR_DEPTH][total_offset_g] |=_BV(bit_select);
     else
-      PxMATRIX_buffer[(this_color+color_third_step)%color_depth][total_offset_g] &= ~_BV(bit_select);
+      PxMATRIX_buffer[(this_color+color_third_step)%PxMATRIX_COLOR_DEPTH][total_offset_g] &= ~_BV(bit_select);
 
     if (b > color_tresh+_color_B_offset)
-      PxMATRIX_buffer[(this_color+color_two_third_step)%color_depth][total_offset_b] |=_BV(bit_select);
+      PxMATRIX_buffer[(this_color+color_two_third_step)%PxMATRIX_COLOR_DEPTH][total_offset_b] |=_BV(bit_select);
     else
-      PxMATRIX_buffer[(this_color+color_two_third_step)%color_depth][total_offset_b] &= ~_BV(bit_select);
+      PxMATRIX_buffer[(this_color+color_two_third_step)%PxMATRIX_COLOR_DEPTH][total_offset_b] &= ~_BV(bit_select);
   }
 }
 
@@ -457,50 +508,6 @@ inline void PxMATRIX::drawPixelRGB565(int16_t x, int16_t y, uint16_t color) {
   uint8_t g = ((((color >> 5) & 0x3F) * 259) + 33) >> 6;
   uint8_t b = (((color & 0x1F) * 527) + 23) >> 6;
   fillMatrixBuffer( x,  y, r, g,b, 0);
-}
-
-uint16_t PxMATRIX::ColorHSV(
-  long hue, uint8_t sat, uint8_t val, boolean gflag) {
-
-  uint8_t  r, g, b, lo;
-  uint16_t s1, v1;
-
-  // Hue
-  hue %= 1536;             // -1535 to +1535
-  if(hue < 0) hue += 1536; //     0 to +1535
-  lo = hue & 255;          // Low byte  = primary/secondary color mix
-  switch(hue >> 8) {       // High byte = sextant of colorwheel
-    case 0 : r = 255     ; g =  lo     ; b =   0     ; break; // R to Y
-    case 1 : r = 255 - lo; g = 255     ; b =   0     ; break; // Y to G
-    case 2 : r =   0     ; g = 255     ; b =  lo     ; break; // G to C
-    case 3 : r =   0     ; g = 255 - lo; b = 255     ; break; // C to B
-    case 4 : r =  lo     ; g =   0     ; b = 255     ; break; // B to M
-    default: r = 255     ; g =   0     ; b = 255 - lo; break; // M to R
-  }
-
-  // Saturation: add 1 so range is 1 to 256, allowig a quick shift operation
-  // on the result rather than a costly divide, while the type upgrade to int
-  // avoids repeated type conversions in both directions.
-  s1 = sat + 1;
-  r  = 255 - (((255 - r) * s1) >> 8);
-  g  = 255 - (((255 - g) * s1) >> 8);
-  b  = 255 - (((255 - b) * s1) >> 8);
-
-  // Value (brightness) & 16-bit color reduction: similar to above, add 1
-  // to allow shifts, and upgrade to int makes other conversions implicit.
-  v1 = val + 1;
-  if(gflag) { // Gamma-corrected color?
-    r = pgm_read_byte(&gamma_table[(r * v1) >> 8]); // Gamma correction table maps
-    g = pgm_read_byte(&gamma_table[(g * v1) >> 8]); // 8-bit input to 4-bit output
-    b = pgm_read_byte(&gamma_table[(b * v1) >> 8]);
-  } else { // linear (uncorrected) color
-    r = (r * v1) >> 12; // 4-bit results
-    g = (g * v1) >> 12;
-    b = (b * v1) >> 12;
-  }
-  return (r << 12) | ((r & 0x8) << 8) | // 4/4/4 -> 5/6/5
-         (g <<  7) | ((g & 0xC) << 3) |
-         (b <<  1) | ( b        >> 3);
 }
 
 inline void PxMATRIX::drawPixelRGB888(int16_t x, int16_t y, uint8_t r, uint8_t g,uint8_t b, bool selected_buffer) {
@@ -656,7 +663,7 @@ void PxMATRIX::display(uint16_t show_time) {
 #endif
   for (uint8_t i=0;i<_row_pattern;i++)
   {
-    if (_fast_update){
+    if (_fast_update && (_brightness==255)){
 
       // This will clock data into the display while the outputs are still
       // latched (LEDs on). We therefore utilize SPI transfer latency as LED
@@ -688,11 +695,11 @@ void PxMATRIX::display(uint16_t show_time) {
 #else
       SPI.writeBytes(&PxMATRIX_buffer[_display_color][i*_send_buffer_size],_send_buffer_size);
 #endif
-      latch(show_time);
+      latch(show_time*(uint16_t)_brightness/255);
     }
   }
   _display_color++;
-  if (_display_color>=color_depth)
+  if (_display_color>=PxMATRIX_COLOR_DEPTH)
   {
     _display_color=0;
 #ifdef double_buffer
@@ -787,46 +794,8 @@ void PxMATRIX::displayTestPixel(uint16_t show_time) {
 
 // clear everything
 void PxMATRIX::clearDisplay(void) {
-  for(int this_color=0;this_color<color_depth;this_color++)
+  for(int this_color=0;this_color<PxMATRIX_COLOR_DEPTH;this_color++)
   for (int j=0;j<(_width*_height*3)/8;j++)
     PxMATRIX_buffer[this_color][j]=0;
 }
 #endif
-
-void PxMATRIX::drawPartChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, int8_t size)
-{
-  
-  if((x > 31)      || // Clip right
-     (y > 15)      || // Clip bottom
-    ((x + 5) < 0)  || // Clip left
-    ((y + 7) < 0))    // Clip top
-	  return;
-
-  uint8_t a = abs(size);
-  uint8_t b = 7;
-
-  if (size > 0) 
-  {
-	  a = 0; 
-	  b = size;
-  }
- 	  
-  for (uint8_t i = 0; i < 5; i++ )
-	{ // Char bitmap = 5 columns
-		drawFastVLine(x + i, y + a, b - a, bg);
-		byte line = pgm_read_byte(&font[c * 5 + i]);
-		for (uint8_t j = a; j < b; j++)  
-		{
-			if (size > 0) 
-			{
-				if (line & 1 << (j + 7 - size)) drawPixel(x + i, y + j, color);
-			}
-			else 
-			{
-				if (line & 1 << (j + size)) drawPixel(x + i, y + j, color);
-			}
-		}
-	} 
-  drawFastVLine(x + 5, y + a, b - a, bg);
-}
-

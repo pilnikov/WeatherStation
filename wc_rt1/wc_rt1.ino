@@ -30,7 +30,7 @@ void setup()
   //------------------------------------------------------  Читаем установки из EEPROM
 
   //conf_data = defaultConfig();
-  conf_data = loadConfig();
+  conf_data = loadConfig(conf_f);
 
   DBG_OUT_PORT.println("config loaded");
 
@@ -55,6 +55,12 @@ void setup()
 
   ram_data = sens_data;
   DBG_OUT_PORT.println("sensor inital");
+  DBG_OUT_PORT.print("Type of internal sensor = ");
+  DBG_OUT_PORT.println(ram_data.type_int_snr);
+  DBG_OUT_PORT.print("Type of external sensor = ");
+  DBG_OUT_PORT.println(ram_data.type_ext_snr);
+  DBG_OUT_PORT.print("Type of pressure sensor = ");
+  DBG_OUT_PORT.println(ram_data.type_prs_snr);
 
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(setting_pin, INPUT_PULLUP);
@@ -76,7 +82,8 @@ void setup()
 
   //------------------------------------------------------  Инициализируем RTC
   if (ram_data.type_rtc > 0) rtc_init();
-  DBG_OUT_PORT.println("rtc inital");
+  DBG_OUT_PORT.print("Type of rtc = ");
+  DBG_OUT_PORT.println(ram_data.type_rtc);
 
   //------------------------------------------------------  Инициализируем выбранный дисплей
   switch (ram_data.type_disp)
@@ -114,7 +121,7 @@ void setup()
 #endif
       break;
   }
-  DBG_OUT_PORT.print("display selected...");
+  DBG_OUT_PORT.print("Type of display = ");
   DBG_OUT_PORT.println(ram_data.type_disp);
 
   //-------------------------------------------------------- Запускаем сетевые сервисы
@@ -132,7 +139,10 @@ void setup()
 # endif
 
     //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
-    if (ram_data.type_rtc == 0 && web_cli) GetNtp();
+    if (ram_data.type_rtc == 0  && web_cli) 
+    {
+      GetNtp();
+    }
 
     //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
     if (conf_data.use_pp == 1 && web_cli)

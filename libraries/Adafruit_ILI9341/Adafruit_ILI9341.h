@@ -74,6 +74,7 @@
 #define ILI9341_RAMRD      0x2E     ///< Memory Read
 
 #define ILI9341_PTLAR      0x30     ///< Partial Area
+#define ILI9341_VSCRDEF    0x33     ///< Vertical Scrolling Definition
 #define ILI9341_MADCTL     0x36     ///< Memory Access Control
 #define ILI9341_VSCRSADD   0x37     ///< Vertical Scrolling Start Address
 #define ILI9341_PIXFMT     0x3A     ///< COLMOD: Pixel Format Set
@@ -122,41 +123,34 @@
 #define ILI9341_GREENYELLOW 0xAFE5  ///< 173, 255,  41
 #define ILI9341_PINK        0xFC18  ///< 255, 130, 198
 
-enum TEXT_ALIGNMENT {
-  TEXT_ALIGN_LEFT = 0,
-  TEXT_ALIGN_RIGHT = 1,
-  TEXT_ALIGN_CENTER = 2,
-  TEXT_ALIGN_CENTER_BOTH = 3
-};
+/**************************************************************************/
+/*!
+@brief Class to manage hardware interface with ILI9341 chipset (also seems to work with ILI9340)
+*/
+/**************************************************************************/
 
-
-///< Class to manage hardware interface with ILI9341 chipset (also seems to work with ILI9340)
 class Adafruit_ILI9341 : public Adafruit_SPITFT {
     public:
-        Adafruit_ILI9341(int8_t _CS, int8_t _DC, int8_t _MOSI, int8_t _SCLK, int8_t _RST = -1, int8_t _MISO = -1);
+        Adafruit_ILI9341(int8_t _CS, int8_t _DC, int8_t _MOSI, int8_t _SCLK,
+          int8_t _RST = -1, int8_t _MISO = -1);
         Adafruit_ILI9341(int8_t _CS, int8_t _DC, int8_t _RST = -1);
+#if !defined(ESP8266)
+        Adafruit_ILI9341(SPIClass *spiClass, int8_t dc,
+          int8_t cs = -1, int8_t rst = -1);
+#endif // end !ESP8266
+        Adafruit_ILI9341(tftBusWidth busWidth, int8_t d0, int8_t wr, int8_t dc,
+          int8_t cs = -1, int8_t rst = -1, int8_t rd = -1);
 
         void    begin(uint32_t freq=0);
         void    setRotation(uint8_t r);
-        void    invertDisplay(boolean i);
+        void    invertDisplay(bool i);
         void    scrollTo(uint16_t y);
-		
-		void 	setTextAlignment(TEXT_ALIGNMENT textAlignment);
+        void    setScrollMargins(uint16_t top, uint16_t bottom);
 
-        void    drawString(int16_t xMove, int16_t yMove, String strUser);
-static char*    utf8ascii(String s);
-static  byte    utf8ascii(byte ascii);
- 
         // Transaction API not used by GFX
         void    setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
         uint8_t readcommand8(uint8_t reg, uint8_t index=0);
- private:
-    	uint16_t width, height;
-		uint16_t color;
-		uint8_t rotation;
-		int16_t transparentColor = -1;
-		TEXT_ALIGNMENT textAlignment;
 };
 
 #endif // _ADAFRUIT_ILI9341H_

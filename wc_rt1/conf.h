@@ -282,10 +282,11 @@ rtc_data_t rtc_data;
 
 // ----------------------------------- Force define func name
 
+void printFile(const char);
 void fs_setup();
 
-conf_data_t loadConfig();
-void saveConfig();
+conf_data_t loadConfig(const char);
+void saveConfig(const char, conf_data_t);
 conf_data_t defaultConfig();
 
 bool sta_init();
@@ -349,6 +350,8 @@ static const char sta_pass_def[] PROGMEM = "";
 
 
 // ---------------------------------------------------- Common
+const char *conf_f = "/config.json";  // config file name
+
 const char ntp_server[] = "ru.pool.ntp.org";
 
 bool                disp_on  = true;
@@ -403,5 +406,3 @@ const char *songs[] = {":d=4,o=5,b=160:c.6,e6,f#6,8a6,g.6,e6,c6,8a,8f#,8f#,8f#,2
 
 
 #endif /* _wc_h */
-
-
