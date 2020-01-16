@@ -15,9 +15,9 @@ void GetSnr()
       ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
       dmsg.callback(ram_data.type_disp, 2, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
-    if  (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
-    if (conf_data.use_pp == 2)  wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
-    if ((ram_data.type_int_snr == 10 || ram_data.type_ext_snr == 10 || ram_data.type_prs_snr == 10) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
+      if (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
+      if (conf_data.use_pp == 2)  wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
+      if ((ram_data.type_int_snr == 10 || ram_data.type_ext_snr == 10 || ram_data.type_prs_snr == 10) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
   }
 
   snr_data = sens.read_snr(ram_data.type_int_snr, ram_data.type_ext_snr, ram_data.type_prs_snr, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Опрашиваем датчики
@@ -144,9 +144,9 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   addr += "&units=metric&appid=";
   addr += weatherKey;
   addr += "&lang=ru&cnt=2";
-  //DBG_OUT_PORT.println(addr);
+  if (debug_level == 10) DBG_OUT_PORT.println(addr);
   out = nsys.http_client (addr);
-  //  DBG_OUT_PORT.println(out);
+  if (debug_level == 10) DBG_OUT_PORT.println(out);
 
   String line;
   uint16_t i = 0;
@@ -217,12 +217,13 @@ String es_rcv (char es_addr[17])
   if (ram_data.type_disp == 9) m3264_upd(false);
 #endif
   if (debug_level == 10) DBG_OUT_PORT.println("True get data from ext server");
-  String out = "No connect to network";
+  String out = "No ext srv";
   if (web_cli)
   {
     String addr = "http://";
     addr += String(es_addr);
     addr += "/jsnr";
+    if (debug_level == 10) DBG_OUT_PORT.println(addr);
     out = nsys.http_client (addr);
   }
   if (debug_level == 10) DBG_OUT_PORT.println(out);
