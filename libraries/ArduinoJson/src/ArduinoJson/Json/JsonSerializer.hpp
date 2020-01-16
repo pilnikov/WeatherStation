@@ -4,17 +4,17 @@
 
 #pragma once
 
-#include "../Misc/Visitable.hpp"
-#include "../Serialization/measure.hpp"
-#include "../Serialization/serialize.hpp"
-#include "TextFormatter.hpp"
+#include <ArduinoJson/Json/TextFormatter.hpp>
+#include <ArduinoJson/Misc/Visitable.hpp>
+#include <ArduinoJson/Serialization/measure.hpp>
+#include <ArduinoJson/Serialization/serialize.hpp>
 
 namespace ARDUINOJSON_NAMESPACE {
 
 template <typename TWriter>
 class JsonSerializer {
  public:
-  JsonSerializer(TWriter &writer) : _formatter(writer) {}
+  JsonSerializer(TWriter writer) : _formatter(writer) {}
 
   FORCE_INLINE void visitArray(const CollectionData &array) {
     write('[');

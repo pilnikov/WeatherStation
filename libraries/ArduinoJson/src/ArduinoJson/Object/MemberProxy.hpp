@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "../Configuration.hpp"
-#include "../Operators/VariantOperators.hpp"
-#include "../Polyfills/type_traits.hpp"
+#include <ArduinoJson/Configuration.hpp>
+#include <ArduinoJson/Operators/VariantOperators.hpp>
+#include <ArduinoJson/Polyfills/type_traits.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -173,22 +173,6 @@ class MemberProxy : public VariantOperators<MemberProxy<TObject, TStringRef> >,
   TObject _object;
   TStringRef _key;
 };
-
-template <typename TObject>
-template <typename TString>
-inline typename enable_if<IsString<TString>::value,
-                          MemberProxy<const TObject &, const TString &> >::type
-    ObjectShortcuts<TObject>::operator[](const TString &key) const {
-  return MemberProxy<const TObject &, const TString &>(*impl(), key);
-}
-
-template <typename TObject>
-template <typename TString>
-inline typename enable_if<IsString<TString *>::value,
-                          MemberProxy<const TObject &, TString *> >::type
-    ObjectShortcuts<TObject>::operator[](TString *key) const {
-  return MemberProxy<const TObject &, TString *>(*impl(), key);
-}
 
 }  // namespace ARDUINOJSON_NAMESPACE
 

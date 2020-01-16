@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../Configuration.hpp"
+#include <ArduinoJson/Namespace.hpp>
 
 namespace ARDUINOJSON_NAMESPACE {
 

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../Polyfills/attributes.hpp"
-#include "../Polyfills/type_traits.hpp"
+#include <ArduinoJson/Polyfills/attributes.hpp>
+#include <ArduinoJson/Polyfills/type_traits.hpp>
 
 namespace ARDUINOJSON_NAMESPACE {
 // Forward declarations.
@@ -16,7 +16,7 @@ template <typename TArray>
 class ArrayShortcuts {
  public:
   // Returns the element at specified index if the variant is an array.
-  FORCE_INLINE ElementProxy<const TArray &> operator[](size_t index) const;
+  FORCE_INLINE ElementProxy<TArray> operator[](size_t index) const;
 
   FORCE_INLINE ObjectRef createNestedObject() const;
 

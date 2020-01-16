@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "../Deserialization/deserialize.hpp"
-#include "../Memory/MemoryPool.hpp"
-#include "../Polyfills/type_traits.hpp"
-#include "../Variant/VariantData.hpp"
-#include "endianess.hpp"
-#include "ieee754.hpp"
+#include <ArduinoJson/Deserialization/deserialize.hpp>
+#include <ArduinoJson/Memory/MemoryPool.hpp>
+#include <ArduinoJson/MsgPack/endianess.hpp>
+#include <ArduinoJson/MsgPack/ieee754.hpp>
+#include <ArduinoJson/Polyfills/type_traits.hpp>
+#include <ArduinoJson/Variant/VariantData.hpp>
 
 namespace ARDUINOJSON_NAMESPACE {
 
@@ -142,10 +142,7 @@ class MsgPackDeserializer {
   }
 
   bool readBytes(uint8_t *p, size_t n) {
-    for (size_t i = 0; i < n; i++) {
-      if (!readByte(p[i])) return false;
-    }
-    return true;
+    return _reader.readBytes(reinterpret_cast<char *>(p), n) == n;
   }
 
   template <typename T>

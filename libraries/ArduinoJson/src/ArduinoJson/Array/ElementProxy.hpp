@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "../Configuration.hpp"
-#include "../Operators/VariantOperators.hpp"
+#include <ArduinoJson/Configuration.hpp>
+#include <ArduinoJson/Operators/VariantOperators.hpp>
+#include <ArduinoJson/Variant/VariantTo.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -159,12 +160,6 @@ class ElementProxy : public VariantOperators<ElementProxy<TArray> >,
   TArray _array;
   const size_t _index;
 };
-
-template <typename TArray>
-inline ElementProxy<const TArray&> ArrayShortcuts<TArray>::operator[](
-    size_t index) const {
-  return ElementProxy<const TArray&>(*impl(), index);
-}
 
 }  // namespace ARDUINOJSON_NAMESPACE
 

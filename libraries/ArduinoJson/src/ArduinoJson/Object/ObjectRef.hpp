@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "ObjectFunctions.hpp"
-#include "ObjectIterator.hpp"
+#include <ArduinoJson/Object/ObjectFunctions.hpp>
+#include <ArduinoJson/Object/ObjectIterator.hpp>
 
 // Returns the size (in bytes) of an object with n elements.
 // Can be very handy to determine the size of a StaticMemoryPool.
@@ -29,6 +29,10 @@ class ObjectRefBase {
 
   FORCE_INLINE bool isNull() const {
     return _data == 0;
+  }
+
+  FORCE_INLINE operator bool() const {
+    return _data != 0;
   }
 
   FORCE_INLINE size_t memoryUsage() const {

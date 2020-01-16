@@ -5,7 +5,8 @@
 #pragma once
 
 #include <stddef.h>  // for size_t
-#include "../Configuration.hpp"
+
+#include <ArduinoJson/Namespace.hpp>
 
 #define JSON_STRING_SIZE(SIZE) (SIZE)
 

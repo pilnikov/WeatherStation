@@ -20,8 +20,11 @@
 
 // Small or big machine?
 #ifndef ARDUINOJSON_EMBEDDED_MODE
-#if defined(ARDUINO) || defined(__IAR_SYSTEMS_ICC__) || defined(__XC) || \
-    defined(__ARMCC_VERSION)
+#if defined(ARDUINO)                /* Arduino*/                 \
+    || defined(__IAR_SYSTEMS_ICC__) /* IAR Embedded Workbench */ \
+    || defined(__XC)                /* MPLAB XC compiler */      \
+    || defined(__ARMCC_VERSION)     /* Keil ARM Compiler */      \
+    || defined(__AVR)               /* Atmel AVR8/GNU C Compiler */
 #define ARDUINOJSON_EMBEDDED_MODE 1
 #else
 #define ARDUINOJSON_EMBEDDED_MODE 0
@@ -90,6 +93,8 @@
 
 #ifdef ARDUINO
 
+#include <Arduino.h>
+
 // Enable support for Arduino's String class
 #ifndef ARDUINOJSON_ENABLE_ARDUINO_STRING
 #define ARDUINOJSON_ENABLE_ARDUINO_STRING 1
@@ -107,17 +112,17 @@
 
 #else  // ARDUINO
 
-// Enable support for Arduino's String class
+// Disable support for Arduino's String class
 #ifndef ARDUINOJSON_ENABLE_ARDUINO_STRING
 #define ARDUINOJSON_ENABLE_ARDUINO_STRING 0
 #endif
 
-// Enable support for Arduino's Stream class
+// Disable support for Arduino's Stream class
 #ifndef ARDUINOJSON_ENABLE_ARDUINO_STREAM
 #define ARDUINOJSON_ENABLE_ARDUINO_STREAM 0
 #endif
 
-// Enable support for Arduino's Print class
+// Disable support for Arduino's Print class
 #ifndef ARDUINOJSON_ENABLE_ARDUINO_PRINT
 #define ARDUINOJSON_ENABLE_ARDUINO_PRINT 0
 #endif

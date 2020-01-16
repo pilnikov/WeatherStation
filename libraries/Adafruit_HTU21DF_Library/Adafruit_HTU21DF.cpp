@@ -38,7 +38,7 @@ Adafruit_HTU21DF::Adafruit_HTU21DF()
  */
 boolean Adafruit_HTU21DF::begin(void)
 {
-    Wire.begin();
+    //Wire.begin();
 
     reset();
 
@@ -46,7 +46,9 @@ boolean Adafruit_HTU21DF::begin(void)
     Wire.write(HTU21DF_READREG);
     Wire.endTransmission();
     Wire.requestFrom(HTU21DF_I2CADDR, 1);
-    return (Wire.read() == 0x2); // after reset should be 0x2
+    byte answ = Wire.read();
+	//Serial.print("\n answer from htu = "); Serial.println(answ,HEX);
+	return (answ == 0x2 || answ == 0x3A ); // after reset should be 0x2 or 0x3A (on my)
 }
 
 /**

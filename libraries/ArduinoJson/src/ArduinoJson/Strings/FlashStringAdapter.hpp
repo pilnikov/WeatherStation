@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <ArduinoJson/Polyfills/pgmspace.hpp>
+
 namespace ARDUINOJSON_NAMESPACE {
 
 class FlashStringAdapter {
@@ -14,7 +16,7 @@ class FlashStringAdapter {
     if (!other && !_str) return 0;
     if (!_str) return -1;
     if (!other) return 1;
-    return -strcmp_P(other, reinterpret_cast<const char*>(_str));
+    return int8_t(-strcmp_P(other, reinterpret_cast<const char*>(_str)));
   }
 
   bool equals(const char* expected) const {

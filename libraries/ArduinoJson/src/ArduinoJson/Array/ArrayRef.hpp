@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "../Variant/VariantData.hpp"
-#include "ArrayFunctions.hpp"
-#include "ArrayIterator.hpp"
+#include <ArduinoJson/Array/ArrayFunctions.hpp>
+#include <ArduinoJson/Array/ArrayIterator.hpp>
+#include <ArduinoJson/Variant/VariantData.hpp>
 
 // Returns the size (in bytes) of an array with n elements.
 // Can be very handy to determine the size of a StaticMemoryPool.
@@ -34,6 +34,10 @@ class ArrayRefBase {
 
   FORCE_INLINE bool isNull() const {
     return _data == 0;
+  }
+
+  FORCE_INLINE operator bool() const {
+    return _data != 0;
   }
 
   FORCE_INLINE size_t memoryUsage() const {
