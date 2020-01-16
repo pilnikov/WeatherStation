@@ -99,6 +99,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
 
   DynamicJsonDocument jsonBuf(1024);
   DeserializationError error = deserializeJson(jsonBuf, line);
+
   if (error)
   {
     DBG_OUT_PORT.print(F("deserializeJson() failed: "));
@@ -161,7 +162,7 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   String tempz = tvoday(line);
   DBG_OUT_PORT.println("\n" + tempz);
 
-  DynamicJsonDocument jsonBuf(512);
+  DynamicJsonDocument jsonBuf(4096);
   DeserializationError error = deserializeJson(jsonBuf, tempz);
   if (error)
   {

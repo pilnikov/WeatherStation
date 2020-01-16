@@ -38,7 +38,7 @@ ram_data_t SNR::init(ram_data_t in_data)
         }
       break;
     case 9:
-        if (!bme.begin())
+        if (!bme.begin(0x76, &Wire))
         {
          DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
          out_data.type_int_snr = 0;
@@ -79,7 +79,7 @@ ram_data_t SNR::init(ram_data_t in_data)
         }
       break;
     case 9:
-        if (!bme.begin())
+        if (!bme.begin(0x76, &Wire))
         {
          DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
          out_data.type_ext_snr = 0;
@@ -104,7 +104,7 @@ ram_data_t SNR::init(ram_data_t in_data)
         }
       break;
     case 9:
-        if (!bme.begin())
+        if (!bme.begin(0x76, &Wire))
         {
          DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
          out_data.type_prs_snr = 0;
