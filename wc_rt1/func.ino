@@ -15,9 +15,14 @@ void GetSnr()
       ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
       dmsg.callback(ram_data.type_disp, 2, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
-      if (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
-      if (conf_data.use_pp == 2)  wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
-      if ((ram_data.type_int_snr == 10 || ram_data.type_ext_snr == 10 || ram_data.type_prs_snr == 10) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
+    if (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
+    
+    if (conf_data.use_pp == 2) {
+      wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
+      wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max)/1.3332239);
+    }
+    
+    if ((ram_data.type_int_snr == 10 || ram_data.type_ext_snr == 10 || ram_data.type_prs_snr == 10) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
   }
 
   snr_data = sens.read_snr(ram_data.type_int_snr, ram_data.type_ext_snr, ram_data.type_prs_snr, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Опрашиваем датчики
@@ -81,19 +86,12 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   addr += "&units=metric&appid=";
   addr += weatherKey;
   addr += "&lang=ru&cnt=1";
-  //DBG_OUT_PORT.println(addr);
+  DBG_OUT_PORT.println(addr);
+  
   out = nsys.http_client (addr);
   //DBG_OUT_PORT.println(out);
 
-  String line;
-  uint16_t i = 0;
-  while ( i < out.length())
-  {
-    char c = out[i];
-    if (c == '[' || c == ']') c = ' ';
-    line += c;
-    i++;
-  }
+  String line = remove_sb(out);
 
   DBG_OUT_PORT.println("\n Now " + line);
 
@@ -112,8 +110,12 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   prog.descript.toLowerCase();
   prog.temp_min  = root["list"]["main"]["temp"];
   prog.hum_min   = root["list"]["main"]["humidity"];
-  prog.press_min = root["list"]["main"]["pressure"];
-  prog.press_min = prog.press_min / 1.3332239;
+  prog.press_min = root["list"]["main"]["grnd_level"]; //давление "на поверхности земли в текущей местности (с учетом высоты)"
+  prog.press_max = root["list"]["main"]["sea_level"];  //давление "на уровне моря"
+
+  prog.press_max -= prog.press_min; // разница давления "на уровне моря" и "у земли"
+  prog.press_min /=  1.3332239; // перевод в мм.рт.ст
+
   prog.wind_min  = root["list"]["wind"]["speed"];
   uint16_t dir   = root["list"]["wind"]["deg"];
   prog.cloud     = root["list"]["clouds"]["all"];
@@ -145,24 +147,16 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   addr += "&units=metric&appid=";
   addr += weatherKey;
   addr += "&lang=ru&cnt=2";
-  if (debug_level == 10) DBG_OUT_PORT.println(addr);
+  //if (debug_level == 10) 
+  DBG_OUT_PORT.println(addr);
+  
   out = nsys.http_client (addr);
   if (debug_level == 10) DBG_OUT_PORT.println(out);
 
-  String line;
-  uint16_t i = 0;
-  while ( i < out.length())
-  {
-    char c = out[i];
-    if (c == '[' || c == ']') c = ' ';
-    line += c;
-    i++;
-  }
-
-  String tempz = tvoday(line);
+  String tempz = tvoday(out);
   DBG_OUT_PORT.println("\n" + tempz);
 
-  DynamicJsonDocument jsonBuf(4096);
+  DynamicJsonDocument jsonBuf(1024);
   DeserializationError error = deserializeJson(jsonBuf, tempz);
   if (error)
   {
@@ -180,16 +174,35 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   prog.descript  = root ["weather"]["description"].as<String>();
   prog.descript.toLowerCase();
   prog.hum_min   = root["humidity"];
-  prog.press_min = root["pressure"];
-  prog.press_min = prog.press_min / 1.3332239;
+  prog.press_max = root["pressure"];
+  prog.press_min = prog.press_max / 1.3332239;
+
   time_t dt      = root ["dt"];
+
   prog.day       = day(dt);
   prog.month     = month(dt);
+
   prog.wind_dir = rumb_conv(dir);
+
 #if defined(ESP32)
   if (ram_data.type_disp == 9) m3264_upd(true);
 #endif
+
   return prog;
+}
+
+// ------------------------------------------------------Удаляем квадратные скобки
+String remove_sb(String in_str) {
+  String out_str = String();
+  uint16_t i = 0;
+  while ( i < in_str.length())
+  {
+    char c = in_str[i];
+    if (c == '[' || c == ']') c = ' ';
+    out_str += c;
+    i++;
+  }
+  return out_str;
 }
 
 // ------------------------------------------------------Конвертиуем градусы в румбы (стороны света)
@@ -200,15 +213,20 @@ inline uint8_t rumb_conv(uint16_t dir)
   return w_dir;
 }
 
-// =======================================================================
+// =======================================================================Вырезаем данные по прогнозу на один день (из 2х)
 String tvoday(String line) {
-  String s;
-  int strt = line.indexOf('}');
-  for (int i = 1; i <= 4; i++) {
-    strt = line.indexOf('}', strt + 1);
-  }
-  s = line.substring(2 + strt, line.length());
-  return s;
+  String s = String();
+  int start_sym = line.indexOf(']'); // позиция первого искомого символа ('{' после '[')
+
+  start_sym = line.indexOf('{', start_sym + 1);
+
+  int stop_sym = line.lastIndexOf(']');
+  s = line.substring(start_sym, stop_sym);
+
+  line = String();
+  line = remove_sb(s);
+
+  return line;
 }
 
 //------------------------------------------------------  Делаем запрос данных с внешнего сервера
@@ -450,7 +468,7 @@ void keyb_read()
 //------------------------------------------------------  Отправляем данные по USART
 String uart_st ()
 {
-  StaticJsonDocument<400> jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json ["T"]  = now();
@@ -470,7 +488,7 @@ String uart_st ()
     json ["C"] = wf_data.prec;
     json ["D"] = wf_data.rpower;
     json ["E"] = wf_data.spower;
-    json ["F"] = (int)(wf_data.press_max + wf_data.press_min) / 2;
+    json ["F"] = wf_data.press_min;
     json ["G"] = wf_data.temp_max;
     json ["H"] = wf_data.temp_min;
     json ["I"] = wf_data.wind_max;

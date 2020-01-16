@@ -19,6 +19,7 @@
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
 #include <ESP8266SSDP.h>
 #include <ArduinoOTA.h>
 #endif

@@ -112,7 +112,10 @@ void firq1()
 
   if (hour_cnt % 12 == 0 ) GetNtp();
   if (hour_cnt %  6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-  if (hour_cnt %  6 == 0 && conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+  if (hour_cnt %  6 == 0 && conf_data.use_pp == 2) {
+    wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+    wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
+  }
 
   hour_cnt++;
 }

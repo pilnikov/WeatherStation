@@ -104,7 +104,7 @@ void stop_serv()
 //-------------------------------------------------------------- cur_time_str
 char * cur_time_str()
 {
-  char str[22] = {'П','Н',' ','2','0','.','0','7','.','1','9','7','5',' ','1','2',':','3','4',':','5','6'} ;
+  char str[22] = {'П', 'Н', ' ', '2', '0', '.', '0', '7', '.', '1', '9', '7', '5', ' ', '1', '2', ':', '3', '4', ':', '5', '6'} ;
 #if !defined(ESP32)
   sprintf(str, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
           day(), month(), year(), hour(), minute(), second());
@@ -371,7 +371,10 @@ void handleSetPars()
   ram_data.type_prs_snr = conf_data.type_prs_snr;
 
   if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-  if (conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+  if (conf_data.use_pp == 2) {
+    wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+    wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
+  }
   GetSnr();
 
 }

@@ -24,6 +24,13 @@ conf_data_t loadConfig(const char *filename)
 
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, file);
+    if (error)
+    {
+      DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+      DBG_OUT_PORT.println(error.c_str());
+      return data;
+    }
+
     file.close();
 
     if (!error)
@@ -197,7 +204,7 @@ void saveConfig(const char *filename, conf_data_t data)
     DBG_OUT_PORT.println("Failed to open config file for writing");
     return;
   }
-  if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed to write to file"));
+  if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed write to file"));
   DBG_OUT_PORT.println( "End write buffer to file");
   configFile.close();
 }

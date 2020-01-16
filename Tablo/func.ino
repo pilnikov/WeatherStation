@@ -165,7 +165,7 @@ void parser(String inStr)
   DBG_OUT_PORT.print("inStr is ...");  DBG_OUT_PORT.println(inStr);
 # endif
 
-  DynamicJsonDocument jsonBuffer;
+  DynamicJsonDocument jsonBuffer(512);
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(jsonBuffer, inStr);
@@ -209,4 +209,3 @@ void parser(String inStr)
   DBG_OUT_PORT.print("Current alarm: "); DBG_OUT_PORT.print(rtc_data.a_hour); DBG_OUT_PORT.print(':'); DBG_OUT_PORT.println(rtc_data.a_min);
   //#endif
 }
-

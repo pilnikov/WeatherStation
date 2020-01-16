@@ -39,7 +39,7 @@ String pr_str(uint8_t num)
                    + (conf_data.use_pp == 2 ? wf_data_cur.descript + " ветер" + f_dsp.wind_dir_r(wf_data_cur.wind_dir) + String(wf_data_cur.wind_min) + "м/с " : "")
                    + (snr_data.t2 < 99 ? String(snr_data.t2) + grad + "C " : ' ') + (snr_data.h2 > 0 ? String(snr_data.h2) + "% " : ' ')
                    : " Нет данных от внешних датчиков - проверьте настройки ")
-               + (snr_data.p > 700 ? "давление " + String(snr_data.p) + "мм " : "Нет данных от датчика давления - проверьте настройки ");
+               + (snr_data.p > 700 ? "давление " + String(snr_data.p) + "мм.рт.ст " : "Нет данных от датчика давления - проверьте настройки ");
         break;
       case 3:
         switch (conf_data.use_pp)
@@ -49,17 +49,17 @@ String pr_str(uint8_t num)
             break;
           case 1:
             bstr = (wf_data.temp_min > -99 ? "Прогноз погоды от GM на" + f_dsp.td_name_r(wf_data.tod) + String(wf_data.day) + f_dsp.month_name_r(wf_data.month) + " : "
-                    + " температура " + String(wf_data.temp_min) + " " + String(wf_data.temp_max) + grad + "C "
+                    + " температура от " + String(wf_data.temp_min) + " до " + String(wf_data.temp_max) + grad + "C "
                     + "ветер" + f_dsp.wind_dir_r(wf_data.wind_dir) + String(wf_data.wind_max) + "-" + String(wf_data.wind_min) + "м/с " + f_dsp.prc_type_r(wf_data.prec, wf_data.spower, wf_data.rpower)
                     + "oтн. влажность " + String(wf_data.hum_max) + "% "
-                    + "давление " + String(wf_data.press_max) + "мм " : "Нет данных по прогнозу погоды - проверьте настройки ");
+                    + "давление " + String(wf_data.press_max) + "мм.рт.ст " : "Нет данных по прогнозу погоды - проверьте настройки ");
             break;
           case 2:
             bstr = (wf_data.temp_min > -99 ? "Прогноз погоды от OWM на " + String(wf_data.day) + f_dsp.month_name_r(wf_data.month) + " : "
-                    + wf_data.descript + " температура " + String(wf_data.temp_min) + " " + String(wf_data.temp_max) + grad + "C "
+                    + wf_data.descript + " температура от " + String(wf_data.temp_min) + " до " + String(wf_data.temp_max) + grad + "C "
                     + "ветер" + f_dsp.wind_dir_r(wf_data.wind_dir) + String(wf_data.wind_min) + "м/с "
                     + "oтн. влажность " + String(wf_data.hum_min) + "% "
-                    + "давление " + String(wf_data.press_min) + "мм " : "Нет данных по прогнозу погоды - проверьте настройки ");
+                    + "давление " + String(wf_data.press_min) + "мм.рт.ст " : "Нет данных по прогнозу погоды - проверьте настройки ");
             break;
         }
         break;
