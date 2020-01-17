@@ -75,6 +75,10 @@ conf_data_t loadConfig(const char *filename)
       data.type_ext_snr     = doc["type_ext_snr"];
       data.type_prs_snr     = doc["type_prs_snr"];
       data.type_rtc         = doc["type_rtc"];
+      data.type_thermo      = doc["type_trs"];
+      data.src_thermo       = doc["src_trs"];
+      data.lb_thermo        = doc["lb_trs"];
+      data.hb_thermo        = doc["hb_trs"];
       data.night_mode_start = doc["night_mode_start"];
       data.night_mode_stop  = doc["night_mode_stop"];
       data.ts_ch_id         = doc["ts_ch_id"];
@@ -144,6 +148,10 @@ void saveConfig(const char *filename, conf_data_t data)
   json["type_ext_snr"]        = data.type_ext_snr;
   json["type_prs_snr"]        = data.type_prs_snr;
   json["type_rtc"]            = data.type_rtc;
+  json["type_trs"]            = data.type_thermo;
+  json["src_trs"]             = data.src_thermo;
+  json["lb_trs"]              = data.lb_thermo;
+  json["hb_trs"]              = data.hb_thermo;
   json["night_mode_start"]    = data.night_mode_start;
   json["night_mode_stop"]     = data.night_mode_stop;
   json["ts_ch_id"]            = data.ts_ch_id;
@@ -241,6 +249,10 @@ conf_data_t defaultConfig()
   data.type_ext_snr     = 0;
   data.type_prs_snr     = 0;
   data.type_rtc         = 0;
+  data.type_thermo      = 0;
+  data.src_thermo       = 0;
+  data.lb_thermo        = 0;
+  data.hb_thermo        = 0;
   data.night_mode_start = 23;
   data.night_mode_stop  = 7;
   data.ts_ch_id         = 0;

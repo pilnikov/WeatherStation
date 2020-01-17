@@ -180,49 +180,34 @@ udp_cons print_console_udp;
 
 // ------------------------------------------------------ GPIO
 #if defined(ESP8266)
+static const int     setting_pin  PROGMEM =  0;  // (D3)
+static const int         DHT_PIN  PROGMEM =  0;  // (D3) Pin which is connected to the DHT sensor.
+static const int       WRCLK_PIN  PROGMEM =  2;  // (D5)
 static const int         SDA_PIN  PROGMEM =  4;  // (D2)
 static const int         SCL_PIN  PROGMEM =  5;  // (D1)
-static const int        uart_pin  PROGMEM = 16;  // (D0)
-static const int         led_pin  PROGMEM =  2;  // (D4)
-static const int        RECV_PIN  PROGMEM =  2;  // (D4) an IR detector/demodulatord is connected to GPIO pin 2
-static const int     setting_pin  PROGMEM =  0;  // (D3)
+static const int         SQW_PIN  PROGMEM = 12;  // (D6) Пин RtcSquareWave
+static const int         DIO_PIN  PROGMEM = 13;  // (D7)
+static const int         CLK_PIN  PROGMEM = 14;  // (D5) Clk
 static const int         BUZ_PIN  PROGMEM = 15;  // (D8) Пин пищалки
-static const int         DHT_PIN  PROGMEM =  0;  // (D3) Pin which is connected to the DHT sensor.
-static const int           pinCS  PROGMEM = 16;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
-static const int      TM1637_DIO  PROGMEM = 13;  // (D7)
-static const int      TM1637_CLK  PROGMEM = 14;  // (D5)
-static const int          kDiPin  PROGMEM = 13;  // (D7) Dio
-static const int          kClPin  PROGMEM = 14;  // (D5) Clk
-static const int          kCePin  PROGMEM = 16;  // (D0) Chip Enable
-static const int RtcSquareWavePin PROGMEM = 12;  // (D6) Пин SQW
-static const int        DATA_PIN  PROGMEM = 13;  // (D7)
-static const int         CLK_PIN  PROGMEM =  2;  // (D4)
-static const int       WRCLK_PIN  PROGMEM = 14;  // (D5)
-static const int          CS_PIN  PROGMEM = 16;  // (D0) Chip Enable
+static const int          CS_PIN  PROGMEM = 16;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
+static const int        uart_pin  PROGMEM = 16;  // (D0)
 #endif
 
 // ------------------------------------------------------ GPIO
 #if defined(ESP32)
+static const int     setting_pin  PROGMEM =   0;  // (D3)
+static const int       WRCLK_PIN  PROGMEM =   2;  // (D5)
+static const int         BUZ_PIN  PROGMEM =   3;  // (D8) Канал PWM
+static const int         SQW_PIN  PROGMEM =  12;  // (D6) Пин RtcSquareWave
+static const int         DIO_PIN  PROGMEM =  13;  // (D7)
+static const int         CLK_PIN  PROGMEM =  14;  // (D5) Clk
+static const int          CS_PIN  PROGMEM =  15;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
+static const int        uart_pin  PROGMEM =  16;  // (D0)
 static const int         SDA_PIN  PROGMEM =  21;  // (D2)
 static const int         SCL_PIN  PROGMEM =  22;  // (D1)
-static const int        uart_pin  PROGMEM =  15;  // (D0)
-static const int         led_pin  PROGMEM =  33;  // (D4)
-static const int        RECV_PIN  PROGMEM =  36;  // (D4) an IR detector/demodulatord is connected to GPIO pin 2
-static const int     setting_pin  PROGMEM =   0;  // (D3)
-static const int         BUZ_PIN  PROGMEM =   3;  // (D8) Канал PWM
 static const int        BUZ2_PIN  PROGMEM =  32;  // (D8) Пин пищалки
-static const int         DHT_PIN  PROGMEM =  36;  // (D3) Pin which is connected to the DHT sensor.
-static const int           pinCS  PROGMEM =  15;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
-static const int      TM1637_DIO  PROGMEM =  13;  // (D7)
-static const int      TM1637_CLK  PROGMEM =  14;  // (D5)
-static const int          kDiPin  PROGMEM =  13;  // (D7) Dio
-static const int          kClPin  PROGMEM =  14;  // (D5) Clk
-static const int          kCePin  PROGMEM =  15;  // (D0) Chip Enable
-static const int RtcSquareWavePin PROGMEM =  12;  // (D6) Пин SQW
-static const int        DATA_PIN  PROGMEM =  13;  // (D7)
 static const int         CLK_PIN  PROGMEM =  33;  // (D4)
-static const int       WRCLK_PIN  PROGMEM =  14;  // (D5)
-static const int          CS_PIN  PROGMEM =  15;  // (D0) Chip Enable
+static const int         DHT_PIN  PROGMEM =  36;  // (D3) Pin which is connected to the DHT sensor.
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
@@ -248,21 +233,16 @@ static const int          CS_PIN  PROGMEM =  15;  // (D0) Chip Enable
 ********************************************************
 */
 
+#define        uart_pin  0
+#define         DHT_PIN  2
+#define     setting_pin  3
+#define         SQW_PIN  5
+#define          CS_PIN  8
+#define         CLK_PIN  9
+#define         DIO_PIN  10
+#define         BUZ_PIN  11
 #define         SDA_PIN  12
 #define         SCL_PIN  13
-#define        uart_pin  0
-#define         led_pin  4
-#define        RECV_PIN  1
-#define     setting_pin  3
-#define         BUZ_PIN  11
-#define         DHT_PIN  2
-#define           pinCS  8
-#define      TM1637_DIO  10
-#define      TM1637_CLK  9
-#define          kDiPin  10
-#define          kClPin  9
-#define          kCePin  8
-#define RtcSquareWavePin 5
 #endif
 
 // ----------------------------------- Typedef
@@ -304,7 +284,11 @@ void GetSnr();
 String uart_st();
 void send_uart();
 void keyb_read();
+inline uint8_t rumb_conv(uint16_t);
+String remove_sb(String);
+String tvoday(String);
 void nm_veri();
+void Thermo();
 
 void wifi_conn(byte, byte, byte);
 String gs_rcv (unsigned long);

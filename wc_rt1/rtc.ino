@@ -10,7 +10,7 @@ void rtc_init()
 {
   if (ram_data.type_rtc == 1)
   { // set the interupt pin to input mode
-    pinMode(RtcSquareWavePin, INPUT_PULLUP);
+    pinMode(SQW_PIN, INPUT_PULLUP);
 
     //--------RTC SETUP ------------
     DS3231.Begin();
@@ -21,7 +21,7 @@ void rtc_init()
     attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
 #endif
 #if defined(ESP32)
-    //attachInterrupt(digitalPinToInterrupt(RtcSquareWavePin), InteruptServiceRoutine, CHANGE);
+    //attachInterrupt(digitalPinToInterrupt(SQW_PIN), InteruptServiceRoutine, CHANGE);
 #endif
   }
   if (ram_data.type_rtc == 3)
@@ -192,7 +192,7 @@ bool Alarmed()
     if (debug_level == 13) DBG_OUT_PORT.println("alarm one is run!");
 
     dmsg.alarm_msg(rtc_data.n_cur_alm, ram_data.type_disp, conf_data.rus_disp);  // Сообщение на индикатор
-    digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
+    if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
 
     switch (conf_data.alarms[rtc_data.n_cur_alm][4])     // Выполняем экшн
     {
@@ -266,7 +266,7 @@ bool Alarmed()
       strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
       saveConfig(conf_f, conf_data);
     }
-    digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
+    if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2

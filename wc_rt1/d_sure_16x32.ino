@@ -6,7 +6,7 @@ void m1632_init()
 
   digHt = 16; // Высота матрици в пикселях
 
-  m1632 = new HT1632Class(CLK_PIN, CS_PIN, WRCLK_PIN, DATA_PIN);
+  m1632 = new HT1632Class(CLK_PIN, CS_PIN, WRCLK_PIN, DIO_PIN);
   m1632 -> setBrightness(12); // Use a value between 0 and 15 for brightness
   m1632 -> cp437(true);
   m1632 -> setTextSize(1);

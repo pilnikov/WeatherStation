@@ -166,6 +166,7 @@ void firq6()
     }
   }
   Alarmed();
+  Thermo();
   blinkColon = !blinkColon;
   if (colon < 4) colon ++;
   else colon = 1;

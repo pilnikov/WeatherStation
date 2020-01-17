@@ -72,6 +72,10 @@ typedef struct
   uint8_t   type_ext_snr;
   uint8_t   type_prs_snr;
   uint8_t   type_rtc;
+  uint8_t   type_thermo;
+  uint8_t   src_thermo;
+  int       lb_thermo;
+  int       hb_thermo;
   unsigned long period;
   unsigned long pp_city_id;
   unsigned long ts_ch_id;

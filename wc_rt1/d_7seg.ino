@@ -15,7 +15,7 @@ void sevenseg_init()
       break;
 
     case 3:
-      tm1637 = new TM1637(TM1637_CLK, TM1637_DIO);
+      tm1637 = new TM1637(CLK_PIN, DIO_PIN);
       tm1637 -> init();
       tm1637 -> set(7);
       bstr = "1637";
@@ -24,7 +24,7 @@ void sevenseg_init()
       break;
 
     case 5:
-      max7 = new LedControl(kDiPin, kClPin, pinCS, 1);
+      max7 = new LedControl(DIO_PIN, CLK_PIN, CS_PIN, 1);
       max7 -> shutdown(0, false);
       max7 -> setIntensity(0, 8);
       max7 -> clearDisplay(0);
@@ -49,7 +49,7 @@ void sevenseg_init()
       break;
 
     case 6:
-      max7 = new LedControl(kDiPin, kClPin, pinCS, 1);
+      max7 = new LedControl(DIO_PIN, CLK_PIN, CS_PIN, 1);
       max7 -> shutdown(0, false);
       max7 -> setIntensity(0, 8);
       max7 -> clearDisplay(0);
@@ -74,7 +74,7 @@ void sevenseg_init()
       break;
 
     case 7:
-      ht21 = new HT1621(kCePin, kClPin, kDiPin); // ss, rw, data
+      ht21 = new HT1621(CS_PIN, CLK_PIN, DIO_PIN); // ss, rw, data
       ht21 -> begin();
 
       ht21 -> sendCommand(HT1621::RC256K);
@@ -267,4 +267,3 @@ void sevenseg()
       break;
   }
 }
-

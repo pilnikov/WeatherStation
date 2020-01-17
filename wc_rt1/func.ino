@@ -16,12 +16,12 @@ void GetSnr()
       dmsg.callback(ram_data.type_disp, 2, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
     if (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
-    
+
     if (conf_data.use_pp == 2) {
       wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
-      wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max)/1.3332239);
+      wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
     }
-    
+
     if ((ram_data.type_int_snr == 10 || ram_data.type_ext_snr == 10 || ram_data.type_prs_snr == 10) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
   }
 
@@ -87,7 +87,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   addr += weatherKey;
   addr += "&lang=ru&cnt=1";
   DBG_OUT_PORT.println(addr);
-  
+
   out = nsys.http_client (addr);
   //DBG_OUT_PORT.println(out);
 
@@ -147,9 +147,9 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   addr += "&units=metric&appid=";
   addr += weatherKey;
   addr += "&lang=ru&cnt=2";
-  //if (debug_level == 10) 
+  //if (debug_level == 10)
   DBG_OUT_PORT.println(addr);
-  
+
   out = nsys.http_client (addr);
   if (debug_level == 10) DBG_OUT_PORT.println(out);
 
@@ -422,9 +422,9 @@ void keyb_read()
     but0_press = but0_pressed;
   }
 
-  if ( but0_pressed && !conf_data.use_es && !serv_act && millis() - setting_ms > 2000 ) digitalWrite(LED_BUILTIN, LOW);  // Включаем светодиод
-  if ( but0_pressed && !conf_data.use_es &&  serv_act && millis() - setting_ms > 2000 ) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
-  if ( but0_pressed                                   && millis() - setting_ms > 9000 ) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
+  if ( but0_pressed && !conf_data.use_es && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, LOW);  // Включаем светодиод
+  if ( but0_pressed && !conf_data.use_es &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
+  if ( but0_pressed                                   && millis() - setting_ms > 9000 && conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
 
   if (!but0_pressed && but0_press && !serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)
   {
@@ -503,6 +503,48 @@ String uart_st ()
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
   return st;
+}
+void Thermo()
+{
+  bool act = 0;
+  if (conf_data.type_thermo > 0)
+  {
+    if (conf_data.src_thermo == 0)
+    {
+      act = (snr_data.t1 > conf_data.lb_thermo) && (snr_data.t1 < conf_data.hb_thermo);
+    }
+    else
+    {
+      act = (snr_data.t2 > conf_data.lb_thermo) && (snr_data.t2 < conf_data.hb_thermo);
+    }
+    if (act)
+    {
+      if (conf_data.type_thermo == 1)
+      {
+        //DBG_OUT_PORT.println("Thermostate OUT IS ON!!!");
+        digitalWrite(2, HIGH);
+      }
+      else
+      {
+        //DBG_OUT_PORT.println("Thermostate OUT IS OFF!!!");
+        digitalWrite(2, LOW);
+      }
+    }
+    else
+    {
+      if (conf_data.type_thermo == 1)
+      {
+        //DBG_OUT_PORT.println("Thermostate OUT IS OFF!!!");
+        digitalWrite(2, LOW);
+      }
+      else
+      {
+        //DBG_OUT_PORT.println("Thermostate OUT IS ON!!!");
+        digitalWrite(2, HIGH);
+      }
+    }
+
+  }
 }
 
 void send_uart()

@@ -11,22 +11,23 @@
   
   <body onload='loadValues();'>
     <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-    	<tr>
-    	  <td align='center' class='h' width='5%'><a href='time.htm'>Time</a></td>
-    	  <td align='center' class='h' width='5%'><a href='wifi.htm'>WiFi</a></td>
-    	  <td align='center' class='h' width='5%'><a href='clock.htm'>Clock</a></td>
-    	  <td align='center' class='h' width='5%'><a href='disp.htm'>Display</a></td>
-    	  <td align='center' class='h' width='5%'><a href='sens.htm'>Sensor</a></td>
-    	  <td align='center' class='h' width='5%'><a href='alarm.htm'>Alarm</a></td>
-    	  <td align='center' class='h' width='5%'><a href='/edit'>Edit</a></td>
-    	  <td align='center' class='h' width='5%'><a href='/exit'>Restart</a></td>
-    	</tr>
-      <tr><td colspan='8' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
-    </table>
+      	<tr>
+      	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
+      	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
+      	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
+      	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
+      	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
+      	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
+  		    <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
+       	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
+      	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
+      	</tr>
+        <tr><td colspan='9' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
+      </table>
 
-    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+      <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
 
-         <tr><td colspan='8' class='h'>Опции для часов</td></tr>
+      <tr><td colspan='9' class='h'>Опции для часов</td></tr>
  
          <tr><td width='30%'>Часовой пояс</td><td><input type='text' size='3' id='tzone' name='tzone' style='text-align:center;'/></td></tr>
          <tr><td>Авто коррекция через NTP</td><td><input type='checkbox' id='acorr' name='acorr'/></td></tr>

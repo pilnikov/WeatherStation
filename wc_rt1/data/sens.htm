@@ -11,23 +11,23 @@
   
   <body onload='loadValues();'>
     <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-  	<tr>
-  	  <td align='center' class='h' width='5%'><a href='time.htm'>Time</a></td>
-  	  <td align='center' class='h' width='5%'><a href='wifi.htm'>WiFi</a></td>
-  	  <td align='center' class='h' width='5%'><a href='clock.htm'>Clock</a></td>
-  	  <td align='center' class='h' width='5%'><a href='disp.htm'>Display</a></td>
-  	  <td align='center' class='h' width='5%'><a href='sens.htm'>Sensor</a></td>
-  	  <td align='center' class='h' width='5%'><a href='alarm.htm'>Alarm</a></td>
-  	  <td align='center' class='h' width='5%'><a href='/edit'>Edit</a></td>
-  	  <td align='center' class='h' width='5%'><a href='/exit'>Restart</a></td>
-  	</tr>
+      	<tr>
+      	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
+      	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
+      	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
+      	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
+      	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
+      	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
+  		    <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
+       	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
+      	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
+      	</tr>
+        <tr><td colspan='9' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
+      </table>
 
-    <tr><td colspan='8' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
-    </table>
-  
-    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-      
-      <tr><td colspan='2' class='h'>Опции</td></tr>
+      <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+
+      <tr><td colspan='9' class='h'>Опции</td></tr>
       <tr><td>city ID для GM и OWM</td><td><input type='text' size='6' id='cityID' name='cityID' style='text-align:center;' /></td></tr>
       <tr><td>OWM API Key</td><td><input type='text' size='32' id='owmk' name='owmk' style='text-align:center;' /></td></tr>
       <tr><td>Адрес внешн. сервера</td><td><input type='text' size='17' id='esaddr' name='esaddr' style='text-align:center;' /></td></tr>

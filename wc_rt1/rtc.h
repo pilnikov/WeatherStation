@@ -26,4 +26,4 @@ RtcDS3231<TwoWire> DS3231(Wire);
 RtcDS1307<TwoWire> DS1307(Wire);
 
 // ----------------------------------- Конструктор DS1302
-DS1302RTC DS1302(kCePin, kDiPin, kClPin);
+DS1302RTC DS1302(CS_PIN, DIO_PIN, CLK_PIN);

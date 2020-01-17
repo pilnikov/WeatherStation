@@ -3,7 +3,7 @@ void m7219_init()
 {
   digHt = 8;  // Высота матрицы в пикселях
 
-  m7219 = new Max72xxPanel(pinCS, numberOfVerticalDisplays, numberOfHorizontalDisplays);
+  m7219 = new Max72xxPanel(CS_PIN, numberOfVerticalDisplays, numberOfHorizontalDisplays);
   m7219 -> begin();
   m7219 -> setRotation(m7219 -> getRotation() + 3); //1 - 90  2 - 180   3 - 270
   m7219 -> cp437(true);
@@ -175,5 +175,3 @@ void m7219_time()
 
   m7219 -> write(); // Send bitmap to display
 }
-
-

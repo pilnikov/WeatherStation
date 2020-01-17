@@ -15,6 +15,7 @@ void web_setup()
   server.on("/set_pars",  handleSetPars);
   server.on("/set_parc",  handleSetParc);
   server.on("/set_alm",   handleSetAlarm);
+  server.on("/set_partrm",handleSetPartrm);
   server.on("/jact",      handlejAct);
   server.on("/jtime",     handlejTime);
   server.on("/jwifi",     handlejWiFi);
@@ -25,6 +26,7 @@ void web_setup()
   server.on("/jalarm",    handlejAlarm);
   server.on("/jsnr",      handlejSnr);
   server.on("/juart",     handlejUart);
+  server.on("/jtrm",      handlejTrm);
   //server.on("/all",       handleAll  );
 
   //-------------------------------------------------------------- for SPIFFS
@@ -96,7 +98,7 @@ void start_serv()
 void stop_serv()
 {
   server.stop();
-  digitalWrite(LED_BUILTIN, HIGH); //Гасим светодиод
+  if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, HIGH); //Гасим светодиод
   if (debug_level == 14) DBG_OUT_PORT.println( "Server stopped");
   stop_wifi();
 }
@@ -483,6 +485,41 @@ void handleSelNum()
 void handlejUart()
 {
   server.send(200, "text/json", uart_st());
+}
+
+//-------------------------------------------------------------- handlejTrm
+void handlejTrm()
+{
+  DynamicJsonDocument jsonBuffer(64);
+  JsonObject json = jsonBuffer.to<JsonObject>();
+
+  json ["ttrm"] = conf_data.type_thermo;
+  json ["tsrc"] = conf_data.src_thermo;
+  json ["dsta"] = conf_data.lb_thermo;
+  json ["dstp"] = conf_data.hb_thermo;
+ 
+  String st = String();
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+
+  saveConfig(conf_f, conf_data);
+
+  server.send(200, "text/json", st);
+  st = String();
+}
+
+//-------------------------------------------------------------- handleSetpartrm
+void handleSetPartrm()
+{
+  //url = '/set_partrm?ttrm='+sttrm+'&tsrc='+stsrs+'&dsta='+sdsta+'&dstp='+sdstp;
+
+  conf_data.type_thermo = server.arg("ttrm").toInt();
+  conf_data.src_thermo = server.arg("tsrc").toInt();
+  conf_data.lb_thermo = server.arg("dsta").toInt();
+  conf_data.hb_thermo = server.arg("dstp").toInt();
+
+  server.send(200, "text/html", "Ok!");
+  serv_ms = millis();
+  
 }
 
 //-------------------------------------------------------------- handlejAct

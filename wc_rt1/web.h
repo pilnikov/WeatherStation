@@ -17,6 +17,8 @@ void handlejAlarm();
 void handleSetFont();
 void handleSetAlarm();
 void handlejUart();
+void handlejTrm();
+void handleSetPartrm();
 
 String getContentType(String filename);
 bool handleFileRead(String path);
