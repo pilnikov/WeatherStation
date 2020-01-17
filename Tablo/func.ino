@@ -198,6 +198,8 @@ void parser(String inStr)
   wf_data.wind_min   = json ["J"];
   wf_data.wind_dir   = json ["K"];
   wf_data.hum_max    = json ["L"];
+  wf_data.day        = json ["O"];
+  wf_data.month      = json ["P"];
 
   //#ifdef _debug
   DBG_OUT_PORT.println("Data from ext server");

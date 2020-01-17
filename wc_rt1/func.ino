@@ -495,6 +495,8 @@ String uart_st ()
     json ["J"] = wf_data.wind_min;
     json ["K"] = wf_data.wind_dir;
     json ["L"] = (int)(wf_data.hum_max + wf_data.hum_min) / 2;
+    json ["O"] = wf_data.day;
+    json ["P"] = wf_data.month;
   }
 
   json ["Q"] = "End";
