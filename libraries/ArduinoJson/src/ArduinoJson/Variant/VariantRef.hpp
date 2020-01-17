@@ -1,5 +1,5 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2019
+// Copyright Benoit Blanchon 2014-2020
 // MIT License
 
 #pragma once
@@ -91,6 +91,16 @@ class VariantRefBase {
   is() const {
     return variantIsObject(_data);
   }
+#if ARDUINOJSON_HAS_NULLPTR
+  //
+  // bool is<nullptr_t> const;
+  template <typename T>
+  FORCE_INLINE
+      typename enable_if<is_same<T, decltype(nullptr)>::value, bool>::type
+      is() const {
+    return variantIsNull(_data);
+  }
+#endif
 
   FORCE_INLINE bool isNull() const {
     return variantIsNull(_data);

@@ -1,5 +1,5 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2019
+// Copyright Benoit Blanchon 2014-2020
 // MIT License
 
 #pragma once
@@ -103,7 +103,7 @@ class VariantData {
 
   bool equals(const VariantData &other) const {
     // Check that variant have the same type, but ignore string ownership
-    if ((type() | OWNERSHIP_BIT) != (other.type() | OWNERSHIP_BIT))
+    if ((type() | VALUE_IS_OWNED) != (other.type() | VALUE_IS_OWNED))
       return false;
 
     switch (type()) {
@@ -350,6 +350,12 @@ class VariantData {
     VariantData *var = _content.asCollection.get(key);
     if (var) return var;
     return _content.asCollection.add(key, pool);
+  }
+
+  void movePointers(ptrdiff_t stringDistance, ptrdiff_t variantDistance) {
+    if (_flags & VALUE_IS_OWNED) _content.asString += stringDistance;
+    if (_flags & COLLECTION_MASK)
+      _content.asCollection.movePointers(stringDistance, variantDistance);
   }
 
  private:

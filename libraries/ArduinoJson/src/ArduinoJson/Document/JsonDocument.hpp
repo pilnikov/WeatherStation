@@ -1,5 +1,5 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2019
+// Copyright Benoit Blanchon 2014-2020
 // MIT License
 
 #pragma once
@@ -301,7 +301,6 @@ class JsonDocument : public Visitable {
     _pool = pool;
   }
 
- private:
   VariantRef getVariant() {
     return VariantRef(&_pool, &_data);
   }

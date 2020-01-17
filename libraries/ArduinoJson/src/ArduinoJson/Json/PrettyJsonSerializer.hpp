@@ -1,5 +1,5 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2019
+// Copyright Benoit Blanchon 2014-2020
 // MIT License
 
 #pragma once
@@ -70,7 +70,7 @@ size_t serializeJsonPretty(const TSource &source, TDestination &destination) {
 }
 
 template <typename TSource>
-size_t serializeJsonPretty(const TSource &source, char *buffer,
+size_t serializeJsonPretty(const TSource &source, void *buffer,
                            size_t bufferSize) {
   return serialize<PrettyJsonSerializer>(source, buffer, bufferSize);
 }

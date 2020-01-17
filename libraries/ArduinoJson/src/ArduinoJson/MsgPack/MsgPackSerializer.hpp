@@ -1,5 +1,5 @@
 // ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2019
+// Copyright Benoit Blanchon 2014-2020
 // MIT License
 
 #pragma once
@@ -172,8 +172,8 @@ inline size_t serializeMsgPack(const TSource& source, TDestination& output) {
   return serialize<MsgPackSerializer>(source, output);
 }
 
-template <typename TSource, typename TDestination>
-inline size_t serializeMsgPack(const TSource& source, TDestination* output,
+template <typename TSource>
+inline size_t serializeMsgPack(const TSource& source, void* output,
                                size_t size) {
   return serialize<MsgPackSerializer>(source, output, size);
 }
