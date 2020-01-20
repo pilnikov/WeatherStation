@@ -1,6 +1,6 @@
 // testshapes demo for RGBmatrixPanel library.
 // Demonstrates the drawing abilities of the RGBmatrixPanel library.
-// For 32x64 RGB LED matrix. 
+// For 32x64 RGB LED matrix.
 
 // NOTE THIS CAN ONLY BE USED ON A MEGA! NOT ENOUGH RAM ON UNO!
 
@@ -57,9 +57,9 @@ static uint16_t grad;
 uint8_t colon; //номер разделителя
 const uint8_t num = 6;  // количество цифр
 uint8_t digHt;
-#ifdef new_max 
+#ifdef new_max
 const uint8_t digPos[num] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране
-#else 
+#else
 const uint8_t digPos[num] = {0, 4, 11, 16, 23, 28};
 #endif
 static char d[num] = {0, 0, 0, 0, 0, 0};            // цифры

@@ -1,0 +1,221 @@
+<html>
+  <head>
+    <title>Wifi Clock Settings Alarm</title>
+    <meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
+    <style>
+       body,td{font-family:tahoma,arial,helvetica,sans-serif;}
+       table.t td.h{background-color:#C9C9C0;font-size:12px;font-weight:bold;text-align:center;}
+       table.t td  {background-color:#E2E2DB;font-size:12px;text-align:center;}
+    </style>
+  </head>
+   
+  <body onload = 'loadValues();'>
+    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+      	<tr>
+      	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
+      	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
+      	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
+      	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
+      	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
+      	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
+  		    <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
+       	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
+      	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
+      	</tr>
+        <tr><td colspan='9' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
+      </table>
+
+    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+      
+      <tr><td colspan='9' class='h'>Настройки будильников</td></tr>
+      
+      <tr><td><td>&nbsp; N: &nbsp;
+        <select id='anum' name='anum' onclick='sel_anum();'>
+      	<option value = '0'>0</option>
+      	<option value = '1'>1</option>
+      	<option value = '2'>2</option>
+      	<option value = '3'>3</option>
+      	<option value = '4'>4</option>
+      	<option value = '5'>5</option>
+      	<option value = '6'>6</option>
+        </select>
+        
+        &nbsp; Когда: &nbsp;
+      
+        <select id='atyp' name='atyp' onclick='sel_atyp();'>
+      	<option value = '0'>Отключен</option>
+      	<option value = '1'>Ежедневно</option>
+      	<option value = '2'>По рабочим</option>
+      	<option value = '3'>По выходным</option>
+      	<option value = '4'>Разово</option>
+        </select>&nbsp; Сработает в: &nbsp;
+
+        <input type='text' size='1' id='ahour' name='ahour' style='text-align:center;' />&nbsp;:&nbsp;
+        <input type='text' size='1' id='amin'  name='amin'  style='text-align:center;' />
+        </td></tr>
+        
+        <tr><td><td>&nbsp;Экшн: &nbsp;
+
+          <select id='aon' name='aon' onclick='sel_aact();'>
+        	<option value = '0'>Сыграет  мелодию</option>
+        	<option value = '1'>Включит  ночной режим</option>
+        	<option value = '2'>Выключит ночной режим</option>
+        	<option value = '3'>Включит  дисплей</option>
+        	<option value = '4'>Выключит дисплей</option>
+        	<option value = '5'>Включит  радио</option>
+        	<option value = '6'>Выключит радио</option>
+          </select>
+          
+          &nbsp; Мелодия: &nbsp;
+        
+          <select id='amel' name='amel'>
+        	<option value = '0' >The Simpsons</option>
+        	<option value = '1' >Indiana</option>
+        	<option value = '2' >Entertainer</option>
+        	<option value = '3' >Looney</option>
+        	<option value = '4' >Bond</option>
+        	<option value = '5 '>MASH</option>
+        	<option value = '6' >StarWars</option>
+        	<option value = '7' >GoodBad</option>
+        	<option value = '8' >TopGun</option>
+        	<option value = '9' >A-Team</option>
+        	<option value = '10'>Flinstones</option>
+        	<option value = '11'>Jeopardy</option>
+        	<option value = '12'>MahnaMahna</option>
+        	<option value = '13'>MissionImpossible</option>
+        	<option value = '14'>KnightRider</option>
+          </select></td></tr>
+
+      <tr><td colspan='8' class='h'> </td></tr>
+
+      <tr><td width='0%'></td><td>
+      
+      Актуальный будильник
+          <input type='text' size='1' id='act_hour' name='act_hour' style='text-align:center;' readonly />&nbsp;:&nbsp;
+          <input type='text' size='1' id='act_min'  name='act_min'  style='text-align:center;' readonly /></td></tr>
+    
+      <tr><td colspan='2' class='h'><input type='submit' value='Записать' onclick='set_alm();' /></td></tr>
+    
+    </table>
+    
+    <script>
+      function loadValues()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open("GET", "/jalarm", true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState == 4 && xh.status == 200) 
+          {
+            var res = JSON.parse(xh.responseText);
+      		  document.getElementById('anum'    ).value = res.anum;
+      		  document.getElementById('atyp'    ).value = res.atyp;
+      		  document.getElementById('ahour'   ).value = res.ahou;
+      		  document.getElementById('amin'    ).value = res.amin;
+      		  document.getElementById('amel'    ).value = res.amel;
+      		  document.getElementById('aon'     ).value = res.aact;
+
+            sel_atyp();
+            sel_aact();
+          }
+        }
+        xh.send(null);
+      }
+
+      function showHide(element_id, visible) 
+      {
+      //Если элемент с id-шником element_id существует
+        if (document.getElementById(element_id)) 
+        { 
+          //Записываем ссылку на элемент в переменную obj
+          var obj = document.getElementById(element_id); 
+          if (visible) obj.style.display = "inline-block"; //Показываем элемент
+          else obj.style.display = "none"; //Скрываем элемент
+        }
+        //Если элемент с id-шником element_id не найден, то выводим сообщение
+        else alert("Элемент с id: " + element_id + " не найден!"); 
+      }   
+ 
+
+      function process()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open("GET", "/jact", true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState == 4 && xh.status == 200) 
+          {
+            var res = JSON.parse(xh.responseText);
+            document.getElementById('cur_time').value = res.tstr;
+      		  document.getElementById('act_hour').value = res.acth;
+      	    document.getElementById('act_min' ).value = res.actm;
+          }
+        }
+        xh.send(null);
+
+        setTimeout('process()',500);
+      }
+      
+      function sel_atyp()
+      {
+         satyp = document.getElementById('atyp').value;
+         if (satyp > 0)
+    		  {
+       		  showHide('ahour', true);
+      		  showHide('amin',  true);
+      		  showHide('amel',  true);
+      		  showHide('aon',   true);
+    		  }
+          else
+    		  {
+      		  showHide('ahour', false);
+      		  showHide('amin',  false);
+      		  showHide('amel',  false);
+      		  showHide('aon',   false);
+    		  }
+      }
+      
+      function sel_aact()
+      {
+         saact = document.getElementById('aon').value;
+         satyp = document.getElementById('atyp').value;
+         
+         if (saact == 0 && satyp > 0) showHide('amel',  true);
+         else showHide('amel',  false);
+      }
+
+      function sel_anum()
+      {
+        sanum = document.getElementById('anum').value;
+
+        url='/sel_anum?sanum='+sanum;
+
+        var xh = new XMLHttpRequest();
+        xh.open('GET', url, true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadValues();
+        }      
+        xh.send(null);
+      }
+      
+      function set_alm()
+      {
+        satyp=document.getElementById('atyp').value;
+        ahour=document.getElementById('ahour').value;
+        amin=document.getElementById('amin').value;
+        samel=document.getElementById('amel').value;
+        saon=document.getElementById('aon').value;
+        
+        url='/set_alm?satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
+        
+        var xh = new XMLHttpRequest();
+        xh.open('GET', url, true);
+        xh.send(null);
+      }
+
+      process();
+        
+    </script>
+  </body>
+</html>
