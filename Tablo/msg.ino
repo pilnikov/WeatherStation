@@ -45,6 +45,8 @@ String pr_str(uint8_t num)
       case 3:
         str = (web_ap ? " Нет связи с внешним миром проверьте WiFi" : "");
 
+        if (conf_data.use_pp == 0) str = " Нет данных по прогнозу погоды - проверьте настройки ";
+       
         if (conf_data.use_pp == 1)
         {
           str = (wf_data.temp_min > -99 ? " Прогноз погоды от GM на" + f_dsp.td_name_r(wf_data.tod) + String(wf_data.day) + f_dsp.month_name_r(wf_data.month) + " : "

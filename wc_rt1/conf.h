@@ -200,7 +200,7 @@ static const int       WRCLK_PIN  PROGMEM =   2;  // (D5)
 static const int         BUZ_PIN  PROGMEM =   3;  // (D8) Канал PWM
 static const int         SQW_PIN  PROGMEM =  12;  // (D6) Пин RtcSquareWave
 static const int         DIO_PIN  PROGMEM =  13;  // (D7)
-static const int         CLK_PIN  PROGMEM =  14;  // (D5) Clk
+//static const int         CLK_PIN  PROGMEM =  14;  // (D5) Clk
 static const int          CS_PIN  PROGMEM =  15;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
 static const int        uart_pin  PROGMEM =  16;  // (D0)
 static const int         SDA_PIN  PROGMEM =  21;  // (D2)
@@ -208,6 +208,7 @@ static const int         SCL_PIN  PROGMEM =  22;  // (D1)
 static const int        BUZ2_PIN  PROGMEM =  32;  // (D8) Пин пищалки
 static const int         CLK_PIN  PROGMEM =  33;  // (D4)
 static const int         DHT_PIN  PROGMEM =  36;  // (D3) Pin which is connected to the DHT sensor.
+static const int     LED_BUILTIN  PROGMEM =   5;  // (D3)
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)

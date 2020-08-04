@@ -24,6 +24,8 @@ void synchro()
 
   parser(inString);
 
+  if (wf_data.day == 0) conf_data.use_pp = 0;
+
   if (abs(rtc_data.ct - now()) > 2 && rtc_data.ct > 1476797813) setTime(rtc_data.ct);
 
   if (conf_data.type_int_snr > 0 || conf_data.type_ext_snr > 0 || conf_data.type_prs_snr > 0)
@@ -208,6 +210,7 @@ void parser(String inStr)
   DBG_OUT_PORT.print("Temperature inside: ");  DBG_OUT_PORT.print(es_data.t1); DBG_OUT_PORT.print(" degrees Celcius Humidity inside: "); DBG_OUT_PORT.print(es_data.h1); DBG_OUT_PORT.println(" % ");
   DBG_OUT_PORT.print("Temperature outside: "); DBG_OUT_PORT.print(es_data.t2); DBG_OUT_PORT.print(" degrees Celcius Humidity outside: "); DBG_OUT_PORT.print(es_data.h2); DBG_OUT_PORT.println(" % ");
   DBG_OUT_PORT.print("Pressure: "); DBG_OUT_PORT.print(es_data.p); DBG_OUT_PORT.println("mm rt. st.");
+  DBG_OUT_PORT.print("Prognoz: "); DBG_OUT_PORT.print(wf_data.day);
   DBG_OUT_PORT.print("Current alarm: "); DBG_OUT_PORT.print(rtc_data.a_hour); DBG_OUT_PORT.print(':'); DBG_OUT_PORT.println(rtc_data.a_min);
   //#endif
 }

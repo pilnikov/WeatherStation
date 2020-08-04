@@ -30,7 +30,7 @@ void setup() {
 
   //------------------------------------------------------  Инициализируем дисплей
   conf_data.rus_disp = true;
-  conf_data.use_pp = 1;
+  conf_data.use_pp = 0;
   conf_data.use_pm = false;
   matrix_init();
 }
@@ -46,4 +46,3 @@ void loop()
     refresh_time = millis();
   }
 }
-
