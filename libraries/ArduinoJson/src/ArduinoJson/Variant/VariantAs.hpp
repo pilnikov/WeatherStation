@@ -53,8 +53,14 @@ struct VariantConstAs<ArrayRef> {
 // ---
 
 template <typename T>
+<<<<<<< HEAD
+inline typename enable_if<is_integral<T>::value && !is_same<bool, T>::value,
+                          T>::type
+variantAs(const VariantData* data) {
+=======
 inline typename enable_if<is_integral<T>::value, T>::type variantAs(
     const VariantData* data) {
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
   ARDUINOJSON_ASSERT_INTEGER_TYPE_IS_SUPPORTED(T);
   return data != 0 ? data->asIntegral<T>() : T(0);
 }

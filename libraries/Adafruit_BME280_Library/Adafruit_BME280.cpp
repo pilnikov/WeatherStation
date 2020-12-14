@@ -343,20 +343,32 @@ uint32_t Adafruit_BME280::read24(byte reg) {
 
 /*!
  *  @brief  Take a new measurement (only possible in forced mode)
+    @returns true in case of success else false
  */
-void Adafruit_BME280::takeForcedMeasurement() {
+bool Adafruit_BME280::takeForcedMeasurement(void) {
+  bool return_value = false;
   // If we are in forced mode, the BME sensor goes back to sleep after each
   // measurement and we need to set it to forced mode once at this point, so
   // it will take the next measurement and then return to sleep again.
   // In normal mode simply does new measurements periodically.
   if (_measReg.mode == MODE_FORCED) {
+    return_value = true;
     // set to forced mode, i.e. "take next measurement"
     write8(BME280_REGISTER_CONTROL, _measReg.get());
-    // wait until measurement has been completed, otherwise we would read
-    // the values from the last measurement
-    while (read8(BME280_REGISTER_STATUS) & 0x08)
+    // Store current time to measure the timeout
+    uint32_t timeout_start = millis();
+    // wait until measurement has been completed, otherwise we would read the
+    // the values from the last measurement or the timeout occurred after 2 sec.
+    while (read8(BME280_REGISTER_STATUS) & 0x08) {
+      // In case of a timeout, stop the while loop
+      if ((millis() - timeout_start) > 2000) {
+        return_value = false;
+        break;
+      }
       delay(1);
+    }
   }
+  return return_value;
 }
 
 /*!
@@ -419,7 +431,7 @@ float Adafruit_BME280::readTemperature(void) {
           ((int32_t)_bme280_calib.dig_T3)) >>
          14;
 
-  t_fine = var1 + var2;
+  t_fine = var1 + var2 + t_fine_adjust;
 
   float T = (t_fine * 5 + 128) >> 8;
   return T / 100;
@@ -539,6 +551,24 @@ float Adafruit_BME280::seaLevelForAltitude(float altitude, float atmospheric) {
  *   @returns Sensor ID 0x60 for BME280, 0x56, 0x57, 0x58 BMP280
  */
 uint32_t Adafruit_BME280::sensorID(void) { return _sensorID; }
+
+/*!
+ *   Returns the current temperature compensation value in degrees Celcius
+ *   @returns the current temperature compensation value in degrees Celcius
+ */
+float Adafruit_BME280::getTemperatureCompensation(void) {
+  return float(((t_fine_adjust * 5) >> 8) / 100);
+};
+
+/*!
+ *  Sets a value to be added to each temperature reading. This adjusted
+ *  temperature is used in pressure and humidity readings.
+ *  @param  adjustment  Value to be added to each tempature reading in Celcius
+ */
+void Adafruit_BME280::setTemperatureCompensation(float adjustment) {
+  // convert the value in C into and adjustment to t_fine
+  t_fine_adjust = ((int32_t(adjustment * 100) << 8)) / 5;
+};
 
 /*!
     @brief  Gets an Adafruit Unified Sensor object for the temp sensor component

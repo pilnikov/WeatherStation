@@ -9,12 +9,13 @@
 
 namespace ARDUINOJSON_NAMESPACE {
 
-template <typename Visitor>
-inline void variantAccept(const VariantData *var, Visitor &visitor) {
+template <typename TVisitor>
+inline typename TVisitor::result_type variantAccept(const VariantData *var,
+                                                    TVisitor &visitor) {
   if (var != 0)
-    var->accept(visitor);
+    return var->accept(visitor);
   else
-    visitor.visitNull();
+    return visitor.visitNull();
 }
 
 inline const CollectionData *variantAsArray(const VariantData *var) {
@@ -40,6 +41,9 @@ inline bool variantCopyFrom(VariantData *dst, const VariantData *src,
   return dst->copyFrom(*src, pool);
 }
 
+<<<<<<< HEAD
+inline int variantCompare(const VariantData *a, const VariantData *b);
+=======
 inline bool variantEquals(const VariantData *a, const VariantData *b) {
   if (a == b)
     return true;
@@ -47,6 +51,7 @@ inline bool variantEquals(const VariantData *a, const VariantData *b) {
     return false;
   return a->equals(*b);
 }
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
 inline bool variantIsArray(const VariantData *var) {
   return var && var->isArray();
@@ -105,6 +110,8 @@ inline bool variantSetOwnedRaw(VariantData *var, SerializedValue<T> value,
   return var != 0 && var->setOwnedRaw(value, pool);
 }
 
+<<<<<<< HEAD
+=======
 inline bool variantSetLinkedString(VariantData *var, const char *value) {
   if (!var)
     return false;
@@ -112,12 +119,24 @@ inline bool variantSetLinkedString(VariantData *var, const char *value) {
   return true;
 }
 
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
 inline void variantSetNull(VariantData *var) {
   if (!var)
     return;
   var->setNull();
 }
 
+<<<<<<< HEAD
+template <typename TAdaptedString>
+inline bool variantSetString(VariantData *var, TAdaptedString value,
+                             MemoryPool *pool) {
+  if (!var)
+    return false;
+  return var->setString(value, pool);
+}
+
+template <typename T>
+=======
 inline bool variantSetOwnedString(VariantData *var, char *value) {
   if (!var)
     return false;
@@ -131,6 +150,7 @@ inline bool variantSetOwnedString(VariantData *var, T value, MemoryPool *pool) {
 }
 
 template <typename T>
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
 inline bool variantSetInteger(VariantData *var, T value) {
   ARDUINOJSON_ASSERT_INTEGER_TYPE_IS_SUPPORTED(T);
   if (!var)

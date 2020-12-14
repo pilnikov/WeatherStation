@@ -54,7 +54,9 @@ typedef unsigned char byte;
 #define GET_BIT_FROM_Y(_y) ( (0b1 << PIXELS_PER_BYTE-1) >> (_y % PIXELS_PER_BYTE) )
 
 // NO-OP Definition
-#define NOP(); __asm__("nop\n\t");
+#ifndef NOP
+	#define NOP(); __asm__("nop\n\t");
+#endif
 // The HT1632 requires at least 50 ns between the change in data and the rising
 // edge of the WR signal. On a 16MHz processor, this provides 62.5ns per NOP.
 

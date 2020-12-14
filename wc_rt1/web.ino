@@ -15,7 +15,7 @@ void web_setup()
   server.on("/set_pars",  handleSetPars);
   server.on("/set_parc",  handleSetParc);
   server.on("/set_alm",   handleSetAlarm);
-  server.on("/set_partrm",handleSetPartrm);
+  server.on("/set_partrm", handleSetPartrm);
   server.on("/jact",      handlejAct);
   server.on("/jtime",     handlejTime);
   server.on("/jwifi",     handlejWiFi);
@@ -104,12 +104,14 @@ void stop_serv()
 }
 
 //-------------------------------------------------------------- cur_time_str
-char * cur_time_str()
+const char *cur_time_str()
 {
-  char str[22] = {'П', 'Н', ' ', '2', '0', '.', '0', '7', '.', '1', '9', '7', '5', ' ', '1', '2', ':', '3', '4', ':', '5', '6'} ;
 #if !defined(ESP32)
+  const char str[22] = {'П', 'Н', ' ', '2', '0', '.', '0', '7', '.', '1', '9', '7', '5', ' ', '1', '2', ':', '3', '4', ':', '5', '6'} ;
   sprintf(str, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
           day(), month(), year(), hour(), minute(), second());
+#else
+  const char *str;
 #endif
   return str;
 }
@@ -497,7 +499,7 @@ void handlejTrm()
   json ["tsrc"] = conf_data.src_thermo;
   json ["dsta"] = conf_data.lb_thermo;
   json ["dstp"] = conf_data.hb_thermo;
- 
+
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
@@ -519,7 +521,7 @@ void handleSetPartrm()
 
   server.send(200, "text/html", "Ok!");
   serv_ms = millis();
-  
+
 }
 
 //-------------------------------------------------------------- handlejAct

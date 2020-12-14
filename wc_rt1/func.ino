@@ -506,6 +506,13 @@ String uart_st ()
 
   return st;
 }
+
+void send_uart()
+{
+  DBG_OUT_PORT.println(uart_st());
+}
+
+//------------------------------------------------------  Термостат
 void Thermo()
 {
   bool act = 0;
@@ -524,12 +531,12 @@ void Thermo()
       if (conf_data.type_thermo == 1)
       {
         //DBG_OUT_PORT.println("Thermostate OUT IS ON!!!");
-        digitalWrite(2, HIGH);
+        digitalWrite(TERMO_OUT, HIGH);
       }
       else
       {
         //DBG_OUT_PORT.println("Thermostate OUT IS OFF!!!");
-        digitalWrite(2, LOW);
+        digitalWrite(TERMO_OUT, LOW);
       }
     }
     else
@@ -537,22 +544,18 @@ void Thermo()
       if (conf_data.type_thermo == 1)
       {
         //DBG_OUT_PORT.println("Thermostate OUT IS OFF!!!");
-        digitalWrite(2, LOW);
+        digitalWrite(TERMO_OUT, LOW);
       }
       else
       {
         //DBG_OUT_PORT.println("Thermostate OUT IS ON!!!");
-        digitalWrite(2, HIGH);
+        digitalWrite(TERMO_OUT, HIGH);
       }
     }
 
   }
 }
 
-void send_uart()
-{
-  DBG_OUT_PORT.println(uart_st());
-}
 
 //------------------------------------------------------  Верифицируем ночной режим
 void nm_veri(void)

@@ -47,6 +47,19 @@
 #define DHT21 21  /**< DHT TYPE 21 */
 #define AM2301 21 /**< AM2301 */
 
+<<<<<<< HEAD
+#if defined(TARGET_NAME) && (TARGET_NAME == ARDUINO_NANO33BLE)
+#ifndef microsecondsToClockCycles
+/*!
+ * As of 7 Sep 2020 the Arduino Nano 33 BLE boards do not have
+ * microsecondsToClockCycles defined.
+ */
+#define microsecondsToClockCycles(a) ((a) * (SystemCoreClock / 1000000L))
+#endif
+#endif
+
+=======
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
 /*!
  *  @brief  Class that stores state and functions for DHT
  */

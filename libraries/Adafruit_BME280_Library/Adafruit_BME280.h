@@ -225,7 +225,7 @@ public:
                    sensor_filter filter = FILTER_OFF,
                    standby_duration duration = STANDBY_MS_0_5);
 
-  void takeForcedMeasurement();
+  bool takeForcedMeasurement(void);
   float readTemperature(void);
   float readPressure(void);
   float readHumidity(void);
@@ -233,6 +233,9 @@ public:
   float readAltitude(float seaLevel);
   float seaLevelForAltitude(float altitude, float pressure);
   uint32_t sensorID(void);
+
+  float getTemperatureCompensation(void);
+  void setTemperatureCompensation(float);
 
   Adafruit_Sensor *getTemperatureSensor(void);
   Adafruit_Sensor *getPressureSensor(void);
@@ -273,6 +276,9 @@ protected:
   int8_t _mosi; //!< for the SPI interface
   int8_t _miso; //!< for the SPI interface
   int8_t _sck;  //!< for the SPI interface
+
+  int32_t t_fine_adjust = 0; //!< add to compensate temp readings and in turn
+                             //!< to pressure and humidity readings
 
   bme280_calib_data _bme280_calib; //!< here calibration data is stored
 

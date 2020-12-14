@@ -124,45 +124,50 @@ ram_data_t SNR::init(ram_data_t in_data)
 float SNR::am_read_h()
 {
   delay(600);
+ 
+  float ret = -1.0;
+ 
+  
   switch (am23.Read()) {
     case 2:
 # ifdef _debug
       DBG_OUT_PORT.println("CRC failed");
 # endif
       break;
-      return -1;
     case 1:
 # ifdef _debug
       DBG_OUT_PORT.println("Sensor offline");
 # endif
-      return -1;
       break;
     case 0:
-      return am23.h;
+      ret = am23.h;
       break;
   }
+	return ret;
 }
 
 float SNR::am_read_t()
 {
   delay(600);
+
+  float ret = 99.0;
+
   switch (am23.Read()) {
     case 2:
 # ifdef _debug
       DBG_OUT_PORT.println("CRC failed");
 # endif
-      return 99;
       break;
     case 1:
 # ifdef _debug
       DBG_OUT_PORT.println("Sensor offline");
 # endif
-      return 99;
       break;
     case 0:
-      return am23.t;
+      ret = am23.t;
       break;
   }
+	return ret;
 }
 
 
@@ -357,10 +362,11 @@ void SNR::dht_init()
 float SNR::dht_read_t()
 {
   delay(delayMS);
+  
+  float ret = 99.0;
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
- float t = dht->readTemperature();
- return t;
+ ret = dht->readTemperature();
 #endif
 
 #if defined(ESP8266)
@@ -370,7 +376,7 @@ float SNR::dht_read_t()
   if (isnan(event.temperature))
   {
     DBG_OUT_PORT.println("Error reading dht temperature!");
-    return 99;
+    ret = 99;
   }
   else
   {
@@ -380,18 +386,21 @@ float SNR::dht_read_t()
     DBG_OUT_PORT.println(" *C");
 # endif //_debug 
 
-    return event.temperature;
+    ret = event.temperature;
   }
 #endif
+
+	return ret;
 }
 
 float SNR::dht_read_h()
 {
   delay(delayMS);
 
+  float ret = -1.0;
+
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
-  float h = dht->readHumidity();
-  return h;
+  ret = dht->readHumidity();
 #endif
 
 #if defined(ESP8266)
@@ -403,7 +412,7 @@ float SNR::dht_read_h()
   if (isnan(event.relative_humidity))
   {
     DBG_OUT_PORT.println("Error reading dht humidity!");
-    return -1;
+    ret = -1;
   }
   else
   {
@@ -412,9 +421,11 @@ float SNR::dht_read_h()
     DBG_OUT_PORT.print(event.relative_humidity);
     DBG_OUT_PORT.println("%");
 # endif //_debug 
-    return event.relative_humidity;
+    ret = event.relative_humidity;
   }
 #endif
+
+return ret;
 }
 
 uint16_t SNR::ft_read(bool d_pres)
@@ -423,8 +434,8 @@ uint16_t SNR::ft_read(bool d_pres)
   if (d_pres) ft = lightMeter.readLightLevel();
   else 
   {
-#if defined(ESP8266) || defined(ESP32)
-	  ft = analogRead(A0);
+#if defined(ESP8266)
+	  ft = analogRead(ANA_SNR);
 #endif
   }
   return ft;

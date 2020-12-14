@@ -33,7 +33,11 @@ class Filter {
     if (_variant == true)  // "true" means "allow recursively"
       return *this;
     else
+<<<<<<< HEAD
+      return Filter(_variant[key] | _variant["*"]);
+=======
       return Filter(_variant[key]);
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
   }
 
  private:

@@ -15,6 +15,13 @@ class RamStringAdapter : public ConstRamStringAdapter {
  public:
   RamStringAdapter(const char* str) : ConstRamStringAdapter(str) {}
 
+<<<<<<< HEAD
+  void copyTo(char* p, size_t n) const {
+    memcpy(p, _str, n);
+  }
+
+  typedef ARDUINOJSON_NAMESPACE::storage_policies::store_by_copy storage_policy;
+=======
   char* save(MemoryPool* pool) const {
     if (!_str)
       return NULL;
@@ -26,6 +33,7 @@ class RamStringAdapter : public ConstRamStringAdapter {
   }
 
   typedef ARDUINOJSON_NAMESPACE::storage_policy::store_by_copy storage_policy;
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
 };
 
 template <typename TChar>

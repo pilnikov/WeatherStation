@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <WString.h>
+#include <Arduino.h>
 
 #include <ArduinoJson/Polyfills/safe_strcmp.hpp>
 #include <ArduinoJson/Strings/IsString.hpp>
@@ -16,6 +16,10 @@ class ArduinoStringAdapter {
  public:
   ArduinoStringAdapter(const ::String& str) : _str(&str) {}
 
+<<<<<<< HEAD
+  void copyTo(char* p, size_t n) const {
+    memcpy(p, _str->c_str(), n);
+=======
   char* save(MemoryPool* pool) const {
     if (isNull())
       return NULL;
@@ -24,6 +28,7 @@ class ArduinoStringAdapter {
     if (dup)
       memcpy(dup, _str->c_str(), n);
     return dup;
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
   }
 
   bool isNull() const {
@@ -45,7 +50,15 @@ class ArduinoStringAdapter {
     return _str->length();
   }
 
+<<<<<<< HEAD
+  const char* begin() const {
+    return _str->c_str();
+  }
+=======
   typedef storage_policy::store_by_copy storage_policy;
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
+
+  typedef storage_policies::store_by_copy storage_policy;
 
  private:
   const ::String* _str;

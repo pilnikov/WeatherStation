@@ -309,7 +309,7 @@ wf_data_t ES::get_gm(String inStr)
 
   i = 3;
   
-  DBG_OUT_PORT.println("\nData from GM /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/");
+  DBG_OUT_PORT.println("\nData from GM /\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/");
   DBG_OUT_PORT.print(" Date of forecasts..");
   DBG_OUT_PORT.print(prog[i].day);
   DBG_OUT_PORT.print(":");
@@ -348,7 +348,7 @@ wf_data_t ES::get_gm(String inStr)
   DBG_OUT_PORT.print(prog[i].heat_min);
   DBG_OUT_PORT.print(":");
   DBG_OUT_PORT.print(prog[i].heat_max);
-  DBG_OUT_PORT.println("\n/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/");
+  DBG_OUT_PORT.println("\n/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/");
 
   return prog[i];
   

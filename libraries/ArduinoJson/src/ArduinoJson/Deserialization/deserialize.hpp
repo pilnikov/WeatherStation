@@ -34,7 +34,11 @@ deserialize(JsonDocument &doc, const TString &input, NestingLimit nestingLimit,
   doc.clear();
   return makeDeserializer<TDeserializer>(
              doc.memoryPool(), reader,
+<<<<<<< HEAD
+             makeStringStorage(input, doc.memoryPool()))
+=======
              makeStringStorage(doc.memoryPool(), input))
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
       .parse(doc.data(), filter, nestingLimit);
 }
 //
@@ -50,7 +54,11 @@ DeserializationError deserialize(JsonDocument &doc, TChar *input,
   doc.clear();
   return makeDeserializer<TDeserializer>(
              doc.memoryPool(), reader,
+<<<<<<< HEAD
+             makeStringStorage(input, doc.memoryPool()))
+=======
              makeStringStorage(doc.memoryPool(), input))
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
       .parse(doc.data(), filter, nestingLimit);
 }
 //
@@ -64,7 +72,11 @@ DeserializationError deserialize(JsonDocument &doc, TStream &input,
   doc.clear();
   return makeDeserializer<TDeserializer>(
              doc.memoryPool(), reader,
+<<<<<<< HEAD
+             makeStringStorage(input, doc.memoryPool()))
+=======
              makeStringStorage(doc.memoryPool(), input))
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
       .parse(doc.data(), filter, nestingLimit);
 }
 

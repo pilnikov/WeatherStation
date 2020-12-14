@@ -83,7 +83,7 @@ typedef struct
   char      AKey_w[17];
   char      esrv_addr[17];
   char      radio_addr[17];
-  char      owm_key[32];
+  char      owm_key[35];
   char      test[3];
 } conf_data_t;
 

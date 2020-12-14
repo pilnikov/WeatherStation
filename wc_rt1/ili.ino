@@ -8,8 +8,8 @@ void ili_init()
 }
 
 const char* dstAbbrev = "RTZ+5";
-const uint8_t SCREEN_WIDTH = 240;
-const uint8_t SCREEN_HEIGHT = 320;
+const uint16_t SCREEN_WIDTH = 240;
+const uint16_t SCREEN_HEIGHT = 320;
 
 void ili_time(void) {
   char time_str[11];

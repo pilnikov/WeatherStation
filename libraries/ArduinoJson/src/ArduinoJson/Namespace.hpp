@@ -5,9 +5,25 @@
 #pragma once
 
 #include <ArduinoJson/Configuration.hpp>
+#include <ArduinoJson/Polyfills/preprocessor.hpp>
 #include <ArduinoJson/version.hpp>
 
 #ifndef ARDUINOJSON_NAMESPACE
+<<<<<<< HEAD
+
+#define ARDUINOJSON_NAMESPACE                                                  \
+  ARDUINOJSON_CONCAT4(                                                         \
+      ARDUINOJSON_CONCAT4(ArduinoJson, ARDUINOJSON_VERSION_MAJOR,              \
+                          ARDUINOJSON_VERSION_MINOR,                           \
+                          ARDUINOJSON_VERSION_REVISION),                       \
+      _,                                                                       \
+      ARDUINOJSON_HEX_DIGIT(ARDUINOJSON_ENABLE_PROGMEM,                        \
+                            ARDUINOJSON_USE_LONG_LONG, ARDUINOJSON_USE_DOUBLE, \
+                            ARDUINOJSON_ENABLE_STRING_DEDUPLICATION),          \
+      ARDUINOJSON_HEX_DIGIT(                                                   \
+          ARDUINOJSON_ENABLE_NAN, ARDUINOJSON_ENABLE_INFINITY,                 \
+          ARDUINOJSON_ENABLE_COMMENTS, ARDUINOJSON_DECODE_UNICODE))
+=======
 
 #define ARDUINOJSON_DO_CONCAT(A, B) A##B
 #define ARDUINOJSON_CONCAT2(A, B) ARDUINOJSON_DO_CONCAT(A, B)
@@ -27,5 +43,6 @@
       ARDUINOJSON_USE_DOUBLE, ARDUINOJSON_DECODE_UNICODE,                \
       ARDUINOJSON_ENABLE_NAN, ARDUINOJSON_ENABLE_INFINITY,               \
       ARDUINOJSON_ENABLE_PROGMEM, ARDUINOJSON_ENABLE_COMMENTS)
+>>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
 #endif
