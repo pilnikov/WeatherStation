@@ -27,4 +27,4 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 
-const char * cur_time_str();
+char * cur_time_str();
