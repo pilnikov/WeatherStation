@@ -22,7 +22,7 @@ class ES
     snr_data_t get_ts(String);
     snr_data_t get_es(String);
     wf_data_t get_gm(String);
-    String put_ts(char*, bool, bool, bool, snr_data_t);
+    String put_ts(char*, bool, bool, bool, bool, bool, bool, bool, snr_data_t);
 };
 
 extern ES extsrv;

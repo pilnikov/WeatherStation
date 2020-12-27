@@ -281,12 +281,16 @@ void handlejTS()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json ["tssi"] = conf_data.use_ts_i;
-  json ["tsse"] = conf_data.use_ts_e;
-  json ["tssp"] = conf_data.use_ts_p;
   json ["tsid"] = conf_data.ts_ch_id;
   json ["tsar"] = conf_data.AKey_r;
   json ["tsaw"] = conf_data.AKey_w;
+  json ["tsst1"] = conf_data.use_tst1;
+  json ["tsst2"] = conf_data.use_tst2;
+  json ["tsst3"] = conf_data.use_tst3;
+  json ["tssh1"] = conf_data.use_tsh1;
+  json ["tssh2"] = conf_data.use_tsh2;
+  json ["tssh3"] = conf_data.use_tsh3;
+  json ["tssp"] = conf_data.use_tsp;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -301,16 +305,21 @@ void handlejPars()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json ["cyid"] = conf_data.pp_city_id;
-  json ["srve"] = conf_data.esrv_addr;
-  json ["srvr"] = conf_data.radio_addr;
-  json ["owmk"] = conf_data.owm_key;
-  json ["peri"] = conf_data.period;
-  json ["exts"] = conf_data.type_ext_snr;
-  json ["ints"] = conf_data.type_int_snr;
-  json ["prss"] = conf_data.type_prs_snr;
-  json ["prgp"] = conf_data.use_pp;
-  json ["srvp"] = conf_data.use_es;
+  json ["cyid"]  = conf_data.pp_city_id;
+  json ["owmk"]  = conf_data.owm_key;
+  json ["srve1"] = conf_data.esrv1_addr;
+  json ["srve2"] = conf_data.esrv2_addr;
+  json ["srvr"]  = conf_data.radio_addr;
+  json ["prgp"]  = conf_data.use_pp;
+  json ["srvp"]  = conf_data.use_es;
+  json ["s1"]    = conf_data.type_snr1;
+  json ["s2"]    = conf_data.type_snr2;
+  json ["s3"]    = conf_data.type_snr3;
+  json ["sp"]    = conf_data.type_snrp;
+  json ["nc1"]   = conf_data.ch1_name;
+  json ["nc2"]   = conf_data.ch2_name;
+  json ["nc3"]   = conf_data.ch3_name;
+  json ["peri"]  = conf_data.period;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -325,12 +334,14 @@ void handlejSnr()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json ["tint"] = snr_data.t1;
-  json ["text"] = snr_data.t2;
-  json ["hint"] = snr_data.h1;
-  json ["hext"] = snr_data.h2;
+  json ["t1"] = snr_data.t1;
+  json ["t2"] = snr_data.t2;
+  json ["t3"] = snr_data.t3;
+  json ["h1"] = snr_data.h1;
+  json ["h2"] = snr_data.h2;
+  json ["h3"] = snr_data.h3;
   json ["pres"] = snr_data.p;
-  json ["brig"] = snr_data.ft;
+  json ["brig"] = snr_data.f;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -343,36 +354,67 @@ void handlejSnr()
 void handleSetPars()
 {
   /*
-    url='/set_pars?utsi_t='+utsi_t+'&utse_t='+utse_t+'&utsp_t='+utsp_t+'&tschan_t='+tschan_t+
-    '&tsapir_t='+tsapir_t+'&tsapiw_t='+tsapiw_t+'&cityID_t='+cityID_t+'&esaddr_t='+esaddr_t+
-    '&rdaddr_t='+rdaddr_t+'&period_t='+period_t+'&usees_t='+usees_t+'&usepp_t='+usepp_t+
-    '&esnr_t='+esnr_t+'&isnr_t='+isnr_t+'&psnr_t='+psnr_t+'&owmk_t='+owmk_t;
-  */
+        url='/set_pars?cityID='   + cityID_t
+					 + '&owmk='   + owmk_t;
+					 + '&esaddr1='+ esaddr1_t
+					 + '&esaddr2='+ esaddr2_t
+					 + '&rdaddr=' + rdaddr_t
+					 + '&usepp='  + usepp_t
+					 + '&usees='  + usees_t
+					 + '&snr1='   + snr1_t
+					 + '&snr2='   + snr2_t
+					 + '&snr3='   + snr3_t
+					 + '&snrp='   + snrp_t
+					 + '&period=' + period_t
+					 + '&nc1='    + nc1_t
+					 + '&nc2='    + nc2_t
+					 + '&nc3='    + nc3_t    
+					 + '&tschan=' + tschan_t
+					 + '&tsapir=' + tsapir_t
+					 + '&tsapiw=' + tsapiw_t
+					 + '&utst1='  + utst1_t
+					 + '&utst2='  + utst2_t
+					 + '&utst3='  + utst3_t
+					 + '&utsh1='  + utsh1_t
+					 + '&utsh2='  + utsh2_t
+					 + '&utsh3='  + utsh3_t
+					 + '&utsp='	  + utsp_t;
+   */
 
-  conf_data.use_ts_i = server.arg("utsi_t") == "1";
-  conf_data.use_ts_e = server.arg("utse_t") == "1";
-  conf_data.use_ts_p = server.arg("utsp_t") == "1";
+  conf_data.pp_city_id = constrain(server.arg("cityID").toInt(), 0, 999999);
+  strcpy(conf_data.owm_key, server.arg("owmk").c_str());
+  strcpy(conf_data.esrv1_addr, server.arg("esaddr1").c_str());
+  strcpy(conf_data.esrv2_addr, server.arg("esaddr2").c_str());
+  strcpy(conf_data.radio_addr, server.arg("rdaddr").c_str());
+  conf_data.use_pp = server.arg("usepp").toInt();
+  conf_data.use_es = server.arg("usees") == "1";
+  conf_data.type_snr1 = server.arg("snr1").toInt();
+  conf_data.type_snr2 = server.arg("snr2").toInt();
+  conf_data.type_snr3 = server.arg("snr3").toInt();
+  conf_data.type_snrp = server.arg("snrp").toInt();
+  strcpy(conf_data.ch1_name, server.arg("nc1").c_str());
+  strcpy(conf_data.ch2_name, server.arg("nc2").c_str());
+  strcpy(conf_data.ch3_name, server.arg("nc3").c_str());
+  conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
   conf_data.ts_ch_id = constrain(server.arg("tschan_t").toInt(), 0, 999999);
-  strcpy(conf_data.AKey_r, server.arg("tsapir_t").c_str());
-  strcpy(conf_data.AKey_w, server.arg("tsapiw_t").c_str());
-  conf_data.pp_city_id = constrain(server.arg("cityID_t").toInt(), 0, 999999);
-  strcpy(conf_data.esrv_addr, server.arg("esaddr_t").c_str());
-  strcpy(conf_data.radio_addr, server.arg("rdaddr_t").c_str());
-  conf_data.period = constrain(server.arg("period_t").toInt(), 1, 59);
-  conf_data.use_es = server.arg("usees_t") == "1";
-  conf_data.use_pp = server.arg("usepp_t").toInt();
-  conf_data.type_ext_snr = server.arg("esnr_t").toInt();
-  conf_data.type_int_snr = server.arg("isnr_t").toInt();
-  conf_data.type_prs_snr = server.arg("psnr_t").toInt();
-  strcpy(conf_data.owm_key, server.arg("owmk_t").c_str());
+  strcpy(conf_data.AKey_r, server.arg("tsapir").c_str());
+  strcpy(conf_data.AKey_w, server.arg("tsapiw").c_str());
+  conf_data.use_tst1 = server.arg("utst1") == "1";
+  conf_data.use_tst2 = server.arg("utst2") == "1";
+  conf_data.use_tst3 = server.arg("utst3") == "1";
+  conf_data.use_tsh1 = server.arg("utsh1") == "1";
+  conf_data.use_tsh2 = server.arg("utsh2") == "1";
+  conf_data.use_tsh3 = server.arg("utsh3") == "1";
+  conf_data.use_tsp = server.arg("utsp") == "1";
 
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 
-  ram_data.type_int_snr = conf_data.type_int_snr;
-  ram_data.type_ext_snr = conf_data.type_ext_snr;
-  ram_data.type_prs_snr = conf_data.type_prs_snr;
+  ram_data.type_snr1 = conf_data.type_snr1;
+  ram_data.type_snr2 = conf_data.type_snr2;
+  ram_data.type_snr2 = conf_data.type_snr2;
+  ram_data.type_snrp = conf_data.type_snrp;
 
   if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
   if (conf_data.use_pp == 2) {
@@ -533,12 +575,14 @@ void handlejAct()
   json ["tstr"] = cur_time_str();
   json ["acth"] = rtc_data.a_hour;
   json ["actm"] = rtc_data.a_min;
-  json ["brig"] = snr_data.ft;
-  json ["tint"] = snr_data.t1;
-  json ["text"] = snr_data.t2;
-  json ["hint"] = snr_data.h1;
-  json ["hext"] = snr_data.h2;
+  json ["t1"]   = snr_data.t1;
+  json ["t2"]   = snr_data.t2;
+  json ["t3"]   = snr_data.t3;
+  json ["h1"]   = snr_data.h1;
+  json ["h2"]   = snr_data.h2;
+  json ["h3"]   = snr_data.h3;
   json ["pres"] = snr_data.p;
+  json ["brig"] = snr_data.f;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));

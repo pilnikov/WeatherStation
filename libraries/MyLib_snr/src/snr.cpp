@@ -4,110 +4,153 @@ ram_data_t SNR::init(ram_data_t in_data)
 {
   ram_data_t out_data = in_data;
 
-  switch (in_data.type_int_snr)
+  switch (in_data.type_snr1)
   {
-    case 3:
+    case 4:
       dht_init();
       break;
-    case 5:
+    case 6:
         if (!sht.begin())
         {
          DBG_OUT_PORT.println("Couldn't find a valid SHT21 sensor, check wiring!");
-         out_data.type_int_snr = 0;
-        }
-      break;
-    case 6:
-        if (!am23.begin())
-        {
-         DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
-         out_data.type_int_snr = 0;
+         out_data.type_snr1 = 0;
         }
       break;
     case 7:
-        if (!bmp.begin())
+        if (!am23.begin())
         {
-         DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
-         out_data.type_int_snr = 0;
+         DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
+         out_data.type_snr1 = 0;
         }
       break;
     case 8:
-        if (!bmp2.begin())
+        if (!bmp.begin())
         {
-         DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
-         out_data.type_int_snr = 0;
+         DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+         out_data.type_snr1 = 0;
         }
       break;
     case 9:
+        if (!bmp2.begin())
+        {
+         DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+         out_data.type_snr1 = 0;
+        }
+      break;
+    case 10:
         if (!bme.begin(0x76, &Wire))
         {
          DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
-         out_data.type_int_snr = 0;
+         out_data.type_snr1 = 0;
         }
       break;
   }
-  switch (in_data.type_ext_snr)
+
+  switch (in_data.type_snr2)
   {
-    case 3:
+    case 4:
       dht_init();
       break;
-    case 5:
+    case 6:
         if (!sht.begin())
         {
          DBG_OUT_PORT.println("Couldn't find a valid SHT21 sensor, check wiring!");
-         out_data.type_ext_snr = 0;
-        }
-      break;
-    case 6:
-        if (!am23.begin())
-        {
-         DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
-         out_data.type_int_snr = 0;
+         out_data.type_snr2 = 0;
         }
       break;
     case 7:
-        if (!bmp.begin())
+        if (!am23.begin())
         {
-         DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
-         out_data.type_ext_snr = 0;
+         DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
+         out_data.type_snr2 = 0;
         }
       break;
     case 8:
-        if (!bmp2.begin())
+        if (!bmp.begin())
         {
-         DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
-         out_data.type_ext_snr = 0;
+         DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+         out_data.type_snr2 = 0;
         }
       break;
     case 9:
+        if (!bmp2.begin())
+        {
+         DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+         out_data.type_snr2 = 0;
+        }
+      break;
+    case 10:
         if (!bme.begin(0x76, &Wire))
         {
          DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
-         out_data.type_ext_snr = 0;
+         out_data.type_snr2 = 0;
         }
       break;
   }
   
-  switch (in_data.type_prs_snr)
+  switch (in_data.type_snr3)
   {
-    case 7:
-        if (!bmp.begin())
+    case 4:
+      dht_init();
+      break;
+    case 6:
+        if (!sht.begin())
         {
-         DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
-         out_data.type_prs_snr = 0;
+         DBG_OUT_PORT.println("Couldn't find a valid SHT21 sensor, check wiring!");
+         out_data.type_snr3 = 0;
+        }
+      break;
+    case 7:
+        if (!am23.begin())
+        {
+         DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
+         out_data.type_snr3 = 0;
         }
       break;
     case 8:
-        if (!bmp2.begin())
+        if (!bmp.begin())
         {
-         DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
-         out_data.type_prs_snr = 0;
+         DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+         out_data.type_snr3 = 0;
         }
       break;
     case 9:
+        if (!bmp2.begin())
+        {
+         DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+         out_data.type_snr3 = 0;
+        }
+      break;
+    case 10:
         if (!bme.begin(0x76, &Wire))
         {
          DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
-         out_data.type_prs_snr = 0;
+         out_data.type_snr3 = 0;
+        }
+      break;
+  }
+
+  switch (in_data.type_snrp)
+  {
+    case 8:
+        if (!bmp.begin())
+        {
+         DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+         out_data.type_snrp = 0;
+        }
+      break;
+    case 9:
+        if (!bmp2.begin())
+        {
+         DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+         out_data.type_snrp = 0;
+        }
+      break;
+    case 10:
+        if (!bme.begin(0x76, &Wire))
+        {
+         DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
+         out_data.type_snrp = 0;
         }
       break;
   }
@@ -441,19 +484,19 @@ uint16_t SNR::ft_read(bool d_pres)
   return ft;
 }
 
-snr_data_t SNR::read_snr(uint8_t type_int, uint8_t type_ext, uint8_t type_press, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data, wf_data_t w_data)
+snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, uint8_t type_press, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data, wf_data_t w_data)
 {
   snr_data_t data;
 
   float h = 0, t = 99, p = 700;   
 
-  data.h1 = 0; data.h2 = 0; data.t1 = 99; data.t2 = 99; data.p = 700;
+  data.h1 = 0; data.h2 = 0; data.h3 = 0; data.t1 = 99; data.t2 = 99; data.t3 = 99; data.p = 700;
 
-  //-------------------------------------------int sensor
-  DBG_OUT_PORT.print("Type internal sensor..");
-  DBG_OUT_PORT.println(type_int);
+  //------------------------------------------- channel 1
+  DBG_OUT_PORT.print("Type sensor on channel 1..");
+  DBG_OUT_PORT.println(channel1);
 
-  switch (type_int)
+  switch (channel1)
   {
     case 1:
       h = t_data.h1;
@@ -500,23 +543,20 @@ snr_data_t SNR::read_snr(uint8_t type_int, uint8_t type_ext, uint8_t type_press,
   data.t1 = constrain(t, -99, 99);
   data.h1 = constrain(h,   0, 99);
 
-  DBG_OUT_PORT.print("Internal temperature..");
+  DBG_OUT_PORT.print("Temperature channel 1..");
   DBG_OUT_PORT.println(data.t1);
-  DBG_OUT_PORT.print("Internal humidity..");
+  DBG_OUT_PORT.print("Humidity channel 1..");
   DBG_OUT_PORT.println(data.h1);
 
 
-//  data.t1 = t;
-//  data.h1 = h;
-
-  //-------------------------------------------ext sensor
-  DBG_OUT_PORT.print("Type external sensor..");
-  DBG_OUT_PORT.println(type_ext);
+  //------------------------------------------- channel 2
+  DBG_OUT_PORT.print("Type sensor on channel 2..");
+  DBG_OUT_PORT.println(channel2);
 
   t = 99;
   h = 0;
 
-  switch (type_ext)
+  switch (channel2)
   {
     case 1:
       t = t_data.t2;
@@ -563,10 +603,69 @@ snr_data_t SNR::read_snr(uint8_t type_int, uint8_t type_ext, uint8_t type_press,
   data.t2 = constrain(t, -99, 99);
   data.h2 = constrain(h,   0, 99);
 
-  DBG_OUT_PORT.print("External temperature..");
+  DBG_OUT_PORT.print("Temperature channel 2..");
   DBG_OUT_PORT.println(data.t2);
-  DBG_OUT_PORT.print("External humidity..");
+  DBG_OUT_PORT.print("Humidity channel 2..");
   DBG_OUT_PORT.println(data.h2);
+
+  //------------------------------------------- channel 3
+  DBG_OUT_PORT.print("Type sensor on channel 3..");
+  DBG_OUT_PORT.println(channel2);
+
+  t = 99;
+  h = 0;
+
+  switch (channel3)
+  {
+    case 1:
+      t = t_data.t3;
+      h = t_data.h3;
+      break;
+    case 2:
+      t = e_data.t3;
+      h = e_data.h3;
+      break;
+    case 3:
+      t = dht_read_t();
+      h = dht_read_h();
+      break;
+    case 4:
+      t = rtc_temp;
+      h = 0;
+      break;
+    case 5:
+      t = sht_read_t();
+      h = sht_read_h();
+      break;
+    case 6:
+      t = am_read_t();
+      h = am_read_h();
+      break;
+    case 7:
+      t = bmp180_read_t();
+      h = 0;
+      break;
+    case 8:
+      t = bmp280_read_t();
+      h = 0;
+      break;
+    case 9:
+      t = bme280_read_t();
+      h = bme280_read_h();
+      break;
+    case 10:
+      t = w_data.temp_min;
+      h = w_data.hum_min;
+      break;
+  }
+
+  data.t3 = constrain(t, -99, 99);
+  data.h3 = constrain(h,   0, 99);
+
+  DBG_OUT_PORT.print("Temperature channel 3..");
+  DBG_OUT_PORT.println(data.t3);
+  DBG_OUT_PORT.print("Humidity channel 3..");
+  DBG_OUT_PORT.println(data.h3);
 
   //-------------------------------------------pressure sensor
   DBG_OUT_PORT.print("Type pressure sensor..");

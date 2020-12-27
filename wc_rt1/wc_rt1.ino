@@ -55,12 +55,14 @@ void setup()
 
   ram_data = sens_data;
   DBG_OUT_PORT.println("sensor inital");
-  DBG_OUT_PORT.print("Type of internal sensor = ");
-  DBG_OUT_PORT.println(ram_data.type_int_snr);
-  DBG_OUT_PORT.print("Type of external sensor = ");
-  DBG_OUT_PORT.println(ram_data.type_ext_snr);
+  DBG_OUT_PORT.print("Type of sensor on channel 1 = ");
+  DBG_OUT_PORT.println(ram_data.type_snr1);
+  DBG_OUT_PORT.print("Type of sensor on channel 2 = ");
+  DBG_OUT_PORT.println(ram_data.type_snr2);
+  DBG_OUT_PORT.print("Type of sensor on channel 3 = ");
+  DBG_OUT_PORT.println(ram_data.type_snr3);
   DBG_OUT_PORT.print("Type of pressure sensor = ");
-  DBG_OUT_PORT.println(ram_data.type_prs_snr);
+  DBG_OUT_PORT.println(ram_data.type_snrp);
 
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(setting_pin, INPUT_PULLUP);
@@ -191,13 +193,13 @@ void setup()
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
   {
-    snr_data.ft = sens.ft_read(ram_data.bh1750_present);
-    cur_br = auto_br(snr_data.ft, conf_data.br_level);
+    snr_data.f = sens.ft_read(ram_data.bh1750_present);
+    cur_br = auto_br(snr_data.f, conf_data.br_level);
   }
   else
   {
     cur_br = conf_data.man_br;  // Man brigthness
-    snr_data.ft = cur_br;
+    snr_data.f = cur_br;
     DBG_OUT_PORT.println("brightness set");
   }
 

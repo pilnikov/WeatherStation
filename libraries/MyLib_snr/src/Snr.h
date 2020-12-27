@@ -38,7 +38,7 @@ class SNR
    void dht_preset(uint8_t, uint8_t);
    ram_data_t init(ram_data_t);
    uint16_t ft_read(bool);
-   snr_data_t read_snr(uint8_t, uint8_t, uint8_t,  uint8_t, snr_data_t, snr_data_t, wf_data_t);
+   snr_data_t read_snr(uint8_t, uint8_t, uint8_t, uint8_t,  uint8_t, snr_data_t, snr_data_t, wf_data_t);
  
   private :
 //----------------------------------------------------------dht
@@ -92,14 +92,15 @@ class SNR
   Типы датчиков температуры, влажности, давления
   0 - нет
   1 - ThingSpeak
-  2 - Внешний сервер
-  3 - dht22
-  4 - Встроеный в DS3231 датчик температуры
-  5 - si7021
-  6 - am2320
-  7 - bmp180
-  8 - bmp280
-  9 - bme280
+  2 - Внешний сервер 1
+  3 - Внешний сервер 2
+  4 - dht22
+  5 - Встроеный в DS3231 датчик температуры
+  6 - si7021
+  7 - am2320
+  8 - bmp180
+  9 - bmp280
+ 10 - bme280
 
   bh1750 - датчик освещенности
 */

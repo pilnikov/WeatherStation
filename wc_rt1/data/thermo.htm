@@ -38,8 +38,9 @@
 
          <tr><td width='30%'>Источник</td>
          <td><select id='itsrc' name='ntsrc'>
-            <option value = '0'> Внутренний датчик</option>
-            <option value = '1'> Внешний датчик </option>
+            <option value = '0'> Канал 1 </option>
+            <option value = '1'> Канал 2 </option>
+            <option value = '2'> Канал 3 </option>
          </select></td></tr>
 
          <tr><td width='30%'>Диапазон температур</td>
@@ -123,12 +124,15 @@
 
       function set_partrm()
       {
-        sttrm = document.getElementById('ittrm').value;
-        stsrc = document.getElementById('itsrc').value;
-        sdsta = document.getElementById('idsta').value;
-        sdstp = document.getElementById('idstp').value;
+        ttrm_t = document.getElementById('ittrm').value;
+        tsrc_t = document.getElementById('itsrc').value;
+        dsta_t = document.getElementById('idsta').value;
+        dstp_t = document.getElementById('idstp').value;
 
-        url = '/set_partrm?ttrm='+sttrm+'&tsrc='+stsrc+'&dsta='+sdsta+'&dstp='+sdstp;
+        url = '/set_partrm?ttrm=' + ttrm_t
+				       + '&tsrc=' + tsrc_t
+					   + '&dsta=' + dsta_t
+					   + '&dstp=' + dstp_t;
 
         var xh = new XMLHttpRequest();
         xh.open('GET', url, true);

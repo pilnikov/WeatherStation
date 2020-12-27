@@ -8,31 +8,32 @@ void GetSnr()
 #endif
   if (web_cli)
   {
-    if (ram_data.type_int_snr == 1 || ram_data.type_ext_snr == 1 || ram_data.type_prs_snr == 1)
+    if (ram_data.type_snr1 == 1 || ram_data.type_snr2 == 1 || ram_data.type_snr3 == 1 || ram_data.type_snrp == 1)
     {
       dmsg.callback(ram_data.type_disp, 2, 0, conf_data.rus_disp); // сообщение на индикатор о начале обмена с TS
       String ts_str = ts_rcv(conf_data.ts_ch_id, conf_data.AKey_r);  // Получаем строчку данных от TS
       ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
       dmsg.callback(ram_data.type_disp, 2, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
-    if (ram_data.type_int_snr ==  2 || ram_data.type_ext_snr ==  2 || ram_data.type_prs_snr ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv_addr)); // Получаем данные от внешнего сервера
+    if (ram_data.type_snr1 ==  2 || ram_data.type_snr2 ==  2 || ram_data.type_snr3 == 2 || ram_data.type_snrp ==  2) es_data = e_srv.get_es(es_rcv(conf_data.esrv1_addr)); // Получаем данные от внешнего сервера1
+    if (ram_data.type_snr1 ==  3 || ram_data.type_snr2 ==  3 || ram_data.type_snr3 == 3 || ram_data.type_snrp ==  3) es_data = e_srv.get_es(es_rcv(conf_data.esrv2_addr)); // Получаем данные от внешнего сервера2
 
     if (conf_data.use_pp == 2) {
       wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
       wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
     }
 
-    if ((ram_data.type_int_snr == 10 || ram_data.type_ext_snr == 10 || ram_data.type_prs_snr == 10) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
+    if ((ram_data.type_snr1 == 11 || ram_data.type_snr2 == 11 || ram_data.type_snr3 == 11 || ram_data.type_snrp == 11) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
   }
 
-  snr_data = sens.read_snr(ram_data.type_int_snr, ram_data.type_ext_snr, ram_data.type_prs_snr, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Опрашиваем датчики
+  snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Опрашиваем датчики
 
   if (web_cli)
   {
-    if (conf_data.use_ts_i || conf_data.use_ts_e || conf_data.use_ts_p)
+    if (conf_data.use_tst1 || conf_data.use_tst2 || conf_data.use_tst3 || conf_data.use_tsh1 || conf_data.use_tsh2 || conf_data.use_tsh3 || conf_data.use_tsp)
     {
       dmsg.callback(ram_data.type_disp, 1, 0, conf_data.rus_disp); // сообщение на индикатор о начале обмена с TS
-      ts_snd(e_srv.put_ts(conf_data.AKey_w, conf_data.use_ts_i, conf_data.use_ts_e, conf_data.use_ts_p, snr_data)); // Отправляем инфу на TS
+      ts_snd(e_srv.put_ts(conf_data.AKey_w, conf_data.use_tst1, conf_data.use_tst2, conf_data.use_tst3, conf_data.use_tsh1, conf_data.use_tsh2, conf_data.use_tsh3, conf_data.use_tsp, snr_data)); // Отправляем инфу на TS
       dmsg.callback(ram_data.type_disp, 1, 1, conf_data.rus_disp); // сообщение на индикатор о результатах обмена с TS
     }
   }

@@ -6,7 +6,7 @@ snr_data_t ES::get_ts(String inStr)
 
   snr_data_t data;
 
-//  data.h1 = 0; data.t1 = 99; data.h2 = 0; data.t2 = 99; data.p = 0;
+//  data.h1 = 0; data.t1 = 99; data.h2 = 0; data.t2 = 99; data.h3 = 0; data.t3 = 99; data.p = 0;
 
   DynamicJsonDocument jsonBuffer(512);
 
@@ -21,23 +21,30 @@ snr_data_t ES::get_ts(String inStr)
 
     data.t1 = root["field1"];
     data.t2 = root["field2"];
-    data.h1 = root["field3"];
-    data.h2 = root["field4"];
-    data.p  = root["field5"];
+    data.t3 = root["field3"];
+    data.h1 = root["field4"];
+    data.h2 = root["field5"];
+    data.h3 = root["field6"];
+    data.p  = root["field7"];
 
     bool Ok = data.p > 700;
 # ifdef _debug
     if (Ok)
     {
-      DBG_OUT_PORT.print("Temperature inside: ");
+      DBG_OUT_PORT.print("Temperature channel 1: ");
       DBG_OUT_PORT.print(data.t1);
-      DBG_OUT_PORT.print(" degrees Celcius Humidity inside: ");
+      DBG_OUT_PORT.print(" degrees Celcius Humidity channel 1: ");
       DBG_OUT_PORT.print(data.h1);
       DBG_OUT_PORT.println("%");
-      DBG_OUT_PORT.print("Temperature outside: ");
+      DBG_OUT_PORT.print("Temperature channel 2: ");
       DBG_OUT_PORT.print(data.t2);
-      DBG_OUT_PORT.print(" degrees Celcius Humidity outside: ");
+      DBG_OUT_PORT.print(" degrees Celcius Humidity channel 2: ");
       DBG_OUT_PORT.print(data.h2);
+      DBG_OUT_PORT.println("%");
+      DBG_OUT_PORT.print("Temperature channel 3: ");
+      DBG_OUT_PORT.print(data.t3);
+      DBG_OUT_PORT.print(" degrees Celcius Humidity channel 3: ");
+      DBG_OUT_PORT.print(data.h3);
       DBG_OUT_PORT.println("%");
       DBG_OUT_PORT.print("Pressure: ");
       DBG_OUT_PORT.print(data.p);
@@ -50,27 +57,50 @@ snr_data_t ES::get_ts(String inStr)
 }
 
 
-String ES::put_ts (char api[17], bool use_ts_i, bool use_ts_e, bool use_ts_p, snr_data_t in_data)
+String ES::put_ts (char api[17], bool use_tst1, bool use_tst2, bool use_tst3, bool use_tsh1, bool use_tsh2, bool use_tsh3, bool use_tsp, snr_data_t in_data)
 {
   //String postStr = "https://api.thingspeak.com/update?api_key=" + String(api);
   String postStr = "/update?api_key=" + String(api);
-  if (use_ts_i && in_data.t1 < 99 && in_data.h1 > 0 && in_data.h1 < 100)
+
+  if (use_tst1 && in_data.t1 < 99)
   {
     postStr += "&field1=";
     postStr += String(in_data.t1);
-    postStr += "&field3=";
-    postStr += String(in_data.h1);
   }
-  if (use_ts_e  && in_data.t2 < 99 && in_data.h2 > 0 && in_data.h2 < 100)
+
+  if (use_tst1 && in_data.t2 < 99)
   {
     postStr += "&field2=";
     postStr += String(in_data.t2);
-    postStr += "&field4=";
-    postStr += String(in_data.h2);
   }
-  if (use_ts_p  && in_data.p > 700 && in_data.p < 900)
+
+  if (use_tst3 && in_data.t3 < 99)
+  {
+    postStr += "&field3=";
+    postStr += String(in_data.t3);
+  }
+
+  if (use_tsh1 && in_data.h1 > 0 && in_data.h1 < 100)
+  {
+    postStr += "&field4=";
+    postStr += String(in_data.h1);
+  }
+
+  if (use_tsh2 && in_data.h2 > 0 && in_data.h2 < 100)
   {
     postStr += "&field5=";
+    postStr += String(in_data.h2);
+  }
+
+  if (use_tsh3 && in_data.h3 > 0 && in_data.h3 < 100)
+  {
+    postStr += "&field6=";
+    postStr += String(in_data.h3);
+  }
+
+  if (use_tsp  && in_data.p > 700 && in_data.p < 900)
+  {
+    postStr += "&field7=";
     postStr += String(in_data.p);
   }
   postStr += "\r\n\r\n";
@@ -357,7 +387,7 @@ wf_data_t ES::get_gm(String inStr)
 snr_data_t ES::get_es(String inStr)
 {
   snr_data_t data;
-  data.h1 = 0; data.h2 = 0; data.t1 = 99; data.t2 = 99; data.p = 700; data.ft = 255;
+  data.h1 = 0; data.h2 = 0; data.h3 = 0; data.t1 = 99; data.t2 = 99; data.t3 = 99; data.p = 700; data.f = 255;
 
   DynamicJsonDocument jsonBuffer(1024);
 
@@ -371,30 +401,37 @@ snr_data_t ES::get_es(String inStr)
 
 	JsonObject root = jsonBuffer.as<JsonObject>();
 
-    data.t1 = root["tint"];
-    data.t2 = root["text"];
-    data.h1 = root["hint"];
-    data.h2 = root["hext"];
+    data.t1 = root["t1"];
+    data.t2 = root["t2"];
+    data.t3 = root["t3"];
+    data.h1 = root["h1"];
+    data.h2 = root["h2"];
+    data.h3 = root["h3"];
     data.p  = root["pres"];
-    data.ft = root["brig"];
+    data.f  = root["brig"];
 
 
     DBG_OUT_PORT.println("Data from ext server");
-    DBG_OUT_PORT.print("Temperature inside: ");
+    DBG_OUT_PORT.print("Temperature channel 1: ");
     DBG_OUT_PORT.print(data.t1);
-    DBG_OUT_PORT.print(" degrees Celcius Humidity inside: ");
+    DBG_OUT_PORT.print(" degrees Celcius Humidity channel 1: ");
     DBG_OUT_PORT.print(data.h1);
     DBG_OUT_PORT.println("%");
-    DBG_OUT_PORT.print("Temperature outside: ");
+    DBG_OUT_PORT.print("Temperature channel 2: ");
     DBG_OUT_PORT.print(data.t2);
-    DBG_OUT_PORT.print(" degrees Celcius Humidity outside: ");
+    DBG_OUT_PORT.print(" degrees Celcius Humidity channel 2: ");
     DBG_OUT_PORT.print(data.h2);
+    DBG_OUT_PORT.println("%");
+    DBG_OUT_PORT.print("Temperature channel 3: ");
+    DBG_OUT_PORT.print(data.t3);
+    DBG_OUT_PORT.print(" degrees Celcius Humidity channel 3: ");
+    DBG_OUT_PORT.print(data.h3);
     DBG_OUT_PORT.println("%");
     DBG_OUT_PORT.print("Pressure: ");
     DBG_OUT_PORT.print(data.p);
     DBG_OUT_PORT.println(" mm rt. st.");
     DBG_OUT_PORT.print("Brightness: ");
-    DBG_OUT_PORT.print(data.ft);
+    DBG_OUT_PORT.print(data.f);
     DBG_OUT_PORT.println(" lum.");
   }
   return data;

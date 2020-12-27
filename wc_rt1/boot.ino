@@ -131,13 +131,13 @@ void firq6()
   {
     if (conf_data.auto_br)
     {
-      snr_data.ft = sens.ft_read(ram_data.bh1750_present);
-      cur_br = auto_br(snr_data.ft, conf_data.br_level);
+      snr_data.f = sens.ft_read(ram_data.bh1750_present);
+      cur_br = auto_br(snr_data.f, conf_data.br_level);
     }
     else
     {
       cur_br = conf_data.man_br;  // Man brigthness
-      snr_data.ft = cur_br;
+      snr_data.f = cur_br;
     }
 
     if (ram_data.type_disp == 1) lcd_time();

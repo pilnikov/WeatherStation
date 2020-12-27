@@ -10,18 +10,20 @@
 #endif
 
 typedef struct 
-   {
-    uint8_t  h1 =   0; //Внутренняя влажность
-    int8_t   t1 =  99; //Внутренняя температура
-    uint8_t  h2 =   0; //Внешнняя влажность
-    int8_t   t2 =  99; //Внешнняя температура
-    uint16_t  p =   0; //Давление
-    uint16_t ft =   0; //Освещенность  
-   } snr_data_t;
+{
+    int8_t   t1 =  99; //Температура. Канал 1
+    uint8_t  h1 =   0; //Влажность. Канал 1
+    int8_t   t2 =  99; //Температура. Канал 2
+    uint8_t  h2 =   0; //Влажность. Канал 2
+    int8_t   t3 =  99; //Температура. Канал 3
+    uint8_t  h3 =   0; //Влажность. Канал 3
+    uint16_t p =   0; //Давление
+    uint16_t f =   0; //Освещенность  
+} snr_data_t;
 	
 	
 typedef struct 
-   {
+{
     uint8_t  day       =   0; // день  , для которого составлен прогноз
     uint8_t  month     =   0; // месяц , для которого составлен прогноз
     uint16_t year      =2015; // год,    для которого составлен прогноз
@@ -42,7 +44,7 @@ typedef struct
     int8_t   heat_max  =  99; // комфорт - температура воздуха по ощущению одетого по сезону человека, выходящего на улицу
     int8_t   heat_min  = -99; //
     String   descript  =  ""; // дополнительное описание состояния погоды 
- } wf_data_t;
+} wf_data_t;
 
 typedef struct 
 {
@@ -57,9 +59,13 @@ typedef struct
   bool      use_pm;
   bool      every_hour_beep;
   bool      rus_disp;
-  bool      use_ts_i;
-  bool      use_ts_e;
-  bool      use_ts_p;
+  bool      use_tst1;
+  bool      use_tst2;
+  bool      use_tst3;
+  bool      use_tsh1;
+  bool      use_tsh2;
+  bool      use_tsh3;
+  bool      use_tsp;
   bool      use_es;
   uint8_t   use_pp;
   uint8_t   man_br;
@@ -68,9 +74,13 @@ typedef struct
   uint8_t   alarms[7][5];
   uint8_t   type_font;
   uint8_t   type_disp;
-  uint8_t   type_int_snr;
-  uint8_t   type_ext_snr;
-  uint8_t   type_prs_snr;
+  char      ch1_name[8];
+  char      ch2_name[8];
+  char      ch3_name[8];
+  uint8_t   type_snr1;
+  uint8_t   type_snr2;
+  uint8_t   type_snr3;
+  uint8_t   type_snrp;
   uint8_t   type_rtc;
   uint8_t   type_thermo;
   uint8_t   src_thermo;
@@ -81,7 +91,8 @@ typedef struct
   unsigned long ts_ch_id;
   char      AKey_r[17];
   char      AKey_w[17];
-  char      esrv_addr[17];
+  char      esrv1_addr[17];
+  char      esrv2_addr[17];
   char      radio_addr[17];
   char      owm_key[35];
   char      test[3];
@@ -90,9 +101,10 @@ typedef struct
 typedef struct
 {
   uint8_t   type_disp;      // Тип дисплея 0 - Нет.Внешний, 1 - LCD1602, 2 - HT1633, 3 - TM1637, 4 - MAX7219, 5 - MAX7219 7S, 6 - MAX7219 7S8D, 7 - HT1621, 8 - HT1632
-  uint8_t   type_int_snr;   // Тип внутреннего сенсора 0 - Нет, 1 - Взять с TC, 2 - Взять с ES, 3 - DHT21, 4 - DS3231, 5 - SI7021, 6 - AM2320, 7 - BMP180, 8 - BMP280, 9 - BME280, 10 - Взять из прогноза
-  uint8_t   type_ext_snr;   // Тип внешнего сенсора    0 - Нет, 1 - Взять с TC, 2 - Взять с ES, 3 - DHT21, 4 - DS3231, 5 - SI7021, 6 - AM2320, 7 - BMP180, 8 - BMP280, 9 - BME280, 10 - Взять из прогноза
-  uint8_t   type_prs_snr;   // Тип датчика давления    0 - Нет, 1 - Взять с TC, 2 - Взять с ES, 											   7 - BMP180, 8 - BMP280, 9 - BME280, 10 - Взять из прогноза 
+  uint8_t   type_snr1;      // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
+  uint8_t   type_snr2;      // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
+  uint8_t   type_snr3;      // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
+  uint8_t   type_snrp;      // Тип датчика давления 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 3 - Взять с ES2,                                                8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 
   uint8_t   type_rtc;       // Тип RTC 0 - Нет, 1 - DS3231, 2 - DS1302, 3 - DS1307
   uint8_t   temp_rtc;       // Температура чипа DS3231,
   uint8_t   lcd_addr;       // Адрес LCD дисплея

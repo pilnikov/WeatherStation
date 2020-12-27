@@ -221,7 +221,7 @@ bool Alarmed()
       case 4:
         disp_on = false;
         cur_br = 0;
-        snr_data.ft = 0;
+        snr_data.f = 0;
         switch (ram_data.type_disp)
         {
           case 1:
