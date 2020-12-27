@@ -493,7 +493,7 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
   data.h1 = 0; data.h2 = 0; data.h3 = 0; data.t1 = 99; data.t2 = 99; data.t3 = 99; data.p = 700;
 
   //------------------------------------------- channel 1
-  DBG_OUT_PORT.print("Type sensor on channel 1..");
+  DBG_OUT_PORT.print("Snr type on ch1..");
   DBG_OUT_PORT.println(channel1);
 
   switch (channel1)
@@ -507,34 +507,38 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
       t = e_data.t1;
       break;
     case 3:
+      h = e_data.h1;
+      t = e_data.t1;
+      break;
+    case 4:
       t = dht_read_t();
       h = dht_read_h();
       break;
-    case 4:
+    case 5:
       t = rtc_temp;
       h = 0;
       break;
-    case 5:
+    case 6:
       t = sht_read_t();
       h = sht_read_h();
       break;
-    case 6:
+    case 7:
       t = am_read_t();
       h = am_read_h();
       break;
-    case 7:
+    case 8:
       t = bmp180_read_t();
       h = 0;
       break;
-    case 8:
+    case 9:
       t = bmp280_read_t();
       h = 0;
       break;
-    case 9:
+    case 10:
       t = bme280_read_t();
       h = bme280_read_h();
       break;
-    case 10:
+    case 11:
       t = w_data.temp_min;
       h = w_data.hum_min;
       break;
@@ -543,14 +547,14 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
   data.t1 = constrain(t, -99, 99);
   data.h1 = constrain(h,   0, 99);
 
-  DBG_OUT_PORT.print("Temperature channel 1..");
+  DBG_OUT_PORT.print("TC1..");
   DBG_OUT_PORT.println(data.t1);
-  DBG_OUT_PORT.print("Humidity channel 1..");
+  DBG_OUT_PORT.print("HC1..");
   DBG_OUT_PORT.println(data.h1);
 
 
   //------------------------------------------- channel 2
-  DBG_OUT_PORT.print("Type sensor on channel 2..");
+  DBG_OUT_PORT.print("Snr type on ch2..");
   DBG_OUT_PORT.println(channel2);
 
   t = 99;
@@ -563,38 +567,42 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
       h = t_data.h2;
       break;
     case 2:
+      h = e_data.h1;
+      t = e_data.t1;
+      break;
+    case 3:
       t = e_data.t2;
       h = e_data.h2;
       break;
-    case 3:
+    case 4:
       t = dht_read_t();
       h = dht_read_h();
       break;
-    case 4:
+    case 5:
       t = rtc_temp;
       h = 0;
       break;
-    case 5:
+    case 6:
       t = sht_read_t();
       h = sht_read_h();
       break;
-    case 6:
+    case 7:
       t = am_read_t();
       h = am_read_h();
       break;
-    case 7:
+    case 8:
       t = bmp180_read_t();
       h = 0;
       break;
-    case 8:
+    case 9:
       t = bmp280_read_t();
       h = 0;
       break;
-    case 9:
+    case 10:
       t = bme280_read_t();
       h = bme280_read_h();
       break;
-    case 10:
+    case 11:
       t = w_data.temp_min;
       h = w_data.hum_min;
       break;
@@ -603,14 +611,14 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
   data.t2 = constrain(t, -99, 99);
   data.h2 = constrain(h,   0, 99);
 
-  DBG_OUT_PORT.print("Temperature channel 2..");
+  DBG_OUT_PORT.print("TC2..");
   DBG_OUT_PORT.println(data.t2);
-  DBG_OUT_PORT.print("Humidity channel 2..");
+  DBG_OUT_PORT.print("HC2..");
   DBG_OUT_PORT.println(data.h2);
 
   //------------------------------------------- channel 3
-  DBG_OUT_PORT.print("Type sensor on channel 3..");
-  DBG_OUT_PORT.println(channel2);
+  DBG_OUT_PORT.print("Snr type on ch3..");
+  DBG_OUT_PORT.println(channel3);
 
   t = 99;
   h = 0;
@@ -622,38 +630,41 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
       h = t_data.h3;
       break;
     case 2:
+      p = e_data.p;
+      break;
+    case 3:
       t = e_data.t3;
       h = e_data.h3;
       break;
-    case 3:
+    case 4:
       t = dht_read_t();
       h = dht_read_h();
       break;
-    case 4:
+    case 5:
       t = rtc_temp;
       h = 0;
       break;
-    case 5:
+    case 6:
       t = sht_read_t();
       h = sht_read_h();
       break;
-    case 6:
+    case 7:
       t = am_read_t();
       h = am_read_h();
       break;
-    case 7:
+    case 8:
       t = bmp180_read_t();
       h = 0;
       break;
-    case 8:
+    case 9:
       t = bmp280_read_t();
       h = 0;
       break;
-    case 9:
+    case 10:
       t = bme280_read_t();
       h = bme280_read_h();
       break;
-    case 10:
+    case 11:
       t = w_data.temp_min;
       h = w_data.hum_min;
       break;
@@ -662,13 +673,13 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
   data.t3 = constrain(t, -99, 99);
   data.h3 = constrain(h,   0, 99);
 
-  DBG_OUT_PORT.print("Temperature channel 3..");
+  DBG_OUT_PORT.print("TC3..");
   DBG_OUT_PORT.println(data.t3);
-  DBG_OUT_PORT.print("Humidity channel 3..");
+  DBG_OUT_PORT.print("HC3..");
   DBG_OUT_PORT.println(data.h3);
 
   //-------------------------------------------pressure sensor
-  DBG_OUT_PORT.print("Type pressure sensor..");
+  DBG_OUT_PORT.print("Type press snr..");
   DBG_OUT_PORT.println(type_press);
 
   switch (type_press)
@@ -679,22 +690,25 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
     case 2:
       p = e_data.p;
       break;
-    case 7:
-      p = bmp180_read_p();
+    case 3:
+      p = e_data.p;
       break;
     case 8:
-      p = bmp280_read_p();
+      p = bmp180_read_p();
       break;
     case 9:
-      p = bme280_read_p();
+      p = bmp280_read_p();
       break;
     case 10:
+      p = bme280_read_p();
+      break;
+    case 11:
       p = w_data.press_min;
       break;
   }
   data.p = constrain(p, 700, 800);
 
-  DBG_OUT_PORT.print("Pressure..");
+  DBG_OUT_PORT.print("Press..");
   DBG_OUT_PORT.println(data.p);
 
   return data;
