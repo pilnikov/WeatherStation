@@ -478,7 +478,7 @@ uint16_t SNR::ft_read(bool d_pres)
   else 
   {
 #if defined(ESP8266)
-	  ft = analogRead(ANA_SNR);
+	  ft = analogRead(A0);
 #endif
   }
   return ft;
