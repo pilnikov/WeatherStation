@@ -20,7 +20,7 @@ conf_data_t loadConfig(const char *filename)
     // Use arduinojson.org/assistant to compute the capacity.
 
 
-    DynamicJsonDocument doc(2900);
+    DynamicJsonDocument doc(3000);
 
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, file);
@@ -50,6 +50,9 @@ conf_data_t loadConfig(const char *filename)
       strncpy(data.esrv2_addr, " ", 17);
       strncpy(data.radio_addr, " ", 17);
       strncpy(data.owm_key,    " ", 35);
+      strncpy(data.ch1_name,   " ",  8);
+      strncpy(data.ch2_name,   " ",  8);
+      strncpy(data.ch3_name,   " ",  8);
 
       strncpy(data.sta_ssid,   doc["sta_ssid"],   33);
       strncpy(data.sta_pass,   doc["sta_pass"],   33);
@@ -61,6 +64,9 @@ conf_data_t loadConfig(const char *filename)
       strncpy(data.esrv2_addr, doc["esrv2_addr"], 17);
       strncpy(data.radio_addr, doc["radio_addr"], 17);
       strncpy(data.owm_key,    doc["owm_key"],    32);
+      strncpy(data.ch1_name,   doc["ch1_name"],    8);
+      strncpy(data.ch2_name,   doc["ch2_name"],    8);
+      strncpy(data.ch3_name,   doc["ch3_name"],    8);
 
       data.auto_corr        = doc["auto_corr"];
       data.use_pm           = doc["use_pm"];
@@ -134,7 +140,7 @@ void saveConfig(const char *filename, conf_data_t data)
   if ( data.type_snrp    < 0  || data.type_snrp  >  11) data.type_snrp  = 0;
   if ( data.ap_ssid[0] == ' ' || data.ap_ssid[0] ==  0) strncpy( data.ap_ssid, ap_ssid_def, sizeof(ap_ssid_def));
 
-  DynamicJsonDocument doc(2900);
+  DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
 
   json["sta_ssid"]            = data.sta_ssid;
@@ -175,6 +181,9 @@ void saveConfig(const char *filename, conf_data_t data)
   json["radio_addr"]          = data.radio_addr;
   json["pp_city_id"]          = data.pp_city_id;
   json["owm_key"]             = data.owm_key;
+  json["ch1_name"]            = data.ch1_name;
+  json["ch2_name"]            = data.ch2_name;
+  json["ch3_name"]            = data.ch3_name;
   json["period"]              = data.period; // minutes
   json["man_br"]              = data.man_br;
   json["auto_br"]             = data.auto_br;
@@ -247,6 +256,9 @@ conf_data_t defaultConfig()
   strncpy(data.esrv2_addr, "192.168.1.200", 17);
   strncpy(data.radio_addr, "192.168.1.33", 17);
   strncpy(data.owm_key,    " ", 35);
+  strncpy(data.ch1_name,   "Внутри",  8);
+  strncpy(data.ch2_name,   "Снаружи", 8);
+  strncpy(data.ch3_name,   "В бане",  8);
 
 
   data.auto_corr        = true;

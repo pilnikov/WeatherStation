@@ -9,25 +9,26 @@
     </style>
   </head>
   
-  <body onload='loadValues();'>
+    <body onload = 'loadValues();'>
     <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-      	<tr>
+      	<tr><td colspan='1' class='h'></td>
       	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
       	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
       	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
       	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
       	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
       	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-		  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
+  		    <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
        	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
       	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
       	</tr>
-        <tr><td colspan='9' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
-      </table>
+        <tr><td colspan='11' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
+    </table>
 
-      <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
 
-      <tr><td colspan='9' class='h'>Опции</td></tr>
+
+      <tr><td colspan='2' class='h'>Опции</td></tr>
       <tr><td>city ID для GM и OWM</td><td><input type='text' size='6' id='cityID' name='cityID' style='text-align:center;' /></td></tr>
       <tr><td>OWM API Key</td><td><input type='text' size='32' id='owmk' name='owmk' style='text-align:center;' /></td></tr>
       <tr><td>Адрес внешн. сервера2</td><td><input type='text' size='17' id='esaddr1' name='esaddr1' style='text-align:center;' /></td></tr>
@@ -43,7 +44,7 @@
 
       <tr><td>WiFi включен постоянно</td><td><input type='checkbox' id='usees' name='usees'/></td></tr>
       
-      <tr><td colspan='4' class='h'>Типы датчиков</td></tr>
+      <tr><td colspan='2' class='h'>Типы датчиков</td></tr>
       
       <tr><td width='35%'>Канал 1</td>
         <td><select id='snr1' name='snr1'  onclick='sel_ts();'>
@@ -139,14 +140,14 @@
 		<input type='checkbox' id='utst2' name='utst2' onclick='sel_ts();'/>
 		<input type='checkbox' id='utst3' name='utst3' onclick='sel_ts();'/></td></tr>
         <tr><td width='20%'>Влажность</td><td>
-		<input type='checkbox' id='utst1' name='utsh1' onclick='sel_ts();'/>
-		<input type='checkbox' id='utst2' name='utsh2' onclick='sel_ts();'/>
+		<input type='checkbox' id='utsh1' name='utsh1' onclick='sel_ts();'/>
+		<input type='checkbox' id='utsh2' name='utsh2' onclick='sel_ts();'/>
 		<input type='checkbox' id='utsh3' name='utsh3' onclick='sel_ts();'/></td></tr>
         <tr><td>Давление</td><td>&nbsp;--------&nbsp;
 		<input type='checkbox' id='utsp' name='utsp' onclick='sel_ts();'/></td></tr>
  
   
-      <tr><td colspan='4' class='h'><input type='submit' value='Записать' onclick='set_pars();' /></td></tr>
+      <tr><td colspan='4' class='h'><input type='submit' value='Записать' onclick='set_pars1();' /></td></tr>
   
     </table>
   
@@ -203,7 +204,7 @@
             document.getElementById('utsh1').checked = res.tssh1;
             document.getElementById('utsh2').checked = res.tssh2;
             document.getElementById('utsh3').checked = res.tssh3;
-            document.getElementById('utsp').checked = res.tssp;
+            document.getElementById('utsp').checked  = res.tssp;
           
             sel_ts();
           }   	  
@@ -272,25 +273,69 @@
       }
 
       
-      function set_pars()
+      function set_pars1()
       {
-        var utst1_t = 0, utst2_t = 0, utst3_t = 0, utsh1_t = 0, utsh2_t = 0, utsh3_t = 0, utsp_t = 0, usees_t = 0;
+   
+        var ues_t = 0;
+        
+        var cid_t  = document.getElementById('cityID').value;
+        var owmk_t = document.getElementById('owmk').value;
+        var esa1_t = document.getElementById('esaddr1').value;
+        var esa2_t = document.getElementById('esaddr2').value;
+        var rda_t  = document.getElementById('rdaddr').value;
+        var upp_t  = document.getElementById('usepp').value;
+        if (document.getElementById('usees').checked) ues_t = 1;
 
-        cityID_t = document.getElementById('cityID').value;
-        owmk_t   = document.getElementById('owmk').value;
-        esaddr1_t = document.getElementById('esaddr1').value;
-        esaddr2_t = document.getElementById('esaddr2').value;
-        rdaddr_t = document.getElementById('rdaddr').value;
-        usepp_t  = document.getElementById('usepp').value;
-        if (document.getElementById('usees').checked) usees_t = 1;
+        url='/set_pars1?cid='+cid_t
+					 + '&owmk='+owmk_t
+					 + '&esa1='+esa1_t
+					 + '&esa2='+esa2_t
+					 + '&rda=' +rda_t
+					 + '&upp=' +upp_t
+					 + '&ues=' +ues_t;
+
+      var xh = new XMLHttpRequest();
+          xh.open('GET', url, true);
+  		    xh.onreadystatechange = function()
+  		    {
+  		      if (xh.readyState==4 && xh.status==200) set_pars2();
+  		    }
+          xh.send(null);
+      }
+      
+      function set_pars2()
+      {
         snr1_t   = document.getElementById('snr1').value;
         snr2_t   = document.getElementById('snr2').value;
         snr3_t   = document.getElementById('snr3').value;
         snrp_t   = document.getElementById('snrp').value;
- 		period_t = document.getElementById('period').value;
+ 	    	period_t = document.getElementById('period').value;
         nc1_t    = document.getElementById('name_ch1').value;
         nc2_t    = document.getElementById('name_ch2').value;
         nc3_t    = document.getElementById('name_ch3').value;
+      
+        url='/set_pars2?snr1='    + snr1_t
+					 + '&snr2='   + snr2_t
+					 + '&snr3='   + snr3_t
+					 + '&snrp='   + snrp_t
+					 + '&period=' + period_t
+					 + '&nc1='    + nc1_t
+					 + '&nc2='    + nc2_t
+					 + '&nc3='    + nc3_t;
+
+      var xh = new XMLHttpRequest();
+          xh.open('GET', url, true);
+  		    xh.onreadystatechange = function()
+  		    {
+  		      if (xh.readyState==4 && xh.status==200) set_pars3();
+  		    }
+          xh.send(null);
+      }
+      
+      function set_pars3()
+      {
+        var utst1_t = 0, utst2_t = 0, utst3_t = 0, utsh1_t = 0, utsh2_t = 0, utsh3_t = 0, utsp_t = 0;
+
         tschan_t = document.getElementById('tschan').value;
         tsapir_t = document.getElementById('tsapir').value;
         tsapiw_t = document.getElementById('tsapiw').value;
@@ -300,43 +345,28 @@
         if (document.getElementById('utsh1').checked) utsh1_t = 1;
         if (document.getElementById('utsh2').checked) utsh2_t = 1;
         if (document.getElementById('utsh3').checked) utsh3_t = 1;
-        if (document.getElementById('utsp').checked) utsp_t = 1;
+        if (document.getElementById('utsp').checked)   utsp_t = 1;
 
-        url='/set_pars?cityID='   + cityID_t
-					 + '&owmk='   + owmk_t;
-					 + '&esaddr1='+ esaddr1_t
-					 + '&esaddr2='+ esaddr2_t
-					 + '&rdaddr=' + rdaddr_t
-					 + '&usepp='  + usepp_t
-					 + '&usees='  + usees_t
-					 + '&snr1='   + snr1_t
-					 + '&snr2='   + snr2_t
-					 + '&snr3='   + snr3_t
-					 + '&snrp='   + snrp_t
-					 + '&period=' + period_t
-					 + '&nc1='    + nc1_t
-					 + '&nc2='    + nc2_t
-					 + '&nc3='    + nc3_t    
-					 + '&tschan=' + tschan_t
-					 + '&tsapir=' + tsapir_t
-					 + '&tsapiw=' + tsapiw_t
-					 + '&utst1='  + utst1_t
-					 + '&utst2='  + utst2_t
-					 + '&utst3='  + utst3_t
-					 + '&utsh1='  + utsh1_t
-					 + '&utsh2='  + utsh2_t
-					 + '&utsh3='  + utsh3_t
-					 + '&utsp='	  + utsp_t;
-
-        var xh = new XMLHttpRequest();
-        xh.open('GET', url, true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState==4 && xh.status==200) loadValues();
-        }      
-        xh.send(null);
+        url='/set_pars3?tschan='+tschan_t
+					 +'&tsapir='+tsapir_t
+					 +'&tsapiw='+tsapiw_t
+					 +'&utst1=' +utst1_t
+					 +'&utst2=' +utst2_t
+					 +'&utst3=' +utst3_t
+					 +'&utsh1=' +utsh1_t
+					 +'&utsh2=' +utsh2_t
+					 +'&utsh3=' +utsh3_t
+					 +'&utsp='	+ utsp_t;
+  
+      var xh = new XMLHttpRequest();
+          xh.open('GET', url, true);
+  		    xh.onreadystatechange = function()
+          {
+            if (xh.readyState==4 && xh.status==200) loadValues();
+          }      
+          xh.send(null);
       }
-      
+
       function sel_ts()
       {
         var utst1_t = 0, utst2_t = 0, utst3_t = 0, utsh1_t = 0, utsh2_t = 0, utsh3_t = 0, utsp_t = 0;
@@ -361,14 +391,14 @@
          if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1) showHide('tsapir',  true);
          else showHide('tsapir',  false);
 
-         if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1|| utsi_t == 1 || utse_t == 1 || utsp_t == 1) showHide('tschan',  true);
+         if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1 || utst1_t == 1 || utst2_t == 1 || utst3_t == 1 || utsh1_t == 1 || utsh2_t == 1 || utsh3_t == 1 || utsp_t == 1) showHide('tschan',  true);
          else showHide('tschan',  false);
 
 /////////////////////////////////// For ES
-         if (snr1_t == 2 || snr2_t == 2 || snr3_t == 2 || psnr_t == 2) showHide('esaddr1',  true);
+         if (snr1_t == 2 || snr2_t == 2 || snr3_t == 2 || snrp_t == 2) showHide('esaddr1',  true);
          else showHide('esaddr1',  false);
 
-         if (snr1_t == 3 || snr2_t == 3 || snr3_t == 3 || psnr_t == 3) showHide('esaddr2',  true);
+         if (snr1_t == 3 || snr2_t == 3 || snr3_t == 3 || snrp_t == 3) showHide('esaddr2',  true);
          else showHide('esaddr2',  false);
 
 /////////////////////////////////// For NotUse
@@ -405,7 +435,7 @@
            showHide('cur_h3',  false);
          }
 
-         if (psnr_t > 0) 
+         if (snrp_t > 0) 
          {
            showHide('cur_p',  true);
            showHide('cur_p',  true);

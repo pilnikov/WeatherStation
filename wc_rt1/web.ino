@@ -1,5 +1,5 @@
 #if defined(ESP8266) || defined(ESP32)
-
+static char tstr[22];
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
@@ -12,7 +12,9 @@ void web_setup()
 # endif //MATRIX
   server.on("/sel_anum",  handleSelNum);
   server.on("/set_pard",  handleSetPard);
-  server.on("/set_pars",  handleSetPars);
+  server.on("/set_pars1", handleSetPars1);
+  server.on("/set_pars2", handleSetPars2);
+  server.on("/set_pars3", handleSetPars3);
   server.on("/set_parc",  handleSetParc);
   server.on("/set_alm",   handleSetAlarm);
   server.on("/set_partrm", handleSetPartrm);
@@ -104,21 +106,17 @@ void stop_serv()
 }
 
 //-------------------------------------------------------------- cur_time_str
-char *cur_time_str()
+void cur_time_str()
 {
-#if !defined(ESP32)
-  char str[22] = {'П', 'Н', ' ', '2', '0', '.', '0', '7', '.', '1', '9', '7', '5', ' ', '1', '2', ':', '3', '4', ':', '5', '6'} ;
-  sprintf(str, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
+ sprintf(tstr, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
           day(), month(), year(), hour(), minute(), second());
-#else
-  const char *str;
-#endif
-  return str;
 }
 
 //-------------------------------------------------------------- handlejTime
 void handlejTime()
 {
+  cur_time_str();
+  
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -127,7 +125,7 @@ void handlejTime()
   json ["jday"]   = day();
   json ["jmonth"] = month();
   json ["jyear"]  = year();
-  json ["tstr"]  = cur_time_str();
+  json ["tstr"]   = tstr; 
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -290,7 +288,7 @@ void handlejTS()
   json ["tssh1"] = conf_data.use_tsh1;
   json ["tssh2"] = conf_data.use_tsh2;
   json ["tssh3"] = conf_data.use_tsh3;
-  json ["tssp"] = conf_data.use_tsp;
+  json ["tssp"]  = conf_data.use_tsp;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -351,61 +349,59 @@ void handlejSnr()
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor
-void handleSetPars()
+void handleSetPars1()
 {
   /*
-        url='/set_pars?cityID='   + cityID_t
+        url='/set_pars1?cityID='   + cityID_t
 					 + '&owmk='   + owmk_t;
 					 + '&esaddr1='+ esaddr1_t
 					 + '&esaddr2='+ esaddr2_t
 					 + '&rdaddr=' + rdaddr_t
 					 + '&usepp='  + usepp_t
-					 + '&usees='  + usees_t
-					 + '&snr1='   + snr1_t
-					 + '&snr2='   + snr2_t
-					 + '&snr3='   + snr3_t
-					 + '&snrp='   + snrp_t
-					 + '&period=' + period_t
-					 + '&nc1='    + nc1_t
-					 + '&nc2='    + nc2_t
-					 + '&nc3='    + nc3_t    
-					 + '&tschan=' + tschan_t
-					 + '&tsapir=' + tsapir_t
-					 + '&tsapiw=' + tsapiw_t
-					 + '&utst1='  + utst1_t
-					 + '&utst2='  + utst2_t
-					 + '&utst3='  + utst3_t
-					 + '&utsh1='  + utsh1_t
-					 + '&utsh2='  + utsh2_t
-					 + '&utsh3='  + utsh3_t
-					 + '&utsp='	  + utsp_t;
+					 + '&usees='  + usees_t;
    */
 
-  conf_data.pp_city_id = constrain(server.arg("cityID").toInt(), 0, 999999);
+  conf_data.pp_city_id = constrain(server.arg("cid").toInt(), 0, 999999);
   strcpy(conf_data.owm_key, server.arg("owmk").c_str());
-  strcpy(conf_data.esrv1_addr, server.arg("esaddr1").c_str());
-  strcpy(conf_data.esrv2_addr, server.arg("esaddr2").c_str());
-  strcpy(conf_data.radio_addr, server.arg("rdaddr").c_str());
-  conf_data.use_pp = server.arg("usepp").toInt();
-  conf_data.use_es = server.arg("usees") == "1";
+  strcpy(conf_data.esrv1_addr, server.arg("esa1").c_str());
+  strcpy(conf_data.esrv2_addr, server.arg("esa2").c_str());
+  strcpy(conf_data.radio_addr, server.arg("rda").c_str());
+  conf_data.use_pp = server.arg("upp").toInt();
+  conf_data.use_es = server.arg("ues") == "1";
+
+  saveConfig(conf_f, conf_data);
+  server.send(200, "text/html", "OK!");
+  serv_ms = millis();
+
+  if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+  if (conf_data.use_pp == 2) {
+    wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+    wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
+  }
+}
+
+//-------------------------------------------------------------- handle Set Parameter for sensor
+void handleSetPars2()
+{
+  /*
+        url='/set_pars2?snr1='   + snr1_t
+           + '&snr2='   + snr2_t
+           + '&snr3='   + snr3_t
+           + '&snrp='   + snrp_t
+           + '&period=' + period_t
+           + '&nc1='    + nc1_t
+           + '&nc2='    + nc2_t
+           + '&nc3='    + nc3_t;    
+   */
+
   conf_data.type_snr1 = server.arg("snr1").toInt();
   conf_data.type_snr2 = server.arg("snr2").toInt();
   conf_data.type_snr3 = server.arg("snr3").toInt();
   conf_data.type_snrp = server.arg("snrp").toInt();
+  conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
   strcpy(conf_data.ch1_name, server.arg("nc1").c_str());
   strcpy(conf_data.ch2_name, server.arg("nc2").c_str());
   strcpy(conf_data.ch3_name, server.arg("nc3").c_str());
-  conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
-  conf_data.ts_ch_id = constrain(server.arg("tschan_t").toInt(), 0, 999999);
-  strcpy(conf_data.AKey_r, server.arg("tsapir").c_str());
-  strcpy(conf_data.AKey_w, server.arg("tsapiw").c_str());
-  conf_data.use_tst1 = server.arg("utst1") == "1";
-  conf_data.use_tst2 = server.arg("utst2") == "1";
-  conf_data.use_tst3 = server.arg("utst3") == "1";
-  conf_data.use_tsh1 = server.arg("utsh1") == "1";
-  conf_data.use_tsh2 = server.arg("utsh2") == "1";
-  conf_data.use_tsh3 = server.arg("utsh3") == "1";
-  conf_data.use_tsp = server.arg("utsp") == "1";
 
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
@@ -416,13 +412,39 @@ void handleSetPars()
   ram_data.type_snr2 = conf_data.type_snr2;
   ram_data.type_snrp = conf_data.type_snrp;
 
-  if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-  if (conf_data.use_pp == 2) {
-    wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
-    wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
-  }
   GetSnr();
+}
 
+//-------------------------------------------------------------- handle Set Parameter for sensor
+void handleSetPars3()
+{
+  /*
+        url='/set_pars3?tschan=' + tschan_t
+           + '&tsapir=' + tsapir_t
+           + '&tsapiw=' + tsapiw_t
+           + '&utst1='  + utst1_t
+           + '&utst2='  + utst2_t
+           + '&utst3='  + utst3_t
+           + '&utsh1='  + utsh1_t
+           + '&utsh2='  + utsh2_t
+           + '&utsh3='  + utsh3_t
+           + '&utsp='   + utsp_t;
+   */
+
+  conf_data.ts_ch_id = constrain(server.arg("tschan").toInt(), 0, 999999);
+  strcpy(conf_data.AKey_r, server.arg("tsapir").c_str());
+  strcpy(conf_data.AKey_w, server.arg("tsapiw").c_str());
+  conf_data.use_tst1 = server.arg("utst1") == "1";
+  conf_data.use_tst2 = server.arg("utst2") == "1";
+  conf_data.use_tst3 = server.arg("utst3") == "1";
+  conf_data.use_tsh1 = server.arg("utsh1") == "1";
+  conf_data.use_tsh2 = server.arg("utsh2") == "1";
+  conf_data.use_tsh3 = server.arg("utsh3") == "1";
+  conf_data.use_tsp  = server.arg("utsp")  == "1";
+
+  saveConfig(conf_f, conf_data);
+  server.send(200, "text/html", "OK!");
+  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handlejParc
@@ -569,10 +591,12 @@ void handleSetPartrm()
 //-------------------------------------------------------------- handlejAct
 void handlejAct()
 {
+  cur_time_str();
+  
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json ["tstr"] = cur_time_str();
+  json ["tstr"] = tstr;
   json ["acth"] = rtc_data.a_hour;
   json ["actm"] = rtc_data.a_min;
   json ["t1"]   = snr_data.t1;
