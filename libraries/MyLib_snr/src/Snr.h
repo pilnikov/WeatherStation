@@ -18,7 +18,7 @@
 #include <BH1750.h>
 #include <DHT.h>
 #if defined(ESP8266) || defined(ESP32) ||  defined(__AVR__)
- #include <DHT_U.h>
+#include <DHT_U.h>
 #endif
 
 #include <Udt.h>
@@ -28,61 +28,61 @@
 #endif
 
 #define SEALEVELPRESSURE_HPA (1013.25)
-   
+
 class SNR
 {
-  public :
+public:
 
-   BH1750 lightMeter;
+	BH1750 lightMeter;
 
-   void dht_preset(uint8_t, uint8_t);
-   ram_data_t init(ram_data_t);
-   uint16_t ft_read(bool);
-   snr_data_t read_snr(uint8_t, uint8_t, uint8_t, uint8_t,  uint8_t, snr_data_t, snr_data_t, wf_data_t);
- 
-  private :
-//----------------------------------------------------------dht
+	void dht_preset(uint8_t, uint8_t);
+	ram_data_t init(ram_data_t);
+	uint16_t ft_read(bool);
+	snr_data_t read_snr(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, snr_data_t, snr_data_t, wf_data_t);
+
+private:
+	//----------------------------------------------------------dht
 #if defined(ESP8266) || defined(ESP32) ||  defined(__AVR__)
-   DHT_Unified * dht;
+	DHT_Unified* dht;
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
-   DHT * dht;
+	DHT* dht;
 #endif
-   uint32_t delayMS;
+	uint32_t delayMS;
 
-   //-------------------------------------------------------am2320
-   AM2320 am23;
-   
-   //----------------------------------------------------------htu
-   Adafruit_HTU21DF sht = Adafruit_HTU21DF();
+	//-------------------------------------------------------am2320
+	AM2320 am23;
 
-   //----------------------------------------------------------bmp
-   Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
-   //----------------------------------------------------------bmp2
-   Adafruit_BMP280 bmp2; // I2C
-   
-   //----------------------------------------------------------bme
-   
-   Adafruit_BME280 bme; // I2C
+	//----------------------------------------------------------htu
+	Adafruit_HTU21DF sht = Adafruit_HTU21DF();
 
-   float am_read_h();
-   float am_read_t();
-   float sht_read_h();
-   float sht_read_t();
-   float bmp180_read_t();
-   float bmp180_read_p();
-   float bmp280_read_t();
-   float bmp280_read_p();
-   float bme280_read_h();
-   float bme280_read_t();
-   float bme280_read_p();
-   void  dht_init();
-   float dht_read_h();
-   float dht_read_t();
-   void  dispsnrDetails();
+	//----------------------------------------------------------bmp
+	Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
+	//----------------------------------------------------------bmp2
+	Adafruit_BMP280 bmp2; // I2C
 
-  protected :
+	//----------------------------------------------------------bme
+
+	Adafruit_BME280 bme; // I2C
+
+	float am_read_h();
+	float am_read_t();
+	float sht_read_h();
+	float sht_read_t();
+	float bmp180_read_t();
+	float bmp180_read_p();
+	float bmp280_read_t();
+	float bmp280_read_p();
+	float bme280_read_h();
+	float bme280_read_t();
+	float bme280_read_p();
+	void  dht_init();
+	float dht_read_h();
+	float dht_read_t();
+	void  dispsnrDetails();
+
+protected:
 
 };
 

@@ -110,22 +110,22 @@ scr_buff_t ss_prep(uint8_t mod)
 
   switch (mod)
   {
-    case 1: //Внутренняя температура
+    case 1: //Температура канал 1
       bstr = "t" + (snr_data.t1 < 0 ? String("-") : String(" ")) + (abs(snr_data.t1) < 10 ? String(" ") : String("")) + (abs(snr_data.t1) < 99 ? String(abs(snr_data.t1)) : String("--"));
       if (ram_data.type_disp == 6) bstr += "t." + (snr_data.t2 < 0 ? String("-") : String(" ")) + (abs(snr_data.t2) < 10 ? String(" ") : String("")) + (abs(snr_data.t2) < 99 ? String(abs(snr_data.t2)) : String("--"));
       break;
 
-    case 2: //Внутренняя влажность
+    case 2: //Влажность канал 1
       bstr = "H " + (snr_data.h1 > 0 ? (abs(snr_data.h1) < 10 ? String(" ") : String("")) + String(snr_data.h1) : String("--"));
       if (ram_data.type_disp == 6) bstr += "H. " + (snr_data.h2 > 0 ? (abs(snr_data.h2) < 10 ? String(" ") : String("")) + String(snr_data.h2) : String("--"));
       break;
 
-    case 3: //Внешняя температура
+    case 3: //Температура канал 2
       bstr = "t." + (snr_data.t2 < 0 ? String("-") : String(" ")) + (abs(snr_data.t2) < 10 ? String(" ") : String("")) + (abs(snr_data.t2) < 99 ? String(abs(snr_data.t2)) : String("--"));
       if (ram_data.type_disp == 6) bstr = "p" + (snr_data.p > 700 ? String(snr_data.p) : String("---")) + String("    ");
       break;
 
-    case 4: //Внешняя влажность
+    case 4: //Влажность канал 2
       bstr = "H. " + (snr_data.h2 > 0 ? (abs(snr_data.h2) < 10 ? String(" ") : String("")) + String(snr_data.h2) : String("--"));
       if (ram_data.type_disp == 6) bstr = dow_sel(weekday()) + (day() < 10 ? String("0") : String("")) +
                                             String(day()) + (month() < 10 ? String("0") : String("")) + String(month()) + String(year() % 100);
