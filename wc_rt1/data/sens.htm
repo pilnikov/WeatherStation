@@ -18,7 +18,7 @@
       	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
       	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
       	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-  		    <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
+  		  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
        	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
       	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
       	</tr>
@@ -406,34 +406,40 @@
          {
            showHide('cur_t1',  true);
            showHide('cur_h1',  true);
+		   showHide('name_ch1',true);
          }
          else 
          {
            showHide('cur_t1',  false);
            showHide('cur_h1',  false);
+		   showHide('name_ch1',false);
          }
 
          if (snr2_t > 0) 
          {
            showHide('cur_t2',  true);
            showHide('cur_h2',  true);
+		   showHide('name_ch2',true);
          }
          else 
          {
            showHide('cur_t2',  false);
            showHide('cur_h2',  false);
+		   showHide('name_ch2',false);
          }
 
          if (snr3_t > 0) 
          {
            showHide('cur_t3',  true);
            showHide('cur_h3',  true);
+		   showHide('name_ch3',true);
          }
          else 
          {
            showHide('cur_t3',  false);
            showHide('cur_h3',  false);
-         }
+ 		   showHide('name_ch3',false);
+        }
 
          if (snrp_t > 0) 
          {

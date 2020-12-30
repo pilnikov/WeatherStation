@@ -574,8 +574,8 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		h = t_data.h2;
 		break;
 	case 2:
-		h = e_data.h1;
-		t = e_data.t1;
+		t = e_data.t2;
+		h = e_data.h2;
 		break;
 	case 3:
 		t = e_data.t2;
@@ -637,7 +637,8 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		h = t_data.h3;
 		break;
 	case 2:
-		p = e_data.p;
+		t = e_data.t3;
+		h = e_data.h3;
 		break;
 	case 3:
 		t = e_data.t3;
