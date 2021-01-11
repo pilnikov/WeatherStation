@@ -50,9 +50,9 @@ conf_data_t loadConfig(const char *filename)
       strncpy(data.esrv2_addr, " ", 17);
       strncpy(data.radio_addr, " ", 17);
       strncpy(data.owm_key,    " ", 35);
-      strncpy(data.ch1_name,   " ",  8);
-      strncpy(data.ch2_name,   " ",  8);
-      strncpy(data.ch3_name,   " ",  8);
+      strncpy(data.ch1_name,   " ", 17);
+      strncpy(data.ch2_name,   " ", 17);
+      strncpy(data.ch3_name,   " ", 17);
 
       strncpy(data.sta_ssid,   doc["sta_ssid"],   33);
       strncpy(data.sta_pass,   doc["sta_pass"],   33);
@@ -64,9 +64,9 @@ conf_data_t loadConfig(const char *filename)
       strncpy(data.esrv2_addr, doc["esrv2_addr"], 17);
       strncpy(data.radio_addr, doc["radio_addr"], 17);
       strncpy(data.owm_key,    doc["owm_key"],    32);
-      strncpy(data.ch1_name,   doc["ch1_name"],    8);
-      strncpy(data.ch2_name,   doc["ch2_name"],    8);
-      strncpy(data.ch3_name,   doc["ch3_name"],    8);
+      strncpy(data.ch1_name,   doc["ch1_name"],   17);
+      strncpy(data.ch2_name,   doc["ch2_name"],   17);
+      strncpy(data.ch3_name,   doc["ch3_name"],   17);
 
       data.auto_corr        = doc["auto_corr"];
       data.use_pm           = doc["use_pm"];
@@ -133,7 +133,7 @@ void saveConfig(const char *filename, conf_data_t data)
   if (debug_level == 3) DBG_OUT_PORT.println( "Start saving conf_data to config.json");
 
 
-  if ( data.type_disp    < 0  || data.type_disp  >  10) data.type_disp  = 0;
+  if ( data.type_disp    < 0  || data.type_disp  >  12) data.type_disp  = 0;
   if ( data.type_snr1    < 0  || data.type_snr1  >  11) data.type_snr1  = 0;
   if ( data.type_snr2    < 0  || data.type_snr2  >  11) data.type_snr2  = 0;
   if ( data.type_snr3    < 0  || data.type_snr3  >  11) data.type_snr3  = 0;
@@ -256,9 +256,9 @@ conf_data_t defaultConfig()
   strncpy(data.esrv2_addr, "192.168.1.200", 17);
   strncpy(data.radio_addr, "192.168.1.33", 17);
   strncpy(data.owm_key,    " ", 35);
-  strncpy(data.ch1_name,   "Внутри",  8);
-  strncpy(data.ch2_name,   "Снаружи", 8);
-  strncpy(data.ch3_name,   "В бане",  8);
+  strncpy(data.ch1_name,   "Внутри",  17);
+  strncpy(data.ch2_name,   "Снаружи", 17);
+  strncpy(data.ch3_name,   "В бане",  17);
 
 
   data.auto_corr        = true;

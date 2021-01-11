@@ -103,6 +103,9 @@ void setup()
 	case 3:
 		sevenseg_init();
 		break;
+	case 12:
+		sevenseg_init();
+		break;
 	case 4:
 		m7219_init();
 		break;
@@ -200,8 +203,9 @@ void setup()
 	{
 		cur_br = conf_data.man_br;  // Man brigthness
 		snr_data.f = cur_br;
-		DBG_OUT_PORT.println("brightness set");
 	}
+  DBG_OUT_PORT.print("brightness from sensor...");
+  DBG_OUT_PORT.println(snr_data.f);
 
 	//------------------------------------------------------ Отправляем данные через UART
 	if (ram_data.type_disp == 0)

@@ -2499,11 +2499,11 @@ bool WiFiManager::getWiFiIsSaved(){
 }
 
 String WiFiManager::getDefaultAPName(){
-  String hostString = String(WIFI_getChipId(),HEX);
+  String hostString = String("MyAp");
   hostString.toUpperCase();
   // char hostString[16] = {0};
   // sprintf(hostString, "%06X", ESP.getChipId());  
-  return _wifissidprefix + "_" + hostString;
+  return hostString;
 }
 
 /**

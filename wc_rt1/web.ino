@@ -352,13 +352,13 @@ void handlejSnr()
 void handleSetPars1()
 {
 	/*
-		  url='/set_pars1?cityID='   + cityID_t
-					   + '&owmk='   + owmk_t;
-					   + '&esaddr1='+ esaddr1_t
-					   + '&esaddr2='+ esaddr2_t
-					   + '&rdaddr=' + rdaddr_t
-					   + '&usepp='  + usepp_t
-					   + '&usees='  + usees_t;
+        url='/set_pars1?cid='+cid_t
+           + '&owmk='+owmk_t
+           + '&esa1='+esa1_t
+           + '&esa2='+esa2_t
+           + '&rda=' +rda_t
+           + '&upp=' +upp_t
+           + '&ues=' +ues_t;
 	 */
 
 	conf_data.pp_city_id = constrain(server.arg("cid").toInt(), 0, 999999);

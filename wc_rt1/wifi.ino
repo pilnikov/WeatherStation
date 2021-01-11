@@ -27,11 +27,12 @@ void configModeCallback (WiFiManager *myWiFiManager)
 void start_wifi()
 {
   WiFiManager wm;
-  //wm.resetSettings();
-  //  wm.setConfigPortalBlocking(false);
+//  wm.resetSettings();
+  wm.setConfigPortalBlocking(false);
   wm.setAPCallback(configModeCallback);
   wm.setConfigPortalTimeout(30);
   wm.autoConnect(conf_data.ap_ssid, conf_data.ap_pass);
+
   /* if  (!wm.autoConnect(conf_data.ap_ssid, conf_data.ap_pass))
     {
      DBG_OUT_PORT.println("failed to connect and hit timeout");
@@ -48,4 +49,3 @@ void start_wifi()
   }
   else web_ap = true;
 }
-

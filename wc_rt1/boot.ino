@@ -141,7 +141,7 @@ void firq6()
     }
 
     if (ram_data.type_disp == 1) lcd_time();
-    if (ram_data.type_disp == 2 || ram_data.type_disp == 3 || ram_data.type_disp == 5 || ram_data.type_disp == 6 || ram_data.type_disp == 7) sevenseg();
+    if (ram_data.type_disp == 2 || ram_data.type_disp == 3 || ram_data.type_disp == 12 || ram_data.type_disp == 5 || ram_data.type_disp == 6 || ram_data.type_disp == 7) sevenseg();
     if (ram_data.type_disp == 4 && end_run_st)
     {
       matrix_refresh();
