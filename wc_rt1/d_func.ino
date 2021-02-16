@@ -151,72 +151,70 @@ void  matrix32x8_time()
 //-------------------------------------------------------------- Отображение бегущей строки
 bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur_sym_pos)
 {
-  // DBG_OUT_PORT.print("cur_sym_pos..");
-  // DBG_OUT_PORT.println(cur_sym_pos);
-  String instr;
-  f_dsp.utf8rus(tape);
+  if (dtype > 19)f_dsp.utf8rus(tape);
 
-  if (dtype == 1) f_dsp.lcd_rus(tape);
+  if (dtype == 19) f_dsp.lcd_rus(tape);
 #if defined(ESP32)
-  if (dtype == 9)
+  if (dtype == 24)
   {
     m3264->setTextWrap(false);
     m3264->setTextSize(TextSize);
   }
 #endif
-
-  //  DBG_OUT_PORT.print("input string length..");
-  //  DBG_OUT_PORT.println(instr.length());
-
+ 
+/*  DBG_OUT_PORT.println(tape);
+  DBG_OUT_PORT.print("input string length..");
+  DBG_OUT_PORT.println(tape.length());
+*/
   int colors[3];
   uint8_t sym_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
-  if (dtype == 1)
+  if (dtype == 19)
   {
     sym_wdt = 1;
     spacer = 0;
   }
 
 #if defined(ESP32)
-  if (dtype == 9)
+  if (dtype == 24)
   {
     sym_wdt *= TextSize;
     spacer = TextSize;
   }
 #endif
 
-  if (cur_sym_pos < sym_wdt * instr.length() + dsp_wdt - spacer)  //текущая позиция < (длина строки + ширина дисплея)
+  if (cur_sym_pos < sym_wdt * tape.length() + dsp_wdt - spacer)  //текущая позиция < (длина строки + ширина дисплея)
   {
-    if (dtype == 4 || dtype == 8 || dtype == 9)
+    if (dtype > 19)
     {
       int16_t letter = cur_sym_pos / sym_wdt;           //        номер крайнего правого отображаемого символа
       int8_t x = (dsp_wdt - 1) - cur_sym_pos % sym_wdt; // координата х крайнего правого отображаемого символа
       uint8_t y = nline * 8;                            // координата y строки
       uint8_t bg = 0;                                   // цвет фона
-      if (dtype == 8) bg = 3;
+      if (dtype == 22) bg = 3;
 
       while (x + sym_wdt - spacer >= 0 && letter >= 0)
       {
-        if (letter < instr.length())
+        if (letter < tape.length())
         {
-          if (dtype == 4) m7219->drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
-          if (dtype == 8) m1632->drawChar(x, y, instr[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 20) m7219->drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 22) m1632->drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
 #if defined(ESP32)
-          if (dtype == 9)
+          if (dtype == 24)
           {
             getRGB(abs(cur_sym_pos / 4) % 255, 255, 255, colors);
-            m3264->drawChar(x, y, instr[letter], m3264->AdafruitColor(colors[0], colors[1], colors[2]), 0, TextSize);
+            m3264->drawChar(x, y, tape[letter], m3264->AdafruitColor(colors[0], colors[1], colors[2]), 0, TextSize);
           }
 #endif
         }
         letter--;     // смещение на символ влево по строке
         x -= sym_wdt; // смещение на ширину символа влево по х
       }
-      if (dtype == 4) m7219->write();  // Send bitmap to display
-      if (dtype == 8) m1632->render(); // Send bitmap to display
-      //if (dtype == 9) m3216 -> update(); // Send bitmap to display
+      if (dtype == 20) m7219->write();  // Send bitmap to display
+      if (dtype == 22) m1632->render(); // Send bitmap to display
+      //if (dtype == 24) m3216 -> update(); // Send bitmap to display
     }
 
-    if (dtype == 1)
+    if (dtype == 19)
     {
       int16_t letter = cur_sym_pos; //        номер крайнего правого отображаемого символа
       int8_t x = dsp_wdt - 1;       // координата х крайнего правого отображаемого символа
@@ -224,10 +222,10 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
       while (x >= 0 && letter >= 0)
       {
 
-        if (letter < instr.length())
+        if (letter < tape.length())
         {
           lcd->setCursor(x, nline);
-          lcd->print(instr[letter]); //Draw char in lcd
+          lcd->print(tape[letter]); //Draw char in lcd
         }
         letter--;   // смещение на символ влево по строке
         x--;
