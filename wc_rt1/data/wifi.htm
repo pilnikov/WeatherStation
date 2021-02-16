@@ -37,6 +37,8 @@
        <tr><td>SSID</td><td><input type='text' size='10' id='stas' name='stas' style='text-align:center;' /></td></tr>
        <tr><td>Password</td><td><input type='password' size='10' id='stap' name='stap'   style='text-align:center;' /></td></tr>
 
+       <tr><td>Отключать WiFi</td><td><input type='checkbox' id='wof' name='wof'/>
+
        <tr><td colspan='8' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td></tr>
    
        <tr><td colspan='8' class='e'>&nbsp;</td></tr>
@@ -57,6 +59,7 @@
         	    document.getElementById('app' ).value = res.appas;
         	    document.getElementById('stas').value = res.staid;
         	    document.getElementById('stap').value = res.stapas;
+                document.getElementById('wof').checked  = res.wof;
         	  }
           }
          xh.open("GET", "/jwifi", true);
@@ -82,12 +85,16 @@
     
       function set_wifi()
       {
-      	as = document.getElementById('aps').value;
-      	ap = document.getElementById('app').value;
-      	ss = document.getElementById('stas').value;
-      	sp = document.getElementById('stap').value;
+        var wof_t = 0;
 
-      	url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp;
+      	var as = document.getElementById('aps').value;
+      	var ap = document.getElementById('app').value;
+      	var ss = document.getElementById('stas').value;
+      	var sp = document.getElementById('stap').value;
+
+        if (document.getElementById('wof').checked) wof_t = 1;
+
+      	url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+'&wof='+wof_t;
 
         var xh = new XMLHttpRequest();
         xh.open('GET', url, true);

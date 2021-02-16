@@ -162,12 +162,6 @@ ram_data_t SNR::init(ram_data_t in_data)
 	default:
 		break;
 	}
-	if (in_data.bh1750_present)
-	{
-		lightMeter.begin();
-	}
-
-	delay(50);
 	return out_data;
 }
 
@@ -476,19 +470,6 @@ float SNR::dht_read_h()
 #endif
 
 	return ret;
-}
-
-uint16_t SNR::ft_read(bool d_pres)
-{
-	uint16_t ft = 7;
-	if (d_pres) ft = lightMeter.readLightLevel();
-	else
-	{
-#if defined(ESP8266)
-		ft = analogRead(A0);
-#endif
-	}
-	return ft;
 }
 
 snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, uint8_t type_press, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data, wf_data_t w_data)

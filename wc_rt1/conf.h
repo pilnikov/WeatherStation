@@ -9,7 +9,7 @@
     int8_t   t3 =  99; //Температура. Канал 3
     uint8_t  h3 =   0; //Влажность. Канал 3
     uint16_t  p =   0; //Давление
-    uint16_t ft =   0; //Освещенность  
+    uint16_t ft =   0; //Освещенность
   };
 
 ********************************************************** Prognoz
@@ -47,7 +47,7 @@
   bool      auto_corr;
   bool      use_pm;
   bool      every_hour_beep;
-  bool      rus_disp;
+  bool      rus_lng;
   bool      use_tst1;
   bool      use_tst2;
   bool      use_tst3;
@@ -58,10 +58,11 @@
   bool      use_es;
   uint8_t   use_pp;
   uint8_t   man_br;
-  uint8_t   night_mode_start;
-  uint8_t   night_mode_stop;
+  uint8_t   nm_start;
+  uint8_t   nm_stop;
   uint8_t   alarms[7][5];
   uint8_t   type_font;
+  uint8_t   type_vdrv;
   uint8_t   type_disp;
   char      ch1_name[8];
   char      ch2_name[8];
@@ -89,11 +90,12 @@
 ********************************************************** Ram config
   struct ram_data_t
   {
-  uint8_t   type_disp;      // Тип дисплея 0 - Нет.Внешний, 1 - LCD1602, 2 - HT1633, 3 - TM1637, 4 - MAX7219, 5 - MAX7219 7S, 6 - MAX7219 7S8D, 7 - HT1621, 8 - HT1632
+  uint8_t   type_vdrv;      // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574
+  uint8_t   type_disp;      // Тип дисплея 0 - Внешний, 1 - 7SEGx4D, 2 - 7SEGx6D, 3 - 7SEGx8D, 10 - 14SEGx4D, 11 - 14SEGx8D, 12 - 16SEGx4D, 13 - 16SEGx8D, 19 - 2Linex16D, 20 - M32x8Mono, 21 - M32x16Mono, 22 - M32x16BiColor, 23 - M32x16Color, 24 - M64x32Color, 25 - M64x64Color, 29 - 320x240Color, 30 - Custom_1, 31 - Custom_2
   uint8_t   type_snr1;      // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
   uint8_t   type_snr2;      // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
   uint8_t   type_snr3;      // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
-  uint8_t   type_snrp;      // Тип датчика давления 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 3 - Взять с ES2,                                                                8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 
+  uint8_t   type_snrp;      // Тип датчика давления 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 3 - Взять с ES2,                                                                8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
   uint8_t   type_rtc;       // Тип RTC 0 - Нет, 1 - DS3231, 2 - DS1302, 3 - DS1307
   uint8_t   temp_rtc;       // Температура чипа DS3231,
   uint8_t   lcd_addr;       // Адрес LCD дисплея
@@ -158,7 +160,7 @@
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include <SPIFFS.h>
-#include <WiFiManager.h>
+//#include <WiFiManager.h>
 //#include <ESPAsyncTCP.h>
 #include <WebServer.h>
 #include <Update.h>
@@ -184,6 +186,7 @@
 #include <Exts.h>
 #include <Snr.h>
 #include <Fdsp.h>
+#include <BH1750.h>
 
 //#define DEBUG_UDP
 
@@ -342,13 +345,20 @@ WebServer server(80);
 ESP8266HWInfo hwi;
 #endif
 
+// ---------------------------------------------------- LM
+
+BH1750 lightMeter;
+
+// ---------------------------------------------------- 
+
 
 bool web_ap        = false;
 bool web_cli       = false;
 unsigned long serv_ms = 60000;
 
-static const char* name_week[] = {"", "ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
-
+char tstr[64];
+static const char* name_week[]  = {"", "ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
+static const char* name_week7[] = {"", "8c", "пH", "8t", "CP", "4t", "пt", "c6"};
 // ---------------------------------------------------- WiFi Default
 static const char  ap_ssid_def[] PROGMEM = "WiFi_Clock";
 static const char  ap_pass_def[] PROGMEM = "";
@@ -369,7 +379,8 @@ unsigned long   irq_end[10];
 unsigned long    setting_ms  = 0;
 
 uint8_t            hour_cnt  = 0;
-uint8_t           disp_mode  = 1;
+uint8_t           disp_mode  = 0;
+uint8_t           disp_mode2 = 0;
 uint16_t             cur_br  = 0;
 uint16_t         cur_br_buf  = 0;
 

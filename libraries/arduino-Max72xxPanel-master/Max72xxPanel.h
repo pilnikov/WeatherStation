@@ -107,16 +107,20 @@ public:
    */
   void write();
 
+  /* Send out a single command to the device */
+  void setRam(byte *data, uint8_t size);
+
+ 
 private:
   byte SPI_CS; /* SPI chip selection */
 
   /* Send out a single command to the device */
-  void spiTransfer(byte opcode, byte data=0);
+  void spiTransfer(byte opcode, byte data = 0);
 
-  /* We keep track of the led-status for 8 devices in this array */
+   /* We keep track of the led-status for 8 devices in this array */
   byte *bitmap;
   byte bitmapSize;
-
+ 
   byte hDisplays;
   byte *matrixPosition;
   byte *matrixRotation;

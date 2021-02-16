@@ -42,7 +42,7 @@
       <option value = '2'>OWM</option>
       </select></td></tr>
 
-      <tr><td>WiFi включен постоянно</td><td><input type='checkbox' id='usees' name='usees'/></td></tr>
+	 </td></tr>
       
       <tr><td colspan='2' class='h'>Типы датчиков</td></tr>
       
@@ -168,7 +168,6 @@
             document.getElementById('esaddr2').value  = res.srve2;
             document.getElementById('rdaddr').value   = res.srvr;
             document.getElementById('usepp').value    = res.prgp;
-            document.getElementById('usees').checked  = res.srvp;
             document.getElementById('snr1').value     = res.s1;
             document.getElementById('snr2').value     = res.s2;
             document.getElementById('snr3').value     = res.s3;
@@ -276,7 +275,6 @@
       function set_pars1()
       {
    
-        var ues_t = 0;
         
         var cid_t  = document.getElementById('cityID').value;
         var owmk_t = document.getElementById('owmk').value;
@@ -284,15 +282,13 @@
         var esa2_t = document.getElementById('esaddr2').value;
         var rda_t  = document.getElementById('rdaddr').value;
         var upp_t  = document.getElementById('usepp').value;
-        if (document.getElementById('usees').checked) ues_t = 1;
-
+ 
         url='/set_pars1?cid='+cid_t
 					 + '&owmk='+owmk_t
 					 + '&esa1='+esa1_t
 					 + '&esa2='+esa2_t
 					 + '&rda=' +rda_t
-					 + '&upp=' +upp_t
-					 + '&ues=' +ues_t;
+					 + '&upp=' +upp_t;
 
       var xh = new XMLHttpRequest();
           xh.open('GET', url, true);
@@ -309,7 +305,7 @@
         snr2_t   = document.getElementById('snr2').value;
         snr3_t   = document.getElementById('snr3').value;
         snrp_t   = document.getElementById('snrp').value;
- 	    	period_t = document.getElementById('period').value;
+ 	    period_t = document.getElementById('period').value;
         nc1_t    = document.getElementById('name_ch1').value;
         nc2_t    = document.getElementById('name_ch2').value;
         nc3_t    = document.getElementById('name_ch3').value;

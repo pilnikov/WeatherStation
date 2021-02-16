@@ -58,7 +58,7 @@ typedef struct
   bool      auto_corr;
   bool      use_pm;
   bool      every_hour_beep;
-  bool      rus_disp;
+  bool      rus_lng;
   bool      use_tst1;
   bool      use_tst2;
   bool      use_tst3;
@@ -66,17 +66,18 @@ typedef struct
   bool      use_tsh2;
   bool      use_tsh3;
   bool      use_tsp;
-  bool      use_es;
+  bool      wifi_off;
   uint8_t   use_pp;
   uint8_t   man_br;
-  uint8_t   night_mode_start;
-  uint8_t   night_mode_stop;
+  uint8_t   nm_start;
+  uint8_t   nm_stop;
   uint8_t   alarms[7][5];
   uint8_t   type_font;
+  uint8_t   type_vdrv;
   uint8_t   type_disp;
-  char      ch1_name[8];
-  char      ch2_name[8];
-  char      ch3_name[8];
+  char      ch1_name[17];
+  char      ch2_name[17];
+  char      ch3_name[17];
   uint8_t   type_snr1;
   uint8_t   type_snr2;
   uint8_t   type_snr3;
@@ -100,7 +101,7 @@ typedef struct
 
 typedef struct
 {
-  uint8_t   type_disp;      // Тип дисплея 0 - Нет.Внешний, 1 - LCD1602, 2 - HT1633, 3 - TM1637, 4 - MAX7219, 5 - MAX7219 7S, 6 - MAX7219 7S8D, 7 - HT1621, 8 - HT1632
+  uint8_t   type_vdrv;      // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574 
   uint8_t   type_snr1;      // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
   uint8_t   type_snr2;      // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
   uint8_t   type_snr3;      // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза

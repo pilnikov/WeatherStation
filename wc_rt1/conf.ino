@@ -68,10 +68,11 @@ conf_data_t loadConfig(const char *filename)
       strncpy(data.ch2_name,   doc["ch2_name"],   17);
       strncpy(data.ch3_name,   doc["ch3_name"],   17);
 
+      data.wifi_off         = doc["wifi_off"];
       data.auto_corr        = doc["auto_corr"];
       data.use_pm           = doc["use_pm"];
       data.every_hour_beep  = doc["every_hour_beep"];
-      data.rus_disp         = doc["rus_disp"];
+      data.rus_lng          = doc["rus_lng"];
       data.use_tst1         = doc["use_tst1"];
       data.use_tst2         = doc["use_tst2"];
       data.use_tst3         = doc["use_tst3"];
@@ -79,9 +80,9 @@ conf_data_t loadConfig(const char *filename)
       data.use_tsh2         = doc["use_tsh2"];
       data.use_tsh3         = doc["use_tsh3"];
       data.use_tsp          = doc["use_tsp"];
-      data.use_es           = doc["use_es"];
       data.use_pp           = doc["use_pp"];
       data.time_zone        = doc["time_zone"];
+      data.type_vdrv        = doc["type_vdrv"];
       data.type_disp        = doc["type_disp"];
       data.type_snr1        = doc["type_snr1"];
       data.type_snr2        = doc["type_snr2"];
@@ -92,8 +93,8 @@ conf_data_t loadConfig(const char *filename)
       data.src_thermo       = doc["src_trs"];
       data.lb_thermo        = doc["lb_trs"];
       data.hb_thermo        = doc["hb_trs"];
-      data.night_mode_start = doc["night_mode_start"];
-      data.night_mode_stop  = doc["night_mode_stop"];
+      data.nm_start = doc["nm_start"];
+      data.nm_stop  = doc["nm_stop"];
       data.ts_ch_id         = doc["ts_ch_id"];
       data.pp_city_id       = doc["pp_city_id"];
       data.period           = doc["period"]; // minutes
@@ -133,7 +134,8 @@ void saveConfig(const char *filename, conf_data_t data)
   if (debug_level == 3) DBG_OUT_PORT.println( "Start saving conf_data to config.json");
 
 
-  if ( data.type_disp    < 0  || data.type_disp  >  12) data.type_disp  = 0;
+  if ( data.type_vdrv    < 0  || data.type_vdrv  >  20) data.type_vdrv  = 0;
+  if ( data.type_disp    < 0  || data.type_disp  >  40) data.type_disp  = 0;
   if ( data.type_snr1    < 0  || data.type_snr1  >  11) data.type_snr1  = 0;
   if ( data.type_snr2    < 0  || data.type_snr2  >  11) data.type_snr2  = 0;
   if ( data.type_snr3    < 0  || data.type_snr3  >  11) data.type_snr3  = 0;
@@ -147,10 +149,11 @@ void saveConfig(const char *filename, conf_data_t data)
   json["sta_pass"]            = data.sta_pass;
   json["ap_ssid"]             = data.ap_ssid;
   json["ap_pass"]             = data.ap_pass;
+  json["wifi_off"]            = data.wifi_off;
   json["auto_corr"]           = data.auto_corr;
   json["use_pm"]              = data.use_pm;
   json["every_hour_beep"]     = data.every_hour_beep;
-  json["rus_disp"]            = data.rus_disp;
+  json["rus_lng"]             = data.rus_lng;
   json["use_tst1"]            = data.use_tst1;
   json["use_tst2"]            = data.use_tst2;
   json["use_tst3"]            = data.use_tst3;
@@ -158,9 +161,9 @@ void saveConfig(const char *filename, conf_data_t data)
   json["use_tsh2"]            = data.use_tsh2;
   json["use_tsh3"]            = data.use_tsh3;
   json["use_tsp"]             = data.use_tsp;
-  json["use_es"]              = data.use_es;
   json["use_pp"]              = data.use_pp;
   json["time_zone"]           = data.time_zone;
+  json["type_vdrv"]           = data.type_vdrv;
   json["type_disp"]           = data.type_disp;
   json["type_snr1"]           = data.type_snr1;
   json["type_snr2"]           = data.type_snr2;
@@ -171,8 +174,8 @@ void saveConfig(const char *filename, conf_data_t data)
   json["src_trs"]             = data.src_thermo;
   json["lb_trs"]              = data.lb_thermo;
   json["hb_trs"]              = data.hb_thermo;
-  json["night_mode_start"]    = data.night_mode_start;
-  json["night_mode_stop"]     = data.night_mode_stop;
+  json["nm_start"]    = data.nm_start;
+  json["nm_stop"]     = data.nm_stop;
   json["ts_ch_id"]            = data.ts_ch_id;
   json["AKey_r"]              = data.AKey_r;
   json["AKey_w"]              = data.AKey_w;
@@ -264,7 +267,7 @@ conf_data_t defaultConfig()
   data.auto_corr        = true;
   data.use_pm           = false;
   data.every_hour_beep  = true;
-  data.rus_disp         = false;
+  data.rus_lng          = false;
   data.use_tst1         = false;
   data.use_tst2         = false;
   data.use_tst3         = false;
@@ -272,9 +275,10 @@ conf_data_t defaultConfig()
   data.use_tsh2         = false;
   data.use_tsh3         = false;
   data.use_tsp          = false;
-  data.use_es           = true;
+  data.wifi_off         = false;
   data.use_pp           = 0;
   data.time_zone        = 5;
+  data.type_vdrv        = 0;
   data.type_disp        = 0;
   data.type_snr1        = 0;
   data.type_snr2        = 0;
@@ -285,8 +289,8 @@ conf_data_t defaultConfig()
   data.src_thermo       = 0;
   data.lb_thermo        = 0;
   data.hb_thermo        = 0;
-  data.night_mode_start = 23;
-  data.night_mode_stop  = 7;
+  data.nm_start = 23;
+  data.nm_stop  = 7;
   data.ts_ch_id         = 0;
   data.pp_city_id       = 28438;
   data.period           = 10;

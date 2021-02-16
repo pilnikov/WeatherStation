@@ -69,6 +69,31 @@ void SF::i2c_parse()
         DBG_OUT_PORT.println("HT1633 with address 0x70 found! \n");
 		ht_addr = 0x70;
       break;
+      case  0x71:
+        ht1633_present  = true ; //HT1633 is present
+        DBG_OUT_PORT.println("HT1633 with address 0x71 found! \n");
+		ht_addr = 0x71;
+      break;
+      case  0x72:
+        ht1633_present  = true ; //HT1633 is present
+        DBG_OUT_PORT.println("HT1633 with address 0x72 found! \n");
+		ht_addr = 0x72;
+      break;
+      case  0x73:
+        ht1633_present  = true ; //HT1633 is present
+        DBG_OUT_PORT.println("HT1633 with address 0x73 found! \n");
+		ht_addr = 0x73;
+      break;
+      case  0x74:
+        ht1633_present  = true ; //HT1633 is present
+        DBG_OUT_PORT.println("HT1633 with address 0x74 found! \n");
+		ht_addr = 0x74;
+      break;
+      case  0x75:
+        ht1633_present  = true ; //HT1633 is present
+        DBG_OUT_PORT.println("HT1633 with address 0x75 found! \n");
+		ht_addr = 0x75;
+      break;
       case  0x68:
         ds3231_present  = true ; //DS3231 is present
         ds1307_present  = true ; //DS1307 is present
@@ -85,13 +110,12 @@ void SF::i2c_parse()
 
 ram_data_t SF::i2c_scan(conf_data_t c_data)
 {
-  // temporary actions -----------------------------------------------------------------------------------------------------
   ram_data_t r_data;
 
   i2c_parse();
 
   r_data.type_rtc       = c_data.type_rtc;
-  r_data.type_disp      = c_data.type_disp;
+  r_data.type_vdrv      = c_data.type_vdrv;
   r_data.type_snr1      = c_data.type_snr1;
   r_data.type_snr2      = c_data.type_snr2;
   r_data.type_snr3      = c_data.type_snr3;
@@ -100,80 +124,63 @@ ram_data_t SF::i2c_scan(conf_data_t c_data)
   r_data.lcd_addr       = lcd_addr; //address of LCD
   r_data.ht_addr        = ht_addr; //HT1633 addr
 
- // if not selected -> select auto
-  /*
-    if (si7021_present && r_data.type_snr1 != 6 && r_data.type_snr2 != 6)
-    {
-     r_data.type_snr1 = 6; //si7021
-    }
-    if (am2320_present && r_data.type_snr1 != 7 && r_data.type_snr2 != 7)
-    {
-     r_data.type_snr1 = 7; //am2320
-    }
-    if (bmp180_present && r_data.type_snr1 != 8 && r_data.type_snr2 != 8)
-    {
-     r_data.type_snr1 = 8; //bmp180
-    }
-    if (bmp280_present && r_data.type_snr1 != 10 && r_data.type_snr2 != 10
-       && r_data.type_snr1 != 10 && r_data.type_snr2 != 10)
-    {
-     r_data.type_snr1 = 10; //bm p/e280
-    }
-    if (lcd_present    && r_data.type_disp != 1)
-    {
-     r_data.type_disp = 1; //LCD I2C
-    }
-    if (ht1633_present && r_data.type_disp != 2)
-    {
-     r_data.type_disp = 2; //ht1633
-    }
-    if (ds3231_present && r_data.type_rtc != 1 && r_data.type_rtc != 3)
-    {
-     r_data.type_rtc = 1; //ds3231/1307
-    }
-  */
   // if selected -> deselect auto
   if (!ds3231_present && r_data.type_snr1 == 5)
   {
     r_data.type_snr1 = 0;
-    DBG_OUT_PORT.println("DS3231 as a internal sensor is not found -> deselected");
+    DBG_OUT_PORT.println("DS3231 as a sensor on CH#1 is not found -> deselected");
   }
   if (!ds3231_present && r_data.type_snr2 == 5)
   {
     r_data.type_snr2 = 0;
-    DBG_OUT_PORT.println("DS3231 as a internal sensor is not found -> deselected");
+    DBG_OUT_PORT.println("DS3231 as a sensor on CH#2 is not found -> deselected");
+  }
+  if (!ds3231_present && r_data.type_snr3 == 5)
+  {
+    r_data.type_snr3 = 0;
+    DBG_OUT_PORT.println("DS3231 as a sensor on CH#3 is not found -> deselected");
   }
   if (!si7021_present && r_data.type_snr1 == 6)
   {
     r_data.type_snr1 = 0;
-    DBG_OUT_PORT.println("SI7021 as a internal sensor is not found -> deselected");
+    DBG_OUT_PORT.println("SI7021 as a sensor on CH#1 is not found -> deselected");
   }
   if (!si7021_present && r_data.type_snr2 == 6)
   {
     r_data.type_snr2 = 0;
-    DBG_OUT_PORT.println("SI7021 as a external sensor is not found -> deselected");
+    DBG_OUT_PORT.println("SI7021 as a sensor on CH#2 is not found -> deselected");
+  }
+  if (!si7021_present && r_data.type_snr3 == 6)
+  {
+    r_data.type_snr3 = 0;
+    DBG_OUT_PORT.println("SI7021 as a sensor on CH#2 is not found -> deselected");
   }
   /*
     if (!am2320_present && r_data.type_snr1 == 7)
     {
       r_data.type_snr1 = 0;
-      DBG_OUT_PORT.println("AM2320 as a internal sensor is not found -> deselected");
+      DBG_OUT_PORT.println("AM2320 as a sensor on CH#1 is not found -> deselected");
     }
     if (!am2320_present && r_data.type_snr2 == 7)
     {
       r_data.type_snr2 = 0;
-      DBG_OUT_PORT.println("AM2320 as a internal sensor is not found -> deselected");
+      DBG_OUT_PORT.println("AM2320 as a sensor on CH#2 is not found -> deselected");
     }
   */
   if (!bmp180_present && r_data.type_snr1 == 8)
   {
     r_data.type_snr1 = 0;
-    DBG_OUT_PORT.println("BMP180 as a internal sensor is not found -> deselected");
+    DBG_OUT_PORT.println("BMP180 as a sensor on CH#1 is not found -> deselected");
   }
   if (!bmp180_present && r_data.type_snr2 == 8)
   {
     r_data.type_snr2 = 0;
-    DBG_OUT_PORT.println("BMP180 as a external sensor is not found -> deselected");
+    DBG_OUT_PORT.println("BMP180 as a sensor on CH#2 is not found -> deselected");
+  }
+  if (!bmp180_present && r_data.type_snr3 == 8)
+  {
+    r_data.type_snr3 = 0;
+    DBG_OUT_PORT.println("BMP180 as a sensor on CH#3 is not found -> deselected");
   }
   if (!bmp180_present && r_data.type_snrp == 8)
   {
@@ -183,12 +190,17 @@ ram_data_t SF::i2c_scan(conf_data_t c_data)
   if (!bmp280_present && r_data.type_snr1 == 9)
   {
     r_data.type_snr1 = 0;
-    DBG_OUT_PORT.println("BMP280 as a internal sensor is not found -> deselected");
+    DBG_OUT_PORT.println("BMP280 as a sensor on CH#1 is not found -> deselected");
   }
   if (!bmp280_present && r_data.type_snr2 == 9)
   {
     r_data.type_snr2 = 0;
-    DBG_OUT_PORT.println("BMP280 as a external sensor is not found -> deselected");
+    DBG_OUT_PORT.println("BMP280 as a sensor on CH#2 is not found -> deselected");
+  }
+  if (!bmp280_present && r_data.type_snr3 == 9)
+  {
+    r_data.type_snr3 = 0;
+    DBG_OUT_PORT.println("BMP280 as a sensor on CH#3 is not found -> deselected");
   }
   if (!bmp280_present && r_data.type_snrp == 9)
   {
@@ -198,26 +210,31 @@ ram_data_t SF::i2c_scan(conf_data_t c_data)
   if (!bme280_present && r_data.type_snr1 == 10)
   {
     r_data.type_snr1 = 0;
-    DBG_OUT_PORT.println("BME280 as a internal sensor is not found -> deselected");
+    DBG_OUT_PORT.println("BME280 as a sensor on CH#1 is not found -> deselected");
   }
   if (!bme280_present && r_data.type_snr2 == 10)
   {
-    r_data.type_snr2 = 0; //BME280 as a external sensor is not present
-    DBG_OUT_PORT.println("BME280 as a external sensor is not found -> deselected");
+    r_data.type_snr2 = 0; 
+    DBG_OUT_PORT.println("BME280 as a sensor on CH#2 is not found -> deselected");
+  }
+  if (!bme280_present && r_data.type_snr3 == 10)
+  {
+    r_data.type_snr3 = 0; 
+    DBG_OUT_PORT.println("BME280 as a sensor on CH#3 is not found -> deselected");
   }
   if (!bme280_present && r_data.type_snrp == 10)
   {
     r_data.type_snrp = 0;
     DBG_OUT_PORT.println("BME280 as a pressure sensor is not found -> deselected");
   }
-  if (!lcd_present    && r_data.type_disp == 1)
+  if (!lcd_present    && r_data.type_vdrv == 12)
   {
-    r_data.type_disp    = 0;
+    r_data.type_vdrv    = 0;
     DBG_OUT_PORT.println("LCD I2C is not found -> deselected");
   }
-  if (!ht1633_present && r_data.type_disp == 2)
+  if (!ht1633_present && r_data.type_vdrv == 11)
   {
-    r_data.type_disp    = 0;
+    r_data.type_vdrv    = 0;
     DBG_OUT_PORT.println("HT1633 is not found -> deselected");
   }
   if (!ds3231_present && r_data.type_rtc  == 1)
@@ -233,7 +250,7 @@ ram_data_t SF::i2c_scan(conf_data_t c_data)
   if (!bh1750_present)
   {
     r_data.bh1750_present = false;
-    DBG_OUT_PORT.println("BH1750 is not found -> get light level from A0");
+    DBG_OUT_PORT.println("BH1750 is not found -> get light level from Analog Input");
   }
   return r_data;
 }

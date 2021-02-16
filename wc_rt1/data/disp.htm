@@ -29,21 +29,40 @@
 
       <tr><td colspan='9' class='h'>Опции для дисплея</td></tr>
 
-        <tr><td width = '35%'>Тип дисплея</td><td><select id='dtyp' name='dtyp' onclick='show_abr();'>
-        <option value = '0'>Нет/Внешний</option>
-        <option value = '1'>LCD1602</option>
-        <option value = '2'>HT1633</option>
-        <option value = '3'>TM1637</option>
-        <option value = '4'>MAX7219</option>
-        <option value = '5'>MAX7219_7S</option>
-        <option value = '6'>MAX7219_7S8D</option>
-        <option value = '7'>HT1621</option>
-        <option value = '8'>HT1632</option>
-        <option value = '9'>M3264</option>
-        <option value ='10'>ILI9341</option>
+        <tr><td width = '35%'>Тип MC драйвера</td><td><select align='center' id='ctyp' name='ctyp' onclick='show_abr();' style='text-align:center;'>
+        <option value ='0'>НЕТ</option>
+        <option value ='1'>TM1637</option>
+        <option value ='2'>MAX7219</option>
+        <option value ='3'>595HC</option>
+        <option value ='4'>HT1621</option>
+        <option value ='5'>HT1632</option>
+        <option value ='6'>ILI9341</option>
+        <option value ='11'>HT16K33</option>
+        <option value ='12'>PCF8574</option>
+        </select></td></tr>
+
+        <tr><td width = '35%'>Тип дисплея</td><td><select align='center' id='dtyp' name='dtyp' onclick='show_abr();' style='text-align:center;'>
+        <option value ='0'>ВНЕШНИЙ</option>
+        <option value ='1'>7SEGx4D</option> 
+        <option value ='2'>7SEGx6D</option>
+        <option value ='3'>7SEGx8D</option>
+        <option value ='10'>14SEGx4D</option>
+        <option value ='11'>14SEGx8D</option>
+        <option value ='12'>16SEGx4D</option>
+        <option value ='13'>16SEGx8D</option>
+        <option value ='19'>2LINEx16D</option>
+        <option value ='20'>M32x8MONO</option>
+        <option value ='21'>M32x16MONO</option>
+        <option value ='22'>M32x16BICOL</option>
+        <option value ='23'>M32x16COLOR</option>
+        <option value ='24'>M64x32COLOR</option>
+        <option value ='25'>M64x64COLOR</option>
+        <option value ='29'>320x240COLOR</option>
+        <option value ='30'>CUSTOM_1</option>
+        <option value ='31'>CUSTOM_2</option>
         </select></td></tr>
       
-        <tr><td>Руский язык</td><td><input type='checkbox' id='rdsp' name='rdsp'/></td></tr>
+        <tr><td>Руский язык</td><td><input type='checkbox' id='ruslng' name='ruslng'/></td></tr>
   
         <tr><td colspan='8' class='h'>Яркость</td></tr>
         
@@ -72,8 +91,9 @@
           if (xh.readyState == 4 && xh.status == 200) 
           {
             var res = JSON.parse(xh.responseText);
-            document.getElementById('dtyp').value = res.disp;
-            document.getElementById('rdsp').checked = res.rusd;
+            document.getElementById('ctyp').value = res.ctyp;
+            document.getElementById('dtyp').value = res.dtyp;
+            document.getElementById('ruslng').checked = res.rlng;
     	      document.getElementById('abrd').checked = res.abrd;
     	      document.getElementById('brd').value = res.mbrd;
     	      document.getElementById('brd1').value = res.brlevel[0];
@@ -120,10 +140,11 @@
       
       function set_pard()
       {
-        var rdsp = 0,abrd = 0,
+        var rlng = 0,abrd = 0,
 
+        ctyp = document.getElementById('ctyp').value;
         dtyp = document.getElementById('dtyp').value;
-        if (document.getElementById('rdsp').checked) rdsp = 1;
+        if (document.getElementById('ruslng').checked) rlng = 1;
         if (document.getElementById('abrd').checked) abrd = 1;
         brd  = document.getElementById('brd').value;
         brd1 = document.getElementById('brd1').value;
@@ -131,7 +152,7 @@
         brd3 = document.getElementById('brd3').value;
         brd4 = document.getElementById('brd4').value;
 
-        url='/set_pard?dtyp='+dtyp+'&rdsp='+rdsp+'&abrd='+abrd+'&brd='+brd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
+        url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&abrd='+abrd+'&brd='+brd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
         var xh = new XMLHttpRequest();
         xh.open('GET', url, true);
@@ -161,9 +182,9 @@
          var abrd = 0;
 
          if (document.getElementById('abrd').checked) abrd = 1;
-         dtyp = document.getElementById('dtyp').value;
+         ctyp = document.getElementById('ctyp').value;
 
-         if (dtyp != 1 ) 
+         if (ctyp != 12 ) 
          {
            showHide('abrd',  true);
            showHide('brd',  true);
@@ -176,7 +197,7 @@
            showHide('cur_foto',  false);
          }
 
-         if (abrd == 1 && dtyp != 1 ) 
+         if (abrd == 1 && ctyp != 12 ) 
          {
            showHide('brd1',  true);
            showHide('brd2',  true);
@@ -190,9 +211,11 @@
            showHide('brd3',  false);
            showHide('brd4',  false);
          }
-      
-         if (dtyp == 1 || dtyp == 4 || dtyp >= 8) showHide('rdsp',  true);
-         else  showHide('rdsp',  false);
+
+         dtyp = document.getElementById('dtyp').value;
+     
+         if (dtyp < 4) showHide('ruslng',  false);
+         else  showHide('ruslng',  true);
       }
 
       process();

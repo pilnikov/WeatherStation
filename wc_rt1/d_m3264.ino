@@ -1,6 +1,8 @@
 
 #if defined(ESP32)
 
+ESP32RGBmatrixPanel *m3264;
+
 /* create a hardware timer */
 hw_timer_t* displayUpdateTimer = NULL;
 byte br = 127;
@@ -15,9 +17,11 @@ void IRAM_ATTR onDisplayUpdate()
 {
   m3264 -> update();
 }
+#endif
 
-void m3264_init()
+void a595_init()
 {
+#if defined(ESP32)
   digHt = 32; // Высота матрици в пикселях
   TextSize = 2;
 
@@ -40,7 +44,7 @@ void m3264_init()
   m3264 -> black();
 
   st1 = "Hello";
-  if (conf_data.rus_disp) st1 = "Салют";
+  if (conf_data.rus_lng) st1 = "Салют";
 
   m3264 -> setCursor(2, 0);
   m3264 -> setTextColor(white);
@@ -48,7 +52,7 @@ void m3264_init()
   //onDisplayUpdate();
 
   st1 = "World!";
-  if (conf_data.rus_disp) st1 = " Мир! ";
+  if (conf_data.rus_lng) st1 = " Мир! ";
 
   m3264 -> setCursor(2, 16);
   m3264 -> setTextColor(red);
@@ -67,16 +71,21 @@ void m3264_init()
 
   //delay(300);
   vTaskDelay(300);
+#endif
 }
+
+#if defined(ESP32)
 
 void m3264_upd(bool factor)
 {
   if (factor)  timerAlarmWrite(displayUpdateTimer, 5, true);
   else  timerAlarmWrite(displayUpdateTimer, 20, true);
 }
+#endif
 
 void m3264_time()
 {
+#if defined(ESP32)
   if (cur_br != cur_br_buf)
   {
     m3264 -> setBrightness(cur_br);
@@ -141,30 +150,32 @@ void m3264_time()
   }
 #endif
 
+
 #ifdef new_max
   //----------------------------------------------------------------------
   for (uint8_t i = 0; i < num; i++)
   {
     if (!(i == 0 && h < 9))
     {
-      m3264 -> drawPartChar(digPos[i] * TextSize,   16,        d[i], green, 0,   digtrans[i], TextSize); // набегает
-      if (digtrans[i] != 7)
+      m3264 -> drawPartChar(digPos_x_[i] * TextSize,   16,   screen[i], green, 0,   digPos_y_[i], TextSize); // набегает
+      if (digPos_y_[i] != 7)
       {
-        m3264 -> drawPartChar(digPos[i] * TextSize, 16, digoldig[i], green, 0, - digtrans[i], TextSize); // убегает
+        m3264 -> drawPartChar(digPos_x_[i] * TextSize, 16, digoldig[i], green, 0, - digPos_y_[i], TextSize); // убегает
         /*
           DBG_OUT_PORT.print("pos - ");
-          DBG_OUT_PORT.println(digtrans[i]);
+          DBG_OUT_PORT.println(digPos_y_[i]);
           DBG_OUT_PORT.print("sym - ");
           DBG_OUT_PORT.println(digoldig[i]);
         */
-        digtrans[i]++; // опускает символы
+        digPos_y_[i]++; // опускает символы
       }
     }
   }
 #endif
- // m3264 -> update();
-}
+  // m3264 -> update();
+#endif
 
+}
 
 //runs faster then default void loop(). why? runs on other core?
 void loop2_task(void *pvParameter)
@@ -231,5 +242,3 @@ void getRGB(int hue, int sat, int val, int colors[3]) {
     colors[2] = b;
   }
 }
-
-#endif

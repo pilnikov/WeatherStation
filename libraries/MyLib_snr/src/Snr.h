@@ -15,7 +15,6 @@
 #include <Adafruit_BMP280.h>
 #include <AM2320.h>
 #include <Adafruit_BME280.h>
-#include <BH1750.h>
 #include <DHT.h>
 #if defined(ESP8266) || defined(ESP32) ||  defined(__AVR__)
 #include <DHT_U.h>
@@ -33,11 +32,8 @@ class SNR
 {
 public:
 
-	BH1750 lightMeter;
-
 	void dht_preset(uint8_t, uint8_t);
 	ram_data_t init(ram_data_t);
-	uint16_t ft_read(bool);
 	snr_data_t read_snr(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, snr_data_t, snr_data_t, wf_data_t);
 
 private:

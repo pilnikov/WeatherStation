@@ -1,69 +1,63 @@
 
 #include <Adafruit_GFX.h>
 #include <LiquidCrystal_I2C.h>
-#include <Adafruit_LEDBackpack.h>
-#include <LedControl.h>
+//#include <Adafruit_LEDBackpack.h>
+//#include <LedControl.h>
 #include <Max72xxPanel.h>
+#include "HT16K33.h"
 #include <TM1637.h>
 
 #if defined(ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "ESP32RGBmatrixPanel.h"
-
+#include "font5x7.h"
 #endif
 
-void sevenseg_init();
-String dow_sel(uint8_t);
-uint8_t mod_sel(uint8_t);
+void dow_sel(uint8_t);
 
 String pr_str(uint8_t);
 
-scr_buff_t ss_prep(uint8_t);
-void sevenseg();
-
-void lcd_init();
+void pcf8574_init();
 void lcd_time();
 void m7219_init();
+void m7219_ramFormer();
 void m7219_time();
-void m1632_init();
+void ht1632_init();
 void m1632_time();
 
-#if defined(ESP32)
-void m3264_init();
+void a595_init();
 void m3264_time();
-ESP32RGBmatrixPanel *m3264;
-#endif
 
 bool mov_str(uint8_t, uint8_t, String, uint8_t, int);
 uint16_t auto_br(uint16_t, uint16_t*);
-void s7_write_all(uint8_t, scr_buff_t);
 
 void bat (uint8_t);
 void digit (uint8_t, uint8_t);
 void mon_day (uint8_t, uint8_t);
 void ala (uint8_t);
+void matrix32x8_time();
+void drawPartChar(int8_t, int8_t, unsigned char, uint8_t, uint8_t, int8_t);
+//-----------------------------------------------------------------------------new
+byte screen[64]; // display buffer
+
+void seg7d4_time();
+void seg7d6_time();
+void seg7d8_time();
 
 
 //----------------------------------------------------------------------------Common
 
 //----------------------------------------------------------------------------7 SEG
-scr_buff_t s7dig;                               // разряды индикаторов
-static char d[6] = {0, 0, 0, 0, 0, 0};
 bool blinkColon = false;
 
 //----------------------------------------------------------------------------TM1637
 
-TM1637 *tm1637;
+TM1637* tm1637;
 
 //----------------------------------------------------------------------------HT1633
 
-Adafruit_7segment *ht33;
-
-
-//---------------------------------------------------------------------------MAX7219 7 seg
-
-LedControl * max7;
+HT16K33* ht1633;
 
 
 //---------------------------------------------------------------------------LCD1602
@@ -88,7 +82,7 @@ LiquidCrystal_I2C * lcd;
 uint8_t numberOfHorizontalDisplays = 4;
 uint8_t numberOfVerticalDisplays = 1;
 
-Max72xxPanel * m7219;
+Max72xxPanel *m7219;
 
 uint8_t colon; //номер разделителя
 const uint8_t num = 6;  // количество цифр
@@ -96,12 +90,12 @@ uint8_t digHt;
 uint8_t TextSize = 1;
 
 #ifdef new_max 
-const uint8_t digPos[num] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране
+const uint8_t digPos_x_[num] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
 #else 
-const uint8_t digPos[num] = {0, 4, 11, 16, 23, 28};
+const uint8_t digPos_x_[num] = {0, 4, 11, 16, 23, 28};
 #endif
-static char digoldig[num];                          // убегающая цифра
-static uint8_t digtrans[num];                       // позиция цифры по оси у
+static char digoldig[num];                        // убегающая цифра
+static uint8_t digPos_y_[num];                    // позиция цифры по оси у
 
 uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
 uint8_t point = 0;
@@ -137,4 +131,3 @@ HT1632Class * m1632;
 #include "Adafruit_ILI9341.h"
 
 Adafruit_ILI9341 * tft;
-
