@@ -1,3 +1,5 @@
+#include "fonts.h"
+
 
 void CLS(void);
 void cleanPos(uint8_t);
@@ -156,34 +158,6 @@ void scrollString(String string, uint8_t f_pos, uint8_t l_pos)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void ram_former_max(byte *ram_buff)
-{
-  byte buff[32];
-
-  for (uint8_t x = 0; x < 32; x += 8) // шаг 8 - кол во строк в одном модуле 32 - всего байт (колонок) в наборе = 4х8 24 = 32 - 8
-  {
-    byte b[8];
-    for (uint8_t z = 0; z < 8; z++)
-    {
-      b[z] = 0;
-    }
-    for (uint8_t y = 0; y < 8; y++)
-    {
-      buff[24 - x + y] = ram_buff[x + y]; // меняет последовательность модулей на зеркальную 0 1 2 3 -> 3 2 1 0   24 = 32 - 8 адреса в последнем модуле
-      byte a = 1;
-      for (uint8_t z = 0; z < 8; z++)
-      {
-        b[z] |= buff[24 - x + y] & a ? 0x1 << 7 - y : 0x0; // поворот каждой матрицы на 90 градусов против часовой стрелки
-        a <<= 1;
-      }
-    }
-    for (uint8_t z = 0; z < 8; z++)
-    {
-      buff[24 - x + z] = b[z];
-    }
-  }
-  m7219 -> setRam(buff, sizeof(buff));
-}
 
 void printCharacter_m32_8(unsigned char character, uint8_t x, byte *in)
 {
@@ -196,8 +170,30 @@ void printCharacter_m32_8(unsigned char character, uint8_t x, byte *in)
   }
 }
 
+void print_m32_8(char *in,  uint8_t size_in, byte *buff)
+{
+  unsigned char character = in[0];
+  uint8_t ch_pos = 0, ch_byte_pos = 0, font_wdt = 5;
 
-void shift_ud(bool dwn, bool r_s, byte *in, byte *out,  int8_t x1, int8_t x2)
+  while (ch_pos < size_in)
+  {
+    if (ch_byte_pos > font_wdt - 1)
+    {
+      if (ch_byte_pos == font_wdt) buff[ch_pos * (font_wdt + 1) + ch_byte_pos] = 0; // символ "закончился" - вставляем пустой столбик
+      if (ch_byte_pos > font_wdt)
+      {
+        ch_byte_pos = 0;
+        ch_pos ++;
+        character = in[ch_pos]; // дергаем входящую сроку по символам
+        buff[ch_pos * (font_wdt + 1) + ch_byte_pos] = font5x7[character * font_wdt + ch_byte_pos];
+      }
+    }
+    else  buff[ch_pos * (font_wdt + 1) + ch_byte_pos] = font5x7[character * font_wdt + ch_byte_pos];
+    ch_byte_pos++;
+  }
+}
+
+void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
 {
   for (uint8_t x = x1; x < x2; x++)
   {

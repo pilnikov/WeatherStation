@@ -79,16 +79,7 @@ void time_view()
           if (blinkColon) printDot(1);
 
           m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
-
-          for (uint8_t i = 0; i < 4; i++)
-          {
-            byte a = 0x1;
-            for (uint8_t y = 0; y < 8; y++)
-            {
-              m7219 -> drawPixel(i, y, (screen[i] & a));
-              a <<= 1;
-            }
-          }
+          m7219 -> setRam(screen, sizeof(screen));
           m7219 -> write(); // Send bitmap to display          
           break;
         case 2:
@@ -98,16 +89,7 @@ void time_view()
           if (blinkColon) printDot(1);
 
           m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
-
-          for (uint8_t i = 0; i < 6; i++)
-          {
-            byte a = 0x1;
-            for (uint8_t y = 0; y < 8; y++)
-            {
-              m7219 -> drawPixel(i, y, (screen[i] & a));
-              a <<= 1;
-            }
-          }
+          m7219 -> setRam(screen, sizeof(screen));
           m7219 -> write(); // Send bitmap to display          
           break;
         case 3:
@@ -117,16 +99,7 @@ void time_view()
           if (disp_mode > 5 ) disp_mode = 0;
 
           m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
-
-          for (uint8_t i = 0; i < 8; i++)
-          {
-            byte a = 0x1;
-            for (uint8_t y = 0; y < 8; y++)
-            {
-              m7219 -> drawPixel(i, y, (screen[i] & a));
-              a <<= 1;
-            }
-          }
+          m7219 -> setRam(screen, sizeof(screen));
           m7219 -> write(); // Send bitmap to display
           break;
         case 10:
@@ -469,7 +442,7 @@ void time_view()
           if (blinkColon) printDot(2);
 
           ht1633->setBrightness(cur_br);
-          ht1633_ramFormer();
+          ht1633_ramFormer(screen);
           ht1633->write();
           break;
       }

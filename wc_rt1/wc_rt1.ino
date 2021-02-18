@@ -194,7 +194,7 @@ void setup()
   if (conf_data.auto_br)
   {
     snr_data.f = ft_read(ram_data.bh1750_present);
-    cur_br = auto_br(snr_data.f, conf_data.br_level);
+    cur_br = auto_br(snr_data.f);
   }
   else
   {

@@ -1,5 +1,7 @@
+#include "fonts.h"
+
 //-------------------------------------------------------------- Установка яркости
-uint16_t auto_br(uint16_t lt, uint16_t lev[4])
+uint16_t auto_br(uint16_t lt)
 {
   uint16_t c_br = 0;
 
@@ -23,100 +25,6 @@ uint16_t ft_read(bool snr_pres)
   return ft;
 }
 
-//-------------------------------------------------------------- Выбор дня недели
-void dow_sel(uint8_t _dow)
-{
-  buf[22] &= 0x3;
-  buf[23] = 0x0;
-  buf[24] &= 0xE;
-
-  switch (_dow)
-  {
-    case 2:
-      buf[23] |= 0x1;
-      break;
-    case 3:
-      buf[23] |= 0x2;
-      break;
-    case 4:
-      buf[23] |= 0x4;
-      break;
-    case 5:
-      buf[23] |= 0x8;
-      break;
-    case 6:
-      buf[22] |= 0x8;
-      break;
-    case 7:
-      buf[22] |= 0x4;
-      break;
-    case 1:
-      buf[24] |= 0x1;
-      break;
-  }
-}
-
-inline void bat(uint8_t num) //Батарейка
-{
-  buf[22] &= 0xC;
-  buf[21] = 0x0;
-
-  buf[21] |= (batt[num] & 0xF0) >> 4;
-  buf[22] |= batt[num] & 0x0F;
-}
-
-inline void digit(uint8_t place, uint8_t num) // Большие цифры
-{
-  uint8_t place2 = place + 1;
-  if (place == 7) place2 = 31;
-
-  buf[place] = 0x0;
-  buf[place2] &= 0x8;
-
-  buf[place] |= (dig1[num] & 0xF0) >> 4;
-  buf[place2] |= dig1[num] & 0x0F;
-}
-
-inline void mon_day(uint8_t mon, uint8_t _day) //Маленькие цифры (Месяц, число, год)
-{
-  buf[25] = 0x0;
-  buf[26] = 0x0;
-  buf[27] &= 0x8;
-  buf[28] = 0x0;
-  buf[29] = 0x0;
-
-  buf[25] |= (dig2[_day % 10] & 0xF0) >> 4;
-  buf[26] |= (dig2[_day % 10] & 0x0F);
-
-  if (_day > 9) buf[26] |= 0x1;
-  buf[27] |= int(_day / 10);
-  if (int(_day / 10) == 2) buf[27] |= 0x6;
-
-  buf[28] |= (dig2[mon % 10] & 0xF0) >> 4;
-  buf[29] |= (dig2[mon % 10] & 0x0F) + (mon / 10);
-}
-
-inline void ala(uint8_t num) //Будильник
-{
-  buf[0] &= 0x1;
-  buf[6] &= 0x7;
-
-  switch (num)
-  {
-    case 0:
-      buf[6] |= 0x8;
-      break;
-    case 1:
-      buf[0] |= 0x8;
-      break;
-    case 2:
-      buf[0] |= 0x4;
-      break;
-    case 3:
-      buf[0] |= 0x2;
-      break;
-  }
-}
 
 void  time_m32_8()
 {
@@ -124,7 +32,7 @@ void  time_m32_8()
   uint8_t h = hour();
   // Do 24 hour to 12 hour format conversion when required.
   if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-  
+
   if (h > 9) printCharacter_m32_8(h / 10 + '0',  0, screen);
   printCharacter_m32_8 (h        % 10 + '0',     6, screen);
   printCharacter_m32_8 (minute() / 10 + '0',    13, screen);
@@ -196,7 +104,7 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
         letter--;     // смещение на символ влево по строке
         x -= sym_wdt; // смещение на ширину символа влево по х
       }
-       if (dtype == 22) m1632 -> render(); // Send bitmap to display
+      if (dtype == 22) m1632 -> render(); // Send bitmap to display
       //if (dtype == 24) m3216 -> update(); // Send bitmap to display
     }
 
@@ -219,5 +127,71 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
     }
   }
   else return true; //end of scrolling
+  return false;
+}
+
+//-------------------------------------------------------------- Отображение бегущей строки
+bool scroll_String(int8_t x1, int8_t x2, char *in,  uint8_t size_in, int &ch_pos, int &ch_byte_pos, byte *buff, uint8_t font)
+{
+  byte inbyte; //источник байтов
+
+  unsigned char character = in[0];
+
+  uint8_t font_wdt = 1; // "ширина" шрифта в байтах
+
+  if (font == 1) // шрифт 14 seg
+  {
+    font_wdt = 2;
+    ch_byte_pos++;
+
+    if (ch_byte_pos > font_wdt - 1)
+    {
+      ch_byte_pos = 0;
+      if (ch_pos < size_in)
+      {
+        ch_pos ++;
+        character = in[ch_pos]; // дергаем входящую сроку по символам
+
+        buff[x2] = FourteenSegmentASCII[character - 32] & 0xFF;
+        buff[x2 - 1] = FourteenSegmentASCII[character - 32] >> 8;
+
+        for (uint8_t x = x2; x > x1; x -= 2)
+        {
+          buff[x - 2] = buff[x]; // сдвиг в буфере экрана на одну позицию (разряд) (на два байта) влево
+        }
+      }
+      else return true; //end of scrolling
+    }
+  }
+
+  if (font == 2) // шрифт 5x7
+  {
+    font_wdt = 5;
+
+    if (ch_byte_pos > font_wdt - 1)
+    {
+      if (ch_byte_pos == font_wdt) inbyte = 0; // символ "закончился" - вставляем пустой столбик
+      if (ch_byte_pos > font_wdt)
+      {
+        ch_byte_pos = 0;
+        if (ch_pos < size_in)
+        {
+          ch_pos ++;
+          character = in[ch_pos]; // дергаем входящую сроку по символам
+        }
+        else return true; //end of scrolling
+      }
+    }
+    if (ch_byte_pos < font_wdt) inbyte = font5x7[character * font_wdt + ch_byte_pos];
+
+    ch_byte_pos++;
+
+    buff[x2] = inbyte; // запись крайнего правого байта (координата х2) в буфер экрана
+
+    for (uint8_t x = x1; x < x2; x++)
+    {
+      buff[x] = buff[x + 1]; // сдвиг в буфере экрана на одну позицию (колонку) (на один байт) влево
+    }
+  }
   return false;
 }

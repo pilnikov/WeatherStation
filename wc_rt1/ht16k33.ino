@@ -5,20 +5,15 @@
 */
 uint8_t d_r [8] {9, 8, 15, 14, 10, 11, 12, 13};
 
-uint16_t _row[8];
-
 /*
    Function prototypes
 */
 void ht1633_init(void);
-void ht1633_ramFormer(void);
-void cleanDisplay(void);
+void ht1633_ramFormer(byte *);
 
 
 void ht1633_init()
 {
-  cleanDisplay();
-
   ht1633 = new HT16K33;
   ht1633->init(ram_data.ht_addr);
   ht1633->setBrightness(14);
@@ -27,27 +22,17 @@ void ht1633_init()
 }
 
 
-void ht1633_ramFormer()
+void ht1633_ramFormer(byte *in)
 {
+  uint16_t _row[8];
+
   for (uint8_t i = 0; i < 8; i++) //seg
   {
-    if (i < 4) f_dsp.roll_seg(screen[i]);
+    if (i < 4) f_dsp.roll_seg(in[i]);
 
-    _row[i] = screen[d_r[i]];
+    _row[i] = in[d_r[i]];
     _row[i] <<= 8;
-    _row[i] |= screen[i];
+    _row[i] |= in[i];
     ht1633->setRow(i, _row[i]);
-  }
-}
-
-
-/*
-   Erases all displays leaving them in a known state
-*/
-void cleanDisplay()
-{
-  for (uint8_t i = 0; i < 8; i++)
-  {
-    _row[i] = 0;
   }
 }

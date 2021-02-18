@@ -36,7 +36,7 @@
 #include <pgmspace.h>
 #endif
 
-static const unsigned char FourteenSegmentASCII[180] = {
+static const uint16_t FourteenSegmentASCII[180] = {
   0x0000, /* (space) 0x00*/
   0x0086, /* ! */
   0x0402, /* " */

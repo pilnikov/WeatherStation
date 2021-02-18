@@ -141,7 +141,7 @@ void irq_set()
   if (!end_run_st)
   {
     if (conf_data.type_disp == 19 && disp_on) end_run_st = mov_str(conf_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
-    if (conf_data.type_disp == 20)            end_run_st = mov_str(conf_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
+    //    if (conf_data.type_disp == 20)            end_run_st = mov_str(conf_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
     if (conf_data.type_disp == 22 && disp_on) end_run_st = mov_str(conf_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
 #if defined(ESP32)
     if (conf_data.type_disp == 24 && disp_on) end_run_st = mov_str(conf_data.type_disp, m3264 -> width(), st1, 0, cur_sym_pos[0]);
@@ -190,8 +190,8 @@ void firq4() // 55sec
   if (!nm_is_on)
   {
     end_run_st = false; // запуск бегущей строки
-    DBG_OUT_PORT.print("run string..");
-    DBG_OUT_PORT.println(end_run_st);
+    //DBG_OUT_PORT.print("run string..");
+    //DBG_OUT_PORT.println(end_run_st);
   }
 }
 
@@ -202,7 +202,7 @@ void firq6() // 0.5 sec main cycle
     if (conf_data.auto_br)
     {
       snr_data.f = ft_read(ram_data.bh1750_present);
-      cur_br = auto_br(snr_data.f, conf_data.br_level);
+      cur_br = auto_br(snr_data.f);
     }
     else
     {
@@ -211,7 +211,7 @@ void firq6() // 0.5 sec main cycle
     }
 
     // run slowely time displays here
-    time_view();
+    if (end_run_st) time_view();
   }
   Alarmed();
   Thermo();
@@ -245,9 +245,13 @@ void firq8() // 0.125 sec
       cur_br_buf = cur_br;
     }
 
-    if (end_run_st)  ;
+    if (conf_data.type_disp == 20 && !end_run_st)
+    {
+      strcpy((char*)tstr, st1.c_str());
+      end_run_st = scroll_String(0, 31, tstr,  sizeof(tstr), cur_sym_pos[2], cur_sym_pos[3], screen, 2);
+    }
 
-    ram_former_max(screen);
+    m7219_ramFormer(screen);
     m7219 -> write();
   }
 }

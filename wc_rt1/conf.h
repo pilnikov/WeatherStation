@@ -358,7 +358,6 @@ unsigned long serv_ms = 60000;
 
 char tstr[64];
 static const char* name_week[]  = {"", "ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
-static const char* name_week7[] = {"", "8c", "пH", "8t", "CP", "4t", "пt", "c6"};
 // ---------------------------------------------------- WiFi Default
 static const char  ap_ssid_def[] PROGMEM = "WiFi_Clock";
 static const char  ap_pass_def[] PROGMEM = "";

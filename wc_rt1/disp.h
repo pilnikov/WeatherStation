@@ -29,7 +29,7 @@ void a595_init();
 void m3264_time();
 
 bool mov_str(uint8_t, uint8_t, String, uint8_t, int);
-uint16_t auto_br(uint16_t, uint16_t*);
+uint16_t auto_br(uint16_t);
 
 void bat (uint8_t);
 void digit (uint8_t, uint8_t);
@@ -48,6 +48,7 @@ void seg7d8_time();
 
 //----------------------------------------------------------------------------7 SEG
 bool blinkColon = false;
+static const char* name_week7[] = {"", "8c", "пH", "8t", "cP", "4t", "пt", "c6"};
 
 //----------------------------------------------------------------------------TM1637
 
@@ -97,16 +98,13 @@ static uint8_t digPos_y_[num];                    // позиция цифры �
 
 uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
 uint8_t point = 0;
-int cur_sym_pos[2] = {0, 0};
+int cur_sym_pos[4] = {0, 0, 0, 0};
 unsigned long scroll_time[lcd_row] = {millis(), millis()};
 bool end_run_st, end_run_st_buf;
 String st1 = String();
 uint16_t inn[32];
 
 //---------------------------------------------------------------------------HT1621
-//буфер экрана
-uint8_t buf[32];
-
 //массив батарейка
 static const uint8_t batt[6] = {0x02, 0x82, 0x92, 0xD2, 0xF2, 0xF3};
 
