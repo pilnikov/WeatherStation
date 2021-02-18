@@ -20,7 +20,7 @@ void irq_set()
   }
   else
   {
-    if (millis() - irq_end[8] > 190)
+    if (millis() - irq_end[8] > 125)
     {
       irq = 8;
     }
@@ -119,7 +119,7 @@ void irq_set()
       break;
 
     case 8:
-      //      firq8();
+      firq8();
       irq_end[8] = millis();
       break;
 
@@ -235,11 +235,26 @@ void firq7() // 0.2 sec Communications with server
   }
 }
 
+void firq8() // 0.125 sec
+{
+  if (conf_data.type_disp == 20 && disp_on)
+  {
+    if (cur_br != cur_br_buf)
+    {
+      m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
+      cur_br_buf = cur_br;
+    }
+
+    if (end_run_st)  ;
+
+    ram_former_max(screen);
+    m7219 -> write();
+  }
+}
 
 void firq9() //0.04 sec running string is out switch to time view
 {
 # ifdef new_max
-  if (conf_data.type_disp == 20 && end_run_st)  m7219_time();
   if (conf_data.type_disp == 22 && disp_on)     m1632_time();
 #if defined(ESP32)
   if (conf_data.type_disp == 24 && disp_on)     m3264_time();

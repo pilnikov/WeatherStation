@@ -118,32 +118,19 @@ inline void ala(uint8_t num) //Будильник
   }
 }
 
-void  matrix32x8_time()
+void  time_m32_8()
 {
-  for (uint8_t i = 0; i < num; i++) digoldig[i] = screen[i]; // перезапись предыдущих значений в буфер
-
   //----------------------------------------------------------------- заполнение массива
   uint8_t h = hour();
   // Do 24 hour to 12 hour format conversion when required.
   if (conf_data.use_pm && hour() > 12) h = hour() - 12;
-  if (h > 9)  screen[0] = h / 10 + '0';
-  else screen[0] = 0;
-  screen[1] = h % 10 + '0';
-  screen[2] = minute() / 10 + '0';
-  screen[3] = minute() % 10 + '0';
-  screen[4] = second() / 10 + '\x80';
-  screen[5] = second() % 10 + '\x80';
-
-  //---------------------------------------------------------------------
-  for (uint8_t i = 0; i < num; i++)
-  {
-    digPos_y_[i] = (screen[i] == digoldig[i]) ? 7 : 0; //при изменении буфера рисует набегающий символ сверху
-    /*  DBG_OUT_PORT.print("pos ");
-      DBG_OUT_PORT.print(i);
-      DBG_OUT_PORT.print(" - ");
-      DBG_OUT_PORT.println(digPos_y_[i]);
-    */
-  }
+  
+  if (h > 9) printCharacter_m32_8(h / 10 + '0',  0, screen);
+  printCharacter_m32_8 (h        % 10 + '0',     6, screen);
+  printCharacter_m32_8 (minute() / 10 + '0',    13, screen);
+  printCharacter_m32_8 (minute() % 10 + '0',    19, screen);
+  printCharacter_m32_8 (second() / 10 + '\x80', 25, screen);
+  printCharacter_m32_8 (second() % 10 + '\x80', 29, screen);
 }
 
 
@@ -161,11 +148,11 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
     m3264->setTextSize(TextSize);
   }
 #endif
- 
-/*  DBG_OUT_PORT.println(tape);
-  DBG_OUT_PORT.print("input string length..");
-  DBG_OUT_PORT.println(tape.length());
-*/
+
+  /*  DBG_OUT_PORT.println(tape);
+    DBG_OUT_PORT.print("input string length..");
+    DBG_OUT_PORT.println(tape.length());
+  */
   int colors[3];
   uint8_t sym_wdt = 5 + spacer; // Ширина занимаемая символом в пикселях (5 ширина шрифта + 1 линия разделитель = 6)
   if (dtype == 19)
@@ -196,21 +183,20 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
       {
         if (letter < tape.length())
         {
-          if (dtype == 20) m7219->drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
-          if (dtype == 22) m1632->drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
+          if (dtype == 20) printCharacter_m32_8 (tape[letter], x, screen); //вывод части строки посимвольно, справа налево
+          if (dtype == 22) m1632 -> drawChar(x, y, tape[letter], 1, bg, 1); //вывод части строки посимвольно, справа налево
 #if defined(ESP32)
           if (dtype == 24)
           {
             getRGB(abs(cur_sym_pos / 4) % 255, 255, 255, colors);
-            m3264->drawChar(x, y, tape[letter], m3264->AdafruitColor(colors[0], colors[1], colors[2]), 0, TextSize);
+            m3264 -> drawChar(x, y, tape[letter], m3264->AdafruitColor(colors[0], colors[1], colors[2]), 0, TextSize);
           }
 #endif
         }
         letter--;     // смещение на символ влево по строке
         x -= sym_wdt; // смещение на ширину символа влево по х
       }
-      if (dtype == 20) m7219->write();  // Send bitmap to display
-      if (dtype == 22) m1632->render(); // Send bitmap to display
+       if (dtype == 22) m1632 -> render(); // Send bitmap to display
       //if (dtype == 24) m3216 -> update(); // Send bitmap to display
     }
 

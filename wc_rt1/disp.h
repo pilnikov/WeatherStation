@@ -11,7 +11,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "ESP32RGBmatrixPanel.h"
-#include "font5x7.h"
+#include "fonts.h"
 #endif
 
 void dow_sel(uint8_t);
@@ -22,7 +22,6 @@ void pcf8574_init();
 void lcd_time();
 void m7219_init();
 void m7219_ramFormer();
-void m7219_time();
 void ht1632_init();
 void m1632_time();
 
@@ -36,8 +35,7 @@ void bat (uint8_t);
 void digit (uint8_t, uint8_t);
 void mon_day (uint8_t, uint8_t);
 void ala (uint8_t);
-void matrix32x8_time();
-void drawPartChar(int8_t, int8_t, unsigned char, uint8_t, uint8_t, int8_t);
+void time_m32_8();
 //-----------------------------------------------------------------------------new
 byte screen[64]; // display buffer
 
@@ -103,6 +101,7 @@ int cur_sym_pos[2] = {0, 0};
 unsigned long scroll_time[lcd_row] = {millis(), millis()};
 bool end_run_st, end_run_st_buf;
 String st1 = String();
+uint16_t inn[32];
 
 //---------------------------------------------------------------------------HT1621
 //буфер экрана

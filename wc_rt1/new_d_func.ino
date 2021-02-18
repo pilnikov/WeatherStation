@@ -1,8 +1,11 @@
 
+void CLS(void);
 void cleanPos(uint8_t);
-void printCharacter(uint8_t, uint8_t);
+void printCharacter_S7(uint8_t, uint8_t);
+void printCharacter_S14(uint8_t, uint8_t);
 void printDot(uint8_t);
-void printDisplay(String, uint8_t, uint8_t);
+void printDisplay_S(String, uint8_t, uint8_t);
+void utf714(unsigned char&, unsigned char);
 void scrollString(String, uint8_t, uint8_t, uint16_t);
 
 
@@ -10,16 +13,24 @@ uint16_t countD;
 uint8_t stringIndex;
 
 
+void printCharacter_m32_8(unsigned char, uint8_t, byte);
+
 /*
    Erases one pos on display
 */
+
+void CLS() // Clean screen buffer
+{
+  for (uint8_t i = 0; i < 64; i++) screen[i] = 0; //position on the display
+}
+
 
 void cleanPos(uint8_t pos)
 {
   screen[pos] = 0;
 }
 
-void printCharacter_m7(uint8_t ch, uint8_t pos)
+void printCharacter_S7(uint8_t ch, uint8_t pos)
 {
   if (ch >= 32 && ch < 256) //characters must remain within ASCII printable characters defined in array
   {
@@ -31,7 +42,7 @@ void printCharacter_m7(uint8_t ch, uint8_t pos)
 /*
    Displays an ASCII character on a given display
 */
-void printCharacter(uint8_t ch, uint8_t pos)
+void printCharacter_S14(uint8_t ch, uint8_t pos)
 {
   if (ch >= 32 && ch < 256) //characters must remain within ASCII printable characters defined in array
   {
@@ -63,11 +74,11 @@ void printDot(uint8_t pos)
    Displays all symbol on a given display
 */
 
-void printDisplay(String string, uint8_t f_pos, uint8_t l_pos)
+void printDisplay_S(String string, uint8_t f_pos, uint8_t l_pos)
 {
   uint8_t sym_pos_idx = 0; // number of byte in inbox string
-  uint8_t curr = 0;
-  uint8_t next = 0;
+  unsigned char curr = 0;
+  unsigned char next = 0;
 
   for (uint8_t i = f_pos; i <= l_pos; i++) //position on the display
   {
@@ -82,9 +93,9 @@ void printDisplay(String string, uint8_t f_pos, uint8_t l_pos)
       utf714(curr, next);
       sym_pos_idx++;
     }
-    
-    if (ram_data.type_vdrv == 2) printCharacter_m7(curr, i);
-    else printCharacter (curr, i);
+
+    if (ram_data.type_vdrv == 2) printCharacter_S7(curr, i);
+    else printCharacter_S14 (curr, i);
     if (next == 0x2E)
     {
       printDot(i);
@@ -94,7 +105,7 @@ void printDisplay(String string, uint8_t f_pos, uint8_t l_pos)
   }
 }
 
-void utf714(byte & n, byte m)
+void utf714(unsigned char &n, unsigned char m)
 {
   /*
      Позиция символа в массиве Segments вычисляется по формуле:
@@ -104,7 +115,7 @@ void utf714(byte & n, byte m)
      pos = код символа + 0х40
      ё и Ё  и символ градуса стоят особняком (выбиваются из общего строя) поэтому для них отдельные строки.
   */
-  byte target;
+  unsigned char target;
   switch (n)
   {
     case 0xD0:
@@ -138,6 +149,69 @@ void scrollString(String string, uint8_t f_pos, uint8_t l_pos)
   {
     uint8_t i = stringIndex + posIdx - q_pos;
     unsigned char uch = string[i];
-    printCharacter ((i >= 0 && i < string.length()) ? uch : ' ', posIdx + f_pos); //front
+    printCharacter_S14 ((i >= 0 && i < string.length()) ? uch : ' ', posIdx + f_pos); //front
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void ram_former_max(byte *ram_buff)
+{
+  byte buff[32];
+
+  for (uint8_t x = 0; x < 32; x += 8) // шаг 8 - кол во строк в одном модуле 32 - всего байт (колонок) в наборе = 4х8 24 = 32 - 8
+  {
+    byte b[8];
+    for (uint8_t z = 0; z < 8; z++)
+    {
+      b[z] = 0;
+    }
+    for (uint8_t y = 0; y < 8; y++)
+    {
+      buff[24 - x + y] = ram_buff[x + y]; // меняет последовательность модулей на зеркальную 0 1 2 3 -> 3 2 1 0   24 = 32 - 8 адреса в последнем модуле
+      byte a = 1;
+      for (uint8_t z = 0; z < 8; z++)
+      {
+        b[z] |= buff[24 - x + y] & a ? 0x1 << 7 - y : 0x0; // поворот каждой матрицы на 90 градусов против часовой стрелки
+        a <<= 1;
+      }
+    }
+    for (uint8_t z = 0; z < 8; z++)
+    {
+      buff[24 - x + z] = b[z];
+    }
+  }
+  m7219 -> setRam(buff, sizeof(buff));
+}
+
+void printCharacter_m32_8(unsigned char character, uint8_t x, byte *in)
+{
+  if (character >= 0 && character < 256) //characters must remain within ASCII printable characters defined in array
+  {
+    for (uint8_t i = 0; i < 5; i++)
+    {
+      in[x + i] = font5x7[character * 5 + i];
+    }
+  }
+}
+
+
+void shift_ud(bool dwn, bool r_s, byte *in, byte *out,  int8_t x1, int8_t x2)
+{
+  for (uint8_t x = x1; x < x2; x++)
+  {
+    if (dwn)
+    {
+      if (r_s) inn[x] |= in[x];
+      else     inn[x] <<= 1;
+      out[x] = inn[x] >> 7;
+    }
+    else
+    {
+      if (r_s) inn[x] |= in[x] << 7;
+      else     inn[x] >>= 1;
+      out[x] = inn[x] & 0xFF;
+    }
   }
 }

@@ -287,5 +287,5 @@ void seg7_mode (uint8_t mod,  uint8_t from, uint8_t _width)
     default:
       break;
   }
-  printDisplay(tstr, from, from + _width - 1);
+  printDisplay_S(tstr, from, from + _width - 1);
 }

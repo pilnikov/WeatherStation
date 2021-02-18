@@ -146,7 +146,7 @@ void time_view()
           break;
         case 20:
           // M32x8MONO
-          matrix32x8_time();
+          time_m32_8();
           break;
         case 21:
           // m32x16MONO
@@ -464,7 +464,7 @@ void time_view()
           if (disp_mode > 9 ) disp_mode = 1;
           seg7_mode(disp_mode, 4, 6);
           sprintf(tstr, "%02u", second());
-          printDisplay(tstr, 10, 11);
+          printDisplay_S(tstr, 10, 11);
 
           if (blinkColon) printDot(2);
 

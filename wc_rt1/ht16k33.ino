@@ -1,4 +1,4 @@
-#include "font.h"
+#include "fonts.h"
 
 /*
   table of correspondence between digitNum and row numbers
