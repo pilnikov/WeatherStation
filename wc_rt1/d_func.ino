@@ -29,19 +29,34 @@ uint16_t ft_read(bool snr_pres)
 void  time_m32_8()
 {
   //----------------------------------------------------------------- заполнение массива
+
+  for (uint8_t i = 0; i < q_dig; i++) oldDigit[i] = d[i]; // перезапись предыдущих значений в буфер
+
+
   uint8_t h = hour();
   // Do 24 hour to 12 hour format conversion when required.
   if (conf_data.use_pm && hour() > 12) h = hour() - 12;
 
-  if (h > 9) printCharacter_m32_8(h / 10 + '0',  0, screen);
-  printCharacter_m32_8 (h        % 10 + '0',     6, screen);
-  printCharacter_m32_8 (minute() / 10 + '0',    13, screen);
-  printCharacter_m32_8 (minute() % 10 + '0',    19, screen);
-  printCharacter_m32_8 (second() / 10 + '\x80', 25, screen);
-  printCharacter_m32_8 (second() % 10 + '\x80', 29, screen);
+  d[0] = 0;
+  if (h > 9) d[0] = h / 10 + '0';
+  d[1] = h % 10 + '0';
+  d[2] = minute() / 10 + '0';
+  d[3] = minute() % 10 + '0';
+  d[4] = second() / 10 + '\x80';
+  d[5] = second() % 10 + '\x80';
+
+  for (uint8_t i = 0; i < q_dig; i++)
+  {
+    d_notequal[i] = d[i] != oldDigit[i]; // проверка изменений в буфере отображаемых символов
+    if (d_notequal[i])
+    {
+      printCharacter_m32_8(d[i], digPos_x[i], buff1); // запись символа в вертушок для изменившихся позиций 
+      shift_ud(true, true, buff1, screen,  digPos_x[i],  digPos_x[i] + 5); // запись символа в вертушок для изменившихся позиций
+    }
+    if (d[0] == 0) i++; // гашение незнаяащего нуля
+    if (!d_notequal[i]) printCharacter_m32_8(d[i], digPos_x[i], screen); // отображение символов
+  }
 }
-
-
 
 //-------------------------------------------------------------- Отображение бегущей строки
 bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur_sym_pos)
@@ -131,27 +146,28 @@ bool mov_str(uint8_t dtype, uint8_t dsp_wdt, String tape, uint8_t nline, int cur
 }
 
 //-------------------------------------------------------------- Отображение бегущей строки
-bool scroll_String(int8_t x1, int8_t x2, char *in,  uint8_t size_in, int &ch_pos, int &ch_byte_pos, byte *buff, uint8_t font)
+bool scroll_String(int8_t x1, int8_t x2, char *in,  uint8_t size_in, int &cp, int &cbp, byte *buff, uint8_t font)
 {
-  byte inbyte; //источник байтов
 
-  unsigned char character = in[0];
+  byte inbyte = 0; //источник байтов
+
+  unsigned char character = in[cp]; // дергаем входящую сроку по символам
 
   uint8_t font_wdt = 1; // "ширина" шрифта в байтах
 
   if (font == 1) // шрифт 14 seg
   {
     font_wdt = 2;
-    ch_byte_pos++;
+    cbp++;
 
-    if (ch_byte_pos > font_wdt - 1)
+    if (cbp > font_wdt - 1)
     {
-      ch_byte_pos = 0;
-      if (ch_pos < size_in)
+      cbp = 0;
+      if (cp < size_in)
       {
-        ch_pos ++;
-        character = in[ch_pos]; // дергаем входящую сроку по символам
+        cp ++;
 
+        character = in[cp];
         buff[x2] = FourteenSegmentASCII[character - 32] & 0xFF;
         buff[x2 - 1] = FourteenSegmentASCII[character - 32] >> 8;
 
@@ -168,23 +184,31 @@ bool scroll_String(int8_t x1, int8_t x2, char *in,  uint8_t size_in, int &ch_pos
   {
     font_wdt = 5;
 
-    if (ch_byte_pos > font_wdt - 1)
-    {
-      if (ch_byte_pos == font_wdt) inbyte = 0; // символ "закончился" - вставляем пустой столбик
-      if (ch_byte_pos > font_wdt)
-      {
-        ch_byte_pos = 0;
-        if (ch_pos < size_in)
-        {
-          ch_pos ++;
-          character = in[ch_pos]; // дергаем входящую сроку по символам
-        }
-        else return true; //end of scrolling
-      }
-    }
-    if (ch_byte_pos < font_wdt) inbyte = font5x7[character * font_wdt + ch_byte_pos];
+    inbyte = font5x7[character * font_wdt + cbp];
 
-    ch_byte_pos++;
+    if (cp < size_in)
+    {
+
+      if (cbp > font_wdt - 1)
+      {
+        if (cbp == font_wdt) inbyte = 0; // символ "закончился" - вставляем пустой столбик
+        if (cbp > font_wdt)
+        {
+          cbp = 0;
+          cp ++;
+          character = in[cp];
+          inbyte = font5x7[character * font_wdt + cbp];
+        }
+      }
+      else
+      {
+        character = in[cp];
+        inbyte = font5x7[character * font_wdt + cbp];
+      }
+      cbp++;
+    }
+    else return true; //end of scrolling
+
 
     buff[x2] = inbyte; // запись крайнего правого байта (координата х2) в буфер экрана
 

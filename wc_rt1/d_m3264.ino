@@ -157,17 +157,17 @@ void m3264_time()
   {
     if (!(i == 0 && h < 9))
     {
-      m3264 -> drawPartChar(digPos_x_[i] * TextSize,   16,   screen[i], green, 0,   digPos_y_[i], TextSize); // набегает
-      if (digPos_y_[i] != 7)
+      m3264 -> drawPartChar(digPos_x[i] * TextSize,   16,   screen[i], green, 0,   digPos_y[i], TextSize); // набегает
+      if (digPos_y[i] != 7)
       {
-        m3264 -> drawPartChar(digPos_x_[i] * TextSize, 16, digoldig[i], green, 0, - digPos_y_[i], TextSize); // убегает
+        m3264 -> drawPartChar(digPos_x[i] * TextSize, 16, oldDigit[i], green, 0, - digPos_y[i], TextSize); // убегает
         /*
           DBG_OUT_PORT.print("pos - ");
-          DBG_OUT_PORT.println(digPos_y_[i]);
+          DBG_OUT_PORT.println(digPos_y[i]);
           DBG_OUT_PORT.print("sym - ");
-          DBG_OUT_PORT.println(digoldig[i]);
+          DBG_OUT_PORT.println(oldDigit[i]);
         */
-        digPos_y_[i]++; // опускает символы
+        digPos_y[i]++; // опускает символы
       }
     }
   }

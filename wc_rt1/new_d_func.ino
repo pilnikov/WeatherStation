@@ -211,3 +211,10 @@ void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
     }
   }
 }
+
+String macToString(const unsigned char* mac) {
+  char buf[20];
+  snprintf(buf, sizeof(buf), "%02x:%02x:%02x:%02x:%02x:%02x",
+           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return String(buf);
+}

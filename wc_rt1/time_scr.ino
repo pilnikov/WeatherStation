@@ -436,7 +436,7 @@ void time_view()
           if (nm_is_on) disp_mode = 9;
           if (disp_mode > 9 ) disp_mode = 1;
           seg7_mode(disp_mode, 4, 6);
-          sprintf(tstr, "%02u", second());
+          size_tstr = sprintf(tstr, "%02u", second());
           printDisplay_S(tstr, 10, 11);
 
           if (blinkColon) printDot(2);

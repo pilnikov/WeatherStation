@@ -16,18 +16,15 @@ void GetSnr()
     if (ram_data.type_snr1 == 3 || ram_data.type_snr2 == 3 || ram_data.type_snr3 == 3 || ram_data.type_snrp == 3) es_data = e_srv.get_es(es_rcv(conf_data.esrv2_addr)); // Получаем данные от внешнего сервера2
 
     if (conf_data.use_pp == 2) {
-      wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
-      wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
+      wf_data = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
     }
-
-    if ((ram_data.type_snr1 == 11 || ram_data.type_snr2 == 11 || ram_data.type_snr3 == 11 || ram_data.type_snrp == 11) && conf_data.use_pp == 1)  wf_data_cur = wf_data;// Получаем данные от GM
   }
 
   if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
   {
-    snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
+    snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data); // Заполняем матрицу данных с датчиков
   }
-  
+
   if (web_cli)
   {
     if (conf_data.use_tst1 || conf_data.use_tst2 || conf_data.use_tst3 || conf_data.use_tsh1 || conf_data.use_tsh2 || conf_data.use_tsh3 || conf_data.use_tsp)
@@ -84,7 +81,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
 
   DBG_OUT_PORT.println("\n Now " + line);
 
-  DynamicJsonDocument jsonBuf(1024);
+  DynamicJsonDocument jsonBuf(2048);
   DeserializationError error = deserializeJson(jsonBuf, line);
 
   if (error)
@@ -139,7 +136,7 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   String tempz = tvoday(out);
   DBG_OUT_PORT.println("\n" + tempz);
 
-  DynamicJsonDocument jsonBuf(1024);
+  DynamicJsonDocument jsonBuf(2048);
   DeserializationError error = deserializeJson(jsonBuf, tempz);
   if (error)
   {

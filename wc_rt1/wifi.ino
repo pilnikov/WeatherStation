@@ -46,27 +46,33 @@ void start_wifi()
   DBG_OUT_PORT.print("Connecting to ");
   DBG_OUT_PORT.println(conf_data.sta_ssid);
 
+  WiFi.persistent(false);
+
   WiFi.disconnect();
 
   WiFi.begin(conf_data.sta_ssid, conf_data.sta_pass);
 
   uint8_t tru = 0;
-  while (WiFi.status() != WL_CONNECTED && tru < 10) 
+
+  while (WiFi.status() > 3 && tru < 10)
   {
     delay(500);
     DBG_OUT_PORT.print(".");
     tru ++;
   }
 
-  DBG_OUT_PORT.println("\nWiFi connected");
-  DBG_OUT_PORT.println("IP address: ");
-  DBG_OUT_PORT.println(WiFi.localIP());
-
-  if (WiFi.status() == 3)
+  if (tru < 10)
   {
+    DBG_OUT_PORT.println("\nWiFi connected");
+    DBG_OUT_PORT.println("IP address: ");
+    DBG_OUT_PORT.println(WiFi.localIP());
+
     web_cli = true;
     st1 = "Your IP: " + WiFi.localIP().toString() + " ";
     if (conf_data.rus_lng) st1 = "Ваш IP: " + WiFi.localIP().toString() + " ";
+
+    f_dsp.utf8rus(st1);
+    strcpy(tstr1, st1.c_str());
   }
   else
   {

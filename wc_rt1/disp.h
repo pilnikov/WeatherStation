@@ -84,17 +84,17 @@ uint8_t numberOfVerticalDisplays = 1;
 Max72xxPanel *m7219;
 
 uint8_t colon; //номер разделителя
-const uint8_t num = 6;  // количество цифр
+const uint8_t q_dig = 6;  // количество цифр на дисплее
 uint8_t digHt;
 uint8_t TextSize = 1;
 
 #ifdef new_max 
-const uint8_t digPos_x_[num] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
+const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
 #else 
-const uint8_t digPos_x_[num] = {0, 4, 11, 16, 23, 28};
+const uint8_t digPos_x[q_dig] = {0, 4, 11, 16, 23, 28};
 #endif
-static char digoldig[num];                        // убегающая цифра
-static uint8_t digPos_y_[num];                    // позиция цифры по оси у
+static char oldDigit[q_dig];                       // убегающая цифра
+static uint8_t digPos_y[q_dig];                    // позиция цифры по оси у
 
 uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
 uint8_t point = 0;
@@ -103,7 +103,10 @@ unsigned long scroll_time[lcd_row] = {millis(), millis()};
 bool end_run_st, end_run_st_buf;
 String st1 = String();
 uint16_t inn[32];
-
+unsigned char d[q_dig];
+bool d_notequal[q_dig];
+byte buff1[32];
+      
 //---------------------------------------------------------------------------HT1621
 //массив батарейка
 static const uint8_t batt[6] = {0x02, 0x82, 0x92, 0xD2, 0xF2, 0xF3};

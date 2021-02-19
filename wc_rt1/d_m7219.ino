@@ -29,7 +29,7 @@ void m7219_init()
  
   strcpy((char*)tstr, st1.c_str());
  
-  //print_m32_8(tstr, sizeof(tstr), screen);
+  print_m32_8(tstr, st1.length(), screen);
   m7219_ramFormer(screen);
   m7219 -> write();
 }

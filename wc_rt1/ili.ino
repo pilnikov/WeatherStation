@@ -24,11 +24,11 @@ void ili_time(void)
 
   if (conf_data.rus_lng)
   {
-    //    sprintf(date, "%s %2d %s %4d г.", f_dsp.dow_name_r(weekday()), day(), f_dsp.month_name_r(month()), year());
+    //    snprintf(date, "%s %2d %s %4d г.", f_dsp.dow_name_r(weekday()), day(), f_dsp.month_name_r(month()), year());
   }
   else
   {
-    //    sprintf(date, "%s %s %2d %4d", dayStr(weekday()), monthStr(month()), day(), year());
+    //    snprintf(date, "%s %s %2d %4d", dayStr(weekday()), monthStr(month()), day(), year());
   }
   tft -> setCursor(SCREEN_WIDTH / 2, 6);
   tft -> print(date);
@@ -38,13 +38,13 @@ void ili_time(void)
   if (conf_data.use_pm)
   {
     uint8_t hr = (hour() + 11) % 12 + 1; // take care of noon and midnight
-    //    sprintf(time_str, "%2d:%02d:%02d\n", hr, minute(), second());
+    //    snprintf(time_str, "%2d:%02d:%02d\n", hr, minute(), second());
     tft -> setCursor(SCREEN_WIDTH / 2, 20);
     tft -> print(time_str);
   }
   else
   {
-    //    sprintf(time_str, "%02d:%02d:%02d\n", hour(), minute(), second());
+    //    snprintf(time_str, "%02d:%02d:%02d\n", hour(), minute(), second());
     //    tft -> drawString(SCREEN_WIDTH / 2, 20, time_str);
   }
 
@@ -53,13 +53,13 @@ void ili_time(void)
   tft -> setTextColor(ILI9341_BLUE);
   if (conf_data.use_pm)
   {
-    //    sprintf(time_str, "%s\n%s", dstAbbrev, hour() >= 12 ? "PM" : "AM");
+    //    snprintf(time_str, "%s\n%s", dstAbbrev, hour() >= 12 ? "PM" : "AM");
     tft -> setCursor(195, 27);
     tft -> print(time_str);
   }
   else
   {
-    //    sprintf(time_str, "%s", dstAbbrev);
+    //    snprintf(time_str, "%s", dstAbbrev);
     tft -> setCursor(195, 27);
     tft -> print(time_str);
   }

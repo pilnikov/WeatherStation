@@ -10,7 +10,7 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-        sprintf(tstr, "Today is %6s%2d%3s%4d ", dayStr(weekday()), day(), monthStr(month()), year());
+        size_tstr = sprintf(tstr, "Today is %6s%2d%3s%4d ", dayStr(weekday()), day(), monthStr(month()), year());
         break;
       case 2:
         bstr = (snr_data.t1 < 99 ?  "Inside " + String(snr_data.t1) + grad + "C " : ' ')

@@ -105,21 +105,21 @@ void m1632_time()
 #ifdef new_max
   //----------------------------------------------------------------------
 
-  for (uint8_t i = 0; i < num; i++)
+  for (uint8_t i = 0; i < q_dig; i++)
   {
     if (!(i == 0 && h < 9))
     {
-      m1632 -> drawPartChar(digPos_x_[i],   8,   screen[i], 0, 3,   digPos_y_[i]); // набегает
-      if (digPos_y_[i] != 7)
+      m1632 -> drawPartChar(digPos_x[i],   8,   screen[i], 0, 3,   digPos_y[i]); // набегает
+      if (digPos_y[i] != 7)
       {
-        m1632 -> drawPartChar(digPos_x_[i], 8, digoldig[i], 0, 3, - digPos_y_[i]); // убегает
+        m1632 -> drawPartChar(digPos_x[i], 8, oldDigit[i], 0, 3, - digPos_y[i]); // убегает
         /*
           DBG_OUT_PORT.print("pos - ");
-          DBG_OUT_PORT.println(digPos_y_[i]);
+          DBG_OUT_PORT.println(digPos_y[i]);
           DBG_OUT_PORT.print("sym - ");
-          DBG_OUT_PORT.println(digoldig[i]);
+          DBG_OUT_PORT.println(oldDigit[i]);
         */
-        digPos_y_[i]++; // опускает символы
+        digPos_y[i]++; // опускает символы
       }
     }
   }

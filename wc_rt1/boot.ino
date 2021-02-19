@@ -20,7 +20,7 @@ void irq_set()
   }
   else
   {
-    if (millis() - irq_end[8] > 125)
+    if (millis() - irq_end[8] > 62)
     {
       irq = 8;
     }
@@ -159,6 +159,8 @@ void irq_set()
       num_st++; //Перебор строк.
       if (num_st > max_st) num_st = 1;
       st1 = pr_str(num_st);
+      f_dsp.utf8rus(st1);
+      strcpy(tstr1, st1.c_str());
 
       if (conf_data.type_disp == 19 || conf_data.type_disp == 22 || conf_data.type_disp == 24) end_run_st = false; // перезапуск бегущей строки;
     }
@@ -190,6 +192,9 @@ void firq4() // 55sec
   if (!nm_is_on)
   {
     end_run_st = false; // запуск бегущей строки
+    f_dsp.utf8rus(st1);
+    strcpy(tstr1, st1.c_str());
+
     //DBG_OUT_PORT.print("run string..");
     //DBG_OUT_PORT.println(end_run_st);
   }
@@ -237,6 +242,22 @@ void firq7() // 0.2 sec Communications with server
 
 void firq8() // 0.125 sec
 {
+  if (conf_data.type_disp == 20 && disp_on && end_run_st)
+  {
+    for (uint8_t i = 0; i < q_dig; i++)
+    {
+      if (d_notequal[i])
+      {
+        shift_ud(true, false, buff1, screen,  digPos_x[i],  digPos_x[i] + 5); // запуск вертушка для изменившихся позиций
+      }
+    }
+  }
+}
+
+
+void firq9() //0.04 sec running string is out switch to time view
+{
+# ifdef new_max
   if (conf_data.type_disp == 20 && disp_on)
   {
     if (cur_br != cur_br_buf)
@@ -245,20 +266,12 @@ void firq8() // 0.125 sec
       cur_br_buf = cur_br;
     }
 
-    if (conf_data.type_disp == 20 && !end_run_st)
-    {
-      strcpy((char*)tstr, st1.c_str());
-      end_run_st = scroll_String(0, 31, tstr,  sizeof(tstr), cur_sym_pos[2], cur_sym_pos[3], screen, 2);
-    }
+    if (!end_run_st) end_run_st = scroll_String(0, 31, tstr1,  st1.length(), cur_sym_pos[2], cur_sym_pos[3], screen, 2);
 
     m7219_ramFormer(screen);
     m7219 -> write();
   }
-}
 
-void firq9() //0.04 sec running string is out switch to time view
-{
-# ifdef new_max
   if (conf_data.type_disp == 22 && disp_on)     m1632_time();
 #if defined(ESP32)
   if (conf_data.type_disp == 24 && disp_on)     m3264_time();
