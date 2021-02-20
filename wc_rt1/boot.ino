@@ -129,24 +129,6 @@ void irq_set()
       break;
   }
 
-  long dutty = 190;
-  if (conf_data.type_disp > 19) dutty = 20;
-
-  if (millis() - scroll_time[0] > dutty)
-  {
-    scroll_time[0] = millis();
-    if (!end_run_st) cur_sym_pos[0]++; //перемещение по строке вправо на один пиксель
-  }
-
-  if (!end_run_st)
-  {
-    if (conf_data.type_disp == 19 && disp_on) end_run_st = mov_str(conf_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
-    //    if (conf_data.type_disp == 20)            end_run_st = mov_str(conf_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
-    if (conf_data.type_disp == 22 && disp_on) end_run_st = mov_str(conf_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
-#if defined(ESP32)
-    if (conf_data.type_disp == 24 && disp_on) end_run_st = mov_str(conf_data.type_disp, m3264 -> width(), st1, 0, cur_sym_pos[0]);
-#endif
-  }
 
   if (end_run_st != end_run_st_buf)
   {
@@ -160,7 +142,7 @@ void irq_set()
       if (num_st > max_st) num_st = 1;
       st1 = pr_str(num_st);
       f_dsp.utf8rus(st1);
-      strcpy(tstr1, st1.c_str());
+      strncpy(tstr, st1.c_str(), st1.length());
 
       if (conf_data.type_disp == 19 || conf_data.type_disp == 22 || conf_data.type_disp == 24) end_run_st = false; // перезапуск бегущей строки;
     }
@@ -181,7 +163,6 @@ void firq1() // 1 hour
   if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
   if (hour_cnt % 6 == 0 && conf_data.use_pp == 2) {
     wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
-    wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
   }
 
   hour_cnt++;
@@ -193,7 +174,7 @@ void firq4() // 55sec
   {
     end_run_st = false; // запуск бегущей строки
     f_dsp.utf8rus(st1);
-    strcpy(tstr1, st1.c_str());
+    strncpy(tstr, st1.c_str(), st1.length());
 
     //DBG_OUT_PORT.print("run string..");
     //DBG_OUT_PORT.println(end_run_st);
@@ -266,12 +247,20 @@ void firq9() //0.04 sec running string is out switch to time view
       cur_br_buf = cur_br;
     }
 
-    if (!end_run_st) end_run_st = scroll_String(0, 31, tstr1,  st1.length(), cur_sym_pos[2], cur_sym_pos[3], screen, 2);
+    if (!end_run_st) end_run_st = scroll_String(0, 31, tstr,  st1.length(), cur_sym_pos[2], cur_sym_pos[3], screen, 2);
 
     m7219_ramFormer(screen);
     m7219 -> write();
   }
-
+  if (!end_run_st)
+  {
+   // if (conf_data.type_disp == 19 && disp_on) end_run_st = mov_str(conf_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
+    //    if (conf_data.type_disp == 20)            end_run_st = mov_str(conf_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
+    //if (conf_data.type_disp == 22 && disp_on) end_run_st = mov_str(conf_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
+#if defined(ESP32)
+    //if (conf_data.type_disp == 24 && disp_on) end_run_st = mov_str(conf_data.type_disp, m3264 -> width(), st1, 0, cur_sym_pos[0]);
+#endif
+  }
   if (conf_data.type_disp == 22 && disp_on)     m1632_time();
 #if defined(ESP32)
   if (conf_data.type_disp == 24 && disp_on)     m3264_time();

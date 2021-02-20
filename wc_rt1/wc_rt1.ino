@@ -159,7 +159,6 @@ void setup()
     if (conf_data.use_pp == 2 && web_cli)
     {
       wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
-      wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
     }
 
     //------------------------------------------------------ Подключаем OTA, SSDP и MDNS

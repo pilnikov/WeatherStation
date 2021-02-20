@@ -107,7 +107,7 @@ void stop_serv()
 //-------------------------------------------------------------- cur_time_str
 void cur_time_str()
 {
-  size_tstr = sprintf(tstr, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
+  size_tstr = snprintf(tstr, 25, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
           day(), month(), year(), hour(), minute(), second());
 }
 

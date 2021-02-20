@@ -64,15 +64,20 @@ void start_wifi()
   if (tru < 10)
   {
     DBG_OUT_PORT.println("\nWiFi connected");
-    DBG_OUT_PORT.println("IP address: ");
+    DBG_OUT_PORT.print("IP address: ");
     DBG_OUT_PORT.println(WiFi.localIP());
 
     web_cli = true;
-    st1 = "Your IP: " + WiFi.localIP().toString() + " ";
-    if (conf_data.rus_lng) st1 = "Ваш IP: " + WiFi.localIP().toString() + " ";
+    strncpy(tstr1, WiFi.localIP().toString().c_str(), 16);
+    size_tstr = snprintf(tstr,  24, "Your IP:%15s", tstr1);
+    if (conf_data.rus_lng)
+    {
+      st1 = "Ваш IP:" + WiFi.localIP().toString();
+      f_dsp.utf8rus(st1);
+      strncpy(tstr1, st1.c_str(), 24);
+      size_tstr = snprintf(tstr,  24, "%25s", tstr1);
+    }
 
-    f_dsp.utf8rus(st1);
-    strcpy(tstr1, st1.c_str());
   }
   else
   {
