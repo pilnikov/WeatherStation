@@ -357,9 +357,9 @@ bool web_cli       = false;
 unsigned long serv_ms = 60000;
 
 char tstr[255];
-int size_tstr = 255;
+int size_tstr = 0;
 char tstr1[255];
-int size_tstr1 = 255;
+int size_tstr1 = 0;
 
 static const char* name_week[]  = {"", "ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
 // ---------------------------------------------------- WiFi Default

@@ -1,12 +1,13 @@
 
 void time_view()
 {
+  CLS();
   switch (conf_data.type_disp)
   {
     case 1:
       // 7SEGx4D
       if (nm_is_on || disp_mode == 10 ) disp_mode = 13;
-      seg7_mode(disp_mode, 0, 4);
+      seg7_mode(disp_mode, 4);
       if (blinkColon) printDot(1);
       tm1637->set_br(cur_br);
       tm1637->display(0, screen[0]);
@@ -17,12 +18,12 @@ void time_view()
     case 2:
       // 7SEGx6D
       if (nm_is_on || disp_mode == 10 ) disp_mode = 13;
-      seg7_mode(disp_mode, 0, 6);
+      seg7_mode(disp_mode, 6);
       if (blinkColon) printDot(1);
       break;
     case 3:
       // 7SEGx8D
-      seg7_mode(disp_mode, 0, 8);
+      seg7_mode(disp_mode, 8);
       if (nm_is_on) disp_mode = 7;
       if (disp_mode > 5 ) disp_mode = 0;
       break;
@@ -72,18 +73,17 @@ void time_view()
       break;
     case 31:
       // CUSTOM_2
-      seg7_mode(0, 0, 4);
+      seg7_mode(0, 4);
       if (nm_is_on) disp_mode = 9;
       if (disp_mode > 9 ) disp_mode = 1;
-      seg7_mode(disp_mode, 4, 6);
+      seg7_mode(disp_mode, 6);
       size_tstr = snprintf(tstr, 2, "%02u", second());
-      printDisplay_S(tstr, 10, 11);
+      print_(tstr, strlen(tstr), screen, font14s, 2, 0);
       if (blinkColon) printDot(2);
       break;
     default:
       break;
   }
-
   ////////////////// SEND DATA TO PHYSICAL LEVEL ////////////////////
 
   switch (ram_data.type_vdrv)
@@ -95,9 +95,9 @@ void time_view()
       //TM1637
       tm1637->set_br(cur_br);
       tm1637->display(0, screen[0]);
-      tm1637->display(1, screen[1]);
-      tm1637->display(2, screen[2]);
-      tm1637->display(3, screen[3]);
+      tm1637->display(1, screen[2]);
+      tm1637->display(2, screen[4]);
+      tm1637->display(3, screen[6]);
       break;
     case 2:
       //MAX7219

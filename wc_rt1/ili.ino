@@ -24,11 +24,11 @@ void ili_time(void)
 
   if (conf_data.rus_lng)
   {
-    //    snprintf(date, "%s %2d %s %4d г.", f_dsp.dow_name_r(weekday()), day(), f_dsp.month_name_r(month()), year());
+    //    snprintf(date, 20, "%s %2d %s %4dг.", sdnr[weekday()], day(), smnr[month()], year());
   }
   else
   {
-    //    snprintf(date, "%s %s %2d %4d", dayStr(weekday()), monthStr(month()), day(), year());
+    //    snprintf(date, 20, "%s %s %2d %4d", dayStr(weekday()), monthStr(month()), day(), year());
   }
   tft -> setCursor(SCREEN_WIDTH / 2, 6);
   tft -> print(date);

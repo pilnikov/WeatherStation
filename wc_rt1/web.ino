@@ -105,17 +105,18 @@ void stop_serv()
 }
 
 //-------------------------------------------------------------- cur_time_str
-void cur_time_str()
+String cur_time_str()
 {
-  size_tstr = snprintf(tstr, 25, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
+  char buf[25];
+
+  snprintf(buf, 25, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
           day(), month(), year(), hour(), minute(), second());
+return String(buf);
 }
 
 //-------------------------------------------------------------- handlejTime
 void handlejTime()
 {
-  cur_time_str();
-
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -124,7 +125,7 @@ void handlejTime()
   json["jday"] = day();
   json["jmonth"] = month();
   json["jyear"] = year();
-  json["tstr"] = tstr;
+  json["tstr"] = cur_time_str();;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -376,7 +377,6 @@ void handleSetPars1()
   if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
   if (conf_data.use_pp == 2) {
     wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
-    wf_data.press_min = round((wf_data.press_max - wf_data_cur.press_max) / 1.3332239);
   }
 }
 
@@ -591,12 +591,10 @@ void handleSetPartrm()
 //-------------------------------------------------------------- handlejAct
 void handlejAct()
 {
-  cur_time_str();
-
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["tstr"] = tstr;
+  json["tstr"] = cur_time_str();
   json["acth"] = rtc_data.a_hour;
   json["actm"] = rtc_data.a_min;
   json["t1"] = snr_data.t1;

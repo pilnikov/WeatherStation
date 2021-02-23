@@ -29,7 +29,8 @@ void m7219_init()
  
   strncpy(tstr, st1.c_str(), 6);
  
-  print_m32_8(tstr, st1.length(), screen);
+  print_(tstr, strlen(tstr), screen, font5x7, 5, 1);
+
   m7219_ramFormer(screen);
   m7219 -> write();
 }

@@ -48,7 +48,14 @@ void seg7d8_time();
 
 //----------------------------------------------------------------------------7 SEG
 bool blinkColon = false;
-static const char* name_week7[] = {"", "8c", "пH", "8t", "cP", "4t", "пt", "c6"};
+static const char* name_week7[8] = {"", "8c", "пH", "8t", "cP", "4t", "пt", "c6"};
+const static char* stdr[4] = {"ночь", "yтро", "день", "вечер"};
+const static char* swnr[8] = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
+const static char* sprcr[6] = {"дождь", "ливень", "снегопад", "сильный снегопад", "гроза", "без осадков"};
+const static char* sdnr[7] = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"};
+const static char* sdne[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+const static char* smnr[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+const static char* smne[12] = {"January", "February ", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 //----------------------------------------------------------------------------TM1637
 
@@ -78,9 +85,6 @@ LiquidCrystal_I2C * lcd;
 //#define font4pt
 //#define font5pt
 
-uint8_t numberOfHorizontalDisplays = 4;
-uint8_t numberOfVerticalDisplays = 1;
-
 Max72xxPanel *m7219;
 
 uint8_t colon; //номер разделителя
@@ -99,11 +103,9 @@ static uint8_t digPos_y[q_dig];                    // позиция цифры 
 uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
 uint8_t point = 0;
 int cur_sym_pos[4] = {0, 0, 0, 0};
-unsigned long scroll_time[lcd_row] = {millis(), millis()};
 bool end_run_st, end_run_st_buf;
 String st1 = String();
 uint16_t inn[32];
-unsigned char d[q_dig];
 bool d_notequal[q_dig];
 byte buff1[32];
       

@@ -27,4 +27,4 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 
-void cur_time_str();
+String cur_time_str();

@@ -50,39 +50,40 @@ void start_wifi()
 
   WiFi.disconnect();
 
+  WiFi.mode(WIFI_STA);
+
   WiFi.begin(conf_data.sta_ssid, conf_data.sta_pass);
 
   uint8_t tru = 0;
 
-  while (WiFi.status() > 3 && tru < 10)
+  while (WiFi.status() > 3 && tru < 20)
   {
     delay(500);
     DBG_OUT_PORT.print(".");
     tru ++;
   }
 
-  if (tru < 10)
+  if (tru < 18)
   {
     DBG_OUT_PORT.println("\nWiFi connected");
     DBG_OUT_PORT.print("IP address: ");
     DBG_OUT_PORT.println(WiFi.localIP());
 
     web_cli = true;
-    strncpy(tstr1, WiFi.localIP().toString().c_str(), 16);
-    size_tstr = snprintf(tstr,  24, "Your IP:%15s", tstr1);
+
+    st1 = "Your IP:" + WiFi.localIP().toString();
     if (conf_data.rus_lng)
     {
       st1 = "Ваш IP:" + WiFi.localIP().toString();
       f_dsp.utf8rus(st1);
-      strncpy(tstr1, st1.c_str(), 24);
-      size_tstr = snprintf(tstr,  24, "%25s", tstr1);
     }
-
   }
   else
   {
     DBG_OUT_PORT.print("Configuring access point...");
     /* You can remove the password parameter if you want the AP to be open. */
+    WiFi.mode(WIFI_AP);
+
     WiFi.softAP(conf_data.ap_ssid, conf_data.ap_pass);
 
     IPAddress myIP = WiFi.softAPIP();

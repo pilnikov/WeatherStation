@@ -37,10 +37,7 @@
 #define ADDR_AUTO  0x40
 #define ADDR_FIXED 0x44
 
-#define STARTADDR  0xc0
-/**** definitions for the clock point of the digit tube *******/
-#define POINT_ON   1
-#define POINT_OFF  0
+#define ADDR_START 0xc0
 /**************definitions for brightness***********************/
 #define  BRIGHT_DARKEST 0
 #define  BRIGHT_TYPICAL 2
@@ -49,23 +46,18 @@
 class TM1637
 {
   public:
-    uint8_t Cmd_SetData;
-    uint8_t Cmd_SetAddr;
-    uint8_t Cmd_DispCtrl;
-    boolean _PointFlag;     //_PointFlag=1:the clock point on
-    TM1637(uint8_t, uint8_t);
-    void init(void);        //To clear the display
-    int  writeByte(int8_t wr_data);//write 8bit data to tm1637
-    void start(void);//send start bits
-    void stop(void); //send stop bits
-    void display(int8_t DispData[]);
-    void display(uint8_t BitAddr,int8_t DispData);
-    void clearDisplay(void);
-    void set(uint8_t = BRIGHT_TYPICAL,uint8_t = 0x40,uint8_t = 0xc0);//To take effect the next time it displays.
-    void point(boolean PointFlag);//whether to light the clock point ":".To take effect the next time it displays.
-    void bitDelay(void);
+    TM1637(uint8_t Clk, uint8_t DP);
+    void writeByte(byte wr_data);//write 8bit data to tm1637
+    void display(uint8_t SegAddr, byte Data);
+    void clear(void);
+    void set_br(uint8_t = BRIGHT_TYPICAL);//To take effect the next time it displays.
   private:
+    void start(void);//send start bits
+    void ack(void);  //ack a bits is wrote
+    void stop(void); //send stop bits
+    void bitDelay(void);
     uint8_t Clkpin;
     uint8_t Datapin;
+    byte Cmd_DispCtrl;
 };
 #endif

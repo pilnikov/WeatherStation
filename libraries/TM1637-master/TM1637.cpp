@@ -31,128 +31,95 @@
 
 #include "TM1637.h"
 #include <Arduino.h>
-TM1637::TM1637(uint8_t Clk, uint8_t Data)
+
+TM1637::TM1637(uint8_t Clk, uint8_t DP)
 {
-  Clkpin = Clk;
-  Datapin = Data;
-  pinMode(Clkpin,OUTPUT);
-  pinMode(Datapin,OUTPUT);
+	Clkpin = Clk;
+	Datapin = DP;
+	pinMode(Clkpin, OUTPUT);
+	pinMode(Datapin, OUTPUT);
 }
 
-void TM1637::init(void)
+void TM1637::writeByte(byte wr_data)
 {
-  clearDisplay();
+	for (uint8_t i = 0; i < 8; i++)        //sent 8bit data
+	{
+		digitalWrite(Clkpin, LOW);
+		if (wr_data & 0x01)digitalWrite(Datapin, HIGH);//LSB first
+		else digitalWrite(Datapin, LOW);
+		wr_data >>= 1;
+		digitalWrite(Clkpin, HIGH);
+
+	}
+	digitalWrite(Clkpin, LOW); //wait for the ACK
+	digitalWrite(Datapin, HIGH);
+	digitalWrite(Clkpin, HIGH);
+	pinMode(Datapin, INPUT);
+
+	bitDelay();
+	if (digitalRead(Datapin) == 0)
+	{
+		pinMode(Datapin, OUTPUT);
+		digitalWrite(Datapin, LOW);
+	}
+	bitDelay();
+	pinMode(Datapin, OUTPUT);
+	bitDelay();
 }
 
-int TM1637::writeByte(int8_t wr_data)
-{
-  uint8_t i,count1;
-  for(i=0;i<8;i++)        //sent 8bit data
-  {
-    digitalWrite(Clkpin,LOW);
-    if(wr_data & 0x01)digitalWrite(Datapin,HIGH);//LSB first
-    else digitalWrite(Datapin,LOW);
-    wr_data >>= 1;
-    digitalWrite(Clkpin,HIGH);
-
-  }
-  digitalWrite(Clkpin,LOW); //wait for the ACK
-  digitalWrite(Datapin,HIGH);
-  digitalWrite(Clkpin,HIGH);
-  pinMode(Datapin,INPUT);
-
-  bitDelay();
-  uint8_t ack = digitalRead(Datapin);
-  if (ack == 0) 
-  {
-     pinMode(Datapin,OUTPUT);
-     digitalWrite(Datapin,LOW);
-  }
-  bitDelay();
-  pinMode(Datapin,OUTPUT);
-  bitDelay();
-  
-  return ack;
-}
 //send start signal to TM1637
 void TM1637::start(void)
 {
-  digitalWrite(Clkpin,HIGH);//send start signal to TM1637
-  digitalWrite(Datapin,HIGH);
-  digitalWrite(Datapin,LOW);
-  digitalWrite(Clkpin,LOW);
+	digitalWrite(Clkpin, HIGH);//send start signal to TM1637
+	digitalWrite(Datapin, HIGH);
+	digitalWrite(Datapin, LOW);
+	digitalWrite(Clkpin, LOW);
 }
 //End of transmission
 void TM1637::stop(void)
 {
-  digitalWrite(Clkpin,LOW);
-  digitalWrite(Datapin,LOW);
-  digitalWrite(Clkpin,HIGH);
-  digitalWrite(Datapin,HIGH);
+	digitalWrite(Clkpin, LOW);
+	digitalWrite(Datapin, LOW);
+	digitalWrite(Clkpin, HIGH);
+	digitalWrite(Datapin, HIGH);
 }
-//display function.Write to full-screen.
-void TM1637::display(int8_t DispData[])
+
+void TM1637::ack(void)
 {
-  int8_t SegData[4];
-  uint8_t i;
-  for(i = 0;i < 4;i ++)
-  {
-    SegData[i] = DispData[i];
-  }
-  start();          //start signal sent to TM1637 from MCU
-  writeByte(ADDR_AUTO);//
-  stop();           //
-  start();          //
-  writeByte(Cmd_SetAddr);//
-  for(i=0;i < 4;i ++)
-  {
-    writeByte(SegData[i]);        //
-  }
-  stop();           //
-  start();          //
-  writeByte(Cmd_DispCtrl);//
-  stop();           //
+	;
 }
+
 //******************************************
-void TM1637::display(uint8_t BitAddr,int8_t DispData)
+void TM1637::display(uint8_t SegAddr, byte Data)
 {
-  int8_t SegData;
-  SegData = DispData;
-  start();          //start signal sent to TM1637 from MCU
-  writeByte(ADDR_FIXED);//
-  stop();           //
-  start();          //
-  writeByte(BitAddr|0xc0);//
-  writeByte(DispData);//
-  stop();            //
-  start();          //
-  writeByte(Cmd_DispCtrl);//
-  stop();           //
+	start();          //start signal sent to TM1637 from MCU
+	writeByte(ADDR_FIXED);//
+	stop();           //
+	start();          //
+	writeByte(SegAddr | ADDR_START);//
+	writeByte(Data);//
+	stop();            //
+	start();          //
+	writeByte(Cmd_DispCtrl);//
+	stop();           //
 }
 
-void TM1637::clearDisplay(void)
+
+
+void TM1637::clear(void)
 {
-  display(0x00,0x7f);
-  display(0x01,0x7f);
-  display(0x02,0x7f);
-  display(0x03,0x7f);
-}
-//To take effect the next time it displays.
-void TM1637::set(uint8_t brightness,uint8_t SetData,uint8_t SetAddr)
-{
-  Cmd_SetData = SetData;
-  Cmd_SetAddr = SetAddr;
-  Cmd_DispCtrl = 0x88 + brightness;//Set the brightness and it takes effect the next time it displays.
+	for (uint8_t i = 0; i < 6; i++)        //sent 8bit data
+	{
+		display(i, 0x0);
+	}
 }
 
-//Whether to light the clock point ":".
-//To take effect the next time it displays.
-void TM1637::point(boolean PointFlag)
+void TM1637::set_br(uint8_t brightness)
 {
-  _PointFlag = PointFlag;
+	Cmd_DispCtrl = 0x80 + brightness;//Set the brightness and it takes effect the next time it displays.
 }
 
 void TM1637::bitDelay(void)
 {
-	delayMicroseconds(50);
+	delayMicroseconds(5);
 }

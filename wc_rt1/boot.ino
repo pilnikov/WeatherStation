@@ -1,3 +1,4 @@
+#include "fonts.h"
 
 void irq_set()
 {
@@ -8,72 +9,14 @@ void irq_set()
     irq4.attach(55, firq4);
     irq6.attach(0.5, firq6);
     //irq7.attach(0.2, firq7);
-    irq8.attach(0.19, firq8);
+    irq8.attach(0.062, firq8);
     irq9.attach(0.04, firq9);
   */
-
+  unsigned long timers [10] = {0, 3600000L, 1800000L, conf_data.period * 60000L, 55000L, 5000L, 500, 200, 63, 30};
 
   uint8_t irq = 10;
-  if (millis() - irq_end[9] > 40)
-  {
-    irq = 9;
-  }
-  else
-  {
-    if (millis() - irq_end[8] > 62)
-    {
-      irq = 8;
-    }
-    else
-    {
-      if (millis() - irq_end[7] > 200)
-      {
-        irq = 7;
-      }
-      else
-      {
-        if (millis() - irq_end[6] > 500)
-        {
-          irq = 6;
-        }
-        else
-        {
-          if (millis() - irq_end[5] > 5000L)
-          {
-            irq = 5;
-          }
-          else
-          {
-            if (millis() - irq_end[4] > 55000L)
-            {
-              irq = 4;
-            }
-            else
-            {
-              if (millis() - irq_end[3] > conf_data.period * 60000L)
-              {
-                irq = 3;
-              }
-              else
-              {
-                if (millis() - irq_end[2] > 1800000L)
-                {
-                  irq = 2;
-                }
-                else
-                {
-                  if (millis() - irq_end[1] > 3600000L)
-                  {
-                    irq = 1;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  for (uint8_t i = 1; i < 10;  i++) if (millis() - irq_end[i] >  timers[i]) irq = i;
+  //&& millis() - irq_end[i] <  timers[i] + 100
 
   switch (irq)
   {
@@ -129,27 +72,22 @@ void irq_set()
       break;
   }
 
-
   if (end_run_st != end_run_st_buf)
   {
     end_run_st_buf = end_run_st;
 
     if (end_run_st)
     {
-      cur_sym_pos[0] = 0;
-
       num_st++; //Перебор строк.
       if (num_st > max_st) num_st = 1;
+
       st1 = pr_str(num_st);
+
       f_dsp.utf8rus(st1);
-      strncpy(tstr, st1.c_str(), st1.length());
 
       if (conf_data.type_disp == 19 || conf_data.type_disp == 22 || conf_data.type_disp == 24) end_run_st = false; // перезапуск бегущей строки;
     }
   }
-
-
-  if (conf_data.type_disp == 29 && disp_on) ili_time();
 }
 
 void firq1() // 1 hour
@@ -170,15 +108,7 @@ void firq1() // 1 hour
 
 void firq4() // 55sec
 {
-  if (!nm_is_on)
-  {
-    end_run_st = false; // запуск бегущей строки
-    f_dsp.utf8rus(st1);
-    strncpy(tstr, st1.c_str(), st1.length());
-
-    //DBG_OUT_PORT.print("run string..");
-    //DBG_OUT_PORT.println(end_run_st);
-  }
+  if (!nm_is_on) end_run_st = false; // запуск бегущей строки
 }
 
 void firq6() // 0.5 sec main cycle
@@ -225,11 +155,15 @@ void firq8() // 0.125 sec
 {
   if (conf_data.type_disp == 20 && disp_on && end_run_st)
   {
+    uint8_t font_wdt = 5;
+
     for (uint8_t i = 0; i < q_dig; i++)
     {
+      if (i > 3) font_wdt = 3;
+
       if (d_notequal[i])
       {
-        shift_ud(true, false, buff1, screen,  digPos_x[i],  digPos_x[i] + 5); // запуск вертушка для изменившихся позиций
+        shift_ud(true, false, buff1, screen,  digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
       }
     }
   }
@@ -247,14 +181,17 @@ void firq9() //0.04 sec running string is out switch to time view
       cur_br_buf = cur_br;
     }
 
-    if (!end_run_st) end_run_st = scroll_String(0, 31, tstr,  st1.length(), cur_sym_pos[2], cur_sym_pos[3], screen, 2);
+    if (!end_run_st)
+    {
+      end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5);
+    }
 
     m7219_ramFormer(screen);
     m7219 -> write();
   }
   if (!end_run_st)
   {
-   // if (conf_data.type_disp == 19 && disp_on) end_run_st = mov_str(conf_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
+    // if (conf_data.type_disp == 19 && disp_on) end_run_st = mov_str(conf_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
     //    if (conf_data.type_disp == 20)            end_run_st = mov_str(conf_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
     //if (conf_data.type_disp == 22 && disp_on) end_run_st = mov_str(conf_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
 #if defined(ESP32)

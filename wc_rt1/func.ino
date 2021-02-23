@@ -16,13 +16,13 @@ void GetSnr()
     if (ram_data.type_snr1 == 3 || ram_data.type_snr2 == 3 || ram_data.type_snr3 == 3 || ram_data.type_snrp == 3) es_data = e_srv.get_es(es_rcv(conf_data.esrv2_addr)); // Получаем данные от внешнего сервера2
 
     if (conf_data.use_pp == 2) {
-      wf_data = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
+      wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
     }
   }
 
   if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
   {
-    snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data); // Заполняем матрицу данных с датчиков
+    snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
   if (web_cli)
@@ -107,6 +107,23 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   prog.cloud = root["list"]["clouds"]["all"];
   prog.wind_dir = rumb_conv(dir);
 
+  DBG_OUT_PORT.print("descript..");
+  DBG_OUT_PORT.println(prog.descript);
+  DBG_OUT_PORT.print("temp min..");
+  DBG_OUT_PORT.println(prog.temp_min);
+  DBG_OUT_PORT.print("humidity min..");
+  DBG_OUT_PORT.println(prog.hum_min);
+  DBG_OUT_PORT.print("pressure min..");
+  DBG_OUT_PORT.println(prog.press_min);
+  DBG_OUT_PORT.print("pressure max..");
+  DBG_OUT_PORT.println(prog.press_max);
+  DBG_OUT_PORT.print("wind min..");
+  DBG_OUT_PORT.println(prog.wind_min);
+  DBG_OUT_PORT.print("cloud..");
+  DBG_OUT_PORT.println(prog.cloud);
+  DBG_OUT_PORT.print("win dir..");
+  DBG_OUT_PORT.println(prog.wind_dir);
+
   return prog;
 }
 
@@ -155,7 +172,8 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   prog.descript.toLowerCase();
   prog.hum_min = root["humidity"];
   prog.press_max = root["pressure"];
-  prog.press_min = prog.press_max / 1.3332239;
+
+  prog.press_min = (prog.press_max - 43) / 1.3332239; // перевод в мм.рт.ст
 
   time_t dt = root["dt"];
 
@@ -163,6 +181,29 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
   prog.month = month(dt);
 
   prog.wind_dir = rumb_conv(dir);
+
+  DBG_OUT_PORT.print("cloud..");
+  DBG_OUT_PORT.println(prog.cloud);
+  DBG_OUT_PORT.print("wind min..");
+  DBG_OUT_PORT.println(prog.wind_min);
+  DBG_OUT_PORT.print("win dir..");
+  DBG_OUT_PORT.println(prog.wind_dir);
+  DBG_OUT_PORT.print("temp min..");
+  DBG_OUT_PORT.println(prog.temp_min);
+  DBG_OUT_PORT.print("temp max..");
+  DBG_OUT_PORT.println(prog.temp_max);
+  DBG_OUT_PORT.print("descript..");
+  DBG_OUT_PORT.println(prog.descript);
+  DBG_OUT_PORT.print("humidity min..");
+  DBG_OUT_PORT.println(prog.hum_min);
+  DBG_OUT_PORT.print("pressure max..");
+  DBG_OUT_PORT.println(prog.press_max);
+  DBG_OUT_PORT.print("pressure min..");
+  DBG_OUT_PORT.println(prog.press_min);
+  DBG_OUT_PORT.print("day..");
+  DBG_OUT_PORT.println(prog.day);
+  DBG_OUT_PORT.print("month..");
+  DBG_OUT_PORT.println(prog.month);
 
   return prog;
 }

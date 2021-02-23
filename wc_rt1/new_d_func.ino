@@ -3,19 +3,15 @@
 
 void CLS(void);
 void cleanPos(uint8_t);
-void printCharacter_S7(uint8_t, uint8_t);
-void printCharacter_S14(uint8_t, uint8_t);
 void printDot(uint8_t);
-void printDisplay_S(String, uint8_t, uint8_t);
 void utf714(unsigned char&, unsigned char);
-void scrollString(String, uint8_t, uint8_t, uint16_t);
 
 
 uint16_t countD;
 uint8_t stringIndex;
 
 
-void printCharacter_m32_8(unsigned char, uint8_t, byte);
+void printCharacter(unsigned char, uint8_t, byte*, const byte*, uint8_t);
 
 /*
    Erases one pos on display
@@ -32,32 +28,10 @@ void cleanPos(uint8_t pos)
   screen[pos] = 0;
 }
 
-void printCharacter_S7(uint8_t ch, uint8_t pos)
-{
-  if (ch >= 32 && ch < 256) //characters must remain within ASCII printable characters defined in array
-  {
-    screen[pos] = FourteenSegmentASCII[ch - 32] & 0xFF;
-    f_dsp.mir_seg(screen[pos]);
-  }
-}
 
 /*
    Displays an ASCII character on a given display
 */
-void printCharacter_S14(uint8_t ch, uint8_t pos)
-{
-  if (ch >= 32 && ch < 256) //characters must remain within ASCII printable characters defined in array
-  {
-    byte _data1 = FourteenSegmentASCII[ch - 32] & 0xFF;
-    byte _data2 = FourteenSegmentASCII[ch - 32] >> 8;
-    if (pos > 9)
-    {
-      screen[pos] = _data1;
-      screen[pos + 3] = _data2;
-    }
-    else screen[pos] = _data1;
-  }
-}
 
 
 /*
@@ -75,37 +49,6 @@ void printDot(uint8_t pos)
 /*
    Displays all symbol on a given display
 */
-
-void printDisplay_S(String string, uint8_t f_pos, uint8_t l_pos)
-{
-  uint8_t sym_pos_idx = 0; // number of byte in inbox string
-  unsigned char curr = 0;
-  unsigned char next = 0;
-
-  for (uint8_t i = f_pos; i <= l_pos; i++) //position on the display
-  {
-    if (sym_pos_idx > string.length()) curr = 0;
-    else curr = string[sym_pos_idx];
-
-    if (sym_pos_idx + 1 > string.length()) next = 0;
-    else next = string[sym_pos_idx + 1];
-
-    if (curr == 0xD0 || curr == 0xD1)   // Cyrillic symbol detected
-    {
-      utf714(curr, next);
-      sym_pos_idx++;
-    }
-
-    if (ram_data.type_vdrv == 2) printCharacter_S7(curr, i);
-    else printCharacter_S14 (curr, i);
-    if (next == 0x2E)
-    {
-      printDot(i);
-      sym_pos_idx++;
-    }
-    sym_pos_idx++;
-  }
-}
 
 void utf714(unsigned char &n, unsigned char m)
 {
@@ -139,59 +82,43 @@ void utf714(unsigned char &n, unsigned char m)
    and scrolls left. This also includes a fade out where characters travel off the left
    display followed by blank space
 */
-void scrollString(String string, uint8_t f_pos, uint8_t l_pos)
-{
-  uint8_t q_pos = l_pos - f_pos + 1;
-  if (stringIndex > string.length() + q_pos)
-  {
-    stringIndex = 0;
-  }
-
-  for (uint8_t posIdx = 0; posIdx < q_pos; posIdx++)
-  {
-    uint8_t i = stringIndex + posIdx - q_pos;
-    unsigned char uch = string[i];
-    printCharacter_S14 ((i >= 0 && i < string.length()) ? uch : ' ', posIdx + f_pos); //front
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-void printCharacter_m32_8(unsigned char character, uint8_t x, byte *in)
+void printCharacter(unsigned char character, uint8_t x, byte *out, const byte* font, uint8_t font_wdt)
 {
   if (character >= 0 && character < 256) //characters must remain within ASCII printable characters defined in array
   {
-    for (uint8_t i = 0; i < 5; i++)
-    {
-      in[x + i] = font5x7[character * 5 + i];
-    }
+    memcpy (out + x,                     // цель
+            font + character * font_wdt, // источник
+            font_wdt);                   // объем
   }
 }
 
-void print_m32_8(char *in,  uint8_t size_in, byte *buff)
+
+void print_(char *in, uint8_t size_in, byte *out, const byte* font, uint8_t font_wdt, uint8_t spacer_wdt)
 {
-  unsigned char character = in[0];
-  uint8_t ch_pos = 0, ch_byte_pos = 0, font_wdt = 5;
+  unsigned char character = 0;
+  uint8_t icp = 0, cbp = 0, obp = 0;
 
-  while (ch_pos < size_in)
+  while (icp < size_in)
   {
-    if (ch_byte_pos > font_wdt - 1)
+    if (cbp > font_wdt - 1 + spacer_wdt) // Переходим к очередному символу входящей строки
     {
-      if (ch_byte_pos == font_wdt) buff[ch_pos * (font_wdt + 1) + ch_byte_pos] = 0; // символ "закончился" - вставляем пустой столбик
-      if (ch_byte_pos > font_wdt)
-      {
-        ch_byte_pos = 0;
-        ch_pos ++;
-        character = in[ch_pos]; // дергаем входящую сроку по символам
-        buff[ch_pos * (font_wdt + 1) + ch_byte_pos] = font5x7[character * font_wdt + ch_byte_pos];
-      }
+      cbp = 0;
+      icp ++;
     }
-    else  buff[ch_pos * (font_wdt + 1) + ch_byte_pos] = font5x7[character * font_wdt + ch_byte_pos];
-    ch_byte_pos++;
+
+    character = in[icp]; // достаем очередной символ
+    if (cbp < font_wdt) out[obp] = font[character * font_wdt + cbp]; //потрошим символ на байты
+    else out[obp] = 0; // символ "закончился" - вставляем пустой столбик-разделитель
+    cbp++;
+    obp++;
   }
 }
+
 
 void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
 {
@@ -201,11 +128,11 @@ void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
     {
       if (r_s) inn[x] |= in[x];
       else     inn[x] <<= 1;
-      out[x] = inn[x] >> 7;
+      out[x] = inn[x] >> 8;
     }
     else
     {
-      if (r_s) inn[x] |= in[x] << 7;
+      if (r_s) inn[x] |= in[x] << 8;
       else     inn[x] >>= 1;
       out[x] = inn[x] & 0xFF;
     }
