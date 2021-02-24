@@ -108,13 +108,14 @@ void firq1() // 1 hour
 
 void firq4() // 55sec
 {
-  if (!nm_is_on) end_run_st = false; // запуск бегущей строки
+  if (!nm_is_on && conf_data.type_disp > 9) end_run_st = false; // запуск бегущей строки
 }
 
 void firq6() // 0.5 sec main cycle
 {
   if (disp_on)
   {
+    //-------------Brigthness------------------
     if (conf_data.auto_br)
     {
       snr_data.f = ft_read(ram_data.bh1750_present);
@@ -126,8 +127,15 @@ void firq6() // 0.5 sec main cycle
       snr_data.f = cur_br;
     }
 
+    if (cur_br != cur_br_buf)
+    {
+      cur_br_buf = cur_br;
+    }
+    //-----------------------------------------
+
     // run slowely time displays here
-    if (end_run_st) time_view();
+    if (conf_data.type_disp < 10) end_run_st = true;
+    if (end_run_st) time_view(conf_data.type_disp, ram_data.type_vdrv);
   }
   Alarmed();
   Thermo();
@@ -172,35 +180,15 @@ void firq8() // 0.125 sec
 
 void firq9() //0.04 sec running string is out switch to time view
 {
-# ifdef new_max
   if (conf_data.type_disp == 20 && disp_on)
   {
-    if (cur_br != cur_br_buf)
-    {
-      m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
-      cur_br_buf = cur_br;
-    }
+    if (!end_run_st) end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5);
+  }
 
-    if (!end_run_st)
-    {
-      end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5);
-    }
-
+  if (ram_data.type_vdrv == 2 && conf_data.type_disp == 20 && disp_on)
+  {
+    m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
     m7219_ramFormer(screen);
     m7219 -> write();
   }
-  if (!end_run_st)
-  {
-    // if (conf_data.type_disp == 19 && disp_on) end_run_st = mov_str(conf_data.type_disp,          lcd_col, st1, 0, cur_sym_pos[0]);
-    //    if (conf_data.type_disp == 20)            end_run_st = mov_str(conf_data.type_disp, m7219 -> width(), st1, 0, cur_sym_pos[0]);
-    //if (conf_data.type_disp == 22 && disp_on) end_run_st = mov_str(conf_data.type_disp, m1632 -> width(), st1, 0, cur_sym_pos[0]);
-#if defined(ESP32)
-    //if (conf_data.type_disp == 24 && disp_on) end_run_st = mov_str(conf_data.type_disp, m3264 -> width(), st1, 0, cur_sym_pos[0]);
-#endif
-  }
-  if (conf_data.type_disp == 22 && disp_on)     m1632_time();
-#if defined(ESP32)
-  if (conf_data.type_disp == 24 && disp_on)     m3264_time();
-#endif
-#endif
 }

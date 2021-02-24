@@ -1,17 +1,10 @@
-#include "fonts.h"
-
 
 void CLS(void);
 void cleanPos(uint8_t);
 void printDot(uint8_t);
 void utf714(unsigned char&, unsigned char);
-
-
-uint16_t countD;
-uint8_t stringIndex;
-
-
 void printCharacter(unsigned char, uint8_t, byte*, const byte*, uint8_t);
+void compressor7(byte*, uint8_t);
 
 /*
    Erases one pos on display
@@ -139,9 +132,17 @@ void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
   }
 }
 
-String macToString(const unsigned char* mac) {
-  char buf[20];
-  snprintf(buf, sizeof(buf), "%02x:%02x:%02x:%02x:%02x:%02x",
-           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  return String(buf);
+void compressor7(byte *in, uint8_t in_size) // Адаптация дисплейного буфера под семисегментники
+{
+  uint8_t y = 0;
+  for (uint8_t i = 0; i < in_size / 2; i++)
+  {
+    if (in[y * 2 + 1] == 0x80)
+    {
+      in[i - 1] |= 0x80;
+      y++;
+    }
+    in[i] = in[y * 2 + 1]; //position on the display
+    y++;
+  }
 }

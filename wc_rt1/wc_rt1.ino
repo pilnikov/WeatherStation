@@ -93,7 +93,7 @@ void setup()
   if (ram_data.type_rtc > 0) rtc_init();
   DBG_OUT_PORT.print("Type of rtc = ");
   DBG_OUT_PORT.println(ram_data.type_rtc);
- 
+
   //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
   switch (ram_data.type_vdrv)
   {
@@ -130,12 +130,8 @@ void setup()
 
   //-------------------------------------------------------- Запускаем сетевые сервисы
 # if defined(ESP8266) || defined(ESP32)
-  //  WiFi.disconnect();
-  //  WiFi.mode( WIFI_OFF );
   start_wifi();
 # endif
-  DBG_OUT_PORT.println("wifi started");
-
   if (web_cli || web_ap)
   {
 # if defined(ESP8266) || defined(ESP32)
@@ -179,7 +175,6 @@ void setup()
   //-------------------------------------------------------  Опрашиваем датчики
 
   GetSnr();
-  DBG_OUT_PORT.println("Snr data received");
   //-------------------------------------------------------- Гасим светодиод
 #   if defined(ESP8266) || defined(ESP32)
   if (conf_data.type_thermo == 0)   digitalWrite(LED_BUILTIN, HIGH);
@@ -187,7 +182,6 @@ void setup()
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
-  DBG_OUT_PORT.println("alarm set");
 
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
@@ -213,7 +207,6 @@ void setup()
 
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-  //Buzz.beep(BUZ_PIN);
   Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
   DBG_OUT_PORT.println("End of setup");
 }

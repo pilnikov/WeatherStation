@@ -32,5 +32,13 @@ void lcd_time()
   //      22:59:10 16:30 A
   lcd -> setCursor(0, 1);
   bool alarmed = rtc_data.a_hour < 24 && rtc_data.a_min < 59;
-  lcd -> print(f_dsp.form_time_string(hour(), minute(), second(), rtc_data.a_hour, rtc_data.a_min, alarmed, conf_data.rus_lng));
+
+  char msg[17];
+  snprintf(msg, 17, " %2u:%02u:%02u  -:-  ", hour(), minute(), second());
+  if (alarmed)
+  {
+    snprintf(msg, 17, " %2u:%02u:%02u %2u:%02u",hour(), minute(), second(), rtc_data.a_hour, rtc_data.a_min);
+    if (conf_data.rus_lng) snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u\355", hour(), minute(), second(), rtc_data.a_hour, rtc_data.a_min);
+  }
+  lcd -> print(msg);
 }

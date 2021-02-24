@@ -21,7 +21,7 @@ String pr_str(uint8_t);
 void pcf8574_init();
 void lcd_time();
 void m7219_init();
-void m7219_ramFormer();
+void m7219_ramFormer(byte*);
 void ht1632_init();
 void m1632_time();
 
