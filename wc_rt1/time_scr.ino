@@ -8,42 +8,46 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
   {
     case 1:
       // 7SEGx4D
-      if (nm_is_on || disp_mode == 10 ) disp_mode = 13;
+      if (nm_is_on || disp_mode == 10) disp_mode = 13;
       seg7_mode(disp_mode, 4);
       if (blinkColon) printDot(3);
       break;
     case 2:
       // 7SEGx6D
-      if (nm_is_on || disp_mode == 9 ) disp_mode = 11;
+      if (nm_is_on || disp_mode == 9) disp_mode = 11;
       seg7_mode(disp_mode, 6);
       break;
     case 3:
       // 7SEGx8D
-      if (nm_is_on || disp_mode == 6 ) disp_mode = 7;
+      if (nm_is_on || disp_mode == 6) disp_mode = 7;
       seg7_mode(disp_mode, 8);
       break;
     case 10:
       // 14SEGx4D
-      if (nm_is_on || disp_mode == 10 ) disp_mode = 13;
+      if (nm_is_on || disp_mode == 10) disp_mode = 13;
       seg7_mode(disp_mode, 4);
       if (blinkColon) printDot(3);
       break;
     case 11:
-      if (nm_is_on || disp_mode == 6 ) disp_mode = 7;
-      seg7_mode(disp_mode, 8);
       // 14SEGx8D
+      seg7_mode(13, 4);
+      if (blinkColon) printDot(3);
       break;
     case 12:
       // 16SEGx4D
       break;
     case 13:
       // 16SEGx8D
-      if (nm_is_on || disp_mode == 10 ) disp_mode = 1;
+      if (nm_is_on || disp_mode == 10) disp_mode = 1;
       seg7_mode(disp_mode, 4);
-      memmove (screen + 8, // цель
-               screen,     // источник
-               8);         // объем
+      memmove (screen + 32, // цель
+               screen,      // источник
+               8);          // объем
       seg7_mode(13, 4);
+      memmove (screen + 8,  // цель
+               screen + 32, // источник
+               8);          // объем
+
       if (blinkColon) printDot(3);
       break;
     case 19:
@@ -134,8 +138,43 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 11:
       //HT16K33
-      if (conf_data.type_disp != 31 && disp_on) ht1633_ramFormer2(screen);
-      else ht1633_ramFormer(screen);
+      switch (type_disp)
+      {
+        case 1:
+          // 7SEGx4D
+          ht1633_ramFormer2(screen, 0, 4);
+          break;
+        case 2:
+          // 7SEGx6D
+          ht1633_ramFormer2(screen, 0, 6);
+          break;
+        case 3:
+          // 7SEGx8D
+          ht1633_ramFormer2(screen, 0, 8);
+          break;
+        case 10:
+          // 14SEGx4D
+          ht1633_ramFormer2(screen, 0, 4);
+          break;
+        case 11:
+          // 14SEGx8D
+          ht1633_ramFormer2(screen, 0, 4);
+          break;
+        case 12:
+          // 16SEGx4D
+          break;
+        case 13:
+          // 16SEGx8D
+          ht1633_ramFormer2(screen, 0, 8);
+          break;
+        case 31:
+          // CUSTOM_2
+          ht1633_ramFormer(screen, 0, 8);
+          break;
+        default:
+          ht1633_ramFormer2(screen, 0, 8);
+          break;
+      }
       ht1633->setBrightness(cur_br);
       ht1633->write();
       break;

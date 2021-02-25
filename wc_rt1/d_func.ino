@@ -1,5 +1,8 @@
 #include "fonts.h"
 
+bool scroll_String(int8_t, int8_t, String, int&, int&, int&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
+
+
 //-------------------------------------------------------------- Установка яркости
 uint16_t auto_br(uint16_t lt)
 {
@@ -59,42 +62,40 @@ void  time_m32_8()
 }
 
 //-------------------------------------------------------------- Отображение бегущей строки
-bool scroll_String(int8_t x1, int8_t x2, String in,  int &cp, int &cbp, byte *out, const byte *font, uint8_t font_wdt)
+bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, int &obp, byte *out, const byte *font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
 {
-  byte inbyte = 0; //источник байтов
+  byte inbyte[qbs]; //источник байтов
 
   unsigned char character = 0; // дергаем входящую сроку по символам
 
-  if (cp < in.length() + x2)
+  if (icp < in.length() + x2)
   {
-    if (cp < in.length()) // Пока сидим внутри строки
-    {
-      if (cbp > font_wdt) // Переходим к очередному символу входящей строки
-      {
-        cbp = 0;
-        cp ++;
-      }
-      character = in[cp]; // достаем очередной символ
-      inbyte = 0; // символ "закончился" - вставляем пустой столбик
-      if (cbp < font_wdt) inbyte = font[character * font_wdt + cbp]; //потрошим символ на байты
-      cbp++;
-    }
-    else
-    {
-      inbyte = 0; // символ "закончился" - вставляем пустой столбик
-      cp++;
-    }
+    character = in[icp]; // достаем очередной символ
 
-    out[x2] = inbyte; // запись крайнего правого байта (координата х2) в буфер экрана
-    //сдвиг в буфере экрана на одну позицию (колонку) (на один байт) влево
-    memmove (out + x1,                   // цель
-             out + x1 + 1,               // источник
-             x2 - x1);                   // объем
+    if (cbp < font_wdt) // Потрошим строку Переходим к очередному символу входящей строки
+    {
+      memcpy (out + x2 - qbs, // цель
+              font + character * font_wdt + cbp,       // источник
+              qbs);           // объем
+      cbp += qbs;
+    }
+    else // символ "закончился" - вставляем пустой столбик-разделитель
+    {
+      icp++; // переходим к следующему символу в строке
+      if (icp < in.length()) cbp = 0;      // Пока сидим внутри строки сбрасываем указатель на байт в шрифте
+      for (uint8_t i = 0; i < spacer_wdt * qbs; i++) //вставляем пустой столбик-разделитель
+      {
+        out[i + x2 - qbs] = 0;
+      }
+    }
+    memmove (out + x1,             // цель
+             out + x1 + qbs,       // источник
+             x2 - qbs - x1 + 1);   // объем
   }
   else
   {
-    cp = 0;
-    cbp = 0;
+    cbp = 0; //сбрасываем указатель на байт в шрифте
+    icp = 0; //cбрасываем указатель на байт во входной строке
     return true; //end of scrolling
   }
   return false;

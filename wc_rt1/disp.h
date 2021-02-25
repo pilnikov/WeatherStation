@@ -103,7 +103,7 @@ static uint8_t digPos_y[q_dig];                    // позиция цифры 
 uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
 uint8_t point = 0;
 int cur_sym_pos[4] = {0, 0, 0, 0};
-bool end_run_st, end_run_st_buf;
+bool end_run_st = true, end_run_st_buf;
 String st1 = String();
 uint16_t inn[32];
 bool d_notequal[q_dig];

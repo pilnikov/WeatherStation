@@ -42,12 +42,7 @@ void irq_set()
 
     case 5:
       disp_mode++;
-      disp_mode2++;
-      if (disp_mode2 > 12)
-      {
-        disp_mode2 = 0;
-        disp_mode = 0;
-      }
+      if (disp_mode > 12) disp_mode -= 12;
       irq_end[5] = millis();
       break;
 
@@ -85,7 +80,7 @@ void irq_set()
 
       f_dsp.utf8rus(st1);
 
-      if (conf_data.type_disp == 19 || conf_data.type_disp == 22 || conf_data.type_disp == 24) end_run_st = false; // перезапуск бегущей строки;
+      if (conf_data.type_disp != 20) end_run_st = false; // перезапуск бегущей строки;
     }
   }
 }
@@ -134,8 +129,7 @@ void firq6() // 0.5 sec main cycle
     //-----------------------------------------
 
     // run slowely time displays here
-    if (conf_data.type_disp < 10) end_run_st = true;
-    if (end_run_st) time_view(conf_data.type_disp, ram_data.type_vdrv);
+    if (!(conf_data.type_disp == 20 && !end_run_st)) time_view(conf_data.type_disp, ram_data.type_vdrv); //break time view while scroll a string
   }
   Alarmed();
   Thermo();
@@ -156,6 +150,12 @@ void firq7() // 0.2 sec Communications with server
     yield();
     if ((millis() - serv_ms) > 300000L && conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
 # endif
+  }
+  if (conf_data.type_disp == 11 && !end_run_st)
+  {
+    end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], cur_sym_pos[2], screen, font14s, 2, 0, 2);
+    ht1633_ramFormer2(screen, 4, 8);
+    ht1633->write();
   }
 }
 
@@ -182,7 +182,7 @@ void firq9() //0.04 sec running string is out switch to time view
 {
   if (conf_data.type_disp == 20 && disp_on)
   {
-    if (!end_run_st) end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5);
+    if (!end_run_st) end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], cur_sym_pos[2], screen, font5x7, 5, 1, 1);
   }
 
   if (ram_data.type_vdrv == 2 && conf_data.type_disp == 20 && disp_on)

@@ -383,7 +383,6 @@ unsigned long    setting_ms  = 0;
 
 uint8_t            hour_cnt  = 0;
 uint8_t           disp_mode  = 0;
-uint8_t           disp_mode2 = 0;
 uint16_t             cur_br  = 0;
 uint16_t         cur_br_buf  = 0;
 
