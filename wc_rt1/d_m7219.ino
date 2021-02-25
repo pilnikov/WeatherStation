@@ -10,7 +10,8 @@ void m7219_init()
   else m7219 = new Max72xxPanel(CS_PIN, 1, 4);
 
   m7219 -> begin();
-
+  CLS();
+  
   if (conf_data.type_disp == 20)
   {
     st1 = "Hello";

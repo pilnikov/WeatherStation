@@ -134,8 +134,7 @@ void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
 
 void compressor7(byte *in, uint8_t in_size) // Адаптация дисплейного буфера под семисегментники
 {
-  uint8_t y = 0;
-  for (uint8_t i = 0; i < in_size / 2; i++)
+  for (uint8_t i = 0, y = 0; i < in_size / 2; i++, y++)
   {
     if (in[y * 2 + 1] == 0x80)
     {
@@ -143,6 +142,5 @@ void compressor7(byte *in, uint8_t in_size) // Адаптация дисплей
       y++;
     }
     in[i] = in[y * 2 + 1]; //position on the display
-    y++;
   }
 }

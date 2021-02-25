@@ -14,19 +14,23 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 2:
       // 7SEGx6D
-      if (nm_is_on || disp_mode == 10 ) disp_mode = 13;
+      if (nm_is_on || disp_mode == 9 ) disp_mode = 11;
       seg7_mode(disp_mode, 6);
       break;
     case 3:
       // 7SEGx8D
+      if (nm_is_on || disp_mode == 6 ) disp_mode = 7;
       seg7_mode(disp_mode, 8);
-      if (nm_is_on) disp_mode = 7;
-      if (disp_mode > 5 ) disp_mode = 0;
       break;
     case 10:
       // 14SEGx4D
+      if (nm_is_on || disp_mode == 10 ) disp_mode = 13;
+      seg7_mode(disp_mode, 4);
+      if (blinkColon) printDot(3);
       break;
     case 11:
+      if (nm_is_on || disp_mode == 6 ) disp_mode = 7;
+      seg7_mode(disp_mode, 8);
       // 14SEGx8D
       break;
     case 12:
@@ -34,6 +38,13 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 13:
       // 16SEGx8D
+      if (nm_is_on || disp_mode == 10 ) disp_mode = 1;
+      seg7_mode(disp_mode, 4);
+      memmove (screen + 8, // цель
+               screen,     // источник
+               8);         // объем
+      seg7_mode(13, 4);
+      if (blinkColon) printDot(3);
       break;
     case 19:
       // 2LINEx16D
@@ -123,8 +134,9 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 11:
       //HT16K33
+      if (conf_data.type_disp != 31 && disp_on) ht1633_ramFormer2(screen);
+      else ht1633_ramFormer(screen);
       ht1633->setBrightness(cur_br);
-      ht1633_ramFormer(screen);
       ht1633->write();
       break;
     case 12:
