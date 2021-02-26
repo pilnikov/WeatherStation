@@ -197,5 +197,6 @@ void seg7_mode(uint8_t mod,  uint8_t _width)
     default:
       break;
   }
+  f_dsp.utf8rus(tstr);
   print_(tstr, strlen(tstr), screen, font14s, 2, 0);
 }

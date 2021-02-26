@@ -12,7 +12,7 @@ void irq_set()
     irq8.attach(0.062, firq8);
     irq9.attach(0.04, firq9);
   */
-  unsigned long timers [10] = {0, 3600000L, 1800000L, conf_data.period * 60000L, 55000L, 5000L, 500, 200, 63, 30};
+  unsigned long timers [10] = {0, 3600000L, 1800000L, conf_data.period * 60000L, 55000L, 5000L, 500, 180, 63, 30};
 
   uint8_t irq = 10;
   for (uint8_t i = 1; i < 10;  i++) if (millis() - irq_end[i] >  timers[i]) irq = i;
@@ -153,7 +153,12 @@ void firq7() // 0.2 sec Communications with server
   }
   if (conf_data.type_disp == 11 && !end_run_st)
   {
-    end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], cur_sym_pos[2], screen, font14s, 2, 0, 2);
+    end_run_st = scroll_String(16, 23, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+    memmove (screen + 8,  // цель
+             screen + 16, // источник
+             8);          // объем
+
+
     ht1633_ramFormer2(screen, 4, 8);
     ht1633->write();
   }
@@ -182,7 +187,7 @@ void firq9() //0.04 sec running string is out switch to time view
 {
   if (conf_data.type_disp == 20 && disp_on)
   {
-    if (!end_run_st) end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], cur_sym_pos[2], screen, font5x7, 5, 1, 1);
+    if (!end_run_st) end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
   }
 
   if (ram_data.type_vdrv == 2 && conf_data.type_disp == 20 && disp_on)

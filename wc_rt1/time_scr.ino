@@ -3,7 +3,7 @@ void time_view(uint8_t, uint8_t);
 
 void time_view(uint8_t type_disp, uint8_t type_vdrv)
 {
-  CLS();
+  if (end_run_st)CLS();
   switch (type_disp)
   {
     case 1:
@@ -47,7 +47,6 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       memmove (screen + 8,  // цель
                screen + 32, // источник
                8);          // объем
-
       if (blinkColon) printDot(3);
       break;
     case 19:

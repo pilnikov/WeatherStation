@@ -27,7 +27,7 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 {
   uint16_t _row[8];
 
-  for (uint8_t i = x1, y = x1; i < x2; i++, y++)
+  for (uint8_t i = x1, y = x1 * 2; i < x2; i++, y++)
   {
     if (in[y] & 0x80)
     {
@@ -49,7 +49,7 @@ void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 {
   uint16_t _row[8];
 
-  for (uint8_t i = x1, y = x1; i < x2; i++, y++)
+  for (uint8_t i = x1, y = x1 * 2; i < x2; i++, y++)
   {
     if (in[y] & 0x80)
     {
