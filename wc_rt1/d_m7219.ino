@@ -6,8 +6,8 @@ void m7219_init()
 {
   digHt = 8;  // Высота матрицы в пикселях
 
-  if (conf_data.type_disp < 10) m7219 = new Max72xxPanel(CS_PIN, 1, 1);
-  else m7219 = new Max72xxPanel(CS_PIN, 1, 4);
+  if (conf_data.type_disp < 10) m7219 = new Max72(CS_PIN, 1, 1);
+  else m7219 = new Max72(CS_PIN, 1, 4);
 
   m7219 -> begin();
   CLS();

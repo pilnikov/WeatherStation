@@ -80,7 +80,7 @@ void irq_set()
 
       f_dsp.utf8rus(st1);
 
-      if (conf_data.type_disp != 20) end_run_st = false; // перезапуск бегущей строки;
+      if (conf_data.type_disp != 20 && !nm_is_on) end_run_st = false; // перезапуск бегущей строки;
     }
   }
 }
@@ -129,6 +129,7 @@ void firq6() // 0.5 sec main cycle
     //-----------------------------------------
 
     // run slowely time displays here
+    m32_8time_act = false;
     if (!(conf_data.type_disp == 20 && !end_run_st)) time_view(conf_data.type_disp, ram_data.type_vdrv); //break time view while scroll a string
   }
   Alarmed();
@@ -147,7 +148,6 @@ void firq7() // 0.2 sec Communications with server
     if (debug_level == 2) DBG_OUT_PORT.printf("Serv sec %u\n", (millis() - serv_ms) / 1000);
 
     ArduinoOTA.handle();
-    yield();
     if ((millis() - serv_ms) > 300000L && conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
 # endif
   }
@@ -166,7 +166,7 @@ void firq7() // 0.2 sec Communications with server
 
 void firq8() // 0.125 sec
 {
-  if (conf_data.type_disp == 20 && disp_on && end_run_st)
+  if (m32_8time_act)
   {
     uint8_t font_wdt = 5;
 
@@ -185,10 +185,18 @@ void firq8() // 0.125 sec
 
 void firq9() //0.04 sec running string is out switch to time view
 {
-  if (conf_data.type_disp == 20 && disp_on)
+  if (conf_data.type_disp > 19 && conf_data.type_disp < 29  && disp_on)
   {
     if (!end_run_st) end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
   }
+
+  if (ram_data.type_vdrv == 5 && conf_data.type_disp == 22 && disp_on)
+  {
+    ht1632_ramFormer(screen, ORANGE, GREEN);
+    m1632 -> pwm(cur_br);
+    m1632 -> sendFrame();
+  }
+
 
   if (ram_data.type_vdrv == 2 && conf_data.type_disp == 20 && disp_on)
   {

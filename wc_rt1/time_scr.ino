@@ -55,27 +55,27 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 20:
       // M32x8MONO
-      time_m32_8();
+      m32_8time_act = time_m32_8(screen, 0, buff1, oldDigit, digPos_x, d_notequal);
       break;
     case 21:
       // m32x16MONO
-      time_m32_8();
+      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
       break;
     case 22:
       // M32x16BICOL
-      time_m32_8();
+      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
       break;
     case 23:
       // M32x16COLOR
-      time_m32_8();
+      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
       break;
     case 24:
       // M64x32COLOR
-      time_m32_8();
+      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
       break;
     case 25:
       // M64x64COLOR
-      time_m32_8();
+      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
       break;
     case 29:
       // 320x240COLOR

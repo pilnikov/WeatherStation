@@ -1,10 +1,9 @@
 
 #include <Adafruit_GFX.h>
 #include <LiquidCrystal_I2C.h>
-//#include <Adafruit_LEDBackpack.h>
-//#include <LedControl.h>
-#include <Max72xxPanel.h>
-#include "HT16K33.h"
+#include <Max72.h>
+#include <SHT1632_3.h>
+#include <HT16K33.h>
 #include <TM1637.h>
 
 #if defined(ESP32)
@@ -23,19 +22,18 @@ void lcd_time();
 void m7219_init();
 void m7219_ramFormer(byte*);
 void ht1632_init();
-void m1632_time();
+void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 
 void a595_init();
-void m3264_time();
 
-bool mov_str(uint8_t, uint8_t, String, uint8_t, int);
+bool scroll_String(int8_t, int8_t, String, int&, int&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
 uint16_t auto_br(uint16_t);
 
 void bat (uint8_t);
 void digit (uint8_t, uint8_t);
 void mon_day (uint8_t, uint8_t);
 void ala (uint8_t);
-void time_m32_8();
+bool time_m32_8(byte*, uint8_t, byte*, char*, uint8_t*, bool*);
 //-----------------------------------------------------------------------------new
 byte screen[64]; // display buffer
 
@@ -59,11 +57,11 @@ const static char* smne[12] = {"January", "February ", "March", "April", "May", 
 
 //----------------------------------------------------------------------------TM1637
 
-TM1637* tm1637;
+static TM1637* tm1637;
 
 //----------------------------------------------------------------------------HT1633
 
-HT16K33* ht1633;
+static HT16K33* ht1633;
 
 
 //---------------------------------------------------------------------------LCD1602
@@ -77,7 +75,7 @@ const uint8_t lcd_col = 16;
 
 uint8_t  num_st = 1, max_st = 3; //номер и макс кол-во прокручиваемых строк
 
-LiquidCrystal_I2C * lcd;
+static LiquidCrystal_I2C * lcd;
 
 //---------------------------------------------------------------------------MAX7219 4 x 8 x 8 Matrix Display
 
@@ -85,7 +83,7 @@ LiquidCrystal_I2C * lcd;
 //#define font4pt
 //#define font5pt
 
-Max72xxPanel *m7219;
+static Max72 *m7219;
 
 uint8_t colon; //номер разделителя
 const uint8_t q_dig = 6;  // количество цифр на дисплее
@@ -93,9 +91,9 @@ uint8_t digHt;
 uint8_t TextSize = 1;
 
 #ifdef new_max 
-const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
+uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
 #else 
-const uint8_t digPos_x[q_dig] = {0, 4, 11, 16, 23, 28};
+uint8_t digPos_x[q_dig] = {0, 4, 11, 16, 23, 28};
 #endif
 static char oldDigit[q_dig];                       // убегающая цифра
 static uint8_t digPos_y[q_dig];                    // позиция цифры по оси у
@@ -103,7 +101,7 @@ static uint8_t digPos_y[q_dig];                    // позиция цифры 
 uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
 uint8_t point = 0;
 int cur_sym_pos[4] = {0, 0, 0, 0};
-bool end_run_st = true, end_run_st_buf;
+bool end_run_st = true, end_run_st_buf, m32_8time_act = false;
 String st1 = String();
 uint16_t inn[32];
 bool d_notequal[q_dig];
@@ -122,12 +120,11 @@ static const uint8_t dig2[10] = {0xFA, 0x60, 0xD6, 0xF4, 0x6C, 0xBC, 0xBE, 0xE0,
 #include <HT1621.h>
 
 // refere to Macduino website for pin connections and their meaning
-HT1621 * ht21;
+static HT1621 * ht21;
 
 //---------------------------------------------------------------------------HT1632
-#include <Sure_HT1632.h>
 
-HT1632Class * m1632;
+static HT1632C * m1632;
 
 //---------------------------------------------------------------------------ILI9341
 #include "Adafruit_ILI9341.h"

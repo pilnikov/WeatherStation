@@ -1,7 +1,5 @@
 #include "fonts.h"
 
-bool scroll_String(int8_t, int8_t, String, int&, int&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
-
 
 //-------------------------------------------------------------- Установка яркости
 uint16_t auto_br(uint16_t lt)
@@ -29,7 +27,7 @@ uint16_t ft_read(bool snr_pres)
 }
 
 
-void  time_m32_8()
+bool time_m32_8(byte *in, uint8_t pos, byte *nbuf, char *old, uint8_t *dposx, bool *change)
 {
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];
@@ -50,50 +48,49 @@ void  time_m32_8()
   for (uint8_t i = 0; i < q_dig; i++)
   {
     if (i > 3) font_wdt = 3;
-    d_notequal[i] = d[i] != oldDigit[i]; // проверка изменений в буфере отображаемых символов
-    if (d_notequal[i])
+    change[i] = d[i] != old[i]; // проверка изменений в буфере отображаемых символов
+    if (change[i])
     {
-      printCharacter(d[i], digPos_x[i], buff1, font5x7, 5); // запись символа в вертушок для изменившихся позиций
-      shift_ud(true,  true, buff1, screen,  digPos_x[i],  digPos_x[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
+      printCharacter(d[i], dposx[i], nbuf, font5x7, 5); // запись символа в вертушок для изменившихся позиций
+      shift_ud(true,  true, buff1, in + pos,  dposx[i],  dposx[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
     }
-    else printCharacter(oldDigit[i], digPos_x[i], screen, font5x7, 5); // отображение символов
-    oldDigit[i] = d[i]; // перезапись предыдущих значений в буфер
+    else printCharacter(old[i], dposx[i], in + pos, font5x7, 5); // отображение символов
+    old[i] = d[i]; // перезапись предыдущих значений в буфер
   }
+  return true;
 }
 
 //-------------------------------------------------------------- Отображение бегущей строки
-bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, byte *out, const byte *font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
+bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, byte * out, const byte * font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
 {
   byte inbyte[qbs]; //источник байтов
 
   unsigned char character = 0; // дергаем входящую сроку по символам
 
-  if (icp < in.length() + x2 - x1 + 1)
-  {
-    character = in[icp]; // достаем очередной символ
+  memmove (out + x1,/* цель */out + x1 + qbs,/* источник */x2 - x1 - qbs + 1/* объем */);
 
-    if (cbp < font_wdt) // Потрошим строку Переходим к очередному символу входящей строки
+  if (icp < in.length() + x2 - x1)
+  {
+    if (icp < in.length())
     {
-      memcpy (out + x2 + 1,                      // цель
-              font + character * font_wdt + cbp, // источник
-              qbs);                              // объем
-      cbp += qbs;
-    }
-    else // символ "закончился" - вставляем пустой столбик-разделитель
-    {
-      icp++; // переходим к следующему символу в строке
-      if (icp < in.length())
+      character = in[icp]; // достаем очередной символ
+
+      if (cbp < font_wdt) // Потрошим строку Переходим к очередному символу входящей строки
       {
-        cbp = 0;   // Пока сидим внутри строки сбрасываем указатель на байт в шрифте
-        for (uint8_t i = 0; i < spacer_wdt; i++) out[i + x2 + spacer_wdt] = 0; // вставляем пустой столбик-разделитель
+        memcpy (out + x2 - qbs + 1,/* цель */font + character * font_wdt + cbp, /* источник */ qbs /* объем */);
+        cbp += qbs;
       }
-      else for (uint8_t i = 0; i < qbs; i++) out[i + x2 + 1] = 0; // очищаем экран по концу строки
+      if (cbp >= font_wdt) // Символ "закончился"
+      {
+        icp++;     // переходим к следующему символу в строке
+        cbp = 0;   // Пока сидим внутри строки сбрасываем указатель на байт в шрифте
+        if (spacer_wdt > 0) memset (out + x2 - spacer_wdt + 1, 0, spacer_wdt); // вставляем пустой столбик-разделитель
+      }
     }
-    if (!(cbp == 0 && spacer_wdt == 0))
+    else
     {
-      memmove (out + x1,       // цель
-               out + x1 + qbs, // источник
-               x2 - x1 + 1);   // объем
+      memset (out + x2 - qbs + 1, 0, qbs); // очищаем экран по концу строки
+      icp += qbs;
     }
   }
   else

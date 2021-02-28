@@ -5,6 +5,7 @@ void printDot(uint8_t);
 void utf714(unsigned char&, unsigned char);
 void printCharacter(unsigned char, uint8_t, byte*, const byte*, uint8_t);
 void compressor7(byte*, uint8_t);
+void shift_ud(bool, bool, byte*, byte*, int8_t, int8_t);
 
 /*
    Erases one pos on display
