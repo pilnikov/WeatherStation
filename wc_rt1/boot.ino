@@ -16,7 +16,6 @@ void irq_set()
 
   uint8_t irq = 10;
   for (uint8_t i = 1; i < 10;  i++) if (millis() - irq_end[i] >  timers[i]) irq = i;
-  //&& millis() - irq_end[i] <  timers[i] + 100
 
   switch (irq)
   {
@@ -81,6 +80,11 @@ void irq_set()
       f_dsp.utf8rus(st1);
 
       if (conf_data.type_disp != 20 && !nm_is_on) end_run_st = false; // перезапуск бегущей строки;
+
+      if (ram_data.type_vdrv == 5)
+      {
+        m1632 -> sendCmdonInit(); // Костыль!!!!!
+      }
     }
   }
 }
@@ -103,7 +107,7 @@ void firq1() // 1 hour
 
 void firq4() // 55sec
 {
-  if (!nm_is_on && conf_data.type_disp > 9) end_run_st = false; // запуск бегущей строки
+  if (!nm_is_on && conf_data.type_disp == 20 && end_run_st) end_run_st = false; // запуск бегущей строки
 }
 
 void firq6() // 0.5 sec main cycle
@@ -166,6 +170,9 @@ void firq7() // 0.2 sec Communications with server
 
 void firq8() // 0.125 sec
 {
+  uint8_t pos = 0;
+  if (conf_data.type_disp > 20 && conf_data.type_disp < 29) pos = 32;
+
   if (m32_8time_act)
   {
     uint8_t font_wdt = 5;
@@ -176,7 +183,7 @@ void firq8() // 0.125 sec
 
       if (d_notequal[i])
       {
-        shift_ud(true, false, buff1, screen,  digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
+        shift_ud(true, false, buff1, screen + pos,  digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
       }
     }
   }
@@ -193,6 +200,7 @@ void firq9() //0.04 sec running string is out switch to time view
   if (ram_data.type_vdrv == 5 && conf_data.type_disp == 22 && disp_on)
   {
     ht1632_ramFormer(screen, ORANGE, GREEN);
+
     m1632 -> pwm(cur_br);
     m1632 -> sendFrame();
   }

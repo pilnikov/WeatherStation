@@ -35,7 +35,7 @@ void mon_day (uint8_t, uint8_t);
 void ala (uint8_t);
 bool time_m32_8(byte*, uint8_t, byte*, char*, uint8_t*, bool*);
 //-----------------------------------------------------------------------------new
-byte screen[64]; // display buffer
+byte screen[128]; // display buffer
 
 void seg7d4_time();
 void seg7d6_time();

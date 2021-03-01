@@ -76,7 +76,7 @@ void setup()
   if (!ram_data.bh1750_present) pinMode(A0, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
   pinMode(2, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
-  if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, HIGH);
+  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, HIGH);
 # endif
 
 # if defined(ESP8266)
@@ -135,7 +135,7 @@ void setup()
   if (web_cli || web_ap)
   {
 # if defined(ESP8266) || defined(ESP32)
-    if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, LOW);
+    if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, LOW);
 # endif
 
     //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
@@ -177,7 +177,7 @@ void setup()
   GetSnr();
   //-------------------------------------------------------- Гасим светодиод
 #   if defined(ESP8266) || defined(ESP32)
-  if (conf_data.type_thermo == 0)   digitalWrite(LED_BUILTIN, HIGH);
+  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(LED_BUILTIN, HIGH);
 #   endif
 
   //-------------------------------------------------------- Устанавливаем будильники

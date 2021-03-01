@@ -99,7 +99,7 @@ void start_serv()
 void stop_serv()
 {
   server.stop();
-  if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, HIGH); //Гасим светодиод
+  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, HIGH); //Гасим светодиод
   if (debug_level == 14) DBG_OUT_PORT.println("Server stopped");
   stop_wifi();
 }

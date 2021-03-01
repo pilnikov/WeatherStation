@@ -120,11 +120,11 @@ void seg7_mode(uint8_t mod,  uint8_t _width)
 
         case 7: //Давление
           if (snr_data.p <= 700 || snr_data.p >= 800)disp_mode ++;
-          else size_tstr = snprintf(tstr, s_tstr, " P%5d", snr_data.p);
+          else size_tstr = snprintf(tstr, s_tstr, "P%5d", snr_data.p);
           break;
 
         case 8: //День недели, дата месяц
-          size_tstr = snprintf(tstr, s_tstr, "%2s.%02.d%02d", name_week7[weekday()], day(), month());
+          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d", name_week7[weekday()], day(), month());
           break;
 
         case 9: //Актуальный будильник

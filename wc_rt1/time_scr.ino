@@ -86,14 +86,13 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 31:
       // CUSTOM_2
-      seg7_mode(0, 4);
-      if (nm_is_on) disp_mode = 9;
-      if (disp_mode > 9 ) disp_mode = 1;
+      if (nm_is_on || disp_mode == 9) disp_mode = 11;
       seg7_mode(disp_mode, 6);
-      compressor7(screen, 14);
-      size_tstr = snprintf(tstr, 2, "%02u", second());
-      print_(tstr, strlen(tstr), screen, font14s, 2, 0);
-      if (blinkColon) printDot(2);
+      memmove (screen + 8, // цель
+               screen,      // источник
+               12);         // объем
+      seg7_mode(13, 4);
+      if (blinkColon) printDot(5);
       break;
     default:
       break;
@@ -168,7 +167,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
           break;
         case 31:
           // CUSTOM_2
-          ht1633_ramFormer(screen, 0, 8);
+          ht1633_ramFormer(screen, 0, 10);
           break;
         default:
           ht1633_ramFormer2(screen, 0, 8);

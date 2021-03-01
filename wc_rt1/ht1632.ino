@@ -2,11 +2,7 @@
 void ht1632_init()
 {
   m1632 = new HT1632C(WRCLK_PIN, /*clk*/ CS_PIN /*cs*/);
-
-  m1632 -> setFrequency(15000);
-  m1632 -> clear();
-  m1632 -> pwm(12);
-  m1632 -> sendFrame();
+  m1632 -> setFrequency(15000000);
 }
 
 void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)

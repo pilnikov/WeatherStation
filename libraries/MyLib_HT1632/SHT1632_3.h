@@ -68,9 +68,9 @@ class HT1632C {
     void setPanelWidth(uint8_t width);
     void setPanelHeight(uint8_t height);
 
-    int init();
-    int getWidth();
-    int getHeight();
+    void sendCmdonInit();
+    int  getWidth();
+    int  getHeight();
     void ledOn();
     void ledOff();
     void blinkOn();
@@ -82,11 +82,12 @@ class HT1632C {
 
     // Plotting functions
     void plot(const int rx, const int ry, const uint8_t color);
+
+  private:
+    int  init();
     void updateFramebuffer(const int chip, const int addr,
                            const uint8_t target_bitval,
                            const uint8_t pixel_bitval);
-
-  private:
     uint8_t num_panels = 1;
     uint8_t rotation = 0;
     uint8_t clk_pin;
@@ -99,7 +100,7 @@ class HT1632C {
     uint8_t chip_width = 16;
     uint8_t colors = 2;
     uint8_t chips_per_panel = 4;
-    uint32_t frequency = 2560000;
+    uint32_t frequency = 20000000;
 
     uint16_t width;
     uint8_t height;

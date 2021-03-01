@@ -78,7 +78,16 @@ int HT1632C::init()
   pinMode(clk_pin, OUTPUT);
   pinMode(cs_pin, OUTPUT);
 
-  // init display
+  sendCmdonInit();
+
+  clear();
+  sendFrame();
+  return 0;
+}
+
+void HT1632C::sendCmdonInit()
+{
+	  // init display
   sendCmd(CS_ALL, COMMAND_CODE::SYSDIS);
   sendCmd(CS_ALL,
           (chip_height <= 8) ? COMMAND_CODE::COMS00 : COMMAND_CODE::COMS01);
@@ -88,10 +97,6 @@ int HT1632C::init()
   sendCmd(CS_ALL, COMMAND_CODE::LEDON);
   sendCmd(CS_ALL, COMMAND_CODE::BLOFF);
   sendCmd(CS_ALL, COMMAND_CODE::PWM);
-
-  clear();
-  sendFrame();
-  return 0;
 }
 
 int HT1632C::getWidth()
@@ -216,7 +221,8 @@ void HT1632C::chipSelect(const uint8_t cs)
 
 void HT1632C::clkPulse(int num)
 {
-  while (num--) {
+  while (num--) 
+  {
     digitalWrite(clk_pin, HIGH);
     digitalWrite(clk_pin, LOW);
   }

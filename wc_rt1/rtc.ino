@@ -192,7 +192,7 @@ bool Alarmed()
     if (debug_level == 13) DBG_OUT_PORT.println("alarm one is run!");
 
     dmsg.alarm_msg(rtc_data.n_cur_alm, conf_data.type_disp, conf_data.rus_lng);  // Сообщение на индикатор
-    if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
+    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
 
     switch (conf_data.alarms[rtc_data.n_cur_alm][4])     // Выполняем экшн
     {
@@ -258,7 +258,7 @@ bool Alarmed()
       strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
       saveConfig(conf_f, conf_data);
     }
-    if (conf_data.type_thermo == 0) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
+    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2
