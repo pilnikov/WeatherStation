@@ -3,34 +3,35 @@ void time_view(uint8_t, uint8_t);
 
 void time_view(uint8_t type_disp, uint8_t type_vdrv)
 {
+  uint8_t mod = 13;
   if (end_run_st)CLS();
   switch (type_disp)
   {
     case 1:
       // 7SEGx4D
       if (nm_is_on || disp_mode == 10) disp_mode = 13;
-      seg7_mode(disp_mode, 4);
+      seg7_mode(disp_mode, 4, screen, 0);
       if (blinkColon) printDot(3);
       break;
     case 2:
       // 7SEGx6D
       if (nm_is_on || disp_mode == 9) disp_mode = 11;
-      seg7_mode(disp_mode, 6);
+      seg7_mode(disp_mode, 6, screen, 0);
       break;
     case 3:
       // 7SEGx8D
       if (nm_is_on || disp_mode == 6) disp_mode = 7;
-      seg7_mode(disp_mode, 8);
+      seg7_mode(disp_mode, 8, screen, 0);
       break;
     case 10:
       // 14SEGx4D
       if (nm_is_on || disp_mode == 10) disp_mode = 13;
-      seg7_mode(disp_mode, 4);
+      seg7_mode(disp_mode, 4, screen, 0);
       if (blinkColon) printDot(3);
       break;
     case 11:
       // 14SEGx8D
-      seg7_mode(13, 4);
+      seg7_mode(mod, 4, screen, 0);
       if (blinkColon) printDot(3);
       break;
     case 12:
@@ -39,14 +40,8 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
     case 13:
       // 16SEGx8D
       if (nm_is_on || disp_mode == 10) disp_mode = 1;
-      seg7_mode(disp_mode, 4);
-      memmove (screen + 32, // цель
-               screen,      // источник
-               8);          // объем
-      seg7_mode(13, 4);
-      memmove (screen + 8,  // цель
-               screen + 32, // источник
-               8);          // объем
+      seg7_mode(mod, 4, screen, 0);
+      seg7_mode(disp_mode, 4, screen, 8);
       if (blinkColon) printDot(3);
       break;
     case 19:
@@ -86,13 +81,10 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 31:
       // CUSTOM_2
-      if (nm_is_on || disp_mode == 9) disp_mode = 11;
-      seg7_mode(disp_mode, 6);
-      memmove (screen + 8, // цель
-               screen,      // источник
-               12);         // объем
-      seg7_mode(13, 4);
+      if (nm_is_on || disp_mode == 9) disp_mode = 1;
+      seg7_mode(mod, 4, screen, 0);
       if (blinkColon) printDot(5);
+      seg7_mode(disp_mode, 6, screen, 8);
       break;
     default:
       break;

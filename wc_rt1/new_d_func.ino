@@ -4,6 +4,7 @@ void cleanPos(uint8_t);
 void printDot(uint8_t);
 void utf714(unsigned char&, unsigned char);
 void printCharacter(unsigned char, uint8_t, byte*, const byte*, uint8_t);
+void print_(char*, uint8_t, byte*, uint8_t, const byte*, uint8_t, uint8_t);
 void compressor7(byte*, uint8_t, uint8_t);
 void shift_ud(bool, bool, byte*, byte*, int8_t, int8_t);
 
@@ -92,24 +93,18 @@ void printCharacter(unsigned char character, uint8_t x, byte *out, const byte* f
 }
 
 
-void print_(char *in, uint8_t size_in, byte *out, const byte* font, uint8_t font_wdt, uint8_t spacer_wdt)
+void print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* font, uint8_t font_wdt, uint8_t spacer_wdt)
 {
   unsigned char character = 0;
-  uint8_t icp = 0, cbp = 0, obp = 0;
+  uint8_t icp = 0;
 
   while (icp < size_in)
   {
-    if (cbp > font_wdt - 1 + spacer_wdt) // Переходим к очередному символу входящей строки
-    {
-      cbp = 0;
-      icp ++;
-    }
-
     character = in[icp]; // достаем очередной символ
-    if (cbp < font_wdt) out[obp] = font[character * font_wdt + cbp]; //потрошим символ на байты
-    else out[obp] = 0; // символ "закончился" - вставляем пустой столбик-разделитель
-    cbp++;
-    obp++;
+
+    memcpy (out + _offset + icp * (font_wdt + spacer_wdt),/* цель */font + character * font_wdt, /* источник */ font_wdt /* объем */);
+    if (spacer_wdt > 0) memset (out + _offset + icp * (font_wdt + spacer_wdt) + spacer_wdt, 0, spacer_wdt); // вставляем пустой столбик-разделитель
+    icp++;     // переходим к следующему символу в строке
   }
 }
 
@@ -135,18 +130,15 @@ void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
 
 void compressor7(byte *in, uint8_t x1, uint8_t x2) // Адаптация дисплейного буфера под семисегментники
 {
-   uint8_t _size = (x2 -x1) * 2;
-   byte _row [_size];
-   memset (_row, 0, _size);
+  uint8_t _size = (x2 - x1) * 2;
 
-  for (uint8_t i = 0, y = x1; i < _size; i++, y++)
+  for (uint8_t i = x1, y = x1; i < _size; i++, y++)
   {
     if (in[y * 2 + 1] == 0x80)
     {
-      _row[i - 1] |= 0x80;
-      y += 2;
+      in[i - 1] |= 0x80;
+      y ++;
     }
-    _row[i] = in[y * 2 + 1]; //position on the display
+    in[i] = in[y * 2 + 1]; //position on the display
   }
-  for (uint8_t i = 0, y = x1; i < _size; i++, y++) in[y] = _row[i];
 }

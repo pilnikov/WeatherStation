@@ -3,6 +3,15 @@ void GetSnr()
 {
   snr_data_t ts_data;
   snr_data_t es_data;
+
+  snr_data.t1 = 99;
+  snr_data.t2 = 99;
+  snr_data.t3 = 99;
+  snr_data.h1 = 0;
+  snr_data.h2 = 0;
+  snr_data.h3 = 0;
+  snr_data.p = 700;
+
   if (web_cli)
   {
     if (ram_data.type_snr1 == 1 || ram_data.type_snr2 == 1 || ram_data.type_snr3 == 1 || ram_data.type_snrp == 1)

@@ -16,21 +16,21 @@ String pr_str(uint8_t num)
         size_buf = snprintf(buf, 255, " Today is %s %d %s %d", sdne[weekday() - 1], day(), smne[month() - 1], year());
         break;
       case 2:
-        if (snr_data.t1 < 99)
+        if (snr_data.t1 > -99 && snr_data.t1 < 99)
         {
           size_buf1 = snprintf(buf1, 255, " %s ", conf_data.ch1_name);
           strncat(buf, buf1, size_buf1);
           size_buf1 = snprintf(buf1, 255, "%d%cC %d%%", snr_data.t1, grad, snr_data.h1);
           strncat(buf, buf1, size_buf1);
         }
-        if (snr_data.t2 < 99)
+        if (snr_data.t2 > -99 && snr_data.t2 < 99)
         {
           size_buf1 = snprintf(buf1, 255, " %s ", conf_data.ch2_name);
           strncat(buf, buf1, size_buf1);
           size_buf1 = snprintf(buf1, 255, "%d%cC %d%%", snr_data.t2, grad, snr_data.h2);
           strncat(buf, buf1, size_buf1);
         }
-        if (snr_data.t3 < 99)
+        if (snr_data.t3 > -99 && snr_data.t3 < 99)
         {
           size_buf1 = snprintf(buf1, 255, " %s ", conf_data.ch3_name);
           strncat(buf, buf1, size_buf1);
@@ -60,14 +60,14 @@ String pr_str(uint8_t num)
         size_buf = snprintf(buf, 255, " Сегодня %s %d %s %dг.", sdnr[weekday() - 1], day(), smnr[month() - 1], year());
         break;
       case 2:
-        if (snr_data.t1 < 99)
+        if (snr_data.t1 > -99 && snr_data.t1 < 99)
         {
           size_buf1 = snprintf(buf1, 255, " %s ", conf_data.ch1_name);
           strncat(buf, buf1, size_buf1);
           size_buf1 = snprintf(buf1, 255, "%d%cC %d%%", snr_data.t1, grad, snr_data.h1);
           strncat(buf, buf1, size_buf1);
         }
-        if (snr_data.t2 < 99)
+        if (snr_data.t2 > -99 && snr_data.t2 < 99)
         {
           size_buf1 = snprintf(buf1, 255, " %s ", conf_data.ch2_name);
           strncat(buf, buf1, size_buf1);
@@ -84,7 +84,7 @@ String pr_str(uint8_t num)
           size_buf1 = snprintf(buf1, 255, "%d%cC %d%%", snr_data.t2, grad, snr_data.h2);
           strncat(buf, buf1, size_buf1);
         }
-        if (snr_data.t3 < 99)
+        if (snr_data.t3 > -99 && snr_data.t3 < 99)
         {
           size_buf1 = snprintf(buf1, 255, " %s ", conf_data.ch3_name);
           strncat(buf, buf1, size_buf1);

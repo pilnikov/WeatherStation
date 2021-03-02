@@ -157,12 +157,7 @@ void firq7() // 0.2 sec Communications with server
   }
   if (conf_data.type_disp == 11 && !end_run_st)
   {
-    end_run_st = scroll_String(16, 23, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-    memmove (screen + 8,  // цель
-             screen + 16, // источник
-             8);          // объем
-
-
+    end_run_st = scroll_String(8, 16, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
     ht1633_ramFormer2(screen, 4, 8);
     ht1633->write();
   }

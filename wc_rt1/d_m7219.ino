@@ -4,8 +4,6 @@ void m7adopt(byte*, uint8_t, uint8_t);
 
 void m7219_init()
 {
-  digHt = 8;  // Высота матрицы в пикселях
-
   if (conf_data.type_disp < 10) m7219 = new Max72(CS_PIN, 1, 1);
   else m7219 = new Max72(CS_PIN, 1, 4);
 
@@ -21,13 +19,13 @@ void m7219_init()
 
     strncpy(tstr, st1.c_str(), 6);
 
-    print_(tstr, strlen(tstr), screen, font5x7, 5, 1);
+    print_(tstr, strlen(tstr), screen, 0, font5x7, 5, 1);
     m7219_ramFormer(screen);
   }
 
   if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
   {
-    print_("7219", 5, screen, font14s, 2, 0);
+    print_("7219", 5, screen, 0, font14s, 2, 0);
     m7adopt(screen, 0, 4);
   }
 
