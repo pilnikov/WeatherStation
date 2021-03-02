@@ -3,7 +3,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <Max72.h>
 #include <SHT1632_3.h>
-#include <HT16K33.h>
+#include <myHT16K33.h>
 #include <TM1637.h>
 
 #if defined(ESP32)

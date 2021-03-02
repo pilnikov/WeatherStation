@@ -39,30 +39,49 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
   */
   //uint8_t d_r [8] = {9, 8, 15, 14, 10, 11, 12, 13};
 
-  if  (x1 < 0 || x2 > 12) return;
+  if  (x1 < 0 || x2 > 13) return;
 
-  const uint8_t d_r [16] = {0, 1, 2, 3, 4, 5, 6, 7, 1, 0, 4, 5, 6, 7, 3, 2};
-
-  uint16_t _row [8];
-  memset (_row, 0, 16);
-
-  uint8_t a = 10;
-  if (a <= x2) a = x2;
-  compressor7(in, 0, a);
+  uint16_t _row = 0;
 
   for (uint8_t i = x1; i < x2; i++)
   {
     if (i < 4) f_dsp.roll_seg(in[i]);
-    if (i < 8)_row[i] |= (in[i] & 0xFF);
-    else _row[d_r[i]] |= (in[i] & 0xFF) << 8;
-    if (i > 9) _row[d_r[i + 3]] |= (in[i * 2] & 0xFF) << 8;
+
+    if (i < 8) // Позиции с 0 по 7
+    {
+      _row = (in[i * 2 + 1] & 0xFF);
+      ht1633->setRow(i, _row);
+    }
+    else
+    {
+      if (i < 10)  // Позиции 8, 9
+      {
+        _row = (in[i * 2 + 1] & 0xFF) << 8;
+        ht1633->setRow(9 - i, _row);
+      }
+      else
+      {
+        if (i == 10) // Старший байт позиции 10
+        {
+          _row = (in[i * 2] & 0xFF) << 8;
+          ht1633->setRow(7, _row);
+        }
+        else // Старший байт позиций 11,12
+        {
+          _row = (in[i * 2] & 0xFF) << 8;
+          ht1633->setRow(14 - i, _row);
+        }
+        // Младший байт позиций 10 - 12
+        _row = (in[i * 2 + 1] & 0xFF) << 8;
+        ht1633->setRow(i - 6, _row);
+      }
+    }
   }
-  for (uint8_t i = 0; i < 8; i++) ht1633->setRow(i, _row[i]);
 }
 
 void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 {
-  uint16_t _row;
+  uint16_t _row = 0;
 
   for (uint8_t i = x1, y = x1 * 2; i < x2; i++, y++)
   {

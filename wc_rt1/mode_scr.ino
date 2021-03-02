@@ -277,18 +277,9 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
   if (out)
   {
     f_dsp.utf8rus(tstr);
-   print_(tstr, strlen(tstr), in, _offset, font14s, 2, 0);
- 
-    DBG_OUT_PORT.print("\ntstr ..12_");
-    DBG_OUT_PORT.print(in[12], HEX);
-    DBG_OUT_PORT.print("_13_");
-    DBG_OUT_PORT.print(in[13], HEX);
-    DBG_OUT_PORT.print("_14_");
-    DBG_OUT_PORT.print(in[14], HEX);
-    DBG_OUT_PORT.print("_15_");
-    DBG_OUT_PORT.print(in[15], HEX);
+    print_(tstr, strlen(tstr), in, _offset, font14s, 2, 0);
     return strlen(tstr);
   }
-  memset (in + _offset, 0, strlen(tstr)); 
+  memset (in + _offset, 0, strlen(tstr));
   return -1;
 }

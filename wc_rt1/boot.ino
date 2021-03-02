@@ -157,10 +157,17 @@ void firq7() // 0.2 sec Communications with server
   }
   if (conf_data.type_disp == 11 && !end_run_st)
   {
-    end_run_st = scroll_String(8, 16, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+    end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
     ht1633_ramFormer2(screen, 4, 8);
     ht1633->write();
   }
+  if (conf_data.type_disp == 31 && !end_run_st)
+  {
+    //end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+    //ht1633_ramFormer(screen, 10, 13);
+    //ht1633->write();
+  }
+
 }
 
 void firq8() // 0.125 sec
