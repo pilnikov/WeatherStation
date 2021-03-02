@@ -88,6 +88,8 @@ class HT1632C {
     void updateFramebuffer(const int chip, const int addr,
                            const uint8_t target_bitval,
                            const uint8_t pixel_bitval);
+	void setas3208();
+	
     uint8_t num_panels = 1;
     uint8_t rotation = 0;
     uint8_t clk_pin;

@@ -1,5 +1,5 @@
 
-void m7adopt(byte*, uint8_t);
+void m7adopt(byte*, uint8_t, uint8_t);
 
 
 void m7219_init()
@@ -28,7 +28,7 @@ void m7219_init()
   if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
   {
     print_("7219", 5, screen, font14s, 2, 0);
-    m7adopt(screen, 12);
+    m7adopt(screen, 0, 4);
   }
 
   m7219 -> write();
@@ -64,12 +64,12 @@ void m7219_ramFormer(byte *ram_buff)
   m7219 -> setRam(buff, 32);
 }
 
-void m7adopt(byte *in, uint8_t in_size)
+void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 {
-  compressor7(in, in_size);
-  for (uint8_t i = 0; i < 8; i++)
+  compressor7(in, x1, x2);
+  for (uint8_t i = x1; i < x2; i++)
   {
     f_dsp.mir_seg(in[i]); //position on the display
   }
-  m7219 -> setRam(in, 8);
+  m7219 -> setRam(in, x2 - x1);
 }

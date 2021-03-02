@@ -43,16 +43,20 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 
   const uint8_t d_r [16] = {0, 1, 2, 3, 4, 5, 6, 7, 1, 0, 4, 5, 6, 7, 3, 2};
 
-  uint16_t _row [8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  uint16_t _row [8];
+  memset (_row, 0, 16);
+
+  uint8_t a = 10;
+  if (a <= x2) a = x2;
+  compressor7(in, 0, a);
 
   for (uint8_t i = x1; i < x2; i++)
   {
-    if (i < 4) f_dsp.roll_seg(in[i * 2 + 1]);
-    if (i < 8)_row[i] |= (in[i * 2 + 1] & 0xFF);
-    else _row[d_r[i]] |= (in[i * 2 + 1] & 0xFF) << 8;
+    if (i < 4) f_dsp.roll_seg(in[i]);
+    if (i < 8)_row[i] |= (in[i] & 0xFF);
+    else _row[d_r[i]] |= (in[i] & 0xFF) << 8;
     if (i > 9) _row[d_r[i + 3]] |= (in[i * 2] & 0xFF) << 8;
   }
-
   for (uint8_t i = 0; i < 8; i++) ht1633->setRow(i, _row[i]);
 }
 

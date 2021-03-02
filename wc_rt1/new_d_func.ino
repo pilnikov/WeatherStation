@@ -4,7 +4,7 @@ void cleanPos(uint8_t);
 void printDot(uint8_t);
 void utf714(unsigned char&, unsigned char);
 void printCharacter(unsigned char, uint8_t, byte*, const byte*, uint8_t);
-void compressor7(byte*, uint8_t);
+void compressor7(byte*, uint8_t, uint8_t);
 void shift_ud(bool, bool, byte*, byte*, int8_t, int8_t);
 
 /*
@@ -133,15 +133,20 @@ void shift_ud(bool dwn, bool r_s, byte * in, byte * out,  int8_t x1, int8_t x2)
   }
 }
 
-void compressor7(byte *in, uint8_t in_size) // Адаптация дисплейного буфера под семисегментники
+void compressor7(byte *in, uint8_t x1, uint8_t x2) // Адаптация дисплейного буфера под семисегментники
 {
-  for (uint8_t i = 0, y = 0; i < in_size / 2; i++, y++)
+   uint8_t _size = (x2 -x1) * 2;
+   byte _row [_size];
+   memset (_row, 0, _size);
+
+  for (uint8_t i = 0, y = x1; i < _size; i++, y++)
   {
     if (in[y * 2 + 1] == 0x80)
     {
-      in[i - 1] |= 0x80;
-      y++;
+      _row[i - 1] |= 0x80;
+      y += 2;
     }
-    in[i] = in[y * 2 + 1]; //position on the display
+    _row[i] = in[y * 2 + 1]; //position on the display
   }
+  for (uint8_t i = 0, y = x1; i < _size; i++, y++) in[y] = _row[i];
 }

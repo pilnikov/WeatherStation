@@ -83,7 +83,7 @@ void irq_set()
 
       if (ram_data.type_vdrv == 5)
       {
-        m1632 -> sendCmdonInit(); // Костыль!!!!!
+        //m1632 -> sendCmdonInit(); // Костыль!!!!!
       }
     }
   }

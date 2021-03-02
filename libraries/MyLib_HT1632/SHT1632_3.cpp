@@ -85,19 +85,17 @@ int HT1632C::init()
   return 0;
 }
 
+
 void HT1632C::sendCmdonInit()
 {
-	  // init display
+  // init display
   sendCmd(CS_ALL, COMMAND_CODE::SYSDIS);
-  sendCmd(CS_ALL,
-          (chip_height <= 8) ? COMMAND_CODE::COMS00 : COMMAND_CODE::COMS01);
+  sendCmd(CS_ALL, COMMAND_CODE::COMS00);
   sendCmd(CS_ALL, COMMAND_CODE::MSTMD);
   sendCmd(CS_ALL, COMMAND_CODE::RCCLK);
   sendCmd(CS_ALL, COMMAND_CODE::SYSON);
   sendCmd(CS_ALL, COMMAND_CODE::LEDON);
-  sendCmd(CS_ALL, COMMAND_CODE::BLOFF);
-  sendCmd(CS_ALL, COMMAND_CODE::PWM);
-}
+ }
 
 int HT1632C::getWidth()
 {
@@ -158,11 +156,13 @@ void HT1632C::ramSet(byte *in, uint8_t in_size)
 
 void HT1632C::sendFrame()
 {
-  for (int chip = 0; chip < num_chips; ++chip) {
-    chipSelect(chip + 1);
+  for (int chip = 1; chip <= num_chips; ++chip) {
+    //sendCmdonInit();
+	chipSelect(chip);
     for (uint8_t addr = 0; addr < chip_size; addr++)
-      SPI.write(*framebufferPtr(chip, addr));
+      SPI.write(*framebufferPtr(chip - 1, addr));
     chipSelect(CS_NONE);
+	yield();
   }
 }
 
@@ -224,7 +224,7 @@ void HT1632C::clkPulse(int num)
   while (num--) 
   {
     digitalWrite(clk_pin, HIGH);
-    digitalWrite(clk_pin, LOW);
+	digitalWrite(clk_pin, LOW);
   }
 }
 
