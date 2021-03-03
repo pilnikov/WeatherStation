@@ -45,20 +45,20 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 
   for (uint8_t i = x1; i < x2; i++)
   {
-    if (i < 4) f_dsp.roll_seg(in[i]);
+    byte seg_roll = in[i];
+    if (i < 4) f_dsp.roll_seg(seg_roll);
 
-    if (i < 8) // Позиции с 0 по 7
-    {
-      _row[i] |= (in[i * 2 + 1] & 0xFF);
-    }
+    if (i < 8) _row[i] |= (seg_roll & 0xFF); // Позиции с 0 по 7
     else
     {
       if (i < 10)  // Позиции 8, 9
       {
-        _row[9 - i] |= (in[i * 2 + 1] & 0xFF) << 8;
+        _row[9 - i] |= (seg_roll & 0xFF) << 8;
       }
       else
       {
+        seg_roll = in[i * 2 + 1];
+
         if (i == 10) // Старший байт позиции 10
         {
           _row[7] |= (in[i * 2] & 0xFF) << 8;
@@ -68,7 +68,7 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
           _row[14 - i] |= (in[i * 2] & 0xFF) << 8;
         }
         // Младший байт позиций 10 - 12
-        _row[i - 6] |= (in[i * 2 + 1] & 0xFF) << 8;
+        _row[i - 6] |= (seg_roll & 0xFF) << 8;
       }
     }
   }

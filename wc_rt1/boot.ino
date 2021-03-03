@@ -161,11 +161,12 @@ void firq7() // 0.2 sec Communications with server
     ht1633_ramFormer2(screen, 4, 8);
     ht1633->write();
   }
-  if (conf_data.type_disp == 31 && !end_run_st)
+  if (conf_data.type_disp == 31)
   {
-    //end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-    //ht1633_ramFormer(screen, 10, 13);
-    //ht1633->write();
+    end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+    ht1633_ramFormer(screen, 0, 13);
+    ht1633->setBrightness(cur_br);
+    ht1633->write();
   }
 
 }

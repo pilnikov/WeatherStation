@@ -91,7 +91,7 @@ void shift_ud(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8_t x1
 
 void compressor7(byte *in, uint8_t x1, uint8_t x2) // Адаптация дисплейного буфера под семисегментники
 {
-  uint8_t _size = (x2 - x1) * 2;
+  uint8_t _size = (x2 - x1);
 
   for (uint8_t i = x1, y = x1; i < _size; i++, y++)
   {

@@ -85,6 +85,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       seg7_mode(mod, 4, screen, 0);
       if (blinkColon) printDot(5);
       seg7_mode(disp_mode, 6, screen, 8);
+      compressor7(screen, 0, 10);
       break;
     default:
       break;
@@ -159,14 +160,17 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
           break;
         case 31:
           // CUSTOM_2
-          ht1633_ramFormer(screen, 0, 10);
+          //ht1633_ramFormer(screen, 0, 10);
           break;
         default:
           ht1633_ramFormer2(screen, 0, 8);
           break;
       }
-      ht1633->setBrightness(cur_br);
-      ht1633->write();
+      if (type_disp != 31)
+      {
+        ht1633->setBrightness(cur_br);
+        ht1633->write();
+      }
       break;
     case 12:
       //PCF8574
