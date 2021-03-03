@@ -50,27 +50,27 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 20:
       // M32x8MONO
-      m32_8time_act = time_m32_8(screen, 0, buff1, oldDigit, digPos_x, d_notequal);
+      m32_8time_act = time_m32_8(screen, 0, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
       break;
     case 21:
       // m32x16MONO
-      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
       break;
     case 22:
       // M32x16BICOL
-      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
       break;
     case 23:
       // M32x16COLOR
-      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
       break;
     case 24:
       // M64x32COLOR
-      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
       break;
     case 25:
       // M64x64COLOR
-      m32_8time_act = time_m32_8(screen, 32, buff1, oldDigit, digPos_x, d_notequal);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
       break;
     case 29:
       // 320x240COLOR

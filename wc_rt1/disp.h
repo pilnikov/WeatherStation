@@ -35,12 +35,7 @@ void mon_day (uint8_t, uint8_t);
 void ala (uint8_t);
 bool time_m32_8(byte*, uint8_t, byte*, char*, uint8_t*, bool*);
 //-----------------------------------------------------------------------------new
-byte screen[128]; // display buffer
-
-void seg7d4_time();
-void seg7d6_time();
-void seg7d8_time();
-
+byte screen[64]; // display buffer
 
 //----------------------------------------------------------------------------Common
 
@@ -103,9 +98,8 @@ uint8_t point = 0;
 int cur_sym_pos[4] = {0, 0, 0, 0};
 bool end_run_st = true, end_run_st_buf, m32_8time_act = false;
 String st1 = String();
-uint16_t inn[32];
+uint16_t buffud[32];
 bool d_notequal[q_dig];
-byte buff1[32];
       
 //---------------------------------------------------------------------------HT1621
 //массив батарейка

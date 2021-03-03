@@ -27,15 +27,16 @@ uint16_t ft_read(bool snr_pres)
 }
 
 
-bool time_m32_8(byte *in, uint8_t pos, byte *nbuf, char *old, uint8_t *dposx, bool *change)
+bool time_m32_8(byte *in, uint8_t pos, char *old, const uint8_t *dposx, bool *change, uint16_t *buff, bool pm)
 {
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];
   uint8_t font_wdt = 5;
+  byte nbuf[32];
 
   uint8_t h = hour();
   // Do 24 hour to 12 hour format conversion when required.
-  if (conf_data.use_pm && hour() > 12) h = hour() - 12;
+  if (pm && hour() > 12) h = hour() - 12;
 
   d[0] = ' ';
   if (h > 9) d[0] = h / 10 + '0';
@@ -52,13 +53,15 @@ bool time_m32_8(byte *in, uint8_t pos, byte *nbuf, char *old, uint8_t *dposx, bo
     if (change[i])
     {
       printCharacter(d[i], dposx[i], nbuf, font5x7, 5); // запись символа в вертушок для изменившихся позиций
-      shift_ud(true,  true, buff1, in + pos,  dposx[i],  dposx[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
+      shift_ud(true, true, nbuf, in + pos,  buff, dposx[i],  dposx[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
     }
-    else printCharacter(old[i], dposx[i], in + pos, font5x7, 5); // отображение символов
+    else 
+    {
+      printCharacter(old[i], dposx[i], in + pos, font5x7, 5); // отображение символов
+    }
     old[i] = d[i]; // перезапись предыдущих значений в буфер
   }
   //  DBG_OUT_PORT.println("time_m32_8");
-
   return true;
 }
 

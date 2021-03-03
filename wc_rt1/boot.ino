@@ -178,6 +178,7 @@ void firq8() // 0.125 sec
   if (m32_8time_act)
   {
     uint8_t font_wdt = 5;
+    byte nbuf[1];
 
     for (uint8_t i = 0; i < q_dig; i++)
     {
@@ -185,7 +186,7 @@ void firq8() // 0.125 sec
 
       if (d_notequal[i])
       {
-        shift_ud(true, false, buff1, screen + pos,  digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
+        shift_ud(true, false, nbuf, screen + 32,  buffud, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
       }
     }
   }

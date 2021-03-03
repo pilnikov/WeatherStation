@@ -41,7 +41,7 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 
   if  (x1 < 0 || x2 > 13) return;
 
-  uint16_t _row = 0;
+  uint16_t _row[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   for (uint8_t i = x1; i < x2; i++)
   {
@@ -49,41 +49,38 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 
     if (i < 8) // Позиции с 0 по 7
     {
-      _row = (in[i * 2 + 1] & 0xFF);
-      ht1633->setRow(i, _row);
+      _row[i] |= (in[i * 2 + 1] & 0xFF);
     }
     else
     {
       if (i < 10)  // Позиции 8, 9
       {
-        _row = (in[i * 2 + 1] & 0xFF) << 8;
-        ht1633->setRow(9 - i, _row);
+        _row[9 - i] |= (in[i * 2 + 1] & 0xFF) << 8;
       }
       else
       {
         if (i == 10) // Старший байт позиции 10
         {
-          _row = (in[i * 2] & 0xFF) << 8;
-          ht1633->setRow(7, _row);
+          _row[7] |= (in[i * 2] & 0xFF) << 8;
         }
         else // Старший байт позиций 11,12
         {
-          _row = (in[i * 2] & 0xFF) << 8;
-          ht1633->setRow(14 - i, _row);
+          _row[14 - i] |= (in[i * 2] & 0xFF) << 8;
         }
         // Младший байт позиций 10 - 12
-        _row = (in[i * 2 + 1] & 0xFF) << 8;
-        ht1633->setRow(i - 6, _row);
+        _row[i - 6] |= (in[i * 2 + 1] & 0xFF) << 8;
       }
     }
   }
+  for (uint8_t i = 0; i < 8; i++) ht1633->setRow(i, _row[i]);
 }
 
 void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 {
   uint16_t _row = 0;
+  if  (x1 < 0 || x2 > 8) return;
 
-  for (uint8_t i = x1, y = x1 * 2; i < x2; i++, y++)
+  for (uint8_t i = x1, y = x1; i < x2; i++, y++)
   {
     _row = 0;
 
