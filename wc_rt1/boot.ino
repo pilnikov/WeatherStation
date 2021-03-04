@@ -101,7 +101,6 @@ void firq1() // 1 hour
   if (hour_cnt % 6 == 0 && conf_data.use_pp == 2) {
     wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
   }
-
   hour_cnt++;
 }
 
@@ -139,8 +138,6 @@ void firq6() // 0.5 sec main cycle
   Alarmed();
   Thermo();
   blinkColon = !blinkColon;
-  if (colon < 4) colon++;
-  else colon = 1;
 }
 
 void firq7() // 0.2 sec Communications with server
@@ -155,20 +152,19 @@ void firq7() // 0.2 sec Communications with server
     if ((millis() - serv_ms) > 300000L && conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
 # endif
   }
-  if (conf_data.type_disp == 11 && !end_run_st)
+  if (conf_data.type_disp == 11)
   {
-    end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+    if (!nm_is_on) end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
     ht1633_ramFormer2(screen, 4, 8);
     ht1633->write();
   }
   if (conf_data.type_disp == 31)
   {
-    end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+    if (!nm_is_on) end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
     ht1633_ramFormer(screen, 0, 13);
     ht1633->setBrightness(cur_br);
     ht1633->write();
   }
-
 }
 
 void firq8() // 0.125 sec
@@ -179,7 +175,7 @@ void firq8() // 0.125 sec
   if (m32_8time_act)
   {
     uint8_t font_wdt = 5;
-    byte nbuf[1];
+    byte nbuf[64];
 
     for (uint8_t i = 0; i < q_dig; i++)
     {
@@ -193,7 +189,6 @@ void firq8() // 0.125 sec
   }
 }
 
-
 void firq9() //0.04 sec running string is out switch to time view
 {
   if (conf_data.type_disp > 19 && conf_data.type_disp < 29  && disp_on)
@@ -204,7 +199,6 @@ void firq9() //0.04 sec running string is out switch to time view
   if (ram_data.type_vdrv == 5 && conf_data.type_disp == 22 && disp_on)
   {
     ht1632_ramFormer(screen, ORANGE, GREEN);
-
     m1632 -> pwm(cur_br);
     m1632 -> sendFrame();
   }

@@ -32,7 +32,7 @@ bool time_m32_8(byte *in, uint8_t pos, char *old, const uint8_t *dposx, bool *ch
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];
   uint8_t font_wdt = 5;
-  byte nbuf[32];
+  byte nbuf[64];
 
   uint8_t h = hour();
   // Do 24 hour to 12 hour format conversion when required.
@@ -61,7 +61,7 @@ bool time_m32_8(byte *in, uint8_t pos, char *old, const uint8_t *dposx, bool *ch
     }
     old[i] = d[i]; // перезапись предыдущих значений в буфер
   }
-  //  DBG_OUT_PORT.println("time_m32_8");
+  //DBG_OUT_PORT.println("time_m32_8");
   return true;
 }
 
@@ -109,6 +109,6 @@ bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, byte * o
     icp = 0; //cбрасываем указатель на байт во входной строке
     return true; //end of scrolling
   }
-  //  DBG_OUT_PORT.println("scroll string");
+  //DBG_OUT_PORT.println("scroll string");
   return false;
 }

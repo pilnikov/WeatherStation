@@ -34,13 +34,12 @@ void digit (uint8_t, uint8_t);
 void mon_day (uint8_t, uint8_t);
 void ala (uint8_t);
 bool time_m32_8(byte*, uint8_t, byte*, char*, uint8_t*, bool*);
+
 //-----------------------------------------------------------------------------new
-byte screen[64]; // display buffer
 
 //----------------------------------------------------------------------------Common
 
 //----------------------------------------------------------------------------7 SEG
-bool blinkColon = false;
 static const char* name_week7[8] = {"", "8c", "\357H", "8t", "cP", "4t", "\357t", "c6"};
 const static char* stdr[4] = {"ночь", "yтро", "день", "вечер"};
 const static char* swnr[8] = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
@@ -80,26 +79,19 @@ static LiquidCrystal_I2C * lcd;
 
 static Max72 *m7219;
 
-uint8_t colon; //номер разделителя
 const uint8_t q_dig = 6;  // количество цифр на дисплее
-uint8_t digHt;
-uint8_t TextSize = 1;
 
-#ifdef new_max 
 uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
-#else 
-uint8_t digPos_x[q_dig] = {0, 4, 11, 16, 23, 28};
-#endif
 static char oldDigit[q_dig];                       // убегающая цифра
-static uint8_t digPos_y[q_dig];                    // позиция цифры по оси у
 
-uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
-uint8_t point = 0;
 int cur_sym_pos[4] = {0, 0, 0, 0};
-bool end_run_st = true, end_run_st_buf, m32_8time_act = false;
+bool end_run_st = true, end_run_st_buf, m32_8time_act = false, blinkColon = false;
+
 String st1 = String();
-uint16_t buffud[32];
+uint16_t buffud[64];
 bool d_notequal[q_dig];
+
+byte screen[128]; // display buffer
       
 //---------------------------------------------------------------------------HT1621
 //массив батарейка
@@ -123,4 +115,4 @@ static HT1632C * m1632;
 //---------------------------------------------------------------------------ILI9341
 #include "Adafruit_ILI9341.h"
 
-Adafruit_ILI9341 * tft;
+static Adafruit_ILI9341 * tft;

@@ -64,6 +64,7 @@ void print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* f
 
 void shift_ud(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8_t x1, int8_t x2)
 {
+  if (x1 < 0 || x2 > 63) return;
   for (uint8_t x = x1; x < x2; x++)
   {
     if (dwn)
