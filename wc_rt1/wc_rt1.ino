@@ -225,4 +225,8 @@ void loop()
 
   //------------------------------------------------------ Отправляем данные через UART
   if (conf_data.type_disp == 0 && !digitalRead(uart_pin)) send_uart();
+
+  //------------------------------------------------------  Верифицируем ночной режим
+  if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (hour() >= conf_data.nm_start && hour() < conf_data.nm_stop);
+  else nm_is_on = (hour() >= conf_data.nm_start || hour() < conf_data.nm_stop);
 }

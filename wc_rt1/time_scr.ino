@@ -4,7 +4,7 @@ void time_view(uint8_t, uint8_t);
 void time_view(uint8_t type_disp, uint8_t type_vdrv)
 {
   uint8_t mod = 13;
-  if (end_run_st)CLS();
+  if (end_run_st || nm_is_on) CLS();
   switch (type_disp)
   {
     case 1:
@@ -39,9 +39,9 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 13:
       // 16SEGx8D
-      if (nm_is_on || disp_mode == 10) disp_mode = 1;
       seg7_mode(mod, 4, screen, 0);
-      seg7_mode(disp_mode, 4, screen, 8);
+      if (disp_mode == 10) disp_mode = 1;
+      if (!nm_is_on) seg7_mode(disp_mode, 4, screen, 8);
       if (blinkColon) printDot(3);
       break;
     case 19:
@@ -81,10 +81,10 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 31:
       // CUSTOM_2
-      if (nm_is_on || disp_mode == 9) disp_mode = 1;
       seg7_mode(mod, 4, screen, 0);
       if (blinkColon) printDot(5);
-      seg7_mode(disp_mode, 6, screen, 8);
+      if (disp_mode == 9) disp_mode = 1;
+      if (!nm_is_on) seg7_mode(disp_mode, 6, screen, 8);
       compressor7(screen, 0, 10);
       break;
     default:

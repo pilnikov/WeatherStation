@@ -499,7 +499,6 @@ String uart_st()
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
   return st;
 }
 
@@ -548,16 +547,7 @@ void Thermo()
         digitalWrite(TERMO_OUT, HIGH);
       }
     }
-
   }
-}
-
-
-//------------------------------------------------------  Верифицируем ночной режим
-void nm_veri(void)
-{
-  if (conf_data.nm_start < conf_data.nm_stop) nm_is_on = (hour() > conf_data.nm_start && hour() <= conf_data.nm_stop);
-  else nm_is_on = !(hour() >= conf_data.nm_stop && hour() < conf_data.nm_start);
 }
 
 //------------------------------------------------------  Внутренняя флэшка SPIFFS
@@ -566,15 +556,15 @@ void nm_veri(void)
 void printFile(const char* filename) {
   // Open file for reading
   File file = SPIFFS.open(filename, "r");
-  if (!file) {
+  
+  if (!file)
+  {
     DBG_OUT_PORT.println(F("Failed to read file"));
     return;
   }
 
   // Extract each characters by one by one
-  while (file.available()) {
-    DBG_OUT_PORT.print((char)file.read());
-  }
+  while (file.available()) DBG_OUT_PORT.print((char)file.read());
   DBG_OUT_PORT.println();
 
   // Close the file

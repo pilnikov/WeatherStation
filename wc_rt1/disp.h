@@ -91,7 +91,7 @@ String st1 = String();
 uint16_t buffud[64];
 bool d_notequal[q_dig];
 
-byte screen[128]; // display buffer
+byte screen[64]; // display buffer
       
 //---------------------------------------------------------------------------HT1621
 //массив батарейка

@@ -313,7 +313,6 @@ void keyb_read();
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String tvoday(String);
-void nm_veri();
 void Thermo();
 
 void wifi_conn(byte, byte, byte);

@@ -53,7 +53,7 @@ bool time_m32_8(byte *in, uint8_t pos, char *old, const uint8_t *dposx, bool *ch
     if (change[i])
     {
       printCharacter(d[i], dposx[i], nbuf, font5x7, 5); // запись символа в вертушок для изменившихся позиций
-      shift_ud(true, true, nbuf, in + pos,  buff, dposx[i],  dposx[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
+      shift_ud(true, true, nbuf  + pos, in + pos,  buff  + pos, dposx[i],  dposx[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
     }
     else 
     {

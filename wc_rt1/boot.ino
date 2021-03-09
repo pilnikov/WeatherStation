@@ -93,7 +93,6 @@ void firq1() // 1 hour
 {
   if (hour_cnt > 23) hour_cnt = 0;
 
-  nm_veri();
   if (!web_cli && !web_ap && !conf_data.wifi_off) start_wifi();
 
   if (hour_cnt % 12 == 0) GetNtp();
@@ -183,7 +182,7 @@ void firq8() // 0.125 sec
 
       if (d_notequal[i])
       {
-        shift_ud(true, false, nbuf, screen + 32,  buffud, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
+        shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
       }
     }
   }
