@@ -157,7 +157,12 @@ void HT1632C::ramSet(byte *in, uint8_t in_size)
 void HT1632C::sendFrame()
 {
   for (int chip = 1; chip <= num_chips; ++chip) {
-    //sendCmdonInit();
+	sendCmd(chip, COMMAND_CODE::SYSDIS);
+	sendCmd(chip, COMMAND_CODE::COMS00);
+//	sendCmd(chip, COMMAND_CODE::MSTMD);
+//	sendCmd(chip, COMMAND_CODE::RCCLK);
+	sendCmd(chip, COMMAND_CODE::SYSON);
+	sendCmd(chip, COMMAND_CODE::LEDON);
 	chipSelect(chip);
     for (uint8_t addr = 0; addr < chip_size; addr++)
       SPI.write(*framebufferPtr(chip - 1, addr));
