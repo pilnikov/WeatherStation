@@ -56,7 +56,7 @@ void print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* f
     character = in[icp]; // достаем очередной символ
 
     memcpy (out + _offset + icp * (font_wdt + spacer_wdt),/* цель */font + character * font_wdt, /* источник */ font_wdt /* объем */);
-    if (spacer_wdt > 0) memset (out + _offset + icp * (font_wdt + spacer_wdt) + spacer_wdt, 0, spacer_wdt); // вставляем пустой столбик-разделитель
+    if (spacer_wdt > 0) memset (out + _offset + ((icp + 1) * (font_wdt + spacer_wdt)), 0, spacer_wdt); // вставляем пустой столбик-разделитель
     icp++;     // переходим к следующему символу в строке
   }
 }

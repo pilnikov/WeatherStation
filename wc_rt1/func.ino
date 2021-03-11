@@ -412,7 +412,9 @@ void keyb_read()
     num_st++;    // перебираем строки на матрицах и LCD
     if (num_st > 4) num_st = 1;
     st1 = pr_str(num_st);
+    f_dsp.utf8rus(st1);
     cur_sym_pos[0] = 0;
+    cur_sym_pos[1] = 0;
     end_run_st = false; //Запуск бегущей строки;
 
     but0_press = but0_pressed;

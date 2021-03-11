@@ -207,7 +207,9 @@ void setup()
 
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-  Buzz.play(songs[15], BUZ_PIN, true);   //inital sound card
+  rtc_data.a_muz = 15;
+  play_snd = true;
+  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd);   //inital sound card
   DBG_OUT_PORT.println("End of setup");
 }
 
@@ -221,7 +223,7 @@ void loop()
   keyb_read();
 
   // ----------------------------------------------------- Доп для будильника
-  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, false);
+  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd);
 
   //------------------------------------------------------ Отправляем данные через UART
   if (conf_data.type_disp == 0 && !digitalRead(uart_pin)) send_uart();

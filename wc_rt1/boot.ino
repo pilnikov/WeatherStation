@@ -79,7 +79,12 @@ void irq_set()
 
       f_dsp.utf8rus(st1);
 
-      if (conf_data.type_disp != 20 && !nm_is_on) end_run_st = false; // перезапуск бегущей строки;
+      if (conf_data.type_disp != 20 && !nm_is_on)
+      {
+        cur_sym_pos[0] = 0;
+        cur_sym_pos[1] = 0;
+        end_run_st = false; // перезапуск бегущей строки;
+      }
 
       if (ram_data.type_vdrv == 5)
       {
@@ -105,7 +110,12 @@ void firq1() // 1 hour
 
 void firq4() // 55sec
 {
-  if (!nm_is_on && conf_data.type_disp == 20 && end_run_st) end_run_st = false; // запуск бегущей строки
+  if (!nm_is_on && conf_data.type_disp == 20 && end_run_st)
+  {
+    cur_sym_pos[0] = 0;
+    cur_sym_pos[1] = 0;
+    end_run_st = false; // запуск бегущей строки
+  }
 }
 
 void firq6() // 0.5 sec main cycle

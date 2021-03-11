@@ -349,7 +349,7 @@ ESP8266HWInfo hwi;
 BH1750 lightMeter;
 
 // ---------------------------------------------------- 
-
+bool play_snd      = false;
 
 bool web_ap        = false;
 bool web_cli       = false;
