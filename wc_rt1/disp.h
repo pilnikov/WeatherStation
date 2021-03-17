@@ -4,7 +4,7 @@
 #include <Max72.h>
 #include <SHT1632_3.h>
 #include <myHT16K33.h>
-#include <TM1637.h>
+#include <myTM1637.h>
 
 #if defined(ESP32)
 #include "freertos/FreeRTOS.h"

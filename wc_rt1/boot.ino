@@ -16,7 +16,6 @@ void irq_set()
 
   uint8_t irq = 10;
   for (uint8_t i = 1; i < 10;  i++) if (millis() - irq_end[i] >  timers[i]) irq = i;
-
   switch (irq)
   {
     case 1:
@@ -44,7 +43,6 @@ void irq_set()
       if (disp_mode > 12) disp_mode -= 12;
       irq_end[5] = millis();
       break;
-
     case 6:
       firq6();
       irq_end[6] = millis();
@@ -63,6 +61,8 @@ void irq_set()
     case 9:
       firq9();
       irq_end[9] = millis();
+      break;
+    default:
       break;
   }
 
@@ -84,11 +84,6 @@ void irq_set()
         cur_sym_pos[0] = 0;
         cur_sym_pos[1] = 0;
         end_run_st = false; // перезапуск бегущей строки;
-      }
-
-      if (ram_data.type_vdrv == 5)
-      {
-        //m1632 -> sendCmdonInit(); // Костыль!!!!!
       }
     }
   }
@@ -161,19 +156,22 @@ void firq7() // 0.2 sec Communications with server
     if ((millis() - serv_ms) > 300000L && conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
 # endif
   }
-  if (conf_data.type_disp == 11)
+  if (ram_data.type_vdrv == 11)
   {
-    if (!nm_is_on) end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-    ht1633_ramFormer2(screen, 0, 8);
-    ht1633->setBrightness(cur_br);
-    ht1633->write();
-  }
-  if (conf_data.type_disp == 31)
-  {
-    if (!nm_is_on) end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-    ht1633_ramFormer(screen, 0, 13);
-    ht1633->setBrightness(cur_br);
-    ht1633->write();
+    if (conf_data.type_disp == 11)
+    {
+      if (!nm_is_on) end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      ht1633_ramFormer2(screen, 0, 8);
+      ht1633->setBrightness(cur_br);
+      ht1633->write();
+    }
+    if (conf_data.type_disp == 31)
+    {
+      if (!nm_is_on) end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      ht1633_ramFormer(screen, 0, 13);
+      ht1633->setBrightness(cur_br);
+      ht1633->write();
+    }
   }
 }
 

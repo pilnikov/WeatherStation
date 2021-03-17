@@ -137,7 +137,7 @@ void saveConfig(const char *filename, conf_data_t data)
 
 
   if ( data.type_vdrv    < 0  || data.type_vdrv  >  20) data.type_vdrv  = 0;
-  if ( data.type_disp    < 0  || data.type_disp  >  40) data.type_disp  = 0;
+  if ( data.type_disp    < 0  || data.type_disp  >  50) data.type_disp  = 0;
   if ( data.type_snr1    < 0  || data.type_snr1  >  11) data.type_snr1  = 0;
   if ( data.type_snr2    < 0  || data.type_snr2  >  11) data.type_snr2  = 0;
   if ( data.type_snr3    < 0  || data.type_snr3  >  11) data.type_snr3  = 0;

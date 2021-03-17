@@ -101,10 +101,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       //TM1637
       compressor7(screen, 0, 4);
       tm1637->set_br(cur_br);
-      for (uint8_t i = 0; i < 6; i++)
-      {
-        tm1637->display(i, screen[i]);
-      }
+      for (uint8_t a = 0; a < 4; a++) tm1637->display(a, screen[a]);
       break;
     case 2:
       //MAX7219
@@ -130,7 +127,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
     case 11:
       //HT16K33
       if (conf_data.type_disp != 31 && conf_data.type_disp != 11)
-      { 
+      {
         if (conf_data.type_disp == 13) ht1633_ramFormer2(screen, 0, 8);
         else ht1633_ramFormer2(screen, 0, 4);
         ht1633->setBrightness(cur_br);

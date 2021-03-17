@@ -4,8 +4,8 @@ uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t);
 uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
 {
   uint8_t h = conf_data.use_pm && hour() > 12 ? h = hour() - 12 : hour();
-  size_tstr = snprintf(tstr, 1, '\0');
   uint8_t s_tstr = _width * 2;
+  size_tstr = snprintf(tstr, s_tstr, "");
   bool out = false;
 
   switch (_width)
