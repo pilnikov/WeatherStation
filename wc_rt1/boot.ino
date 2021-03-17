@@ -164,7 +164,8 @@ void firq7() // 0.2 sec Communications with server
   if (conf_data.type_disp == 11)
   {
     if (!nm_is_on) end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-    ht1633_ramFormer2(screen, 4, 8);
+    ht1633_ramFormer2(screen, 0, 8);
+    ht1633->setBrightness(cur_br);
     ht1633->write();
   }
   if (conf_data.type_disp == 31)

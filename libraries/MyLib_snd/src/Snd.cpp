@@ -200,8 +200,10 @@ void Synt::play(const char* in, uint8_t out, bool& play)
 //				{
 #if !defined(ESP32)
 				noTone(out);
+				digitalWrite(out, HIGH);
 #else
 				ledcWriteTone(out, 0);
+				digitalWrite(out, HIGH);
 #endif
 				dela[0] = millis() + duration;
 //				}

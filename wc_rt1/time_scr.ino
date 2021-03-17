@@ -129,45 +129,10 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 11:
       //HT16K33
-      switch (type_disp)
-      {
-        case 1:
-          // 7SEGx4D
-          ht1633_ramFormer2(screen, 0, 4);
-          break;
-        case 2:
-          // 7SEGx6D
-          ht1633_ramFormer2(screen, 0, 6);
-          break;
-        case 3:
-          // 7SEGx8D
-          ht1633_ramFormer2(screen, 0, 8);
-          break;
-        case 10:
-          // 14SEGx4D
-          ht1633_ramFormer2(screen, 0, 4);
-          break;
-        case 11:
-          // 14SEGx8D
-          ht1633_ramFormer2(screen, 0, 4);
-          break;
-        case 12:
-          // 16SEGx4D
-          break;
-        case 13:
-          // 16SEGx8D
-          ht1633_ramFormer2(screen, 0, 8);
-          break;
-        case 31:
-          // CUSTOM_2
-          //ht1633_ramFormer(screen, 0, 10);
-          break;
-        default:
-          ht1633_ramFormer2(screen, 0, 8);
-          break;
-      }
-      if (type_disp != 31)
-      {
+      if (conf_data.type_disp != 31 && conf_data.type_disp != 11)
+      { 
+        if (conf_data.type_disp == 13) ht1633_ramFormer2(screen, 0, 8);
+        else ht1633_ramFormer2(screen, 0, 4);
         ht1633->setBrightness(cur_br);
         ht1633->write();
       }

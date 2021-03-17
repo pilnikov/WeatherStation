@@ -86,16 +86,16 @@ void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 
     if (in[y] & 0x80) // запись точки
     {
-      _row  = (in[y - 2] << 7) | 0x4000;
-      _row |= (in[y - 1] & 0x7F);
+      _row  = (in[y - 2] << 8) | 0x8000;
+      _row |= (in[y - 1] & 0xFF);
       ht1633->setRow(i - 1, _row);
       y += 2;
     }
 
-    _row = in[y] << 7;
+    _row = in[y] << 8;
     y++;
-    if (in[y] & 0x80) _row |= 0x4000; // если во входящем буфере была точка - запишем ее
-    _row |= (in[y] & 0x7F);
+    if (in[y] & 0x80) _row |= 0x8000; // если во входящем буфере была точка - запишем ее
+    _row |= (in[y] & 0xFF);
     ht1633->setRow(i, _row);
   }
 }
