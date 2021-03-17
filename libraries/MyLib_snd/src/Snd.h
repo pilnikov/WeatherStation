@@ -37,10 +37,10 @@ const uint16_t notes[] =
 class Synt 
 {
   public:
-    void play(const char *, uint8_t,  bool&);
-    void beep(uint8_t);
+    void play(const char *, uint8_t, bool&, bool);
+    void beep(uint8_t, bool);
   private:
-    void soundNote(uint8_t note, uint16_t dur, uint8_t out);  
+    void soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola);  
     unsigned long dela[2] = { millis(), millis() };
   protected:
 };

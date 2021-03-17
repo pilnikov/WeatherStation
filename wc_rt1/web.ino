@@ -99,7 +99,6 @@ void start_serv()
 void stop_serv()
 {
   server.stop();
-  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, HIGH); //Гасим светодиод
   if (debug_level == 14) DBG_OUT_PORT.println("Server stopped");
   stop_wifi();
 }
@@ -459,6 +458,8 @@ void handlejParc()
   json["nstr"] = conf_data.nm_start;
   json["nend"] = conf_data.nm_stop;
   json["evhb"] = conf_data.every_hour_beep;
+  json["sndpol"] = conf_data.snd_pola;
+  json["ledpol"] = conf_data.led_pola;
   json["trts"] = conf_data.type_rtc;
 
   String st = String();
@@ -471,7 +472,7 @@ void handlejParc()
 //-------------------------------------------------------------- handleSetParc
 void handleSetParc()
 {
-  //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&srtyp='+srtyp;
+  //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp;
 
   conf_data.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
   conf_data.auto_corr = (server.arg("acorr") == "1");
@@ -479,6 +480,8 @@ void handleSetParc()
   conf_data.nm_start = constrain(server.arg("nmstart").toInt(), 0, 23);
   conf_data.nm_stop  = constrain(server.arg("nmstop" ).toInt(), 0, 23);
   conf_data.every_hour_beep = (server.arg("ehb") == "1");
+  conf_data.snd_pola = (server.arg("sndpol") == "1");
+  conf_data.led_pola = (server.arg("ledpol") == "1");
   conf_data.type_rtc = server.arg("srtyp").toInt();
 
   saveConfig(conf_f, conf_data);

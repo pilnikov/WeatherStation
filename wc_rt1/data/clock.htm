@@ -18,7 +18,7 @@
       	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
       	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
       	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-  		    <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
+  		  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
        	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
       	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
       	</tr>
@@ -33,6 +33,8 @@
          <tr><td>Авто коррекция через NTP</td><td><input type='checkbox' id='acorr' name='acorr'/></td></tr>
          <tr><td>12 часовой формат</td><td><input type='checkbox' id='upm' name='upm' /></td></tr>
          <tr><td>Сигнал каждый час</td><td><input type='checkbox' id='ehb' name='ehb' /></td></tr>
+         <tr><td>Инверсия выхода пищалки</td><td><input type='checkbox' id='sndpol' name='sndpol' /></td></tr>
+         <tr><td>Инверсия выхода светодиода</td><td><input type='checkbox' id='ledpol' name='ledpol' /></td></tr>
          <tr><td width='30%'>Ночной режим</td><td>&nbsp;с&nbsp;<input type='text' maxlength='2' size='1' id='nmstart' name='nmstart' style='text-align:center;'/>&nbsp;до&nbsp;
          <input type='text' maxlength='2' size='1' id='nmstop' name='nmstop'  style='text-align:center;'/></td></tr>
 
@@ -59,12 +61,14 @@
               var res = JSON.parse(xh.responseText);
               document.getElementById('tzone').value = res.tzon;
       	      document.getElementById('acorr').checked = res.acor;
-	            document.getElementById('upm').checked = res.uspm;
-	            document.getElementById('nmstart').value = res.nstr;
+	          document.getElementById('upm').checked = res.uspm;
+	          document.getElementById('nmstart').value = res.nstr;
               document.getElementById('nmstop').value = res.nend;
-	            document.getElementById('ehb').checked = res.evhb;
-	            document.getElementById('rtyp').value = res.trts;
-        	  }
+	          document.getElementById('ehb').checked = res.evhb;
+	          document.getElementById('sndpol').checked = res.sndpol;
+	          document.getElementById('ledpol').checked = res.ledpol;
+	          document.getElementById('rtyp').value = res.trts;
+        	}
           }
          xh.open("GET", "/jclock", true);
          xh.send(null);
@@ -88,7 +92,7 @@
 
       function set_parc()
       {
-        var acorr = 0, upm = 0, ehb = 0;
+        var acorr = 0, upm = 0, ehb = 0, sndpol = 0, ledpol = 0;
 
         tzone   = document.getElementById('tzone').value;
         if (document.getElementById('acorr').checked) acorr = 1;
@@ -96,9 +100,11 @@
         nmstart = document.getElementById('nmstart').value;
         nmstop  = document.getElementById('nmstop').value;
         if (document.getElementById('ehb').checked) ehb = 1;
+        if (document.getElementById('sndpol').checked) sndpol = 1;
+        if (document.getElementById('ledpol').checked) ledpol = 1;
         srtyp = document.getElementById('rtyp').value;
 
-        url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&srtyp='+srtyp;
+        url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp;
 
         var xh = new XMLHttpRequest();
         xh.open('GET', url, true);

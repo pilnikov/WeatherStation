@@ -3,14 +3,13 @@
 #include "Snd.h"
 
 //*********************************************************************************************************
-void Synt::beep(uint8_t out)
+void Synt::beep(uint8_t out, bool pola)
 {
-	soundNote(NOTE_C8, 200, out);
-	digitalWrite(out, false);
+	soundNote(NOTE_C8, 200, out, pola);
 }
 
 //*********************************************************************************************************
-void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out)
+void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
 {
 	const static uint16_t Freqs[] =
 	{
@@ -29,18 +28,17 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out)
 
 #if !defined(ESP32)
 		tone(out, freq, dur);
-		dela[0] = millis() + dur;
 		noTone(out);
 #else
 		ledcWriteTone(out, freq);
-		dela[0] = millis() + dur;
-
 		ledcWriteTone(out, 0);
 #endif
+		dela[0] = millis() + dur;
+		digitalWrite(out, pola ? HIGH : LOW);
 	}
 }
 
-void Synt::play(const char* in, uint8_t out, bool& play)
+void Synt::play(const char* in, uint8_t out, bool& play, bool pola)
 {
 
 	byte default_dur = 4;
@@ -200,11 +198,10 @@ void Synt::play(const char* in, uint8_t out, bool& play)
 //				{
 #if !defined(ESP32)
 				noTone(out);
-				digitalWrite(out, HIGH);
 #else
 				ledcWriteTone(out, 0);
-				digitalWrite(out, HIGH);
 #endif
+				digitalWrite(out, pola ? HIGH : LOW);
 				dela[0] = millis() + duration;
 //				}
 			}

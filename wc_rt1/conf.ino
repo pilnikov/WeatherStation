@@ -71,7 +71,9 @@ conf_data_t loadConfig(const char *filename)
       data.wifi_off         = doc["wifi_off"];
       data.auto_corr        = doc["auto_corr"];
       data.use_pm           = doc["use_pm"];
-      data.every_hour_beep  = doc["every_hour_beep"];
+      data.every_hour_beep  = doc["e_h_b"];
+      data.snd_pola         = doc["snd_pola"];
+      data.led_pola         = doc["led_pola"];
       data.rus_lng          = doc["rus_lng"];
       data.use_tst1         = doc["use_tst1"];
       data.use_tst2         = doc["use_tst2"];
@@ -152,7 +154,9 @@ void saveConfig(const char *filename, conf_data_t data)
   json["wifi_off"]            = data.wifi_off;
   json["auto_corr"]           = data.auto_corr;
   json["use_pm"]              = data.use_pm;
-  json["every_hour_beep"]     = data.every_hour_beep;
+  json["e_h_b"]               = data.every_hour_beep;
+  json["snd_pola"]            = data.snd_pola;
+  json["led_pola"]            = data.led_pola;
   json["rus_lng"]             = data.rus_lng;
   json["use_tst1"]            = data.use_tst1;
   json["use_tst2"]            = data.use_tst2;
@@ -174,8 +178,8 @@ void saveConfig(const char *filename, conf_data_t data)
   json["src_trs"]             = data.src_thermo;
   json["lb_trs"]              = data.lb_thermo;
   json["hb_trs"]              = data.hb_thermo;
-  json["nm_start"]    = data.nm_start;
-  json["nm_stop"]     = data.nm_stop;
+  json["nm_start"]            = data.nm_start;
+  json["nm_stop"]             = data.nm_stop;
   json["ts_ch_id"]            = data.ts_ch_id;
   json["AKey_r"]              = data.AKey_r;
   json["AKey_w"]              = data.AKey_w;
@@ -267,6 +271,8 @@ conf_data_t defaultConfig()
   data.auto_corr        = true;
   data.use_pm           = false;
   data.every_hour_beep  = true;
+  data.snd_pola         = false;
+  data.led_pola         = false;
   data.rus_lng          = false;
   data.use_tst1         = false;
   data.use_tst2         = false;

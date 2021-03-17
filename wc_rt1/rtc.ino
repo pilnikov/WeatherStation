@@ -197,7 +197,7 @@ bool Alarmed()
     {
       case 0:
         play_snd = true;
-        Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd);   // Запускаем динамик на проигрывание выбранной мелодии
+        Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd, conf_data.snd_pola);   // Запускаем динамик на проигрывание выбранной мелодии
         break;
       case 1:
         nm_is_on = true;                       // Включаем ночной режим
@@ -258,7 +258,7 @@ bool Alarmed()
       strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
       saveConfig(conf_f, conf_data);
     }
-    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
+    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2
@@ -268,7 +268,7 @@ bool Alarmed()
     {
       rtc_data.a_muz = 15;
       play_snd = true;
-      Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd); //пищим каждый час
+      Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd, conf_data.snd_pola); //пищим каждый час
     }
   }
 

@@ -47,6 +47,8 @@
   bool      auto_corr;
   bool      use_pm;
   bool      every_hour_beep;
+  bool      snd_pola;
+  bool      led_pola;
   bool      rus_lng;
   bool      use_tst1;
   bool      use_tst2;

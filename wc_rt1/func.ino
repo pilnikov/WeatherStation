@@ -420,8 +420,8 @@ void keyb_read()
     but0_press = but0_pressed;
   }
 
-  if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, LOW);  // Включаем светодиод
-  if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, HIGH); // Выключаем светодиод
+  if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? HIGH : LOW);  // Включаем светодиод
+  if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   if (but0_pressed && millis() - setting_ms > 9000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
 
   if (!but0_pressed && but0_press && !serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)

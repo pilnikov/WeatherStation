@@ -76,7 +76,7 @@ void setup()
   if (!ram_data.bh1750_present) pinMode(A0, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
   pinMode(2, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
-  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, HIGH);
+  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 # endif
 
 # if defined(ESP8266)
@@ -134,10 +134,6 @@ void setup()
 # endif
   if (web_cli || web_ap)
   {
-# if defined(ESP8266) || defined(ESP32)
-    if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, LOW);
-# endif
-
     //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
     if (ram_data.type_rtc == 0 && web_cli)
     {
@@ -173,11 +169,11 @@ void setup()
   }
 
   //-------------------------------------------------------  Опрашиваем датчики
-
   GetSnr();
+
   //-------------------------------------------------------- Гасим светодиод
 #   if defined(ESP8266) || defined(ESP32)
-  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(LED_BUILTIN, HIGH);
+  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(LED_BUILTIN, conf_data.led_pola ? LOW : HIGH);
 #   endif
 
   //-------------------------------------------------------- Устанавливаем будильники
@@ -209,7 +205,7 @@ void setup()
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_data.a_muz = 15;
   play_snd = true;
-  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd);   //inital sound card
+  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd, conf_data.snd_pola);   //inital sound card
   DBG_OUT_PORT.println("End of setup");
 }
 
@@ -223,7 +219,7 @@ void loop()
   keyb_read();
 
   // ----------------------------------------------------- Доп для будильника
-  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd);
+  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd, conf_data.snd_pola);
 
   //------------------------------------------------------ Отправляем данные через UART
   if (conf_data.type_disp == 0 && !digitalRead(uart_pin)) send_uart();
