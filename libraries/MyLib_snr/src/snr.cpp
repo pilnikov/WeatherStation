@@ -31,14 +31,14 @@ ram_data_t SNR::init(ram_data_t in_data)
 		}
 		break;
 	case 9:
-		if (!bmp2.begin())
+		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
 			out_data.type_snr1 = 0;
 		}
 		break;
 	case 10:
-		if (!bme.begin(0x76, &Wire))
+		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
 			out_data.type_snr1 = 0;
@@ -75,14 +75,14 @@ ram_data_t SNR::init(ram_data_t in_data)
 		}
 		break;
 	case 9:
-		if (!bmp2.begin())
+		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
 			out_data.type_snr2 = 0;
 		}
 		break;
 	case 10:
-		if (!bme.begin(0x76, &Wire))
+		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
 			out_data.type_snr2 = 0;
@@ -119,14 +119,14 @@ ram_data_t SNR::init(ram_data_t in_data)
 		}
 		break;
 	case 9:
-		if (!bmp2.begin())
+		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
 			out_data.type_snr3 = 0;
 		}
 		break;
 	case 10:
-		if (!bme.begin(0x76, &Wire))
+		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
 			out_data.type_snr3 = 0;
@@ -146,14 +146,14 @@ ram_data_t SNR::init(ram_data_t in_data)
 		}
 		break;
 	case 9:
-		if (!bmp2.begin())
+		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
 			out_data.type_snrp = 0;
 		}
 		break;
 	case 10:
-		if (!bme.begin(0x76, &Wire))
+		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
 			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
 			out_data.type_snrp = 0;

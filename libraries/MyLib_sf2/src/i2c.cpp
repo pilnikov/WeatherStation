@@ -45,14 +45,19 @@ void SF::i2c_parse()
         am2320_present = true ; //AM2320 is present
         DBG_OUT_PORT.println("AM2320 found!\n");
       break;
-      case  0x77:
-        bmp180_present  = true ; //BMP180 is present
-        DBG_OUT_PORT.println("BMP180/085 found!\n");
-      break;
       case  0x76:
+        bmp180_present  = true ; //BMP180 is present
+		bmp280_present  = true ; //BMP280 is present
+        bme280_present  = true ; //BME280 is present
+		bm_addr = 0x76;
+        DBG_OUT_PORT.println("BM P/E 1/2 80 with address 0x76 found!\n");
+      break;
+      case  0x77:
         bmp280_present  = true ; //BMP280 is present
         bme280_present  = true ; //BME280 is present
-        DBG_OUT_PORT.println("BM P/E 280 found!\n");
+        bmp180_present  = true ; //BMP180 is present
+		bm_addr = 0x77;
+        DBG_OUT_PORT.println("BM P/E 1/2 80 with address 0x77 found!\n");
       break;
       case  0x3F:
         lcd_present = true; //LCD is present
@@ -123,6 +128,7 @@ ram_data_t SF::i2c_scan(conf_data_t c_data)
   r_data.bh1750_present = bh1750_present;
   r_data.lcd_addr       = lcd_addr; //address of LCD
   r_data.ht_addr        = ht_addr; //HT1633 addr
+  r_data.bm_addr        = bm_addr; //BM P/E 1/2 80 addr
 
   // if selected -> deselect auto
   if (!ds3231_present && r_data.type_snr1 == 5)

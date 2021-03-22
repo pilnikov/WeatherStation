@@ -29,8 +29,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef TM1637_h
-#define TM1637_h
+#ifndef myTM1637_h
+#define myTM1637_h
 #include <inttypes.h>
 #include <Arduino.h>
 //************definitions for TM1637*********************
@@ -47,8 +47,8 @@ class TM1637
 {
   public:
     TM1637(uint8_t Clk, uint8_t DP);
-    void writeByte(byte wr_data);//write 8bit data to tm1637
-    void display(uint8_t SegAddr, byte Data);
+	int writeByte(byte wr_data);//write 8bit data to tm1637
+    void display(uint8_t BitAddr, int8_t DispData);
     void clear(void);
     void set_br(uint8_t = BRIGHT_TYPICAL);//To take effect the next time it displays.
   private:

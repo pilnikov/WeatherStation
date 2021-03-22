@@ -31,8 +31,6 @@ class SF
 	void i2c_parse();
     String formatBytes(size_t);
     ram_data_t i2c_scan(conf_data_t);
-    byte lcd_addr;
-	byte ht_addr;
 	
   private:
 	bool       am2320_present = false;
@@ -45,6 +43,9 @@ class SF
 	bool          lcd_present = false;
 	bool       ht1633_present = false;
     bool       bh1750_present = false;
+    byte lcd_addr;
+	byte ht_addr;
+	byte bm_addr;
     uint8_t nDevices;  //Кол-во найденных устройств
     uint8_t addr[128]; //Адреса найденных устройств
   protected:

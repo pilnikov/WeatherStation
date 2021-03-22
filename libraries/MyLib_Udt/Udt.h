@@ -112,6 +112,7 @@ typedef struct
   uint8_t   temp_rtc;       // Температура чипа DS3231,
   uint8_t   lcd_addr;       // Адрес LCD дисплея
   uint8_t   ht_addr;        // Адрес HT1633
+  uint8_t   bm_addr;        // Адрес BM E/P 1/2 80
   uint16_t  lb;             // Текущая яркость
   bool      bh1750_present; // Наличие датчика освещенности BH1750
 } ram_data_t;

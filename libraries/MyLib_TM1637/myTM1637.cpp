@@ -31,20 +31,15 @@
 
 #include "myTM1637.h"
 #include <Arduino.h>
-TM1637::TM1637(uint8_t Clk, uint8_t Data)
+TM1637::TM1637(uint8_t Clk, uint8_t DP)
 {
   Clkpin = Clk;
-  Datapin = Data;
+  Datapin = DP;
   pinMode(Clkpin,OUTPUT);
   pinMode(Datapin,OUTPUT);
 }
 
-void TM1637::init(void)
-{
-  clearDisplay();
-}
-
-int TM1637::writeByte(int8_t wr_data)
+int TM1637::writeByte(byte wr_data)
 {
   uint8_t i,count1;
   for(i=0;i<8;i++)        //sent 8bit data
@@ -92,7 +87,7 @@ void TM1637::stop(void)
 }
 
 //******************************************
-void TM1637::display(uint8_t BitAddr,int8_t DispData)
+void TM1637::display(uint8_t BitAddr, int8_t DispData)
 {
   int8_t SegData;
   SegData = DispData;

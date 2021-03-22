@@ -69,7 +69,7 @@ void shift_ud(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8_t x1
   {
     if (dwn)
     {
-      if (r_s) 
+      if (r_s)
       {
         buff[x] &= 0xFF00;
         buff[x] |= in[x];
@@ -79,7 +79,7 @@ void shift_ud(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8_t x1
     }
     else
     {
-      if (r_s) 
+      if (r_s)
       {
         buff[x] &= 0xFF;
         buff[x] |= in[x] << 8;
@@ -99,8 +99,10 @@ void compressor7(byte *in, uint8_t x1, uint8_t x2) // Адаптация дис�
     if (in[y * 2 + 1] == 0x80)
     {
       in[i - 1] |= 0x80;
+      in[y * 2 + 1] = 0;     //clean position on the display
       y ++;
     }
     in[i] = in[y * 2 + 1]; //position on the display
+    in[y * 2 + 1] = 0;     //clean position on the display
   }
 }
