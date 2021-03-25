@@ -1,10 +1,18 @@
 
 #include <Adafruit_GFX.h>
 #include <LiquidCrystal_I2C.h>
-#include <Max72.h>
-#include <SHT1632_3.h>
-#include <myHT16K33.h>
-#include <myTM1637.h>
+/*
+#include "..\lib\MyLib_M7219\Max72.h"
+#include "..\lib\MyLib_HT1632\SHT1632_3.h"
+#include "..\lib\MyLib_HT1633\myHT16K33.h"
+#include "..\lib\MyLib_TM1637\myTM1637.h"
+*/
+
+#include "Max72.h"
+#include "SHT1632_3.h"
+#include "myHT16K33.h"
+#include "myTM1637.h"
+
 
 #if defined(ESP32)
 #include "freertos/FreeRTOS.h"

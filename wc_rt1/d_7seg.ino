@@ -1,5 +1,4 @@
 
-
 void tm1637_init()
 {
   tm1637 = new TM1637(CLK_PIN, DIO_PIN);

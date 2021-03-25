@@ -1,5 +1,3 @@
-#include "fonts.h"
-
 /*
    Function prototypes
 */

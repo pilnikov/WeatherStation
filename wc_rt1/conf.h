@@ -128,13 +128,19 @@
 #define FW_Ver 1.0 //16.05.17 added udp debug console
 
 // ------------------------------------------------------------- Include
+//#include "..\lib\MyLib_Udt\Udt.h"
+
+#include "Udt.h"
+
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
 #include <WiFi.h>
 #include <OTA.h>
 #include <HttpClient.h>
 #include <WiFiClient.h>
-#include <Netwf_rt.h>
+
+#include "Netwf_rt.h"
+
 #endif
 
 #if defined(ESP8266)
@@ -145,14 +151,14 @@
 #include <ESPAsyncTCP.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
-#include <WiFiManager.h>
-
-//#include <IRremoteESP8266.h>
-
 #include <ArduinoOTA.h>
-//#include <Ticker.h>
-#include <hw.h>
-#include <Netwf.h>
+
+//#include "..\lib\MyLib_hw\src\hw.h"
+//#include "..\lib\MyLib_nf\src\Netwf.h"
+
+#include "hw.h"
+#include "Netwf.h"
+
 #include <FS.h>
 #endif
 
@@ -163,17 +169,17 @@
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include <SPIFFS.h>
-//#include <WiFiManager.h>
-//#include <ESPAsyncTCP.h>
 #include <WebServer.h>
 #include <Update.h>
 #include <ESP32SSDP.h>
 //#include <IRremote.h>
 
 #include <ArduinoOTA.h>
-//#include <Ticker.h>
-//#include <hw.h>
-#include <Netwf.h>
+
+//#include "..\lib\MyLib_nf\src\Netwf.h"
+
+#include "Netwf.h"
+
 #include <FS.h>
 #endif
 
@@ -182,14 +188,23 @@
 #include <WiFiUdp.h>
 #include <Wire.h>
 #include <SPI.h>
+/*
+#include "..\lib\MyLib_sf2\src\Sysf2.h"
+#include "..\lib\MyLib_snd\src\Snd.h"
+#include "..\lib\MyLib_ntp\src\ntp.h"
+#include "..\lib\MyLib_es\src\Exts.h"
+#include "..\lib\MyLib_snr\src\Snr.h"
+#include "..\lib\MyLib_fdsp\src\Fdsp.h"
+#include "..\lib\BH1750-master\BH1750.h"
+*/
 
-#include <Sysf2.h>
-#include <Snd.h>
-#include <ntp.h>
-#include <Exts.h>
-#include <Snr.h>
-#include <Fdsp.h>
-#include <BH1750.h>
+#include "Sysf2.h"
+#include "Snd.h"
+#include "ntp.h"
+#include "Exts.h"
+#include "Snr.h"
+#include "Fdsp.h"
+#include "BH1750.h"
 
 //#define DEBUG_UDP
 
@@ -275,7 +290,6 @@ static const int       TERMO_OUT  PROGMEM =   2;  // (D5) Выход термо�
 #endif
 
 // ----------------------------------- Typedef
-#include <Udt.h>
 
 snr_data_t snr_data;
 wf_data_t wf_data_cur;
