@@ -198,7 +198,7 @@ void setup()
   if (conf_data.type_disp == 50)
   {
     DBG_OUT_PORT.end();
-    DBG_OUT_PORT.begin(9600);
+    DBG_OUT_PORT.begin(19200);
     send_uart();
   }
 
@@ -222,8 +222,6 @@ void loop()
   // ----------------------------------------------------- Доп для будильника
   Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd, conf_data.snd_pola);
 
-  //------------------------------------------------------ Отправляем данные через UART
-  if (conf_data.type_disp == 50 && !digitalRead(uart_pin)) send_uart();
 
   //------------------------------------------------------  Верифицируем ночной режим
   if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (hour() >= conf_data.nm_start && hour() < conf_data.nm_stop);

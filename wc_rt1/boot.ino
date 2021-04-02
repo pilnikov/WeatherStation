@@ -143,6 +143,9 @@ void firq6() // 0.5 sec main cycle
   Alarmed();
   Thermo();
   blinkColon = !blinkColon;
+ 
+  //------------------------------------------------------ Отправляем данные через UART
+  if (conf_data.type_disp == 50 && !digitalRead(uart_pin)) send_uart();
 }
 
 void firq7() // 0.2 sec Communications with server

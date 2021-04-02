@@ -13,7 +13,7 @@
 #include <BH1750.h>
 
 #include <Udt.h>
-#include <Sysf.h>
+#include <Sysf2.h>
 #include <Snr.h>
 #include <Fdsp.h>
 
@@ -28,23 +28,18 @@ rtc_data_t rtc_data;
 
 void synchro();
 String Serial_Read();
-void render_number(int);
-void render_number_in_place(int, int, int);
-void render_00number(int);
-void render_00number_in_place(int, int, int);
 void mx_mov_str(String, uint8_t, unsigned long);
 void parser(String);
 
 void matrix_init();
 void _matrix(uint8_t);
+void matrix_time();
 
 
 #define DBG_OUT_PORT Serial
 
-//#define _debug
+#define _debug
 #define new_max
-//#define font4pt
-//#define font5pt
 
 static const uint8_t   uart_pin =  2;
 
@@ -72,6 +67,14 @@ int cur_sym_pos[2] = {0, 0};
 unsigned long lcd_scroll_time[2] = {millis(), millis()}, refresh_time = millis();
 bool str_run;
 String st1 = "Running String";
+
+const static char* stdr[4] = {"ночь", "yтро", "день", "вечер"};
+const static char* swnr[8] = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
+const static char* sprcr[6] = {"дождь", "ливень", "снегопад", "сильный снегопад", "гроза", "без осадков"};
+const static char* sdnr[7] = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"};
+const static char* sdne[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+const static char* smnr[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+const static char* smne[12] = {"January", "February ", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 
 #define CLK 11  // MUST be on PORTB! (Use pin 11 on Mega)

@@ -28,9 +28,9 @@ void synchro()
 
   if (abs(rtc_data.ct - now()) > 2 && rtc_data.ct > 1476797813) setTime(rtc_data.ct);
 
-  if (conf_data.type_int_snr > 0 || conf_data.type_ext_snr > 0 || conf_data.type_prs_snr > 0)
+  if (conf_data.type_snr1 > 0 || conf_data.type_snr2 > 0 || conf_data.type_snrp > 0)
   {
-    snr_data = sens.read_snr(ram_data.type_int_snr, ram_data.type_ext_snr, ram_data.type_prs_snr, ram_data.temp_rtc, ts_data, es_data, wf_data); // Опрашиваем датчики
+    snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
   cur_br = ((ram_data.lb + 1) * 16) - 1;
@@ -41,7 +41,7 @@ String Serial_Read() {
   char c; // переменная для чтения сериал порта
   String S_str = String(); // Формируемая из символов строка
   uint8_t i = 0;
-  Serial3.begin(9600);
+  Serial3.begin(19200);
   digitalWrite(uart_pin, LOW);
 
   do
@@ -61,37 +61,8 @@ String Serial_Read() {
   return S_str;
 }
 
-void render_number_in_place(int number, int _colum, int _row)
-{
-  byte digit = 1; // Кол-во разрядов в number
 
-  if (number > 9999) digit = 5;
-  else if (number > 999 ) digit = 4;
-  else if (number > 99  ) digit = 3;
-  else if (number > 9   ) digit = 2;
-
-  char msg[digit + 1];
-  sprintf(msg, "%1u", number);
-
-  matrix -> setCursor(_colum - (digit - 1) * 6, _row);
-  matrix -> print(msg);
-# ifdef _debug
-  DBG_OUT_PORT.print(msg);
-# endif
-}
-
-void render_00number_in_place(int number, int _colum, int _row)
-{
-  char msg[2];
-  sprintf(msg, "%02u", number);
-  matrix -> setCursor(_colum, _row);
-  matrix -> print(msg);
-# ifdef _debug
-  DBG_OUT_PORT.print(msg);
-# endif
-}
-
-void  matrix_refresh()
+void matrix_time()
 {
   for (uint8_t i = 0; i < num; i++) digoldig[i] = d[i]; // перезапись предыдущих значений в буфер
 
@@ -148,7 +119,7 @@ void mx_mov_str(String tape, uint8_t dline, unsigned long dutty)
   else // End of scrolling
   {
     cur_sym_pos[dline] = 0;
-    if (conf_data.rus_disp && conf_data.use_pp) max_st = 3;
+    if (conf_data.rus_lng && conf_data.use_pp) max_st = 3;
     else max_st = 2;
     num_st++; //Перебор строк.
     if (num_st > max_st)
@@ -156,7 +127,9 @@ void mx_mov_str(String tape, uint8_t dline, unsigned long dutty)
       num_st = 1;
       synchro();
     }
-    st1 = fsys.utf8rus(pr_str(num_st));
+    st1 = pr_str(num_st);
+
+    f_dsp.utf8rus(st1);
   }
 }
 
@@ -167,7 +140,7 @@ void parser(String inStr)
   DBG_OUT_PORT.print("inStr is ...");  DBG_OUT_PORT.println(inStr);
 # endif
 
-  DynamicJsonDocument jsonBuffer(512);
+  DynamicJsonDocument jsonBuffer(500);
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(jsonBuffer, inStr);

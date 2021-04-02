@@ -8,9 +8,9 @@ void setup() {
   digitalWrite(uart_pin, HIGH);
 
   //------------------------------------------------------  Инициализируем и опрашиваем I2C
-  conf_data.type_int_snr = 2;
-  conf_data.type_ext_snr = 2;
-  conf_data.type_prs_snr = 2;
+  conf_data.type_snr1 = 2;
+  conf_data.type_snr2 = 2;
+  conf_data.type_snrp = 2;
 
   Wire.begin(); //Запускаем I2C и проверяем наличие клиентов
   ram_data = fsys.i2c_scan(conf_data);
@@ -29,7 +29,7 @@ void setup() {
   synchro();
 
   //------------------------------------------------------  Инициализируем дисплей
-  conf_data.rus_disp = true;
+  conf_data.rus_lng = true;
   conf_data.use_pp = 0;
   conf_data.use_pm = false;
   matrix_init();
@@ -42,7 +42,7 @@ void loop()
   if (grad >= 1536) grad -= 1536;
   if (millis() - refresh_time > 500)
   {
-    matrix_refresh();
+    matrix_time();
     refresh_time = millis();
   }
 }

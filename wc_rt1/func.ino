@@ -466,7 +466,7 @@ void keyb_read()
 //------------------------------------------------------  Отправляем данные по USART
 String uart_st()
 {
-  DynamicJsonDocument jsonBuffer(512);
+  DynamicJsonDocument jsonBuffer(500);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["T"] = now();
