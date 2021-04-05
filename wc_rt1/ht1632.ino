@@ -12,8 +12,9 @@ void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
     uint8_t dt = 0b1;
     for (uint8_t y = 0; y < 8; y++)
     {
-      m1632 -> plot(x, y, (in[x] & dt << y) ? color1 : BLACK);
-      m1632 -> plot(x, y + 8, (in[x + 32] & dt << y) ? color2 : BLACK);
+      // BLACK = 0
+      m1632 -> plot(x, y, (in[x] & dt << y) ? color1 : 0);
+      m1632 -> plot(x, y + 8, (in[x + 32] & dt << y) ? color2 : 0);
     }
   }
 }

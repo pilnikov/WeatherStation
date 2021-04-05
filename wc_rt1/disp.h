@@ -2,10 +2,10 @@
 #include <Adafruit_GFX.h>
 #include <LiquidCrystal_I2C.h>
 /*
-#include "..\lib\MyLib_M7219\Max72.h"
-#include "..\lib\MyLib_HT1632\SHT1632_3.h"
-#include "..\lib\MyLib_HT1633\myHT16K33.h"
-#include "..\lib\MyLib_TM1637\myTM1637.h"
+  #include "..\lib\MyLib_M7219\Max72.h"
+  #include "..\lib\MyLib_HT1632\SHT1632_3.h"
+  #include "..\lib\MyLib_HT1633\myHT16K33.h"
+  #include "..\lib\MyLib_TM1637\myTM1637.h"
 */
 
 #include "Max72.h"
@@ -59,11 +59,11 @@ const static char* smne[12] = {"January", "February ", "March", "April", "May", 
 
 //----------------------------------------------------------------------------TM1637
 
-static TM1637* tm1637;
+static TM1637 * tm1637;
 
 //----------------------------------------------------------------------------HT1633
 
-static HT16K33* ht1633;
+static HT16K33 * ht1633;
 
 
 //---------------------------------------------------------------------------LCD1602
@@ -100,7 +100,7 @@ uint16_t buffud[64];
 bool d_notequal[q_dig];
 
 byte screen[64]; // display buffer
-      
+
 //---------------------------------------------------------------------------HT1621
 //массив батарейка
 static const uint8_t batt[6] = {0x02, 0x82, 0x92, 0xD2, 0xF2, 0xF3};
@@ -119,6 +119,11 @@ static HT1621 * ht21;
 //---------------------------------------------------------------------------HT1632
 
 static HT1632C * m1632;
+
+//---------------------------------------------------------------------------Matrix
+#if defined(ESP32)
+static ESP32RGBmatrixPanel * m3264;
+#endif
 
 //---------------------------------------------------------------------------ILI9341
 #include "Adafruit_ILI9341.h"

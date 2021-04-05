@@ -143,7 +143,7 @@ void firq6() // 0.5 sec main cycle
   Alarmed();
   Thermo();
   blinkColon = !blinkColon;
- 
+
   //------------------------------------------------------ Отправляем данные через UART
   if (conf_data.type_disp == 50 && !digitalRead(uart_pin)) send_uart();
 }
@@ -210,7 +210,8 @@ void firq9() //0.04 sec running string is out switch to time view
 
   if (ram_data.type_vdrv == 5 && conf_data.type_disp == 22 && disp_on)
   {
-    ht1632_ramFormer(screen, ORANGE, GREEN);
+    //ORANGE = 3 GREEN = 1
+    ht1632_ramFormer(screen, 3, 1);
     m1632 -> pwm(cur_br);
     m1632 -> sendFrame();
   }
@@ -222,4 +223,24 @@ void firq9() //0.04 sec running string is out switch to time view
     m7219_ramFormer(screen);
     m7219 -> write();
   }
+
+  if (ram_data.type_vdrv == 3 && conf_data.type_disp == 23 && disp_on)
+  {
+    m3264 -> setBrightness(cur_br);
+    int pos = 32;
+    m3264 -> setTextSize(1);
+    int colors[3];
+    while (pos > -450)
+    {
+      m3264 -> black();
+      m3264 -> setCursor(pos, 1);
+      getRGB(abs(pos) % 255, 255, 255, colors);
+      m3264 -> setTextColor(m3264 -> AdafruitColor(colors[0], colors[1], colors[2]));
+      m3264 -> print(st1);
+      pos -= 1;
+      vTaskDelay(10);
+      m3264 -> update();
+    }
+  }
+
 }

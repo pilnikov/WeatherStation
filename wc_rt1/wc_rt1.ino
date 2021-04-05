@@ -154,19 +154,18 @@ void setup()
       wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
     }
 
-    //------------------------------------------------------ Подключаем OTA, SSDP и MDNS
+    //------------------------------------------------------ Подключаем OTA, MDNS
     nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
 
 # if defined(ESP8266) || defined(ESP32)
     MDNS.begin(conf_data.ap_ssid);
-    nsys.ssdp_init();
     DBG_OUT_PORT.printf("Open http://%s", conf_data.ap_ssid);
     DBG_OUT_PORT.print(".local/edit to see the file browser\n");
 # endif
-
-    //------------------------------------------------------ Запускаем сервер
+    //------------------------------------------------------ Запускаем сервер и SSDP
     web_setup();
     start_serv();
+    nsys.ssdp_init();
   }
 
   //-------------------------------------------------------  Опрашиваем датчики

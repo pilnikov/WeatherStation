@@ -55,6 +55,7 @@ void NF::ssdp_init()
 {
     DBG_OUT_PORT.printf("Starting SSDP...\n");
 
+    SSDP.setSchemaURL("description.xml");
     SSDP.setDeviceType("upnp::rootdevice");
     SSDP.setHTTPPort(80);
     SSDP.setName("MyESP");

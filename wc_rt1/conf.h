@@ -249,7 +249,7 @@ static const int         SCL_PIN  PROGMEM =  22;  // (D1)
 static const int        BUZ2_PIN  PROGMEM =  32;  // (D8) Пин пищалки
 static const int         CLK_PIN  PROGMEM =  33;  // (D4)
 static const int         DHT_PIN  PROGMEM =  36;  // (D3) Pin which is connected to the DHT sensor.
-static const int     LED_BUILTIN  PROGMEM =   5;  // (D3)
+//static const int     LED_BUILTIN  PROGMEM =   5;  // (D3)
 static const int         ANA_SNR  PROGMEM =  39;  // (D3) Пин фоторезистора
 static const int       TERMO_OUT  PROGMEM =   2;  // (D5) Выход термостата
 #endif

@@ -63,7 +63,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 23:
       // M32x16COLOR
-      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
+      //m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
       break;
     case 24:
       // M64x32COLOR
