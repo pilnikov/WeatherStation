@@ -1,3 +1,5 @@
+#if defined(__xtensa__)
+
 void web_setup();
 
 void start_serv();
@@ -28,3 +30,4 @@ void handleFileCreate();
 void handleFileList();
 
 String cur_time_str();
+# endif

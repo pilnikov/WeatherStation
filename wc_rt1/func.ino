@@ -11,7 +11,7 @@ void GetSnr()
   snr_data.h2 = 0;
   snr_data.h3 = 0;
   snr_data.p = 700;
-
+# if defined(__xtensa__)
   if (web_cli)
   {
     if (ram_data.type_snr1 == 1 || ram_data.type_snr2 == 1 || ram_data.type_snr3 == 1 || ram_data.type_snrp == 1)
@@ -28,12 +28,13 @@ void GetSnr()
       wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
     }
   }
-
+#endif
   if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
   {
     snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
+# if defined(__xtensa__)
   if (web_cli)
   {
     if (conf_data.use_tst1 || conf_data.use_tst2 || conf_data.use_tst3 || conf_data.use_tsh1 || conf_data.use_tsh2 || conf_data.use_tsh3 || conf_data.use_tsp)
@@ -43,8 +44,9 @@ void GetSnr()
       dmsg.callback(conf_data.type_disp, 1, 1, conf_data.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
   }
+#endif
 }
-
+# if defined(__xtensa__)
 //------------------------------------------------------  Делаем запрос данных с Gismeteo
 String gs_rcv(unsigned long city_id)
 {
@@ -394,6 +396,7 @@ void GetNtp()
   if (result)   DBG_OUT_PORT.println("Sucsess !!!");
   else   DBG_OUT_PORT.println("Failed !!!");
 }
+#endif
 
 //------------------------------------------------------  Обрабатываем клавиатуру
 void keyb_read()
@@ -419,10 +422,11 @@ void keyb_read()
 
     but0_press = but0_pressed;
   }
+#if defined(__xtensa__)
 
-  if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? HIGH : LOW);  // Включаем светодиод
-  if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
-  if (but0_pressed && millis() - setting_ms > 9000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
+  if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? HIGH : LOW);  // Включаем светодиод
+  if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
+  if (but0_pressed && millis() - setting_ms > 9000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, blinkColon); // Мигаем светодиодом
 
   if (!but0_pressed && but0_press && !serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)
   {
@@ -437,13 +441,10 @@ void keyb_read()
     stop_serv();  // держим от 2 до 9 сек - Останавливаем web морду
     but0_press = but0_pressed;
   }
-
   if (!but0_pressed && but0_press && millis() - setting_ms > 9000 && millis() - setting_ms < 15000)
   {
     DBG_OUT_PORT.println("Reboot esp...");
-#if defined(ESP8266) || defined(ESP32)
     ESP.restart();// держим от 9 до 15 сек - Перезапускаемся
-#endif
   }
 
   if (but0_pressed && millis() - setting_ms > 15000)                // держим больше 15 сек - сбрасываем усе на дефолт
@@ -452,15 +453,14 @@ void keyb_read()
     conf_data = defaultConfig();
     saveConfig(conf_f, conf_data);
     WiFi.disconnect();
-#if defined(ESP8266) || defined(ESP32)
     WiFi.mode(WIFI_OFF);
     delay(100);
     //ESP.reset();
     DBG_OUT_PORT.println("Reboot esp...");
     ESP.restart();
-#endif
   }
   but0_press = but0_pressed;
+#endif
 }
 
 //------------------------------------------------------  Отправляем данные по USART
@@ -553,12 +553,12 @@ void Thermo()
 }
 
 //------------------------------------------------------  Внутренняя флэшка SPIFFS
-# if defined(ESP8266) || defined(ESP32)
+# if defined(__xtensa__)
 
 void printFile(const char* filename) {
   // Open file for reading
   File file = SPIFFS.open(filename, "r");
-  
+
   if (!file)
   {
     DBG_OUT_PORT.println(F("Failed to read file"));
@@ -593,7 +593,7 @@ void fs_setup()
     }
 #endif
 
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 
     File root = SPIFFS.open("/");
 

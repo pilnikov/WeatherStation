@@ -14,7 +14,7 @@
 #include "myTM1637.h"
 
 
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "ESP32RGBmatrixPanel.h"
@@ -48,14 +48,14 @@ bool time_m32_8(byte*, uint8_t, byte*, char*, uint8_t*, bool*);
 //----------------------------------------------------------------------------Common
 
 //----------------------------------------------------------------------------7 SEG
-static const char* name_week7[8] = {"", "8c", "\357H", "8t", "cP", "4t", "\357t", "c6"};
-const static char* stdr[4] = {"ночь", "yтро", "день", "вечер"};
-const static char* swnr[8] = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
-const static char* sprcr[6] = {"дождь", "ливень", "снегопад", "сильный снегопад", "гроза", "без осадков"};
-const static char* sdnr[7] = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"};
-const static char* sdne[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-const static char* smnr[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-const static char* smne[12] = {"January", "February ", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+const char name_week7[8] [2] PROGMEM = {"", "8c", "\357H", "8t", "cP", "4t", "\357t", "c6"};
+const char stdr[4] [5] PROGMEM = {"ночь", "yтро", "день", "вечер"};
+const char swnr[8] [15] PROGMEM = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
+const char sprcr[6] [16] PROGMEM = {"дождь", "ливень", "снегопад", "сильный снегопад", "гроза", "без осадков"};
+const char sdnr[7] [11] PROGMEM = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"};
+const char sdne[7] [10] PROGMEM = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+const char smnr[12] [7] PROGMEM = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+const char smne[12] [10] PROGMEM = {"January", "February ", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 //----------------------------------------------------------------------------TM1637
 
@@ -121,7 +121,7 @@ static HT1621 * ht21;
 static HT1632C * m1632;
 
 //---------------------------------------------------------------------------Matrix
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 static ESP32RGBmatrixPanel * m3264;
 #endif
 

@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void pcf8574_init()
 {
-#if defined(ESP8266) || defined(ESP32)
+#if defined(__xtensa__)
   lcd = new LiquidCrystal_I2C(ram_data.lcd_addr, lcd_col, lcd_row);
   lcd -> init();
 #endif

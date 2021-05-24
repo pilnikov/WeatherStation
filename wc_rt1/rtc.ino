@@ -20,7 +20,7 @@ void rtc_init()
 #if defined(ESP8266)
     attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
 #endif
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
     //attachInterrupt(digitalPinToInterrupt(SQW_PIN), InteruptServiceRoutine, CHANGE);
 #endif
   }
@@ -191,7 +191,7 @@ bool Alarmed()
     if (debug_level == 13) DBG_OUT_PORT.println("alarm one is run!");
 
     dmsg.alarm_msg(rtc_data.n_cur_alm, conf_data.type_disp, conf_data.rus_lng);  // Сообщение на индикатор
-    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, blinkColon); // Мигаем светодиодом
+    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, blinkColon); // Мигаем светодиодом
 
     switch (conf_data.alarms[rtc_data.n_cur_alm][4])     // Выполняем экшн
     {
@@ -244,10 +244,14 @@ bool Alarmed()
         }
         break;
       case 5:
+#if defined(__xtensa__)
         radio_snd("cli.start");
+#endif
         break;
       case 6:
+#if defined(__xtensa__)
         radio_snd("cli.stop");
+#endif
         break;
     }
 
@@ -258,7 +262,7 @@ bool Alarmed()
       strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
       saveConfig(conf_f, conf_data);
     }
-    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
+    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2
@@ -296,7 +300,7 @@ void man_set_time()
   set_alarm();
 }
 
-void ICACHE_RAM_ATTR InteruptServiceRoutine()
+void ISR_ATTR InteruptServiceRoutine()
 {
   // since this interupted any other running code,
   // don't do anything that takes long and especially avoid

@@ -1,4 +1,4 @@
-#if defined(ESP8266) || defined(ESP32)
+#if defined(__xtensa__)
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
@@ -79,7 +79,7 @@ void web_setup()
   httpUpdater.setup(&server);
 #endif
 
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
   HTTPUpload& upload = server.upload();
 #endif
   //  server.begin();
@@ -731,7 +731,7 @@ void handleFileList()
   }
 #endif
 
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 
   File root = SPIFFS.open(path);
   String output = "[";

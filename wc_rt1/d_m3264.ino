@@ -1,5 +1,5 @@
 
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 
 /* create a hardware timer */
 byte br = 127;
@@ -15,7 +15,7 @@ uint8_t mtxt_size = 2, my_coord = 16;
 
 void a595_init()
 {
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
   //G1  R1 |
   //GND B1 |
   //G2  R2 |

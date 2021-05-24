@@ -9,7 +9,7 @@ void m7219_init()
 
   m7219 -> begin();
   CLS();
-  
+
   if (conf_data.type_disp == 20)
   {
     st1 = "Hello";
@@ -25,7 +25,9 @@ void m7219_init()
 
   if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
   {
-    print_("7219", 5, screen, 0, font14s, 2, 0);
+    st1 = "7219";
+    strncpy(tstr, st1.c_str(), 6);
+    print_(tstr, 5, screen, 0, font14s, 2, 0);
     m7adopt(screen, 0, 4);
   }
 

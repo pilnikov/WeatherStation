@@ -10,7 +10,7 @@ void setup()
 
 #else
   DBG_OUT_PORT.begin(115200);
-#if defined(ESP8266) || defined(ESP32)
+#if defined(__xtensa__)
   DBG_OUT_PORT.setDebugOutput(true);
 #endif
 #endif
@@ -23,7 +23,7 @@ void setup()
   //------------------------------------------------------  Инициализируем встроенную файловую систему SPIFFS
 #endif
 
-# if defined(ESP8266) || defined(ESP32)
+# if defined(__xtensa__)
   fs_setup();
 #endif
   DBG_OUT_PORT.println("file system started");
@@ -37,7 +37,7 @@ void setup()
 
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
 
-# if defined(ESP8266) || defined(ESP32)
+# if defined(__xtensa__)
   Wire.begin(SDA_PIN, SCL_PIN);
 # endif
 
@@ -73,17 +73,16 @@ void setup()
 
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(setting_pin, INPUT_PULLUP);
-# if defined(ESP8266) || defined(ESP32)
-  if (!ram_data.bh1750_present) pinMode(A0, INPUT);
-  pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
-  pinMode(2, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
-  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_BUILTIN, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
+# if defined(__xtensa__)
+  if (!ram_data.bh1750_present) pinMode(ANA_SNR, INPUT);
+  pinMode(LED_PIN, OUTPUT);     // Initialize the LED_PIN pin as an output
+  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 # endif
 
 # if defined(ESP8266)
   pinMode(BUZ_PIN, OUTPUT);
 # endif
-# if defined(ESP32)
+# if defined(ARDUINO_ARCH_ESP32)
   pinMode(BUZ2_PIN, OUTPUT);
   ledcAttachPin(BUZ2_PIN, BUZ_PIN);
   ledcSetup(BUZ2_PIN, 2000, 8); // 2 kHz PWM, 8-bit resolution
@@ -130,9 +129,8 @@ void setup()
   DBG_OUT_PORT.println(ram_data.type_vdrv);
 
   //-------------------------------------------------------- Запускаем сетевые сервисы
-# if defined(ESP8266) || defined(ESP32)
+# if defined(__xtensa__)
   start_wifi();
-# endif
   if (web_cli || web_ap)
   {
     //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
@@ -157,24 +155,22 @@ void setup()
     //------------------------------------------------------ Подключаем OTA, MDNS
     nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
 
-# if defined(ESP8266) || defined(ESP32)
     MDNS.begin(conf_data.ap_ssid);
     DBG_OUT_PORT.printf("Open http://%s", conf_data.ap_ssid);
     DBG_OUT_PORT.print(".local/edit to see the file browser\n");
-# endif
+
     //------------------------------------------------------ Запускаем сервер и SSDP
     web_setup();
     start_serv();
     nsys.ssdp_init();
   }
+# endif
 
   //-------------------------------------------------------  Опрашиваем датчики
   GetSnr();
 
   //-------------------------------------------------------- Гасим светодиод
-#   if defined(ESP8266) || defined(ESP32)
-  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(LED_BUILTIN, conf_data.led_pola ? LOW : HIGH);
-#   endif
+  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH);
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();

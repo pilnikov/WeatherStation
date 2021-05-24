@@ -31,7 +31,7 @@ void ht1621_init()
   {
     ht21->write(i, screen[i]);
 
-    bat(i - 1, screen);
+    if (i < 7) bat(i - 1, screen);
     ht21->write(21, screen, 2);
     delay(250);
   }

@@ -84,7 +84,12 @@ void drawWifiQuality()
 // converts the dBm to a range between 0 and 100%
 int8_t getWifiQuality()
 {
-  int32_t dbm = WiFi.RSSI();
+  int32_t dbm = -200;
+
+#if defined(__xtensa__)
+  dbm = WiFi.RSSI();
+#endif
+
   if (dbm <= -100) return 0;
   else if (dbm >= -50) return 100;
   else return 2 * (dbm + 100);

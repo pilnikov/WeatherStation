@@ -93,14 +93,17 @@ void irq_set()
 void firq1() // 1 hour
 {
   if (hour_cnt > 23) hour_cnt = 0;
+# if defined(__xtensa__)
 
   if (!web_cli && !web_ap && !conf_data.wifi_off) start_wifi();
 
   if (hour_cnt % 12 == 0) GetNtp();
   if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-  if (hour_cnt % 6 == 0 && conf_data.use_pp == 2) {
+  if (hour_cnt % 6 == 0 && conf_data.use_pp == 2)
+  {
     wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
   }
+#endif
   hour_cnt++;
 }
 
@@ -152,7 +155,7 @@ void firq7() // 0.2 sec Communications with server
 {
   if (web_cli || web_ap)
   {
-#if defined(ESP8266) || defined(ESP32)
+#if defined(__xtensa__)
     server.handleClient();
     if (debug_level == 2) DBG_OUT_PORT.printf("Serv sec %u\n", (millis() - serv_ms) / 1000);
 
@@ -226,6 +229,8 @@ void firq9() //0.04 sec running string is out switch to time view
 
   if (ram_data.type_vdrv == 3 && conf_data.type_disp == 23 && disp_on)
   {
+#if defined(ARDUINO_ARCH_ESP32)
+
     m3264 -> setBrightness(cur_br);
     int pos = 32;
     m3264 -> setTextSize(1);
@@ -241,6 +246,7 @@ void firq9() //0.04 sec running string is out switch to time view
       vTaskDelay(10);
       m3264 -> update();
     }
-  }
 
+#endif
+  }
 }

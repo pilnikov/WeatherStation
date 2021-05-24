@@ -1,5 +1,4 @@
-#if defined(ESP8266) || defined(ESP32)
-
+#if defined(__xtensa__)
 
 conf_data_t loadConfig(const char *filename)
 {
@@ -246,6 +245,7 @@ void saveConfig(const char *filename, conf_data_t data)
   DBG_OUT_PORT.println( "End write buffer to file");
   configFile.close();
 }
+#endif
 
 conf_data_t defaultConfig()
 {
@@ -311,5 +311,15 @@ conf_data_t defaultConfig()
     for (uint8_t j = 0; j <= 4; j++) data.alarms[i][j] = 0;
 
   return data;
+}
+
+#if defined(__AVR_ATmega2560__)
+
+conf_data_t loadConfig(const char *filename)
+{
+}
+
+void saveConfig(const char *filename, conf_data_t data)
+{
 }
 #endif

@@ -1,4 +1,6 @@
-#//-------------------------------------------------------------- Stop_wifi
+# if defined(__xtensa__)
+
+//-------------------------------------------------------------- Stop_wifi
 void stop_wifi()
 {
   if (web_cli)     //Останавливаем клиента
@@ -11,9 +13,7 @@ void stop_wifi()
   }
   web_ap   = false;
   web_cli  = false;
-# if defined(ESP8266) || defined(ESP32)
   WiFi.mode(WIFI_OFF);
-# endif
   WiFi.disconnect();
 }
 
@@ -92,3 +92,4 @@ void start_wifi()
     web_ap = true;
   }
 }
+#endif

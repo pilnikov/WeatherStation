@@ -157,12 +157,9 @@
 //#include "..\lib\MyLib_nf\src\Netwf.h"
 
 #include "hw.h"
-#include "Netwf.h"
-
-#include <FS.h>
 #endif
 
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 #include <pgmspace.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
@@ -178,16 +175,20 @@
 
 //#include "..\lib\MyLib_nf\src\Netwf.h"
 
-#include "Netwf.h"
-
-#include <FS.h>
 #endif
 
+
+#define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
 #include <TimeLib.h>
-#include <WiFiUdp.h>
 #include <Wire.h>
 #include <SPI.h>
+
+#if defined(__xtensa__)
+#include "Netwf.h"
+#include <FS.h>
+#include <WiFiUdp.h>
+#endif
 /*
 #include "..\lib\MyLib_sf2\src\Sysf2.h"
 #include "..\lib\MyLib_snd\src\Snd.h"
@@ -200,11 +201,14 @@
 
 #include "Sysf2.h"
 #include "Snd.h"
-#include "ntp.h"
-#include "Exts.h"
 #include "Snr.h"
 #include "Fdsp.h"
 #include "BH1750.h"
+
+#if defined(__xtensa__)
+#include "ntp.h"
+#include "Exts.h"
+#endif
 
 //#define DEBUG_UDP
 
@@ -232,25 +236,44 @@ static const int          CS_PIN  PROGMEM = 16;  // (D0) CS . DIN 13 (D7) CLK 14
 static const int        uart_pin  PROGMEM = 16;  // (D0)
 static const int         ANA_SNR  PROGMEM = A0;  // (A0) Пин фоторезистора
 static const int       TERMO_OUT  PROGMEM =  2;  // (D5) Выход термостата
+static const int         LED_PIN  PROGMEM =  2;  // (D3)
 #endif
 
 // ------------------------------------------------------ GPIO
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 static const int     setting_pin  PROGMEM =   0;  // (D3)
 static const int       WRCLK_PIN  PROGMEM =   2;  // (D5)
-static const int         BUZ_PIN  PROGMEM =   3;  // (D8) Канал PWM
-static const int         SQW_PIN  PROGMEM =  12;  // (D6) Пин RtcSquareWave
+static const int         BUZ_PIN  PROGMEM =  15;  // (D8) Канал PWM
+static const int         SQW_PIN  PROGMEM =  19;  // (D6) Пин RtcSquareWave
 static const int         DIO_PIN  PROGMEM =  13;  // (D7)
-//static const int         CLK_PIN  PROGMEM =  14;  // (D5) Clk
-static const int          CS_PIN  PROGMEM =  15;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
+static const int          CS_PIN  PROGMEM =  16;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
 static const int        uart_pin  PROGMEM =  16;  // (D0)
 static const int         SDA_PIN  PROGMEM =  21;  // (D2)
 static const int         SCL_PIN  PROGMEM =  22;  // (D1)
 static const int        BUZ2_PIN  PROGMEM =  32;  // (D8) Пин пищалки
-static const int         CLK_PIN  PROGMEM =  33;  // (D4)
-static const int         DHT_PIN  PROGMEM =  36;  // (D3) Pin which is connected to the DHT sensor.
-//static const int     LED_BUILTIN  PROGMEM =   5;  // (D3)
-static const int         ANA_SNR  PROGMEM =  39;  // (D3) Пин фоторезистора
+static const int         CLK_PIN  PROGMEM =  18;  // (D4)
+static const int         DHT_PIN  PROGMEM =  34;  // (D3) Pin which is connected to the DHT sensor.
+static const int         LED_PIN  PROGMEM =   2;  // (D3)
+static const int         ANA_SNR  PROGMEM =  35;  // (D3) Пин фоторезистора
+static const int       TERMO_OUT  PROGMEM =   2;  // (D5) Выход термостата
+#endif
+
+
+#if defined(__AVR_ATmega2560__)
+static const int     setting_pin  PROGMEM =   0;  // (D3)
+static const int       WRCLK_PIN  PROGMEM =   2;  // (D5)
+static const int         BUZ_PIN  PROGMEM =  15;  // (D8) Канал PWM
+static const int         SQW_PIN  PROGMEM =  19;  // (D6) Пин RtcSquareWave
+static const int         DIO_PIN  PROGMEM =  13;  // (D7)
+static const int          CS_PIN  PROGMEM =  16;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
+static const int        uart_pin  PROGMEM =  16;  // (D0)
+static const int         SDA_PIN  PROGMEM =  21;  // (D2)
+static const int         SCL_PIN  PROGMEM =  22;  // (D1)
+static const int        BUZ2_PIN  PROGMEM =  32;  // (D8) Пин пищалки
+static const int         CLK_PIN  PROGMEM =  18;  // (D4)
+static const int         DHT_PIN  PROGMEM =  34;  // (D3) Pin which is connected to the DHT sensor.
+static const int         LED_PIN  PROGMEM =   2;  // (D3)
+static const int         ANA_SNR  PROGMEM =  35;  // (D3) Пин фоторезистора
 static const int       TERMO_OUT  PROGMEM =   2;  // (D5) Выход термостата
 #endif
 
@@ -301,8 +324,10 @@ rtc_data_t rtc_data;
 // ----------------------------------- Internal header files
 #include "disp.h"
 #include "rtc.h"
-#include "web.h"
 
+#if defined(__xtensa__)
+#include "web.h"
+#endif
 // ----------------------------------- Force define func name
 
 void printFile(const char);
@@ -339,7 +364,9 @@ String ts_rcv (unsigned long, char*);
 String ts_snd (String);
 
 // ----------------------------------- NTP
+#if defined(__xtensa__)
 NTPTime NTP_t;
+#endif
 
 // ----------------------------------- Time
 time_t cur_time;
@@ -352,7 +379,7 @@ ESP8266WebServer server(80);
 ESP8266HTTPUpdateServer httpUpdater;
 #endif
 
-#if defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
 WebServer server(80);
 #endif
 
@@ -405,17 +432,18 @@ uint16_t         cur_br_buf  = 0;
 uint8_t         debug_level  = 0; // 0 - отключен
 
 // ---------------------------------------------------- Constructors
-IPAddress IP_Addr;
 
 Synt Buzz;               //Конструктор пищалки
 
-# if defined(ESP8266) || defined(ESP32)
+# if defined(__xtensa__)
+IPAddress IP_Addr;
 File fsUploadFile;
-# endif
 
 ES e_srv;
-SF fsys;
 NF nsys;
+# endif
+
+SF fsys;
 SNR sens;
 FD f_dsp;
 MSG dmsg;
