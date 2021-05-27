@@ -48,6 +48,8 @@ bool time_m32_8(byte*, uint8_t, byte*, char*, uint8_t*, bool*);
 //----------------------------------------------------------------------------Common
 
 //----------------------------------------------------------------------------7 SEG
+#if defined(__AVR__)
+
 const char name_week7[8] [2] PROGMEM = {"", "8c", "\357H", "8t", "cP", "4t", "\357t", "c6"};
 const char stdr[4] [5] PROGMEM = {"ночь", "yтро", "день", "вечер"};
 const char swnr[8] [15] PROGMEM = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
@@ -57,6 +59,17 @@ const char sdne[7] [10] PROGMEM = {"Sunday", "Monday", "Tuesday", "Wednesday", "
 const char smnr[12] [7] PROGMEM = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
 const char smne[12] [10] PROGMEM = {"January", "February ", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
+#elif defined(__xtensa__)
+static const char* name_week7[8] = {"", "8c", "\357H", "8t", "cP", "4t", "\357t", "c6"};
+static const char* stdr[4] = {"ночь", "yтро", "день", "вечер"};
+static const char* swnr[8] = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
+static const char* sprcr[6] = {"дождь", "ливень", "снегопад", "сильный снегопад", "гроза", "без осадков"};
+static const char* sdnr[7] = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"};
+static const char* sdne[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+static const char* smnr[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+static const char* smne[12] = {"January", "February ", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+#endif
 //----------------------------------------------------------------------------TM1637
 
 static TM1637 * tm1637;

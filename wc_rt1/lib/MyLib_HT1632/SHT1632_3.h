@@ -42,13 +42,7 @@ enum ID_CODE {
 
 //
 // constants
-/*
-#define BLACK 0
-#define GREEN 1
-#define RED 2
-#define ORANGE 3
-#define TRANSPARENT 0xff
-*/
+//
 
 #ifdef DEBUG
 #define DEBUGF(...) Serial.printf(__VA_ARGS__)
