@@ -11,6 +11,15 @@ void GetSnr()
   snr_data.h2 = 0;
   snr_data.h3 = 0;
   snr_data.p = 700;
+
+  ram_data.temp_rtc = 99;
+
+  if ((ram_data.type_snr1 == 5 || ram_data.type_snr2 == 5 || ram_data.type_snr3 == 5) && ram_data.type_rtc == 1)
+  {
+    RtcTemperature t1 = DS3231.GetTemperature();
+    ram_data.temp_rtc = round(t1.AsFloatDegC());
+  }
+
 # if defined(__xtensa__)
   if (web_cli)
   {
@@ -46,11 +55,40 @@ void GetSnr()
   }
 #endif
 }
+
+#if defined(__AVR_ATmega2560__)
+
+// функция для печати из PROGMEM
+void printFromPGM(int charMap, char * _buf)
+{
+  uint16_t _ptr = pgm_read_word(charMap); // получаем адрес из таблицы ссылок
+  uint8_t i = 0;        // переменная - индекс массива буфера
+  do
+  {
+    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
+  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
+}
+#endif
+
+
 # if defined(__xtensa__)
+
+// функция для печати из PROGMEM
+void printFromPGM(const void* charMap, char * _buf)
+{
+  const void* _ptr = pgm_read_ptr(charMap); // получаем адрес из таблицы ссылок
+  uint8_t i = 0;        // переменная - индекс массива буфера
+  do
+  {
+    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
+  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
+}
+
+
 //------------------------------------------------------  Делаем запрос данных с Gismeteo
 String gs_rcv(unsigned long city_id)
 {
-  if (debug_level == 10) DBG_OUT_PORT.println("True get data from GisMeteo");
+  if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from GisMeteo"));
   String out = "No connect to network";
   if (web_cli)
   {
@@ -63,10 +101,11 @@ String gs_rcv(unsigned long city_id)
   return out;
 }
 
-// =======================================================================
-// Берем текущую погоду с сайта openweathermap.org
-// =======================================================================
-
+/*
+  =======================================================================
+  Берем текущую погоду с сайта openweathermap.org
+  =======================================================================
+*/
 const char* owmHost = "api.openweathermap.org";
 
 
@@ -75,7 +114,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   wf_data_t prog;
 
   String out = "No connect to network";
-  DBG_OUT_PORT.print("\n Current weather from "); DBG_OUT_PORT.println(owmHost);
+  DBG_OUT_PORT.print(F("\n Current weather from ")); DBG_OUT_PORT.println(owmHost);
   String addr = "http://";
   addr += owmHost;
   addr += "/data/2.5/forecast?id=";
@@ -86,7 +125,7 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   DBG_OUT_PORT.println(addr);
 
   out = nsys.http_client(addr);
-  //DBG_OUT_PORT.println(out);
+  //DBG_OUT_PORT.println(F(out);
 
   String line = remove_sb(out);
 
@@ -118,36 +157,37 @@ wf_data_t getOWM_current(unsigned long cityID, char weatherKey[32])
   prog.cloud = root["list"]["clouds"]["all"];
   prog.wind_dir = rumb_conv(dir);
 
-  DBG_OUT_PORT.print("descript..");
+  DBG_OUT_PORT.print(F("descript.."));
   DBG_OUT_PORT.println(prog.descript);
-  DBG_OUT_PORT.print("temp min..");
+  DBG_OUT_PORT.print(F("temp min.."));
   DBG_OUT_PORT.println(prog.temp_min);
-  DBG_OUT_PORT.print("humidity min..");
+  DBG_OUT_PORT.print(F("humidity min.."));
   DBG_OUT_PORT.println(prog.hum_min);
-  DBG_OUT_PORT.print("pressure min..");
+  DBG_OUT_PORT.print(F("pressure min.."));
   DBG_OUT_PORT.println(prog.press_min);
-  DBG_OUT_PORT.print("pressure max..");
+  DBG_OUT_PORT.print(F("pressure max.."));
   DBG_OUT_PORT.println(prog.press_max);
-  DBG_OUT_PORT.print("wind min..");
+  DBG_OUT_PORT.print(F("wind min.."));
   DBG_OUT_PORT.println(prog.wind_min);
-  DBG_OUT_PORT.print("cloud..");
+  DBG_OUT_PORT.print(F("cloud.."));
   DBG_OUT_PORT.println(prog.cloud);
-  DBG_OUT_PORT.print("win dir..");
+  DBG_OUT_PORT.print(F("win dir.."));
   DBG_OUT_PORT.println(prog.wind_dir);
 
   return prog;
 }
 
-// =======================================================================
-// Берем ПРОГНОЗ!!! погоды с сайта openweathermap.org
-// =======================================================================
-
+/*
+  =======================================================================
+  Берем ПРОГНОЗ!!! погоды с сайта openweathermap.org
+  =======================================================================
+*/
 wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
 {
   wf_data_t prog;
 
   String out = "No connect to network";
-  DBG_OUT_PORT.print("\n Weather forecast for tomorrow from "); DBG_OUT_PORT.println(owmHost);
+  DBG_OUT_PORT.print(F("\n Weather forecast for tomorrow from ")); DBG_OUT_PORT.println(owmHost);
   String addr = "http://";
   addr += owmHost;
   addr += "/data/2.5/forecast/daily?id=";
@@ -193,27 +233,27 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
 
   prog.wind_dir = rumb_conv(dir);
 
-  DBG_OUT_PORT.print("cloud..");
+  DBG_OUT_PORT.print(F("cloud.."));
   DBG_OUT_PORT.println(prog.cloud);
-  DBG_OUT_PORT.print("wind min..");
+  DBG_OUT_PORT.print(F("wind min.."));
   DBG_OUT_PORT.println(prog.wind_min);
-  DBG_OUT_PORT.print("win dir..");
+  DBG_OUT_PORT.print(F("win dir.."));
   DBG_OUT_PORT.println(prog.wind_dir);
-  DBG_OUT_PORT.print("temp min..");
+  DBG_OUT_PORT.print(F("temp min.."));
   DBG_OUT_PORT.println(prog.temp_min);
-  DBG_OUT_PORT.print("temp max..");
+  DBG_OUT_PORT.print(F("temp max.."));
   DBG_OUT_PORT.println(prog.temp_max);
-  DBG_OUT_PORT.print("descript..");
+  DBG_OUT_PORT.print(F("descript.."));
   DBG_OUT_PORT.println(prog.descript);
-  DBG_OUT_PORT.print("humidity min..");
+  DBG_OUT_PORT.print(F("humidity min.."));
   DBG_OUT_PORT.println(prog.hum_min);
-  DBG_OUT_PORT.print("pressure max..");
+  DBG_OUT_PORT.print(F("pressure max.."));
   DBG_OUT_PORT.println(prog.press_max);
-  DBG_OUT_PORT.print("pressure min..");
+  DBG_OUT_PORT.print(F("pressure min.."));
   DBG_OUT_PORT.println(prog.press_min);
-  DBG_OUT_PORT.print("day..");
+  DBG_OUT_PORT.print(F("day.."));
   DBG_OUT_PORT.println(prog.day);
-  DBG_OUT_PORT.print("month..");
+  DBG_OUT_PORT.print(F("month.."));
   DBG_OUT_PORT.println(prog.month);
 
   return prog;
@@ -241,7 +281,7 @@ inline uint8_t rumb_conv(uint16_t dir)
   return w_dir;
 }
 
-// =======================================================================Вырезаем данные по прогнозу на один день (из 2х)
+// ------------------------------------------------------Вырезаем данные по прогнозу на один день (из 2х)
 String tvoday(String line) {
   String s = String();
   int start_sym = line.indexOf(']'); // позиция первого искомого символа ('{' после '[')
@@ -260,7 +300,7 @@ String tvoday(String line) {
 //------------------------------------------------------  Делаем запрос данных с внешнего сервера
 String es_rcv(char es_addr[17])
 {
-  if (debug_level == 10) DBG_OUT_PORT.println("True get data from ext server");
+  if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from ext server"));
   String out = "No ext srv";
   if (web_cli)
   {
@@ -277,7 +317,7 @@ String es_rcv(char es_addr[17])
 //------------------------------------------------------  Делаем запрос данных с ThingSpeak
 String ts_rcv(unsigned long id, char api[17])
 {
-  if (debug_level == 10) DBG_OUT_PORT.println("True get data from TS");
+  if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from TS"));
   String out = "No connect to network";
   if (web_cli)
   {
@@ -288,7 +328,7 @@ String ts_rcv(unsigned long id, char api[17])
     out = nsys.http_client(addr);
   }
   //if (debug_level == 10)
-  DBG_OUT_PORT.print("TS<-R response from ts ");
+  DBG_OUT_PORT.print(F("TS<-R response from ts "));
   DBG_OUT_PORT.println(out);
   return out;
 }
@@ -296,7 +336,7 @@ String ts_rcv(unsigned long id, char api[17])
 //------------------------------------------------------  Отправляем данные на ThingSpeak
 String ts_snd(String inStr)
 {
-  if (debug_level == 10) DBG_OUT_PORT.println("True put data to TS");
+  if (debug_level == 10) DBG_OUT_PORT.println(F("True put data to TS"));
   String out = "No connect to network";
   if (web_cli)
   {
@@ -321,7 +361,7 @@ String ts_snd(String inStr)
     }
   }
   //if (debug_level == 10)
-  DBG_OUT_PORT.print("TS->W response from ts ");
+  DBG_OUT_PORT.print(F("TS->W response from ts "));
   DBG_OUT_PORT.println(out);
   return out;
 }
@@ -329,7 +369,7 @@ String ts_snd(String inStr)
 //------------------------------------------------------  Управляем радиоприемничком по телнету
 String radio_snd(String cmd)
 {
-  if (debug_level == 10) DBG_OUT_PORT.println("True put data to Radio");
+  if (debug_level == 10) DBG_OUT_PORT.println(F("True put data to Radio"));
   String out = "No connect with Radio";
   if (web_cli)
   {
@@ -349,7 +389,7 @@ String radio_snd(String cmd)
     }
   }
   //if (debug_level == 10)
-  DBG_OUT_PORT.print("Response from Radio: ");
+  DBG_OUT_PORT.print(F("Response from Radio: "));
   DBG_OUT_PORT.println(out);
   return out;
 }
@@ -359,33 +399,44 @@ String radio_snd(String cmd)
 void GetNtp()
 {
   bool result = false;
+  RtcDateTime cur_time  = RtcDateTime(__DATE__, __TIME__);
 
-  DBG_OUT_PORT.println("True sync time with NTP");
+  DBG_OUT_PORT.println(F("True sync time with NTP"));
   if (web_cli)
   {
     dmsg.callback(conf_data.type_disp, 0, 0, conf_data.rus_lng);; //сообщение на индикатор
 
     IPAddress addr(89, 109, 251, 21);
     cur_time = NTP_t.getTime(addr, conf_data.time_zone);
-    if (cur_time < 1529569070)
+    if (cur_time.Year() < 2021)
     {
       IPAddress addr(10, 98, 34, 10);
       cur_time = NTP_t.getTime(addr, conf_data.time_zone);
     }
-    if (cur_time < 1529569070)
+    if (cur_time.Year() < 2021)
     {
       IPAddress addr(88, 212, 196, 95);
       cur_time = NTP_t.getTime(addr, conf_data.time_zone);
     }
-    if (cur_time > 1529569070)
+    if (cur_time.Year() > 2020)
     {
       setTime(cur_time);
 
-      //----------------------------------------set time to chip dsXXXX
-      if (ram_data.type_rtc == 1) DS3231.SetDateTime(cur_time);
-      if (ram_data.type_rtc == 2) DS1302.set(cur_time);       // Set the time and date on the chip.
-      if (ram_data.type_rtc == 3) DS1307.SetDateTime(cur_time);
+      RtcDateTime cur_time1 = RtcDateTime(cur_time.Year() - 30, cur_time.Month(), cur_time.Day(), cur_time.Hour(), cur_time.Minute(), cur_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го 
 
+      //----------------------------------------set time to chip dsXXXX
+      switch (ram_data.type_rtc)
+      {
+        case 1:
+          DS3231.SetDateTime(cur_time1);
+          break;
+        case 2:
+          DS1302.SetDateTime(cur_time1);    
+          break;
+        case 3:
+          DS1307.SetDateTime(cur_time1);
+          break;
+      }
       result = true;
     }
     if (result) dmsg.callback(conf_data.type_disp, 0, 1, conf_data.rus_lng); //сообщение на индикатор
@@ -393,15 +444,14 @@ void GetNtp()
 
     set_alarm();  //актуализируем будильники
   }
-  if (result)   DBG_OUT_PORT.println("Sucsess !!!");
-  else   DBG_OUT_PORT.println("Failed !!!");
+  if (result)   DBG_OUT_PORT.println(F("Sucsess !!!"));
+  else   DBG_OUT_PORT.println(F("Failed !!!"));
 }
 #endif
 
 //------------------------------------------------------  Обрабатываем клавиатуру
 void keyb_read()
 {
-  bool serv_act = (web_cli || web_ap);
   bool but0_pressed = !digitalRead(setting_pin); // false - кнопка нажата
 
   if (but0_pressed && !but0_press) setting_ms = millis(); // Нажимаем кнопку - запускаем таймер, начинаем отсчет времени удержания
@@ -422,7 +472,9 @@ void keyb_read()
 
     but0_press = but0_pressed;
   }
+
 #if defined(__xtensa__)
+  bool serv_act = (web_cli || web_ap);
 
   if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? HIGH : LOW);  // Включаем светодиод
   if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
@@ -443,20 +495,20 @@ void keyb_read()
   }
   if (!but0_pressed && but0_press && millis() - setting_ms > 9000 && millis() - setting_ms < 15000)
   {
-    DBG_OUT_PORT.println("Reboot esp...");
+    DBG_OUT_PORT.println(F("Reboot esp..."));
     ESP.restart();// держим от 9 до 15 сек - Перезапускаемся
   }
 
   if (but0_pressed && millis() - setting_ms > 15000)                // держим больше 15 сек - сбрасываем усе на дефолт
   {
-    if (debug_level == 10) DBG_OUT_PORT.println("Set default value and reboot...");
+    if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot..."));
     conf_data = defaultConfig();
     saveConfig(conf_f, conf_data);
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF);
     delay(100);
     //ESP.reset();
-    DBG_OUT_PORT.println("Reboot esp...");
+    DBG_OUT_PORT.println(F("Reboot esp..."));
     ESP.restart();
   }
   but0_press = but0_pressed;
@@ -527,12 +579,12 @@ void Thermo()
     {
       if (conf_data.type_thermo == 1)
       {
-        //DBG_OUT_PORT.println("Thermostate OUT IS ON!!!");
+        //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
         digitalWrite(TERMO_OUT, HIGH);
       }
       else
       {
-        //DBG_OUT_PORT.println("Thermostate OUT IS OFF!!!");
+        //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
         digitalWrite(TERMO_OUT, LOW);
       }
     }
@@ -540,12 +592,12 @@ void Thermo()
     {
       if (conf_data.type_thermo == 1)
       {
-        //DBG_OUT_PORT.println("Thermostate OUT IS OFF!!!");
+        //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
         digitalWrite(TERMO_OUT, LOW);
       }
       else
       {
-        //DBG_OUT_PORT.println("Thermostate OUT IS ON!!!");
+        //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
         digitalWrite(TERMO_OUT, HIGH);
       }
     }

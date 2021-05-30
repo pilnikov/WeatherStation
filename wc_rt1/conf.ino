@@ -8,7 +8,7 @@ conf_data_t loadConfig(const char *filename)
 
   if (!file)
   {
-    DBG_OUT_PORT.println("Failed to open config file for reading");
+    DBG_OUT_PORT.println(F("Failed to open config file for reading"));
     data = defaultConfig();
   }
   else
@@ -132,7 +132,7 @@ conf_data_t loadConfig(const char *filename)
 
 void saveConfig(const char *filename, conf_data_t data)
 {
-  if (debug_level == 3) DBG_OUT_PORT.println( "Start saving conf_data to config.json");
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
 
 
   if ( data.type_vdrv    < 0  || data.type_vdrv  >  20) data.type_vdrv  = 0;
@@ -238,11 +238,11 @@ void saveConfig(const char *filename, conf_data_t data)
 
   if (!configFile)
   {
-    DBG_OUT_PORT.println("Failed to open config file for writing");
+    DBG_OUT_PORT.println(F("Failed to open config file for writing"));
     return;
   }
   if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed write to file"));
-  DBG_OUT_PORT.println( "End write buffer to file");
+  DBG_OUT_PORT.println(F("End write buffer to file"));
   configFile.close();
 }
 #endif
@@ -251,7 +251,7 @@ conf_data_t defaultConfig()
 {
   conf_data_t data;
 
-  if (debug_level == 3) DBG_OUT_PORT.println( "Start inital conf_data with config.json");
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
   strncpy(data.sta_ssid,  "MyWiFi", 33);
   strncpy(data.sta_pass,  "12345678", 33);
@@ -295,8 +295,8 @@ conf_data_t defaultConfig()
   data.src_thermo       = 0;
   data.lb_thermo        = 0;
   data.hb_thermo        = 0;
-  data.nm_start = 23;
-  data.nm_stop  = 7;
+  data.nm_start         = 23;
+  data.nm_stop          = 7;
   data.ts_ch_id         = 0;
   data.pp_city_id       = 28438;
   data.period           = 10;
@@ -317,6 +317,91 @@ conf_data_t defaultConfig()
 
 conf_data_t loadConfig(const char *filename)
 {
+  conf_data_t data;
+
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
+
+  strncpy(data.sta_ssid,  "MyWiFi", 33);
+  strncpy(data.sta_pass,  "12345678", 33);
+  strncpy(data.ap_ssid,   "Radio_Clock", 17);
+  strncpy(data.ap_pass ,  "12345678", 17);
+  strncpy(data.AKey_r,     " ", 17);
+  strncpy(data.AKey_w,     " ", 17);
+  strncpy(data.esrv1_addr, "192.168.1.100", 17);
+  strncpy(data.esrv2_addr, "192.168.1.200", 17);
+  strncpy(data.radio_addr, "192.168.1.33", 17);
+  strncpy(data.owm_key,    " ", 35);
+  strncpy(data.ch1_name,   "Внутри",  17);
+  strncpy(data.ch2_name,   "Снаружи", 17);
+  strncpy(data.ch3_name,   "В бане",  17);
+
+
+  data.auto_corr        = true;
+  data.use_pm           = false;
+  data.every_hour_beep  = true;
+  data.snd_pola         = false;
+  data.led_pola         = true;
+  data.rus_lng          = true;
+  data.use_tst1         = false;
+  data.use_tst2         = false;
+  data.use_tst3         = false;
+  data.use_tsh1         = false;
+  data.use_tsh2         = false;
+  data.use_tsh3         = false;
+  data.use_tsp          = false;
+  data.wifi_off         = false;
+  data.use_pp           = 0;
+  data.time_zone        = 5;
+  data.type_vdrv        = 1;
+  data.type_disp        = 1;
+  data.type_snr1        = 6;
+  data.type_snr2        = 10;
+  data.type_snr3        = 4;
+  data.type_snrp        = 10;
+  data.type_rtc         = 1;
+  data.type_thermo      = 0;
+  data.src_thermo       = 0;
+  data.lb_thermo        = 0;
+  data.hb_thermo        = 0;
+  data.nm_start         = 0;
+  data.nm_stop          = 7;
+  data.ts_ch_id         = 0;
+  data.pp_city_id       = 28438;
+  data.period           = 10;
+  data.man_br           = 14;
+  data.auto_br          = false;
+
+  for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = 0;
+
+  data.type_font        = 0;
+
+  for (uint8_t i = 0; i <= 6; i++)
+  {
+    for (uint8_t j = 0; j <= 4; j++)
+    {
+      data.alarms[i][j] = 0;
+    }
+  }
+
+  data.alarms[0][0] = 1;
+  data.alarms[0][1] = 21;
+  data.alarms[0][2] = 40;
+  data.alarms[0][3] = 13;
+  data.alarms[0][4] = 0;
+
+  data.alarms[1][0] = 1;
+  data.alarms[1][1] = 21;
+  data.alarms[1][2] = 42;
+  data.alarms[1][3] = 14;
+  data.alarms[1][4] = 0;
+
+  data.alarms[2][0] = 1;
+  data.alarms[2][1] = 21;
+  data.alarms[2][2] = 44;
+  data.alarms[2][3] = 15;
+  data.alarms[2][4] = 0;
+
+  return data;
 }
 
 void saveConfig(const char *filename, conf_data_t data)

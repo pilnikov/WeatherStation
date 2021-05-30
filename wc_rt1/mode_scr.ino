@@ -8,6 +8,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
   uint8_t s_tstr = _width * 2;
   size_tstr = snprintf(tstr, s_tstr, "");
   bool out = false;
+  char b1[3];
 
   switch (_width)
   {
@@ -81,7 +82,10 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
           break;
 
         case 8: //День недели, дата
-          size_tstr = snprintf(tstr, s_tstr, "%2s%2d", name_week7[weekday()], day());
+
+          printFromPGM(&name_week7[weekday()], b1);
+
+          size_tstr = snprintf(tstr, s_tstr, "%2s%2d", b1, day());
           out = true;
           break;
 
@@ -182,7 +186,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
           break;
 
         case 8: //День недели, дата месяц
-          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d", name_week7[weekday()], day(), month());
+          printFromPGM(&name_week7[weekday()], b1);
+          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d", b1, day(), month());
           out = true;
           break;
 
@@ -252,7 +257,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
           break;
 
         case 5: //День недели, дата, месяц, год
-          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d.02d", name_week7[weekday()], day(), month(), year() % 100);
+          printFromPGM(&name_week7[weekday()], b1);
+          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d.02d", b1, day(), month(), year() % 100);
           out = true;
           break;
 

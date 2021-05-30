@@ -184,5 +184,3 @@
 #define FREQ_A11	56320
 #define FREQ_AS11	59669
 #define FREQ_B11	63217
-
-

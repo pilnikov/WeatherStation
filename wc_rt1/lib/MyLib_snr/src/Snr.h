@@ -10,7 +10,7 @@
 #endif
 
 #include <Adafruit_Sensor.h>
-#include <Adafruit_HTU21DF.h>
+#include <Adafruit_Si7021.h>
 #include <Adafruit_BMP085_U.h>
 #include <Adafruit_BMP280.h>
 #include <AM2320.h>
@@ -20,13 +20,13 @@
 #include <DHT_U.h>
 #endif
 
+#include <Udt.h>
+
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
 
 #define SEALEVELPRESSURE_HPA (1013.25)
-
-#include "Udt.h"
 
 class SNR
 {
@@ -51,7 +51,7 @@ private:
 	AM2320 am23;
 
 	//----------------------------------------------------------htu
-	Adafruit_HTU21DF sht = Adafruit_HTU21DF();
+	Adafruit_Si7021 si = Adafruit_Si7021();
 
 	//----------------------------------------------------------bmp
 	Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
@@ -64,8 +64,8 @@ private:
 
 	float am_read_h();
 	float am_read_t();
-	float sht_read_h();
-	float sht_read_t();
+	float si_read_h();
+	float si_read_t();
 	float bmp180_read_t();
 	float bmp180_read_p();
 	float bmp280_read_t();

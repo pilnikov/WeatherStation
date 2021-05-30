@@ -5,11 +5,11 @@ void stop_wifi()
 {
   if (web_cli)     //Останавливаем клиента
   {
-    if (debug_level == 15) DBG_OUT_PORT.println( "Client stopped");
+    if (debug_level == 15) DBG_OUT_PORT.println(F( "Client stopped"));
   }
   if (web_ap)     //Останавливаем АР
   {
-    if (debug_level == 15) DBG_OUT_PORT.println( "AP stopped");
+    if (debug_level == 15) DBG_OUT_PORT.println(F( "AP stopped"));
   }
   web_ap   = false;
   web_cli  = false;
@@ -36,14 +36,14 @@ void start_wifi()
 
     if  (!wm.autoConnect(conf_data.ap_ssid, conf_data.ap_pass))
      {
-      DBG_OUT_PORT.println("failed to connect and hit timeout");
+      DBG_OUT_PORT.println(F("failed to connect and hit timeout");
       //reset and try again, or maybe put it to deep sleep
       ESP.restart();
       delay(1000);
      }
   */
 
-  DBG_OUT_PORT.print("Connecting to ");
+  DBG_OUT_PORT.print(F("Connecting to "));
   DBG_OUT_PORT.println(conf_data.sta_ssid);
 
   WiFi.persistent(false);
@@ -59,14 +59,14 @@ void start_wifi()
   while (WiFi.status() > 3 && tru < 20)
   {
     delay(500);
-    DBG_OUT_PORT.print(".");
+    DBG_OUT_PORT.print(F("."));
     tru ++;
   }
 
   if (tru < 18)
   {
-    DBG_OUT_PORT.println("\nWiFi connected");
-    DBG_OUT_PORT.print("IP address: ");
+    DBG_OUT_PORT.println(F("\nWiFi connected"));
+    DBG_OUT_PORT.print(F("IP address: "));
     DBG_OUT_PORT.println(WiFi.localIP());
 
     web_cli = true;
@@ -80,14 +80,14 @@ void start_wifi()
   }
   else
   {
-    DBG_OUT_PORT.print("Configuring access point...");
+    DBG_OUT_PORT.print(F("Configuring access point..."));
     /* You can remove the password parameter if you want the AP to be open. */
     WiFi.mode(WIFI_AP);
 
     WiFi.softAP(conf_data.ap_ssid, conf_data.ap_pass);
 
     IPAddress myIP = WiFi.softAPIP();
-    DBG_OUT_PORT.print("AP IP address: ");
+    DBG_OUT_PORT.print(F("AP IP address: "));
     DBG_OUT_PORT.println(myIP);
     web_ap = true;
   }

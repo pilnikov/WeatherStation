@@ -1,7 +1,8 @@
 
 #include <RtcDS3231.h>
 #include <RtcDS1307.h>
-#include <DS1302RTC.h>
+#include <ThreeWire.h>  
+#include <RtcDS1302.h>
 
 void rtc_init();
 void rtc_check();
@@ -33,4 +34,5 @@ RtcDS3231<TwoWire> DS3231(Wire);
 RtcDS1307<TwoWire> DS1307(Wire);
 
 // ----------------------------------- Конструктор DS1302
-DS1302RTC DS1302(CS_PIN, DIO_PIN, CLK_PIN);
+ThreeWire myWire(DIO_PIN,CLK_PIN,CS_PIN); // IO, SCLK, CE
+RtcDS1302<ThreeWire> DS1302(myWire);

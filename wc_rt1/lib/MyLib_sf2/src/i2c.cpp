@@ -53,9 +53,9 @@ void SF::i2c_parse()
         DBG_OUT_PORT.println("BM P/E 1/2 80 with address 0x76 found!\n");
       break;
       case  0x77:
-        bmp280_present  = true ; //BMP280 is present
-        bme280_present  = true ; //BME280 is present
-        bmp180_present  = true ; //BMP180 is present
+        bmp180_present  = true ; //BMP280 is present
+        bmp280_present  = true ; //BME280 is present
+        bme280_present  = true ; //BMP180 is present
 		bm_addr = 0x77;
         DBG_OUT_PORT.println("BM P/E 1/2 80 with address 0x77 found!\n");
       break;
@@ -258,5 +258,6 @@ ram_data_t SF::i2c_scan(conf_data_t c_data)
     r_data.bh1750_present = false;
     DBG_OUT_PORT.println("BH1750 is not found -> get light level from Analog Input");
   }
+
   return r_data;
 }

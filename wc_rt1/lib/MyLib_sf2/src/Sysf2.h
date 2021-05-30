@@ -9,11 +9,12 @@
 #include <WProgram.h>
 #endif
 
+#include <Udt.h>
 #include <Wire.h>
 
 #ifdef __AVR__
   #include <avr/pgmspace.h>
-#elif defined(ESP8266)
+#elif defined(__xtensa__)
   #include <pgmspace.h>
 #else
   #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
@@ -22,9 +23,6 @@
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
-
-#include "Udt.h"
-
 
 class SF 
 {
@@ -42,7 +40,7 @@ class SF
 	bool bme280_present = false;
 	bool ds3231_present = false;
 	bool ds1307_present = false;
-	bool lcd_present = false;
+	bool lcd_present    = false;
 	bool ht1633_present = false;
     bool bh1750_present = false;
     byte lcd_addr;

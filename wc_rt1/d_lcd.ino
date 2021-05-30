@@ -31,11 +31,11 @@ void lcd_time()
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
   lcd -> setCursor(0, 1);
-  bool alarmed = rtc_data.a_hour < 24 && rtc_data.a_min < 59;
+  bool _alarmed = rtc_data.a_hour < 24 && rtc_data.a_min < 59;
 
   char msg[17];
   snprintf(msg, 17, " %2u:%02u:%02u  -:-  ", hour(), minute(), second());
-  if (alarmed)
+  if (_alarmed)
   {
     snprintf(msg, 17, " %2u:%02u:%02u %2u:%02u",hour(), minute(), second(), rtc_data.a_hour, rtc_data.a_min);
     if (conf_data.rus_lng) snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u\355", hour(), minute(), second(), rtc_data.a_hour, rtc_data.a_min);

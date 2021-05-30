@@ -310,11 +310,8 @@ public:
   ~GFXcanvas1(void);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void fillScreen(uint16_t color);
-<<<<<<< HEAD
   void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   bool getPixel(int16_t x, int16_t y) const;
   /**********************************************************************/
   /*!
@@ -326,11 +323,8 @@ public:
 
 protected:
   bool getRawPixel(int16_t x, int16_t y) const;
-<<<<<<< HEAD
   void drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
 private:
   uint8_t *buffer;
@@ -348,12 +342,8 @@ public:
   ~GFXcanvas8(void);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void fillScreen(uint16_t color);
-<<<<<<< HEAD
   void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-=======
-  void writeFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   uint8_t getPixel(int16_t x, int16_t y) const;
   /**********************************************************************/
   /*!
@@ -365,11 +355,8 @@ public:
 
 protected:
   uint8_t getRawPixel(int16_t x, int16_t y) const;
-<<<<<<< HEAD
   void drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
 private:
   uint8_t *buffer;
@@ -383,11 +370,8 @@ public:
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void fillScreen(uint16_t color);
   void byteSwap(void);
-<<<<<<< HEAD
   void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   uint16_t getPixel(int16_t x, int16_t y) const;
   /**********************************************************************/
   /*!
@@ -399,11 +383,8 @@ public:
 
 protected:
   uint16_t getRawPixel(int16_t x, int16_t y) const;
-<<<<<<< HEAD
   void drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
 private:
   uint16_t *buffer;

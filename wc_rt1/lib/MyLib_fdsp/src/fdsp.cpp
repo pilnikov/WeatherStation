@@ -1,5 +1,11 @@
 
 #include "Fdsp.h"
+#ifdef __AVR__
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#elif defined(__xtensa__)
+#include <pgmspace.h>
+#endif
 
 
 # if defined(__xtensa__)

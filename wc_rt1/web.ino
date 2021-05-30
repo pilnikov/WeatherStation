@@ -65,7 +65,7 @@ void web_setup()
   	  json = String();
   	});
     //    server.begin();
-    //    DBG_OUT_PORT.println("HTTP server started");
+    //    DBG_OUT_PORT.println(F("HTTP server started");
     }
     }
 
@@ -91,7 +91,7 @@ void start_serv()
   if (web_cli || web_ap)
   {
     server.begin();
-    DBG_OUT_PORT.println("Server started");
+    DBG_OUT_PORT.println(F("Server started"));
   }
 }
 
@@ -99,7 +99,7 @@ void start_serv()
 void stop_serv()
 {
   server.stop();
-  if (debug_level == 14) DBG_OUT_PORT.println("Server stopped");
+  if (debug_level == 14) DBG_OUT_PORT.println(F("Server stopped"));
   stop_wifi();
 }
 
@@ -109,8 +109,8 @@ String cur_time_str()
   char buf[25];
 
   snprintf(buf, 25, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
-          day(), month(), year(), hour(), minute(), second());
-return String(buf);
+           day(), month(), year(), hour(), minute(), second());
+  return String(buf);
 }
 
 //-------------------------------------------------------------- handlejTime
@@ -144,19 +144,12 @@ void handleSetTime()
   uint8_t  mo = server.arg("mm").toInt();
   uint16_t yr = server.arg("y").toInt();
 
-  ds_tm_stru.Hour = constrain(hr, 0, 23);
-  ds_tm_stru.Minute = constrain(mn, 0, 59);
-  ds_tm_stru.Day = constrain(dy, 1, 31);
-  ds_tm_stru.Month = constrain(mo, 1, 12);
-  ds_tm_stru.Year = yr - 1970;
+  RtcDateTime dt1 = RtcDateTime(constrain(yr, 2021, 2036), constrain(mo, 1, 12), constrain(dy, 1, 31), constrain(hr, 0, 23), constrain(mn, 0, 59), 0);
 
-  ds_tm_stru.Wday = 0;
-  ds_tm_stru.Second = 0;
+  if (debug_level == 14) DBG_OUT_PORT.printf("set time = %02d.%02d.%04d %02d:%02d:%02d\n",
+        dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
 
-  if (debug_level == 14) DBG_OUT_PORT.printf("set time = %d %02d.%02d.%04d %02d:%02d:%02d\n",
-        ds_tm_stru.Wday, ds_tm_stru.Day, ds_tm_stru.Month, ds_tm_stru.Year + 1970, ds_tm_stru.Hour, ds_tm_stru.Minute, ds_tm_stru.Second);
-
-  man_set_time();
+  man_set_time(dt1);
 
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -194,7 +187,7 @@ void handlejWiFi()
 void handleSetWiFi()
 {
   //url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+'&wof='+wof_t;
- 
+
   strcpy(conf_data.ap_ssid, server.arg("as").c_str());
   strcpy(conf_data.ap_pass, server.arg("ap").c_str());
   strcpy(conf_data.sta_ssid, server.arg("ss").c_str());
@@ -526,8 +519,11 @@ void handleSetAlarm()
 
   if (debug_level == 14)
   {
-    DBG_OUT_PORT.print(rtc_data.a_num); DBG_OUT_PORT.print(" alarm is....");
-    for (int n = 0; n <= 4; n++) DBG_OUT_PORT.print(conf_data.alarms[rtc_data.a_num][n]);
+    DBG_OUT_PORT.print(rtc_data.a_num); DBG_OUT_PORT.print(F(" alarm is...."));
+    for (int n = 0; n <= 4; n++) 
+    {
+      DBG_OUT_PORT.print(conf_data.alarms[rtc_data.a_num][n]); DBG_OUT_PORT.print(F(","));
+    }
     DBG_OUT_PORT.println();
   }
 
@@ -620,7 +616,7 @@ void handlejAct()
 void handleExit()
 {
   stop_serv();
-  if (debug_level == 14)  DBG_OUT_PORT.println("Reboot esp...");
+  if (debug_level == 14)  DBG_OUT_PORT.println(F("Reboot esp..."));
   delay(100);
   ESP.restart();
 }
@@ -651,12 +647,12 @@ void handleFileUpload()
   if (upload.status == UPLOAD_FILE_START) {
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
-    DBG_OUT_PORT.print("handleFileUpload Name: "); DBG_OUT_PORT.println(filename);
+    DBG_OUT_PORT.print(F("handleFileUpload Name: ")); DBG_OUT_PORT.println(filename);
     fsUploadFile = SPIFFS.open(filename, "w");
     filename = String();
   }
   else if (upload.status == UPLOAD_FILE_WRITE) {
-    //DBG_OUT_PORT.print("handleFileUpload Data: "); DBG_OUT_PORT.println(upload.currentSize);
+    //DBG_OUT_PORT.print("handleFileUpload Data: "); DBG_OUT_PORT.println(F(upload.currentSize);
     if (fsUploadFile)
       fsUploadFile.write(upload.buf, upload.currentSize);
   }

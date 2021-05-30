@@ -1352,7 +1352,6 @@ void Adafruit_GFX::setFont(const GFXfont *f) {
 
 /**************************************************************************/
 /*!
-<<<<<<< HEAD
     @brief  Helper to determine size of a character with current font/size.
             Broke this out as it's used by both the PROGMEM- and RAM-resident
             getTextBounds() functions.
@@ -1367,18 +1366,6 @@ void Adafruit_GFX::setFont(const GFXfont *f) {
     @param  miny  Pointer to minimum Y coord, passed in AND returned.
     @param  maxx  Pointer to maximum X coord, passed in AND returned.
     @param  maxy  Pointer to maximum Y coord, passed in AND returned.
-=======
-    @brief    Helper to determine size of a character with current font/size.
-       Broke this out as it's used by both the PROGMEM- and RAM-resident
-   getTextBounds() functions.
-    @param    c     The ascii character in question
-    @param    x     Pointer to x location of character
-    @param    y     Pointer to y location of character
-    @param    minx  Minimum clipping value for X
-    @param    miny  Minimum clipping value for Y
-    @param    maxx  Maximum clipping value for X
-    @param    maxy  Maximum clipping value for Y
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 */
 /**************************************************************************/
 void Adafruit_GFX::charBounds(unsigned char c, int16_t *x, int16_t *y,

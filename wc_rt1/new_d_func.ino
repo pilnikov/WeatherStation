@@ -39,7 +39,7 @@ void printCharacter(unsigned char character, uint8_t x, byte *out, const byte* f
 {
   if (character >= 0 && character < 256) //characters must remain within ASCII printable characters defined in array
   {
-    memcpy (out + x,                     // цель
+    memcpy_P (out + x,                     // цель
             font + character * font_wdt, // источник
             font_wdt);                   // объем
   }
@@ -55,7 +55,7 @@ void print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* f
   {
     character = in[icp]; // достаем очередной символ
 
-    memcpy (out + _offset + icp * (font_wdt + spacer_wdt),/* цель */font + character * font_wdt, /* источник */ font_wdt /* объем */);
+    memcpy_P (out + _offset + icp * (font_wdt + spacer_wdt),/* цель */font + character * font_wdt, /* источник */ font_wdt /* объем */);
     if (spacer_wdt > 0) memset (out + _offset + ((icp + 1) * (font_wdt + spacer_wdt)), 0, spacer_wdt); // вставляем пустой столбик-разделитель
     icp++;     // переходим к следующему символу в строке
   }

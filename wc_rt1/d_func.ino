@@ -59,7 +59,7 @@ bool time_m32_8(byte *in, uint8_t pos, char *old, const uint8_t *dposx, bool *ch
     }
     old[i] = d[i]; // перезапись предыдущих значений в буфер
   }
-  //DBG_OUT_PORT.println("time_m32_8");
+  //DBG_OUT_PORT.println(F("time_m32_8");
   return true;
 }
 
@@ -80,7 +80,7 @@ bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, byte * o
 
       if (cbp < font_wdt) // Потрошим строку Переходим к очередному символу входящей строки
       {
-        memcpy (out + x2 - qbs + 1,/* цель */font + character * font_wdt + cbp, /* источник */ qbs /* объем */);
+        memcpy_P (out + x2 - qbs + 1,/* цель */font + character * font_wdt + cbp, /* источник */ qbs /* объем */);
         cbp += qbs;
       }
       else if (spacer_wdt > 0)
@@ -107,6 +107,6 @@ bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, byte * o
     icp = 0; //cбрасываем указатель на байт во входной строке
     return true; //end of scrolling
   }
-  //DBG_OUT_PORT.println("scroll string");
+  //DBG_OUT_PORT.println(F("scroll string");
   return false;
 }

@@ -4,7 +4,7 @@ String pr_str(uint8_t num)
   char grad = '\260';
   if (conf_data.type_disp == 19) grad = '\357';
 
-  char buf[255], buf1[255];
+  char buf[255], buf1[255], stdr_b[20], swnr_b[20], sprcr_b[20], sdnr_b[20], sdne_b[20], smnr_b[20], smne_b[20];
   int size_buf  = snprintf(buf,  2, "");
   int size_buf1 = snprintf(buf1, 2, "");
 
@@ -14,7 +14,10 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-        size_buf = snprintf(buf, 255, " Today is %s %d %s %d", sdne[weekday() - 1], day(), smne[month() - 1], year());
+        printFromPGM(&sdne[weekday() - 1], sdne_b);
+        printFromPGM(&smne[wf_data.month - 1], smne_b);
+
+        size_buf = snprintf(buf, 255, " Today is %s %d %s %d", sdne_b, day(), smne_b, year());
         break;
       case 2:
         if (snr_data.t1 > -99 && snr_data.t1 < 99)
@@ -58,7 +61,10 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-        size_buf = snprintf(buf, 255, " Сегодня %s %d %s %dг.", sdnr[weekday() - 1], day(), smnr[month() - 1], year());
+        printFromPGM(&sdnr[weekday() - 1], sdnr_b);
+        printFromPGM(&smnr[wf_data.month - 1], smnr_b);
+
+        size_buf = snprintf(buf, 255, " Сегодня %s %d %s %dг.", sdnr_b, day(), smnr_b, year());
         break;
       case 2:
         if (snr_data.t1 > -99 && snr_data.t1 < 99)
@@ -75,10 +81,12 @@ String pr_str(uint8_t num)
 
           if (conf_data.use_pp == 2)
           {
+            printFromPGM(&swnr[wf_data_cur.wind_dir], swnr_b);
+
             size_buf1 = wf_data.descript.length() + 1;
             strncpy(buf1, wf_data.descript.c_str(), size_buf1);
             strncat(buf, buf1, size_buf1);
-            size_buf1 = snprintf(buf1, 255, " ветер %s %dм/с ", swnr[wf_data_cur.wind_dir], wf_data_cur.wind_min);
+            size_buf1 = snprintf(buf1, 255, " ветер %s %dм/с ", swnr_b, wf_data_cur.wind_min);
             strncat(buf, buf1, size_buf1);
           }
 
@@ -104,18 +112,26 @@ String pr_str(uint8_t num)
         switch (conf_data.use_pp)
         {
           case 1:
+            printFromPGM(&stdr[wf_data.tod], stdr_b);
+            printFromPGM(&smnr[wf_data.month - 1], smnr_b);
+            printFromPGM(&swnr[wf_data.wind_dir], swnr_b);
+            printFromPGM(&sprcr[wf_data.prec], sprcr_b);
+
             wf_data.temp_min > -99 ? size_buf = snprintf(buf, 255, " Прогноз погоды от GM на %s %d %s:температура от %d до %d%cC ветер %s %d - %dм/с %s oтн. влажность %d%% давление %dмм.рт.ст",
-                                                stdr[wf_data.tod], wf_data.day, smnr[wf_data.month - 1],
-                                                wf_data.temp_min, wf_data.temp_max, grad, swnr[wf_data.wind_dir], wf_data.wind_max, wf_data.wind_min, sprcr[wf_data.prec],
+                                                stdr_b, wf_data.day, smnr_b,
+                                                wf_data.temp_min, wf_data.temp_max, grad, swnr_b, wf_data.wind_max, wf_data.wind_min, sprcr_b,
                                                 wf_data.hum_max, wf_data.press_max) : size_buf = snprintf(buf, 255, " Данные по прогнозу погоды не получены - проверьте настройки ");
             break;
           case 2:
+            printFromPGM(&smnr[wf_data.month - 1], smnr_b);
+            printFromPGM(&swnr[wf_data.wind_dir], swnr_b);
+
             size_buf1 = wf_data.descript.length() + 1;
             strncpy(buf1, wf_data.descript.c_str(), size_buf1);
 
             wf_data.temp_min > -99 ? size_buf = snprintf(buf, 255, " Прогноз погоды от OWM на %d %s:%s температура от %d до %d%cC ветер %s %dм/с oтн.влажность %d%% давление %dмм.рт.ст",
-                                                wf_data.day, smnr[wf_data.month - 1], buf1,
-                                                wf_data.temp_min, wf_data.temp_max, grad, swnr[wf_data.wind_dir], wf_data.wind_min, wf_data.hum_min, wf_data.press_min)
+                                                wf_data.day, smnr_b, buf1,
+                                                wf_data.temp_min, wf_data.temp_max, grad, swnr_b, wf_data.wind_min, wf_data.hum_min, wf_data.press_min)
                                                 : size_buf = snprintf(buf, 255, " Данные по прогнозу погоды не получены - проверьте настройки");
             break;
           default:

@@ -19,21 +19,21 @@ void setup()
 #if defined(ESP8266)
   //------------------------------------------------------  Get system information
   hwi.info();
+#endif
 
   //------------------------------------------------------  Инициализируем встроенную файловую систему SPIFFS
-#endif
 
 # if defined(__xtensa__)
   fs_setup();
+  DBG_OUT_PORT.println(F("file system started"));
 #endif
-  DBG_OUT_PORT.println("file system started");
 
   //------------------------------------------------------  Читаем установки из EEPROM
 
   //conf_data = defaultConfig();
   conf_data = loadConfig(conf_f);
 
-  DBG_OUT_PORT.println("config loaded");
+  DBG_OUT_PORT.println(F("config loaded"));
 
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
 
@@ -41,7 +41,7 @@ void setup()
   Wire.begin(SDA_PIN, SCL_PIN);
 # endif
 
-# if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
+# if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM) || defined(__AVR_ATmega2560__)
   Wire.begin();
 # endif
 
@@ -58,40 +58,38 @@ void setup()
     ram_data_t sens_data = ram_data;
 
     sens_data = sens.init(ram_data);
-
     ram_data = sens_data;
-    DBG_OUT_PORT.println("sensor inital");
-    DBG_OUT_PORT.print("Snr type on channel 1 = ");
+
+    DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
     DBG_OUT_PORT.println(ram_data.type_snr1);
-    DBG_OUT_PORT.print("Snr type on channel 2 = ");
+    DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
     DBG_OUT_PORT.println(ram_data.type_snr2);
-    DBG_OUT_PORT.print("Snr type on channel 3 = ");
+    DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
     DBG_OUT_PORT.println(ram_data.type_snr3);
-    DBG_OUT_PORT.print("Type of pressure sensor = ");
+    DBG_OUT_PORT.print("Snr type on pressure = ");
     DBG_OUT_PORT.println(ram_data.type_snrp);
+    DBG_OUT_PORT.println(F("sensor inital"));
   }
 
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(setting_pin, INPUT_PULLUP);
-# if defined(__xtensa__)
   if (!ram_data.bh1750_present) pinMode(ANA_SNR, INPUT);
   pinMode(LED_PIN, OUTPUT);     // Initialize the LED_PIN pin as an output
   if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
-# endif
 
-# if defined(ESP8266)
   pinMode(BUZ_PIN, OUTPUT);
-# endif
+
 # if defined(ARDUINO_ARCH_ESP32)
   pinMode(BUZ2_PIN, OUTPUT);
   ledcAttachPin(BUZ2_PIN, BUZ_PIN);
   ledcSetup(BUZ2_PIN, 2000, 8); // 2 kHz PWM, 8-bit resolution
 # endif
-  DBG_OUT_PORT.println("GPIO inital");
+
+  DBG_OUT_PORT.println(F("GPIO inital"));
 
   //------------------------------------------------------  Инициализируем RTC
   if (ram_data.type_rtc > 0) rtc_init();
-  DBG_OUT_PORT.print("Type of rtc = ");
+  DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(ram_data.type_rtc);
 
   //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
@@ -125,7 +123,7 @@ void setup()
       pcf8574_init();
       break;
   }
-  DBG_OUT_PORT.print("Type chip driver of display = ");
+  DBG_OUT_PORT.print(F("Type chip driver of display = "));
   DBG_OUT_PORT.println(ram_data.type_vdrv);
 
   //-------------------------------------------------------- Запускаем сетевые сервисы
@@ -157,7 +155,7 @@ void setup()
 
     MDNS.begin(conf_data.ap_ssid);
     DBG_OUT_PORT.printf("Open http://%s", conf_data.ap_ssid);
-    DBG_OUT_PORT.print(".local/edit to see the file browser\n");
+    DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
 
     //------------------------------------------------------ Запускаем сервер и SSDP
     web_setup();
@@ -186,7 +184,7 @@ void setup()
     cur_br = conf_data.man_br;  // Man brigthness
     snr_data.f = cur_br;
   }
-  DBG_OUT_PORT.print("brightness from sensor...");
+  DBG_OUT_PORT.print(F("brightness from sensor..."));
   DBG_OUT_PORT.println(snr_data.f);
 
   //------------------------------------------------------ Отправляем данные через UART
@@ -201,8 +199,8 @@ void setup()
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_data.a_muz = 15;
   play_snd = true;
-  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd, conf_data.snd_pola);   //inital sound card
-  DBG_OUT_PORT.println("End of setup");
+
+  DBG_OUT_PORT.println(F("End of setup"));
 }
 
 void loop()
@@ -215,7 +213,10 @@ void loop()
   keyb_read();
 
   // ----------------------------------------------------- Доп для будильника
-  Buzz.play(songs[rtc_data.a_muz], BUZ_PIN, play_snd, conf_data.snd_pola);
+  char b1[440];
+  printFromPGM(&songs[rtc_data.a_muz], b1);
+
+  Buzz.play(b1, BUZ_PIN, play_snd, conf_data.snd_pola);   //inital sound card
 
 
   //------------------------------------------------------  Верифицируем ночной режим

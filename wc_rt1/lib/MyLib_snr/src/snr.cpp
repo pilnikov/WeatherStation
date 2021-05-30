@@ -10,37 +10,37 @@ ram_data_t SNR::init(ram_data_t in_data)
 		dht_init();
 		break;
 	case 6:
-		if (!sht.begin())
+		if (!si.begin())
 		{
-			DBG_OUT_PORT.println("Couldn't find a valid SHT21 sensor, check wiring!");
+			DBG_OUT_PORT.println(F("Couldn't find a valid Si7021 sensor, check wiring!"));
 			out_data.type_snr1 = 0;
 		}
 		break;
 	case 7:
 		if (!am23.begin())
 		{
-			DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
+			DBG_OUT_PORT.println(F("Couldn't find a valid AM2320 sensor, check wiring!"));
 			out_data.type_snr1 = 0;
 		}
 		break;
 	case 8:
 		if (!bmp.begin())
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP085/180 ... check your connections!"));
 			out_data.type_snr1 = 0;
 		}
 		break;
 	case 9:
 		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP280 ... check your connections!"));
 			out_data.type_snr1 = 0;
 		}
 		break;
 	case 10:
 		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BME280 ... check your connections!"));
 			out_data.type_snr1 = 0;
 		}
 		break;
@@ -54,37 +54,37 @@ ram_data_t SNR::init(ram_data_t in_data)
 		dht_init();
 		break;
 	case 6:
-		if (!sht.begin())
+		if (!si.begin())
 		{
-			DBG_OUT_PORT.println("Couldn't find a valid SHT21 sensor, check wiring!");
+			DBG_OUT_PORT.println(F("Couldn't find a valid Si7021 sensor, check wiring!"));
 			out_data.type_snr2 = 0;
 		}
 		break;
 	case 7:
 		if (!am23.begin())
 		{
-			DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
+			DBG_OUT_PORT.println(F("Couldn't find a valid AM2320 sensor, check wiring!"));
 			out_data.type_snr2 = 0;
 		}
 		break;
 	case 8:
 		if (!bmp.begin())
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP085/180 ... check your connections!"));
 			out_data.type_snr2 = 0;
 		}
 		break;
 	case 9:
 		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP280 ... check your connections!"));
 			out_data.type_snr2 = 0;
 		}
 		break;
 	case 10:
 		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BME280 ... check your connections!"));
 			out_data.type_snr2 = 0;
 		}
 		break;
@@ -98,37 +98,59 @@ ram_data_t SNR::init(ram_data_t in_data)
 		dht_init();
 		break;
 	case 6:
-		if (!sht.begin())
+		if (!si.begin())
 		{
-			DBG_OUT_PORT.println("Couldn't find a valid SHT21 sensor, check wiring!");
+			DBG_OUT_PORT.println(F("Couldn't find a valid Si7021 sensor, check wiring!"));
 			out_data.type_snr3 = 0;
+		}
+		else
+		{
+		    DBG_OUT_PORT.print(F("Found model "));
+			switch(si.getModel()) 
+			{
+				case SI_Engineering_Samples:
+					DBG_OUT_PORT.print(F("SI engineering samples")); break;
+				case SI_7013:
+					DBG_OUT_PORT.print(F("Si7013")); break;
+				case SI_7020:
+					DBG_OUT_PORT.print(F("Si7020")); break;
+				case SI_7021:
+					DBG_OUT_PORT.print(F("Si7021")); break;
+				case SI_UNKNOWN:
+				default:
+					DBG_OUT_PORT.print(F("Unknown"));
+			}
+			DBG_OUT_PORT.print(F(" Rev("));
+			DBG_OUT_PORT.print(si.getRevision());
+			DBG_OUT_PORT.print(F(")"));
+			DBG_OUT_PORT.print(F(" Serial #")); DBG_OUT_PORT.print(si.sernum_a, HEX); DBG_OUT_PORT.println(si.sernum_b, HEX);
 		}
 		break;
 	case 7:
 		if (!am23.begin())
 		{
-			DBG_OUT_PORT.println("Couldn't find a valid AM2320 sensor, check wiring!");
+			DBG_OUT_PORT.println(F("Couldn't find a valid AM2320 sensor, check wiring!"));
 			out_data.type_snr3 = 0;
 		}
 		break;
 	case 8:
 		if (!bmp.begin())
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP085/180 ... check your connections!"));
 			out_data.type_snr3 = 0;
 		}
 		break;
 	case 9:
 		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP280 ... check your connections!"));
 			out_data.type_snr3 = 0;
 		}
 		break;
 	case 10:
 		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BME280 ... check your connections!"));
 			out_data.type_snr3 = 0;
 		}
 		break;
@@ -141,21 +163,21 @@ ram_data_t SNR::init(ram_data_t in_data)
 	case 8:
 		if (!bmp.begin())
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP085/180 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP085/180 ... check your connections!"));
 			out_data.type_snrp = 0;
 		}
 		break;
 	case 9:
 		if (!bmp2.begin(in_data.bm_addr, 0x58))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BMP280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BMP280 ... check your connections!"));
 			out_data.type_snrp = 0;
 		}
 		break;
 	case 10:
 		if (!bme.begin(in_data.bm_addr, &Wire))
 		{
-			DBG_OUT_PORT.println("There was a problem detecting the BME280 ... check your connections!");
+			DBG_OUT_PORT.println(F("There was a problem detecting the BME280 ... check your connections!"));
 			out_data.type_snrp = 0;
 		}
 		break;
@@ -175,12 +197,12 @@ float SNR::am_read_h()
 	switch (am23.Read()) {
 	case 2:
 # ifdef _debug
-		DBG_OUT_PORT.println("CRC failed");
+		DBG_OUT_PORT.println(F("CRC failed"));
 # endif
 		break;
 	case 1:
 # ifdef _debug
-		DBG_OUT_PORT.println("Sensor offline");
+		DBG_OUT_PORT.println(F("Sensor offline"));
 # endif
 		break;
 	case 0:
@@ -199,12 +221,12 @@ float SNR::am_read_t()
 	switch (am23.Read()) {
 	case 2:
 # ifdef _debug
-		DBG_OUT_PORT.println("CRC failed");
+		DBG_OUT_PORT.println(F("CRC failed"));
 # endif
 		break;
 	case 1:
 # ifdef _debug
-		DBG_OUT_PORT.println("Sensor offline");
+		DBG_OUT_PORT.println(F("Sensor offline"));
 # endif
 		break;
 	case 0:
@@ -215,24 +237,24 @@ float SNR::am_read_t()
 }
 
 
-float SNR::sht_read_t()
+float SNR::si_read_t()
 {
 #ifdef _debug
-	DBG_OUT_PORT.print("SHT Temperature: ");
-	DBG_OUT_PORT.print(sht.readTemperature());
-	DBG_OUT_PORT.println(" *C");
+	DBG_OUT_PORT.print(F("Si7021 Temperature: "));
+	DBG_OUT_PORT.print(si.readTemperature());
+	DBG_OUT_PORT.println(F(" *C"));
 # endif //_debug 
-	return sht.readTemperature();
+	return si.readTemperature();
 }
 
-float SNR::sht_read_h()
+float SNR::si_read_h()
 {
 #ifdef _debug
-	DBG_OUT_PORT.print("SHT Humidity: ");
-	DBG_OUT_PORT.println(sht.readHumidity());
-	DBG_OUT_PORT.println("%");
+	DBG_OUT_PORT.print(F("Si7021 Humidity: "));
+	DBG_OUT_PORT.println(si.readHumidity());
+	DBG_OUT_PORT.println(F("%"));
 # endif //_debug 
-	return sht.readHumidity();
+	return si.readHumidity();
 }
 
 void SNR::dispsnrDetails(void)
@@ -240,14 +262,14 @@ void SNR::dispsnrDetails(void)
 	sensor_t sensor;
 	bmp.getSensor(&sensor);
 
-	DBG_OUT_PORT.println("------------------------------------");
-	DBG_OUT_PORT.print("Sensor:       "); DBG_OUT_PORT.println(sensor.name);
-	DBG_OUT_PORT.print("Driver Ver:   "); DBG_OUT_PORT.println(sensor.version);
-	DBG_OUT_PORT.print("Unique ID:    "); DBG_OUT_PORT.println(sensor.sensor_id);
-	DBG_OUT_PORT.print("Max Value:    "); DBG_OUT_PORT.print(sensor.max_value); DBG_OUT_PORT.println(" hPa");
-	DBG_OUT_PORT.print("Min Value:    "); DBG_OUT_PORT.print(sensor.min_value); DBG_OUT_PORT.println(" hPa");
-	DBG_OUT_PORT.print("Resolution:   "); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println(" hPa");
-	DBG_OUT_PORT.println("------------------------------------");
+	DBG_OUT_PORT.println(F("------------------------------------"));
+	DBG_OUT_PORT.print(F("Sensor:       ")); DBG_OUT_PORT.println(sensor.name);
+	DBG_OUT_PORT.print(F("Driver Ver:   ")); DBG_OUT_PORT.println(sensor.version);
+	DBG_OUT_PORT.print(F("Unique ID:    ")); DBG_OUT_PORT.println(sensor.sensor_id);
+	DBG_OUT_PORT.print(F("Max Value:    ")); DBG_OUT_PORT.print(sensor.max_value); DBG_OUT_PORT.println(F(" hPa"));
+	DBG_OUT_PORT.print(F("Min Value:    ")); DBG_OUT_PORT.print(sensor.min_value); DBG_OUT_PORT.println(F(" hPa"));
+	DBG_OUT_PORT.print(F("Resolution:   ")); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println(F(" hPa"));
+	DBG_OUT_PORT.println(F("------------------------------------"));
 }
 
 float SNR::bmp180_read_t()
@@ -265,7 +287,7 @@ float SNR::bmp180_read_t()
 	}
 	else
 	{
-		DBG_OUT_PORT.println("Sensor error");
+		DBG_OUT_PORT.println(F("Sensor error"));
 		return 99;
 	}
 }
@@ -283,7 +305,7 @@ float SNR::bmp180_read_p()
 	}
 	else
 	{
-		DBG_OUT_PORT.println("Sensor error");
+		DBG_OUT_PORT.println(F("Sensor error"));
 		return -1;
 	}
 }
@@ -291,9 +313,9 @@ float SNR::bmp180_read_p()
 float SNR::bmp280_read_t()
 {
 #ifdef _debug
-	DBG_OUT_PORT.print("Temperature = ");
+	DBG_OUT_PORT.print(F("Temperature = "));
 	DBG_OUT_PORT.print(bmp2.readTemperature());
-	DBG_OUT_PORT.println(" *C");
+	DBG_OUT_PORT.println(F(" *C"));
 #endif //_debug 
 	return bmp2.readTemperature();
 }
@@ -301,17 +323,17 @@ float SNR::bmp280_read_t()
 float SNR::bmp280_read_p()
 {
 #ifdef _debug
-	DBG_OUT_PORT.print("Pressure = ");
+	DBG_OUT_PORT.print(F("Pressure = "));
 	DBG_OUT_PORT.print(bmp2.readPressure());
-	DBG_OUT_PORT.println(" Pa");
+	DBG_OUT_PORT.println(F(" Pa"));
 
-	DBG_OUT_PORT.print("Approx altitude = ");
+	DBG_OUT_PORT.print(F("Approx altitude = "));
 	DBG_OUT_PORT.print(bmp2.readAltitude(SEALEVELPRESSURE_HPA)); // this should be adjusted to your local forcase
-	DBG_OUT_PORT.println(" m");
+	DBG_OUT_PORT.println(F(" m"));
 
-	DBG_OUT_PORT.print("Pressure = ");
+	DBG_OUT_PORT.print(F("Pressure = "));
 	DBG_OUT_PORT.print(bmp2.readPressure() / 133.3, 1);
-	DBG_OUT_PORT.println(" mm.rt.st.");
+	DBG_OUT_PORT.println(F(" mm.rt.st."));
 #endif //_debug 
 	return bmp2.readPressure() / 133.3;
 }
@@ -319,9 +341,9 @@ float SNR::bmp280_read_p()
 float SNR::bme280_read_t()
 {
 #ifdef _debug
-	DBG_OUT_PORT.print("Temperature = ");
+	DBG_OUT_PORT.print(F("Temperature = "));
 	DBG_OUT_PORT.print(bme.readTemperature());
-	DBG_OUT_PORT.println(" *C");
+	DBG_OUT_PORT.println(F(" *C"));
 #endif //_debug 
 	return bme.readTemperature();
 }
@@ -329,9 +351,9 @@ float SNR::bme280_read_t()
 float SNR::bme280_read_h()
 {
 #ifdef _debug
-	DBG_OUT_PORT.print("Humidity = ");
+	DBG_OUT_PORT.print(F("Humidity = "));
 	DBG_OUT_PORT.print(bme.readHumidity());
-	DBG_OUT_PORT.println(" %");
+	DBG_OUT_PORT.println(F(" %"));
 #endif //_debug 
 	return bme.readHumidity();
 }
@@ -339,21 +361,21 @@ float SNR::bme280_read_h()
 float SNR::bme280_read_p()
 {
 #ifdef _debug
-	DBG_OUT_PORT.print("Pressure = ");
+	DBG_OUT_PORT.print(F("Pressure = "));
 
 	DBG_OUT_PORT.print(bme.readPressure() / 100.0F);
-	DBG_OUT_PORT.println(" hPa");
+	DBG_OUT_PORT.println(F(" hPa"));
 
-	DBG_OUT_PORT.print("Approx. Altitude = ");
+	DBG_OUT_PORT.print(F("Approx. Altitude = "));
 	DBG_OUT_PORT.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-	DBG_OUT_PORT.println(" m");
+	DBG_OUT_PORT.println(F(" m"));
 #endif //_debug 
 	return bme.readPressure() / 133.3;
 }
 
 void SNR::dht_preset(uint8_t pin, uint8_t type) // установка пинов
 {
-#if defined(ESP8266)
+#if defined(__xtensa__) || defined(__AVR_ATmega2560__)
 	dht = new DHT_Unified(pin, type);
 #endif
 
@@ -367,40 +389,32 @@ void SNR::dht_init()
 
 	dht->begin();
 
-#if defined(ESP8266)
 	sensor_t sensor;
 #ifdef _debug
 	dht->temperature().getSensor(&sensor);
-	DBG_OUT_PORT.println("------------------------------------");
-	DBG_OUT_PORT.println("Temperature");
-	DBG_OUT_PORT.print("Sensor:       "); DBG_OUT_PORT.println(sensor.name);
-	DBG_OUT_PORT.print("Driver Ver:   "); DBG_OUT_PORT.println(sensor.version);
-	DBG_OUT_PORT.print("Unique ID:    "); DBG_OUT_PORT.println(sensor.sensor_id);
-	DBG_OUT_PORT.print("Max Value:    "); DBG_OUT_PORT.print(sensor.max_value); DBG_OUT_PORT.println(" *C");
-	DBG_OUT_PORT.print("Min Value:    "); DBG_OUT_PORT.print(sensor.min_value); DBG_OUT_PORT.println(" *C");
-	DBG_OUT_PORT.print("Resolution:   "); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println(" *C");
-	DBG_OUT_PORT.println("------------------------------------");
+	DBG_OUT_PORT.println(F("------------------------------------"));
+	DBG_OUT_PORT.println(F("Temperature"));
+	DBG_OUT_PORT.print(F("Sensor:       ")); DBG_OUT_PORT.println(sensor.name);
+	DBG_OUT_PORT.print(F("Driver Ver:   ")); DBG_OUT_PORT.println(sensor.version);
+	DBG_OUT_PORT.print(F("Unique ID:    ")); DBG_OUT_PORT.println(sensor.sensor_id);
+	DBG_OUT_PORT.print(F("Max Value:    ")); DBG_OUT_PORT.print(sensor.max_value); DBG_OUT_PORT.println(F(" *C"));
+	DBG_OUT_PORT.print(F("Min Value:    ")); DBG_OUT_PORT.print(sensor.min_value); DBG_OUT_PORT.println(F(" *C"));
+	DBG_OUT_PORT.print(F("Resolution:   ")); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println(F(" *C"));
+	DBG_OUT_PORT.println(F("------------------------------------"));
 	// Print humidity sensor details.
 	dht->humidity().getSensor(&sensor);
-	DBG_OUT_PORT.println("------------------------------------");
-	DBG_OUT_PORT.println("Humidity");
-	DBG_OUT_PORT.print("Sensor:       "); DBG_OUT_PORT.println(sensor.name);
-	DBG_OUT_PORT.print("Driver Ver:   "); DBG_OUT_PORT.println(sensor.version);
-	DBG_OUT_PORT.print("Unique ID:    "); DBG_OUT_PORT.println(sensor.sensor_id);
-	DBG_OUT_PORT.print("Max Value:    "); DBG_OUT_PORT.print(sensor.max_value); DBG_OUT_PORT.println("%");
-	DBG_OUT_PORT.print("Min Value:    "); DBG_OUT_PORT.print(sensor.min_value); DBG_OUT_PORT.println("%");
-	DBG_OUT_PORT.print("Resolution:   "); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println("%");
-	DBG_OUT_PORT.println("------------------------------------");
+	DBG_OUT_PORT.println(F("------------------------------------"));
+	DBG_OUT_PORT.println(F("Humidity"));
+	DBG_OUT_PORT.print(F("Sensor:       ")); DBG_OUT_PORT.println(sensor.name);
+	DBG_OUT_PORT.print(F("Driver Ver:   ")); DBG_OUT_PORT.println(sensor.version);
+	DBG_OUT_PORT.print(F("Unique ID:    ")); DBG_OUT_PORT.println(sensor.sensor_id);
+	DBG_OUT_PORT.print(F("Max Value:    ")); DBG_OUT_PORT.print(sensor.max_value); DBG_OUT_PORT.println(F("%"));
+	DBG_OUT_PORT.print(F("Min Value:    ")); DBG_OUT_PORT.print(sensor.min_value); DBG_OUT_PORT.println(F("%"));
+	DBG_OUT_PORT.print(F("Resolution:   ")); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println(F("%"));
+	DBG_OUT_PORT.println(F("------------------------------------"));
 #endif
-	// Set delay between sensor readings based on sensor details.
-	delayMS = sensor.min_delay / 1000;
-#endif
-
-
-#if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
 	delayMS = 2000;
-#endif
-	//DBG_OUT_PORT.print  ("Delay:   "); DBG_OUT_PORT.print(delayMS); DBG_OUT_PORT.println(" ms");
+	//DBG_OUT_PORT.print  (F("Delay:   ")); DBG_OUT_PORT.print(delayMS); DBG_OUT_PORT.println(F(" ms"));
 }
 
 float SNR::dht_read_t()
@@ -411,23 +425,21 @@ float SNR::dht_read_t()
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
 	ret = dht->readTemperature();
-#endif
-
-#if defined(ESP8266)
+#elif defined(__xtensa__) || defined(__AVR_ATmega2560__)
 	sensors_event_t event;
 	dht->temperature().getEvent(&event);
 
 	if (isnan(event.temperature))
 	{
-		DBG_OUT_PORT.println("Error reading dht temperature!");
+		DBG_OUT_PORT.println(F("Error reading dht temperature!"));
 		ret = 99;
 	}
 	else
 	{
 # ifdef _debug
-		DBG_OUT_PORT.print("DHT Temperature: ");
+		DBG_OUT_PORT.print(F("DHT Temperature: "));
 		DBG_OUT_PORT.print(event.temperature);
-		DBG_OUT_PORT.println(" *C");
+		DBG_OUT_PORT.println(F(" *C"));
 # endif //_debug 
 
 		ret = event.temperature;
@@ -445,9 +457,7 @@ float SNR::dht_read_h()
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
 	ret = dht->readHumidity();
-#endif
-
-#if defined(ESP8266)
+#elif defined(__xtensa__) || defined(__AVR_ATmega2560__)
 	sensors_event_t event;
 
 	// Get humidity event and print its value.
@@ -455,15 +465,15 @@ float SNR::dht_read_h()
 
 	if (isnan(event.relative_humidity))
 	{
-		DBG_OUT_PORT.println("Error reading dht humidity!");
+		DBG_OUT_PORT.println(F("Error reading dht humidity!"));
 		ret = -1;
 	}
 	else
 	{
 # ifdef _debug
-		DBG_OUT_PORT.print("DHT Humidity: ");
+		DBG_OUT_PORT.print(F("DHT Humidity: "));
 		DBG_OUT_PORT.print(event.relative_humidity);
-		DBG_OUT_PORT.println("%");
+		DBG_OUT_PORT.println(F("%"));
 # endif //_debug 
 		ret = event.relative_humidity;
 	}
@@ -481,7 +491,7 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 	data.h1 = 0; data.h2 = 0; data.h3 = 0; data.t1 = 99; data.t2 = 99; data.t3 = 99; data.p = 700;
 
 	//------------------------------------------- channel 1
-	DBG_OUT_PORT.print("Snr type on ch1..");
+	DBG_OUT_PORT.print(F("Snr type on ch1.."));
 	DBG_OUT_PORT.println(channel1);
 
 	switch (channel1)
@@ -507,8 +517,8 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		h = 0;
 		break;
 	case 6:
-		t = sht_read_t();
-		h = sht_read_h();
+		t = si_read_t();
+		h = si_read_h();
 		break;
 	case 7:
 		t = am_read_t();
@@ -535,14 +545,14 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 	data.t1 = constrain(t, -99, 99);
 	data.h1 = constrain(h, 0, 99);
 
-	DBG_OUT_PORT.print("TC1..");
+	DBG_OUT_PORT.print(F("TC1.."));
 	DBG_OUT_PORT.println(data.t1);
-	DBG_OUT_PORT.print("HC1..");
+	DBG_OUT_PORT.print(F("HC1.."));
 	DBG_OUT_PORT.println(data.h1);
 
 
 	//------------------------------------------- channel 2
-	DBG_OUT_PORT.print("Snr type on ch2..");
+	DBG_OUT_PORT.print(F("Snr type on ch2.."));
 	DBG_OUT_PORT.println(channel2);
 
 	t = 99;
@@ -571,8 +581,8 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		h = 0;
 		break;
 	case 6:
-		t = sht_read_t();
-		h = sht_read_h();
+		t = si_read_t();
+		h = si_read_h();
 		break;
 	case 7:
 		t = am_read_t();
@@ -599,13 +609,13 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 	data.t2 = constrain(t, -99, 99);
 	data.h2 = constrain(h, 0, 99);
 
-	DBG_OUT_PORT.print("TC2..");
+	DBG_OUT_PORT.print(F("TC2.."));
 	DBG_OUT_PORT.println(data.t2);
-	DBG_OUT_PORT.print("HC2..");
+	DBG_OUT_PORT.print(F("HC2.."));
 	DBG_OUT_PORT.println(data.h2);
 
 	//------------------------------------------- channel 3
-	DBG_OUT_PORT.print("Snr type on ch3..");
+	DBG_OUT_PORT.print(F("Snr type on ch3.."));
 	DBG_OUT_PORT.println(channel3);
 
 	t = 99;
@@ -634,8 +644,8 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		h = 0;
 		break;
 	case 6:
-		t = sht_read_t();
-		h = sht_read_h();
+		t = si_read_t();
+		h = si_read_h();
 		break;
 	case 7:
 		t = am_read_t();
@@ -662,13 +672,13 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 	data.t3 = constrain(t, -99, 99);
 	data.h3 = constrain(h, 0, 99);
 
-	DBG_OUT_PORT.print("TC3..");
+	DBG_OUT_PORT.print(F("TC3.."));
 	DBG_OUT_PORT.println(data.t3);
-	DBG_OUT_PORT.print("HC3..");
+	DBG_OUT_PORT.print(F("HC3.."));
 	DBG_OUT_PORT.println(data.h3);
 
 	//-------------------------------------------pressure sensor
-	DBG_OUT_PORT.print("Type press snr..");
+	DBG_OUT_PORT.print(F("Type press snr.."));
 	DBG_OUT_PORT.println(type_press);
 
 	switch (type_press)
@@ -697,7 +707,7 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 	}
 	data.p = constrain(p, 700, 800);
 
-	DBG_OUT_PORT.print("Press..");
+	DBG_OUT_PORT.print(F("Press.."));
 	DBG_OUT_PORT.println(data.p);
 
 	return data;
