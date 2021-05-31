@@ -144,6 +144,7 @@ void firq6() // 0.5 sec main cycle
     if (!(conf_data.type_disp == 20 && !end_run_st)) time_view(conf_data.type_disp, ram_data.type_vdrv); //break time view while scroll a string
   }
   rtc_data.wasAlarm = Alarmed();
+  if (rtc_data.wasAlarm) set_alarm();
   Thermo();
   blinkColon = !blinkColon;
 

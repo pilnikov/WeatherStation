@@ -213,10 +213,9 @@ void loop()
   keyb_read();
 
   // ----------------------------------------------------- Доп для будильника
-  char b1[440];
-  printFromPGM(&songs[rtc_data.a_muz], b1);
-
-  Buzz.play(b1, BUZ_PIN, play_snd, conf_data.snd_pola);   //inital sound card
+ 
+  Buzz.play(rtc_data.a_muz, BUZ_PIN, play_snd, conf_data.snd_pola);   //inital sound card
+  play_snd = false;
 
 
   //------------------------------------------------------  Верифицируем ночной режим

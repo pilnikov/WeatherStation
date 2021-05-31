@@ -16,7 +16,6 @@
 #include <avr/pgmspace.h>
 #endif
 
-#include "TN.h"
 
 #define OCTAVE_OFFSET 0
 #define isdigit(n) (n >= '0' && n <= '9')
@@ -28,11 +27,11 @@
 class Synt 
 {
   public:
-    void play(const char *, uint8_t, bool&, bool);
+    void play(uint8_t, uint8_t, bool, bool);
     void beep(uint8_t, bool);
   private:
     void soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola);  
-    unsigned long dela[2] = {millis(), millis()};
+    unsigned long dela = millis();
   protected:
 };
 

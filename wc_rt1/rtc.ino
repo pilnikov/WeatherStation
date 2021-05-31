@@ -323,7 +323,7 @@ bool Alarmed()
     al2_oth = (minute() == 0 && second() == 0 && !rtc_data.wasAlarm);                                            //Сработал будильник №2
     wasAlarmed_oth = (al1_oth || al2_oth);
   }
-  
+
   if (al1_int || al1_oth) //Сработал будильник №1
   {
     if (debug_level == 13) DBG_OUT_PORT.println(F("alarm one is run!"));
@@ -413,7 +413,6 @@ bool Alarmed()
   }
 
   wasAlarmed = (wasAlarmed_int || wasAlarmed_oth); // Сработал один из будильников
-  if (wasAlarmed) set_alarm();
   return wasAlarmed;
 }
 
