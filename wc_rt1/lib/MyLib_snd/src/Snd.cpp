@@ -4,6 +4,9 @@
 #include "Songs.h"
 #include "TN.h"
 
+// for debugging
+//#define _debug
+
 //*********************************************************************************************************
 void Synt::beep(uint8_t out, bool pola)
 {
@@ -40,7 +43,7 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   }
 }
 
-void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
+void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola, bool ini)
 {
   static const uint16_t notes[] PROGMEM =
   { 0,
@@ -50,35 +53,46 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
     NOTE_C7, NOTE_CS7, NOTE_D7, NOTE_DS7, NOTE_E7, NOTE_F7, NOTE_FS7, NOTE_G7, NOTE_GS7, NOTE_A7, NOTE_AS7, NOTE_B7
   };
 
-  byte default_dur = 4;
-  byte default_oct = 6;
-  int bpm = 63;
-  int num;
-  long wholenote;
-  long duration;
-  byte note;
-  byte scale;
 
-  static byte ddu;
-  static long wn;
-  static const char* p;
-
-  static bool set_up, is_played;
-
-  if (_play & !is_played)
+  if (ini)
   {
-    char textBuffer[440];
-    strcpy_P(textBuffer, (char*)pgm_read_dword(&(songs[snum])));
-    p = textBuffer;
+    set_up = false;
+    is_played = false;
+//    copyFromPGM(&songs[15], Buffer);
+//    p = Buffer;
+  }
+
+  if (_play & !set_up & !is_played)
+  {
+#ifdef _debug
+    DBG_OUT_PORT.print(F("init section.....\n "));
+#endif
+    copyFromPGM(&songs[snum], Buffer);
+#ifdef _debug
+    DBG_OUT_PORT.print(F("song num.... "));
+    DBG_OUT_PORT.println(snum);
+
+
+    p = Buffer;
+    while (*p != NULL)
+    {
+      DBG_OUT_PORT.print(*p);
+      p++;
+    }
+    DBG_OUT_PORT.println();
+#endif
+    p = Buffer;
     // format: d=N,o=N,b=NNN:
     // find the start (skip name, etc)
-    is_played = true;
     set_up = true;
   }
 
   //setup sections (run once, before playin song)
   if (set_up)
   {
+#ifdef _debug
+    DBG_OUT_PORT.print(F("setup section.....\n "));
+#endif
     while (*p != ':') p++;   // ignore name
     p++;                     // skip ':'
 
@@ -95,7 +109,7 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
       p++;                   // skip comma
     }
 #ifdef _debug
-    DBG_OUT_PORT.print("ddur: ");
+    DBG_OUT_PORT.print(F("ddur: "));
     DBG_OUT_PORT.println(default_dur, 10);
 #endif
 
@@ -109,7 +123,7 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
     }
 
 #ifdef _debug
-    DBG_OUT_PORT.print("doct: ");
+    DBG_OUT_PORT.print(F("doct: "));
     DBG_OUT_PORT.println(default_oct, 10);
 #endif
 
@@ -129,13 +143,17 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
     wn = wholenote;
     ddu = default_dur;
     set_up = false;
-    dela = millis() - 1;
+    is_played = true;
+    dela = 0;
   }// End setup sections
 
   if (is_played)
   {
     if (millis() > dela)
     {
+#ifdef _debug
+      DBG_OUT_PORT.print(F("play section.....\n "));
+#endif
       // now begin note loop
       //DBG_OUT_PORT.println(*p);
       // first, get note duration, if available
@@ -201,17 +219,18 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
       scale += OCTAVE_OFFSET;
 
       if (*p == ',') p++;       // skip comma for next note (or we may be at the end)
-
+#ifdef _debug
       DBG_OUT_PORT.print(F("pointer: "));
       DBG_OUT_PORT.println(*p);
+#endif
 
       if (note) // now play the note
       {
         uint16_t _tone = pgm_read_word_near(&notes[(scale - 4) * 12 + note]);
-//#ifdef _debug
+#ifdef _debug
         DBG_OUT_PORT.print(F("pitch: "));
         DBG_OUT_PORT.println(_tone);
-//#endif
+#endif
 #if !defined(ESP32)
         tone(out, _tone);
 #else
@@ -226,15 +245,14 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
         ledcWriteTone(out, 0);
 #endif
       }
-      else 
-	  {
-		dela = millis() + duration;
-//#ifdef _debug
-		DBG_OUT_PORT.print(F("pause: "));
-		DBG_OUT_PORT.println(duration);
-	  
-//#endif
-	  }
+      else
+      {
+        dela = millis() + duration;
+#ifdef _debug
+        DBG_OUT_PORT.print(F("dela: "));
+        DBG_OUT_PORT.println(dela - millis());
+#endif
+      }
     }
     if (*p == 'x')
     {
@@ -243,3 +261,26 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola)
     }
   }
 }
+
+// функция копирования массива из PROGMEM
+#if defined(__AVR__)
+void Synt::copyFromPGM(int charMap, char * _buf)
+{
+  uint16_t _ptr = pgm_read_word(charMap); // получаем адрес из таблицы ссылок
+  uint8_t i = 0;        // переменная - индекс массива буфера
+  do
+  {
+    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
+  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
+}
+#elif defined(__xtensa__)
+void Synt::copyFromPGM(const void* charMap, char * _buf)
+{
+  const void* _ptr = pgm_read_ptr(charMap); // получаем адрес из таблицы ссылок
+  uint8_t i = 0;        // переменная - индекс массива буфера
+  do
+  {
+    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
+  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
+}
+#endif

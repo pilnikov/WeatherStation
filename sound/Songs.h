@@ -1,3 +1,16 @@
+#ifndef Songs_h
+#define Songs_h
+
+#ifdef __AVR__
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#elif defined(__xtensa__)
+#include <pgmspace.h>
+#endif
+
+
+// ---------------------------------------------------- Songs
+
 const char song_00[] PROGMEM = ":d=4,o=5,b=160:c.6,e6,f#6,8a6,g.6,e6,c6,8a,8f#,8f#,8f#,2g,8p,8p,8f#,8f#,8f#,8g,a#.,8c6,8c6,8c6,c6,x"; //The Simpsons
 const char song_01[] PROGMEM = ":d=4,o=5,b=250:e,8p,8f,8g,8p,1c6,8p.,d,8p,8e,1f,p.,g,8p,8a,8b,8p,1f6,p,a,8p,8b,2c6,2d6,2e6,e,8p,8f,8g,8p,1c6,p,d6,8p,8e6,1f.6,g,8p,8g,e.6,8p,d6,8p,8g,e.6,8p,d6,8p,8g,f.6,8p,e6,8p,8d6,2c6,x";//Indiana
 const char song_02[] PROGMEM = ":d=4,o=5,b=140:8d,8d#,8e,c6,8e,c6,8e,2c.6,8c6,8d6,8d#6,8e6,8c6,8d6,e6,8b,d6,2c6,p,8d,8d#,8e,c6,8e,c6,8e,2c.6,8p,8a,8g,8f#,8a,8c6,e6,8d6,8c6,8a,2d6,x"; //Entertainer
@@ -16,3 +29,4 @@ const char song_14[] PROGMEM = ":d=4,o=5,b=125:16e,16p,16f,16e,16e,16p,16e,16e,1
 const char song_15[] PROGMEM = ":d=16,o=6,b=95:d#,8d,x"; //For inital pointer
 
 const char* const songs[] PROGMEM = {song_00, song_01, song_02, song_03, song_04, song_05, song_06, song_07, song_08, song_09, song_10, song_11, song_12, song_13, song_14, song_15};
+#endif //Songs_h

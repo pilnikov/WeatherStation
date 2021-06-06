@@ -334,7 +334,10 @@ bool Alarmed()
     switch (conf_data.alarms[rtc_data.n_cur_alm][4])     // Выполняем экшн
     {
       case 0:
+        rtc_data.a_muz = conf_data.alarms[rtc_data.n_cur_alm][3];
         play_snd = true;
+        DBG_OUT_PORT.print(F("song num.... "));
+        DBG_OUT_PORT.println(rtc_data.a_muz);
         break;
       case 1:
         nm_is_on = true;                       // Включаем ночной режим

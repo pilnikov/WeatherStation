@@ -4,6 +4,7 @@
 
 void setup()
 {
+  fpp = true; // взводим флаг первого прохода программы
   //------------------------------------------------------  Определяем консоль
 #ifdef DEBUG_UDP
   DBG_OUT_PORT.begin(4023, IPAddress(192, 168, 111, 132));
@@ -206,6 +207,10 @@ void setup()
 void loop()
 {
 
+  Buzz.play(rtc_data.a_muz, BUZ_PIN, play_snd, conf_data.snd_pola, fpp);   //inital sound card
+  play_snd = false;
+
+
   //------------------------------------------------------ Распределяем системные ресурсы
   irq_set();
 
@@ -213,12 +218,9 @@ void loop()
   keyb_read();
 
   // ----------------------------------------------------- Доп для будильника
- 
-  Buzz.play(rtc_data.a_muz, BUZ_PIN, play_snd, conf_data.snd_pola);   //inital sound card
-  play_snd = false;
-
 
   //------------------------------------------------------  Верифицируем ночной режим
   if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (hour() >= conf_data.nm_start && hour() < conf_data.nm_stop);
   else nm_is_on = (hour() >= conf_data.nm_start || hour() < conf_data.nm_stop);
+  fpp = false; // сбрасываем флаг первого прохода программы
 }

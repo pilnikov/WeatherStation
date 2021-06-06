@@ -143,8 +143,12 @@ void firq6() // 0.5 sec main cycle
     m32_8time_act = false;
     if (!(conf_data.type_disp == 20 && !end_run_st)) time_view(conf_data.type_disp, ram_data.type_vdrv); //break time view while scroll a string
   }
-  rtc_data.wasAlarm = Alarmed();
-  if (rtc_data.wasAlarm) set_alarm();
+  if (Alarmed()) rtc_data.wasAlarm = true;
+  if (rtc_data.wasAlarm & !play_snd)
+  {
+    set_alarm();
+    rtc_data.wasAlarm = false;
+  }
   Thermo();
   blinkColon = !blinkColon;
 

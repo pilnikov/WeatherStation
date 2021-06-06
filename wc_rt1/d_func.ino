@@ -17,10 +17,11 @@ uint16_t ft_read(bool snr_pres)
   if (snr_pres) ft = lightMeter.readLightLevel();
   else
   {
-#if defined(ESP8266)
-    ft = analogRead(A0);
-#endif
+    ft = analogRead(ANA_SNR);
   }
+  DBG_OUT_PORT.print(F("brightness from sensor..."));
+  DBG_OUT_PORT.println(ft);
+
   return ft;
 }
 

@@ -414,6 +414,7 @@ const char ntp_server[] = "ru.pool.ntp.org";
 
 const char *conf_f = "/config.json";  // config file name
 
+bool                    fpp  = false; // первый проход программы
 bool                disp_on  = true;
 bool               nm_is_on  = false;
 bool             but0_press  = false;
