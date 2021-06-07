@@ -34,5 +34,5 @@ RtcDS3231<TwoWire> DS3231(Wire);
 RtcDS1307<TwoWire> DS1307(Wire);
 
 // ----------------------------------- Конструктор DS1302
-ThreeWire myWire(DIO_PIN,CLK_PIN,CS_PIN); // IO, SCLK, CE
+ThreeWire myWire(conf_data.gpio_dio,conf_data.gpio_clk,conf_data.gpio_dcs); // IO, SCLK, CE
 RtcDS1302<ThreeWire> DS1302(myWire);

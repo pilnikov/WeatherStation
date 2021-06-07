@@ -389,8 +389,8 @@ void SNR::dht_init()
 
 	dht->begin();
 
-	sensor_t sensor;
 #ifdef _debug
+	sensor_t sensor;
 	dht->temperature().getSensor(&sensor);
 	DBG_OUT_PORT.println(F("------------------------------------"));
 	DBG_OUT_PORT.println(F("Temperature"));
@@ -413,7 +413,7 @@ void SNR::dht_init()
 	DBG_OUT_PORT.print(F("Resolution:   ")); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println(F("%"));
 	DBG_OUT_PORT.println(F("------------------------------------"));
 #endif
-	delayMS = 2000;
+	delayMS = 200;
 	//DBG_OUT_PORT.print  (F("Delay:   ")); DBG_OUT_PORT.print(delayMS); DBG_OUT_PORT.println(F(" ms"));
 }
 

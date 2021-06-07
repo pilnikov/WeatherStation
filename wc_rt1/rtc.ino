@@ -12,7 +12,7 @@ void rtc_init()
   {
     case 1:
       // set the interupt pin to input mode
-      pinMode(SQW_PIN, INPUT);
+      pinMode(conf_data.gpio_sqw, INPUT);
 
       //--------RTC SETUP ------------
       DS3231.Begin();
@@ -407,7 +407,7 @@ bool Alarmed()
       strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
       saveConfig(conf_f, conf_data);
     }
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
+    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2

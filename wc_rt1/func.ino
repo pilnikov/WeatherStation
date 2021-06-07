@@ -454,7 +454,7 @@ void GetNtp()
 //------------------------------------------------------  Обрабатываем клавиатуру
 void keyb_read()
 {
-  bool but0_pressed = !digitalRead(setting_pin); // false - кнопка нажата
+  bool but0_pressed = !digitalRead(conf_data.gpio_btn); // false - кнопка нажата
 
   if (but0_pressed && !but0_press) setting_ms = millis(); // Нажимаем кнопку - запускаем таймер, начинаем отсчет времени удержания
 
@@ -478,9 +478,9 @@ void keyb_read()
 #if defined(__xtensa__)
   bool serv_act = (web_cli || web_ap);
 
-  if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? HIGH : LOW);  // Включаем светодиод
-  if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
-  if (but0_pressed && millis() - setting_ms > 9000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, blinkColon); // Мигаем светодиодом
+  if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  // Включаем светодиод
+  if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
+  if (but0_pressed && millis() - setting_ms > 9000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
 
   if (!but0_pressed && but0_press && !serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)
   {
@@ -592,12 +592,12 @@ void Thermo()
       if (conf_data.type_thermo == 1)
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
-        digitalWrite(TERMO_OUT, HIGH);
+        digitalWrite(conf_data.gpio_trm, HIGH);
       }
       else
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
-        digitalWrite(TERMO_OUT, LOW);
+        digitalWrite(conf_data.gpio_trm, LOW);
       }
     }
     else
@@ -605,12 +605,12 @@ void Thermo()
       if (conf_data.type_thermo == 1)
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
-        digitalWrite(TERMO_OUT, LOW);
+        digitalWrite(conf_data.gpio_trm, LOW);
       }
       else
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
-        digitalWrite(TERMO_OUT, HIGH);
+        digitalWrite(conf_data.gpio_trm, HIGH);
       }
     }
   }

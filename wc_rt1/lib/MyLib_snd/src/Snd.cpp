@@ -53,7 +53,7 @@ void Synt::play(char *ip, uint8_t out, bool _play, bool pola)
   };
 
 
-  if (ip == NULL) return;
+  if (ip == NULL || *ip != ':') return;
   if (!setup & !is_played) *p = 'x';
   if (_play) set_up = true;
 
@@ -229,7 +229,6 @@ void Synt::play(char *ip, uint8_t out, bool _play, bool pola)
     {
       is_played = false; //End of playing
       digitalWrite(out, pola ? HIGH : LOW);
-      free(p);
     }
   }
 }

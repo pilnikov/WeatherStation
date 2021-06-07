@@ -1,7 +1,7 @@
 
 void ht1632_init()
 {
-  m1632 = new HT1632C(WRCLK_PIN, /*clk*/ CS_PIN /*cs*/);
+  m1632 = new HT1632C(conf_data.gpio_dwr, /*clk*/ conf_data.gpio_dcs /*cs*/);
   m1632 -> setFrequency(100000);
 }
 

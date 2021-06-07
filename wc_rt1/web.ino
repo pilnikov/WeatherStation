@@ -450,6 +450,18 @@ void handlejParc()
   json["sndpol"] = conf_data.snd_pola;
   json["ledpol"] = conf_data.led_pola;
   json["trts"] = conf_data.type_rtc;
+ 
+  json["sda"] = conf_data.gpio_sda;
+  json["scl"] = conf_data.gpio_scl;
+  json["dio"] = conf_data.gpio_dio;
+  json["clk"] = conf_data.gpio_clk;
+  json["dcs"] = conf_data.gpio_dcs;
+  json["dwr"] = conf_data.gpio_dwr;
+  json["trm"] = conf_data.gpio_trm;
+  json["sqw"] = conf_data.gpio_sqw;
+  json["snd"] = conf_data.gpio_snd;
+  json["led"] = conf_data.gpio_led;
+  json["btn"] = conf_data.gpio_btn;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -461,7 +473,7 @@ void handlejParc()
 //-------------------------------------------------------------- handleSetParc
 void handleSetParc()
 {
-  //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp;
+  //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn;
 
   conf_data.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
   conf_data.auto_corr = (server.arg("acorr") == "1");
@@ -472,6 +484,19 @@ void handleSetParc()
   conf_data.snd_pola = (server.arg("sndpol") == "1");
   conf_data.led_pola = (server.arg("ledpol") == "1");
   conf_data.type_rtc = server.arg("srtyp").toInt();
+
+  conf_data.gpio_sda = constrain(server.arg("sda").toInt(), 0, 255);
+  conf_data.gpio_scl = constrain(server.arg("scl").toInt(), 0, 255);
+  conf_data.gpio_dio = constrain(server.arg("dio").toInt(), 0, 255);
+  conf_data.gpio_clk = constrain(server.arg("clk").toInt(), 0, 255);
+  conf_data.gpio_dcs = constrain(server.arg("dcs").toInt(), 0, 255);
+  conf_data.gpio_dwr = constrain(server.arg("dwr").toInt(), 0, 255);
+  conf_data.gpio_trm = constrain(server.arg("trm").toInt(), 0, 255);
+  conf_data.gpio_sqw = constrain(server.arg("sqw").toInt(), 0, 255);
+  conf_data.gpio_snd = constrain(server.arg("snd").toInt(), 0, 255);
+  conf_data.gpio_led = constrain(server.arg("led").toInt(), 0, 255);
+  conf_data.gpio_btn = constrain(server.arg("btn").toInt(), 0, 255);
+
 
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
@@ -717,7 +742,7 @@ void handleFileList()
     output += "{\"type\":\"";
     output += (isDir) ? "dir" : "file";
     output += "\",\"name\":\"";
-    output += String(entry.name()).substring(1);
+    output += String(entry.name());
     output += "\"}";
     entry.close();
   }
@@ -736,7 +761,7 @@ void handleFileList()
       output += "{\"type\":\"";
       output += (file.isDirectory()) ? "dir" : "file";
       output += "\",\"name\":\"";
-      output += String(file.name()).substring(1);
+      output += String(file.name());
       output += "\"}";
       file = root.openNextFile();
     }

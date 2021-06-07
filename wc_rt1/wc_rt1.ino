@@ -31,6 +31,10 @@ void setup()
   //------------------------------------------------------  Читаем установки из EEPROM
 
   //conf_data = defaultConfig();
+
+  //conf_data = first_use();
+  //saveConfig(conf_f, conf_data);
+
   conf_data = loadConfig(conf_f);
 
   DBG_OUT_PORT.println(F("config loaded"));
@@ -38,7 +42,7 @@ void setup()
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
 
 # if defined(__xtensa__)
-  Wire.begin(SDA_PIN, SCL_PIN);
+  Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
 # endif
 
 # if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM) || defined(__AVR_ATmega2560__)
@@ -72,16 +76,16 @@ void setup()
   }
 
   //------------------------------------------------------  Инициализируем GPIO
-  pinMode(setting_pin, INPUT_PULLUP);
+  pinMode(conf_data.gpio_btn, INPUT_PULLUP);
   if (!ram_data.bh1750_present) pinMode(ANA_SNR, INPUT);
-  pinMode(LED_PIN, OUTPUT);     // Initialize the LED_PIN pin as an output
-  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
+  pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
+  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 
-  pinMode(BUZ_PIN, OUTPUT);
+  pinMode(conf_data.gpio_snd, OUTPUT);
 
 # if defined(ARDUINO_ARCH_ESP32)
   pinMode(BUZ2_PIN, OUTPUT);
-  ledcAttachPin(BUZ2_PIN, BUZ_PIN);
+  ledcAttachPin(BUZ2_PIN, conf_data.gpio_snd);
   ledcSetup(BUZ2_PIN, 2000, 8); // 2 kHz PWM, 8-bit resolution
 # endif
 
@@ -96,7 +100,9 @@ void setup()
   switch (ram_data.type_vdrv)
   {
     case 0:
+#if defined(ESP8266)
       pinMode(uart_pin, INPUT_PULLUP);
+#endif
       break;
     case 1:
       tm1637_init();
@@ -168,7 +174,7 @@ void setup()
   GetSnr();
 
   //-------------------------------------------------------- Гасим светодиод
-  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH);
+  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
@@ -209,7 +215,22 @@ void loop()
 
   // ----------------------------------------------------- Проигрываем звуки
 
-  //Buzz.play(songBuff, BUZ_PIN, play_snd, conf_data.snd_pola);   //inital sound card
+  if  (play_snd)
+  {
+    char* _ptr = songBuff;
+    if (*_ptr == ':')
+    {
+      while (*_ptr != NULL)
+      {
+        DBG_OUT_PORT.print(*_ptr);
+        _ptr++;
+      }
+      DBG_OUT_PORT.println();
+
+    }
+    else   DBG_OUT_PORT.print(F("\n wrong buffer..."));
+  }
+  Buzz.play(songBuff, conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
   play_snd = false;
 
 

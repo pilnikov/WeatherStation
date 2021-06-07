@@ -4,8 +4,8 @@ void m7adopt(byte*, uint8_t, uint8_t);
 
 void m7219_init()
 {
-  if (conf_data.type_disp < 10) m7219 = new Max72(CS_PIN, 1, 1);
-  else m7219 = new Max72(CS_PIN, 1, 4);
+  if (conf_data.type_disp < 10) m7219 = new Max72(conf_data.gpio_dcs, 1, 1);
+  else m7219 = new Max72(conf_data.gpio_dcs, 1, 4);
 
   m7219 -> begin();
   CLS();

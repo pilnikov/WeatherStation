@@ -153,7 +153,9 @@ void firq6() // 0.5 sec main cycle
   blinkColon = !blinkColon;
 
   //------------------------------------------------------ Отправляем данные через UART
+#if defined(ESP8266)
   if (conf_data.type_disp == 50 && !digitalRead(uart_pin)) send_uart();
+#endif
 }
 
 void firq7() // 0.2 sec Communications with server

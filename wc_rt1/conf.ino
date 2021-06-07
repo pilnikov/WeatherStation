@@ -102,6 +102,18 @@ conf_data_t loadConfig(const char *filename)
       data.man_br           = doc["man_br"];
       data.auto_br          = doc["auto_br"];
 
+      data.gpio_sda         = doc["sda"];
+      data.gpio_scl         = doc["scl"];
+      data.gpio_dio         = doc["dio"];
+      data.gpio_clk         = doc["clk"];
+      data.gpio_dcs         = doc["dcs"];
+      data.gpio_dwr         = doc["dwr"];
+      data.gpio_trm         = doc["trm"];
+      data.gpio_sqw         = doc["sqw"];
+      data.gpio_snd         = doc["snd"];
+      data.gpio_led         = doc["led"];
+      data.gpio_btn         = doc["btn"];
+
       for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = doc["br_level"][i];
 
       data.type_font        = doc["type_font"];
@@ -193,6 +205,19 @@ void saveConfig(const char *filename, conf_data_t data)
   json["period"]              = data.period; // minutes
   json["man_br"]              = data.man_br;
   json["auto_br"]             = data.auto_br;
+
+  json["sda"]                 = data.gpio_sda;
+  json["scl"]                 = data.gpio_scl;
+  json["dio"]                 = data.gpio_dio;
+  json["clk"]                 = data.gpio_clk;
+  json["dcs"]                 = data.gpio_dcs;
+  json["dwr"]                 = data.gpio_dwr;
+  json["trm"]                 = data.gpio_trm;
+  json["sqw"]                 = data.gpio_sqw;
+  json["snd"]                 = data.gpio_snd;
+  json["led"]                 = data.gpio_led;
+  json["btn"]                 = data.gpio_btn;
+
 
   JsonArray br_level = json.createNestedArray("br_level");
   for (uint8_t i = 0; i <= 3; i++) br_level.add(data.br_level[i]);
@@ -303,7 +328,23 @@ conf_data_t defaultConfig()
   data.man_br           = 7;
   data.auto_br          = false;
 
-  for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = 0;
+  data.gpio_sda         = 4;
+  data.gpio_scl         = 5;
+  data.gpio_dio         = 13;
+  data.gpio_clk         = 14;
+  data.gpio_dcs         = 16;
+  data.gpio_dwr         = 2;
+  data.gpio_trm         = 2;
+  data.gpio_sqw         = 12;
+  data.gpio_snd         = 15;
+  data.gpio_led         = 2;
+  data.gpio_btn         = 0;
+
+
+  data.br_level[0]      = 1;
+  data.br_level[1]      = 200;
+  data.br_level[2]      = 1;
+  data.br_level[3]      = 15;
 
   data.type_font        = 0;
 
@@ -320,32 +361,6 @@ conf_data_t loadConfig(const char *filename)
   conf_data_t _data;
 
   EEPROM.get(0, _data);           // прочитали из адреса 0
-
-  _data.alarms[0][0] = 1;
-  _data.alarms[0][1] = 11;
-  _data.alarms[0][2] = 59;
-  _data.alarms[0][3] = 13;
-  _data.alarms[0][4] = 0;
-
-  _data.alarms[1][0] = 1;
-  _data.alarms[1][1] = 12;
-  _data.alarms[1][2] = 01;
-  _data.alarms[1][3] = 14;
-  _data.alarms[1][4] = 0;
-
-  _data.alarms[2][0] = 1;
-  _data.alarms[2][1] = 12;
-  _data.alarms[2][2] = 03;
-  _data.alarms[2][3] = 15;
-  _data.alarms[2][4] = 0;
-
-  _data.auto_br      = true;
-  _data.br_level[0] = 220;
-  _data.br_level[1] = 1;
-  _data.br_level[2] = 1;
-  _data.br_level[3] = 14;
-
-
   return _data;
 }
 
@@ -405,7 +420,22 @@ conf_data_t first_use()
   data.man_br           = 14;
   data.auto_br          = false;
 
-  for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = 0;
+  data.gpio_sda         = 20;
+  data.gpio_scl         = 21;
+  data.gpio_dio         = A3;
+  data.gpio_clk         = A2;
+  data.gpio_dcs         = A1;
+  data.gpio_dwr         = A0;
+  data.gpio_trm         = A6;
+  data.gpio_sqw         = 19;
+  data.gpio_snd         = A7;
+  data.gpio_led         = A6;
+  data.gpio_btn         = A5;
+
+  data.br_level[0]      = 200;
+  data.br_level[1]      = 1;
+  data.br_level[2]      = 1;
+  data.br_level[3]      = 15;
 
   data.type_font        = 0;
 
@@ -416,6 +446,30 @@ conf_data_t first_use()
       data.alarms[i][j] = 0;
     }
   }
+  data.alarms[0][0] = 1;
+  data.alarms[0][1] = 11;
+  data.alarms[0][2] = 59;
+  data.alarms[0][3] = 13;
+  data.alarms[0][4] = 0;
+
+  data.alarms[1][0] = 1;
+  data.alarms[1][1] = 12;
+  data.alarms[1][2] = 01;
+  data.alarms[1][3] = 14;
+  data.alarms[1][4] = 0;
+
+  data.alarms[2][0] = 1;
+  data.alarms[2][1] = 12;
+  data.alarms[2][2] = 03;
+  data.alarms[2][3] = 15;
+  data.alarms[2][4] = 0;
+
+  data.auto_br      = true;
+  data.br_level[0] = 220;
+  data.br_level[1] = 1;
+  data.br_level[2] = 1;
+  data.br_level[3] = 14;
+
   return data;
 }
 

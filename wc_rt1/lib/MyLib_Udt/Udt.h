@@ -99,6 +99,19 @@ typedef struct
   char      radio_addr[17];
   char      owm_key[35];
   char      test[3];
+
+  uint8_t	gpio_sda = 255;
+  uint8_t	gpio_scl = 255;
+  uint8_t	gpio_dio = 255;
+  uint8_t	gpio_clk = 255;
+  uint8_t	gpio_dcs = 255;
+  uint8_t	gpio_dwr = 255;
+  uint8_t	gpio_trm = 255;
+  uint8_t	gpio_sqw = 255;
+  uint8_t	gpio_snd = 255;
+  uint8_t	gpio_led = 255;
+  uint8_t	gpio_btn = 255;
+
 } conf_data_t;
 
 typedef struct

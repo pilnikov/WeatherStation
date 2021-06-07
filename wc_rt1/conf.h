@@ -88,6 +88,19 @@
   char      radio_addr[17];
   char      owm_key[35];
   char      test[3];
+  
+  uint8_t gpio_sda = 255;
+  uint8_t gpio_scl = 255;
+  uint8_t gpio_dio = 255;
+  uint8_t gpio_clk = 255;
+  uint8_t gpio_dcs = 255;
+  uint8_t gpio_dwr = 255;
+  uint8_t gpio_trm = 255;
+  uint8_t gpio_sqw = 255;
+  uint8_t gpio_snd = 255;
+  uint8_t gpio_led = 255;
+  uint8_t gpio_btn = 255;
+
   };
 ********************************************************** Ram config
   struct ram_data_t
@@ -227,58 +240,23 @@ udp_cons print_console_udp;
 
 // ------------------------------------------------------ GPIO
 #if defined(ESP8266)
-static const int     setting_pin  PROGMEM =  0;  // (D3)
-static const int         DHT_PIN  PROGMEM =  0;  // (D3) Pin which is connected to the DHT sensor.
-static const int       WRCLK_PIN  PROGMEM =  2;  // (D5)
-static const int         SDA_PIN  PROGMEM =  4;  // (D2)
-static const int         SCL_PIN  PROGMEM =  5;  // (D1)
-static const int         SQW_PIN  PROGMEM = 12;  // (D6) Пин RtcSquareWave
-static const int         DIO_PIN  PROGMEM = 13;  // (D7)
-static const int         CLK_PIN  PROGMEM = 14;  // (D5) Clk
-static const int         BUZ_PIN  PROGMEM = 15;  // (D8) Пин пищалки
-static const int          CS_PIN  PROGMEM = 16;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
 static const int        uart_pin  PROGMEM = 16;  // (D0)
 static const int         ANA_SNR  PROGMEM = A0;  // (A0) Пин фоторезистора
-static const int       TERMO_OUT  PROGMEM =  2;  // (D5) Выход термостата
-static const int         LED_PIN  PROGMEM =  2;  // (D3)
+static const int         DHT_PIN  PROGMEM = 0;   // Пин DHT22
 #endif
 
 // ------------------------------------------------------ GPIO
 #if defined(ARDUINO_ARCH_ESP32)
-static const int     setting_pin  PROGMEM =   0;  // Пин кнопки
-static const int       WRCLK_PIN  PROGMEM =   2;  // Пин выбора чипов для дисплеев
-static const int         BUZ_PIN  PROGMEM =  15;  // Канал PWM (буззер)
-static const int         SQW_PIN  PROGMEM =  19;  // Пин RtcSquareWave
-static const int         DIO_PIN  PROGMEM =  13;  // Пин данных для дисплеев
-static const int          CS_PIN  PROGMEM =  16;  // (D0) CS . DIN 13 (D7) CLK 14 (D5)
-static const int        uart_pin  PROGMEM =  16;  // Пин запуска передачи данных по UART
-static const int         SDA_PIN  PROGMEM =  21;  // Пин данных I2C
-static const int         SCL_PIN  PROGMEM =  22;  // Пин клоков I2C
 static const int        BUZ2_PIN  PROGMEM =  32;  // Пин пищалки 2
-static const int         CLK_PIN  PROGMEM =  18;  // Пин клоков для дисплеев
-static const int         DHT_PIN  PROGMEM =  34;  // Pin which is connected to the DHT sensor.
-static const int         LED_PIN  PROGMEM =   2;  // Пин светодиода
 static const int         ANA_SNR  PROGMEM =  35;  // Пин фоторезистора
-static const int       TERMO_OUT  PROGMEM =   2;  // Пин управления термостатом
+static const int         DHT_PIN  PROGMEM =  34;   // Пин DHT22
 #endif
 
 
 #if defined(__AVR_ATmega2560__)
-static const int     setting_pin  PROGMEM =  A5;  // Пин кнопки
-static const int       WRCLK_PIN  PROGMEM =  A0;  // Пин выбора чипов для дисплеев
-static const int         BUZ_PIN  PROGMEM =  A7;  // Канал PWM (буззер)
-static const int         SQW_PIN  PROGMEM =  19;  // Пин RtcSquareWave
-static const int         DIO_PIN  PROGMEM =  A3;  // Пин данных для дисплеев
-static const int          CS_PIN  PROGMEM =  A1;  // Пин CS для дисплеев. |DIO A3 CLK A2 CS A1 WRCLK A0|
-static const int        uart_pin  PROGMEM =  A8;  // Пин запуска передачи данных по UART
-static const int         SDA_PIN  PROGMEM =  20;  // Пин данных I2C
-static const int         SCL_PIN  PROGMEM =  21;  // Пин клоков I2C
 static const int        BUZ2_PIN  PROGMEM =  A10; // Пин пищалки 2
-static const int         CLK_PIN  PROGMEM =  A2;  // Пин клоков для дисплеев
-static const int         DHT_PIN  PROGMEM =  A9;  // Pin which is connected to the DHT sensor.
-static const int         LED_PIN  PROGMEM =  A6;  // Пин светодиода
 static const int         ANA_SNR  PROGMEM =  A4;  // Пин фоторезистора
-static const int       TERMO_OUT  PROGMEM =  A6;  // Выход термостата
+static const int         DHT_PIN  PROGMEM =  A9;  // Пин DHT22
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
@@ -306,14 +284,7 @@ static const int       TERMO_OUT  PROGMEM =  A6;  // Выход термоста
 
 #define        uart_pin  0
 #define         DHT_PIN  2
-#define     setting_pin  3
-#define         SQW_PIN  5
-#define          CS_PIN  8
-#define         CLK_PIN  9
-#define         DIO_PIN  10
-#define         BUZ_PIN  11
-#define         SDA_PIN  12
-#define         SCL_PIN  13
+#define         ANA_SNR  4  // Пин фоторезистора
 #endif
 
 // ----------------------------------- Typedef
@@ -439,7 +410,12 @@ uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
 uint16_t         cur_br_buf  = 0;
 
+#if defined(__AVR_ATmega2560__)
+char                   songBuff[100];
+#elif defined(__xtensa__)
 char                   songBuff[500];
+#endif
+
 uint8_t         debug_level  = 0; // 0 - отключен
 
 // ---------------------------------------------------- Constructors

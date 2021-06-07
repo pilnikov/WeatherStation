@@ -1,7 +1,7 @@
 
 void tm1637_init()
 {
-  tm1637 = new TM1637(CLK_PIN, DIO_PIN);
+  tm1637 = new TM1637(conf_data.gpio_clk, conf_data.gpio_dio);
   tm1637->clear();
   tm1637->set_br(7);
 }
@@ -9,7 +9,7 @@ void tm1637_init()
 
 void ht1621_init()
 {
-  ht21 = new HT1621(CS_PIN, CLK_PIN, DIO_PIN); // ss, rw, data
+  ht21 = new HT1621(conf_data.gpio_dcs, conf_data.gpio_clk, conf_data.gpio_dio); // ss, rw, data
   ht21->begin();
 
   ht21->sendCommand(HT1621::RC256K);
