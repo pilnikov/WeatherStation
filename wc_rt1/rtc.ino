@@ -223,7 +223,7 @@ void set_alarm() //Устанавливаем будильник
   {
     bool snday = (weekday() > 6 || weekday() < 2); //Сегодня выходной
     if (conf_data.alarms[j][0] > 0 //будильник актививен
-        && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) && !snday) || (conf_data.alarms[j][0] == 3 && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
+        && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || (conf_data.alarms[j][0] == 3 && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
         && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] > (uint16_t)hour() * 60 + minute()                 //минут будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
         && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] <= (uint16_t)rtc_data.a_hour * 60 + rtc_data.a_min //минут будильника <= текущих минут актуального будильника (выбор ближайшего)
        )
@@ -237,7 +237,7 @@ void set_alarm() //Устанавливаем будильник
     //----------------------------------------------------------------------поиск самого раннего будильника
     snday = ((weekday() + 1) > 6); //А не выходной ли завтра?
     if (conf_data.alarms[j][0] > 0 //будильник актививен
-        && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) && !snday) || (conf_data.alarms[j][0] == 3 && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
+        && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || ((conf_data.alarms[j][0] == 3) & snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
         && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] < amin
        )
     {
@@ -304,41 +304,46 @@ bool Alarmed()
 
   if (ram_data.type_rtc == 1)
   {
-    if (interuptFlag)  // check our flag that gets sets in the interupt
+    if (interuptFlag_int)  // check our flag that gets sets in the interupt
     {
-      interuptFlag = false; // reset the flag
+      interuptFlag_int = false; // reset the flag
 
       // this gives us which alarms triggered and
       // then allows for others to trigger again
       DS3231AlarmFlag flag = DS3231.LatchAlarmsTriggeredFlags();
 
-      if (flag && DS3231AlarmFlag_Alarm1 && rtc_data.alarm) al1_int = true; //Сработал будильник №1
-      if (flag && DS3231AlarmFlag_Alarm2 && (minute() == 0 || minute() == 59)) al2_int = true; //Сработал будильник №2
+      if (flag & DS3231AlarmFlag_Alarm1) al1_int = true; //Сработал будильник №1
+      if (flag & DS3231AlarmFlag_Alarm2) al2_int = true; //Сработал будильник №2
       wasAlarmed_int = (al1_int || al2_int);
     }
   }
   else
   {
-    al1_oth = (hour() == rtc_data.a_hour && minute() == rtc_data.a_min && !rtc_data.wasAlarm && rtc_data.alarm); //Сработал будильник №1
-    al2_oth = (minute() == 0 && second() == 0 && !rtc_data.wasAlarm);                                            //Сработал будильник №2
-    wasAlarmed_oth = (al1_oth || al2_oth);
+    if (!interuptFlag_oth)  // check our flag that gets sets in the interupt
+    {
+      al1_oth = ((hour() == rtc_data.a_hour) & (minute() == rtc_data.a_min)); //Сработал будильник №1
+      al2_oth = ((minute() == 0) & (second() == 0));                          //Сработал будильник №2
+      wasAlarmed_oth = (al1_oth || al2_oth);
+      interuptFlag_oth = wasAlarmed_oth; // set the flag
+    }
   }
+
+  interuptFlag_oth = ((hour() == rtc_data.a_hour) || (minute() == rtc_data.a_min) || (minute() == 0) || (second() == 0));
 
   if (al1_int || al1_oth) //Сработал будильник №1
   {
     if (debug_level == 13) DBG_OUT_PORT.println(F("alarm one is run!"));
 
     dmsg.alarm_msg(rtc_data.n_cur_alm, conf_data.type_disp, conf_data.rus_lng);  // Сообщение на индикатор
-    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, blinkColon); // Мигаем светодиодом
 
     switch (conf_data.alarms[rtc_data.n_cur_alm][4])     // Выполняем экшн
     {
       case 0:
         rtc_data.a_muz = conf_data.alarms[rtc_data.n_cur_alm][3];
+        copyFromPGM(&songs[rtc_data.a_muz], songBuff);
         play_snd = true;
-        DBG_OUT_PORT.print(F("song num.... "));
-        DBG_OUT_PORT.println(rtc_data.a_muz);
         break;
+
       case 1:
         nm_is_on = true;                       // Включаем ночной режим
         break;
@@ -402,15 +407,16 @@ bool Alarmed()
       strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
       saveConfig(conf_f, conf_data);
     }
-    if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
+    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(LED_PIN, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2
   {
     if (debug_level == 13) DBG_OUT_PORT.println(F("alarm two is run!"));
-    if (conf_data.every_hour_beep && !nm_is_on)
+    if (conf_data.every_hour_beep & !nm_is_on)
     {
       rtc_data.a_muz = 15;
+      copyFromPGM(&songs[rtc_data.a_muz], songBuff);
       play_snd = true;
     }
   }
@@ -419,7 +425,7 @@ bool Alarmed()
   return wasAlarmed;
 }
 
-void man_set_time(const RtcDateTime& dt)
+void man_set_time(const RtcDateTime & dt)
 {
   setTime(dt.Hour(), dt.Minute(), dt.Second(), dt.Day(), dt.Month(), dt.Year());
 
@@ -444,5 +450,5 @@ void ISR_ATTR InteruptServiceRoutine()
   // don't do anything that takes long and especially avoid
   // any communications calls within this routine
   interuptCount++;
-  interuptFlag = true;
+  interuptFlag_int = true;
 }

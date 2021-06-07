@@ -1,7 +1,6 @@
 // Snd.cpp
 
 #include "Snd.h"
-#include "Songs.h"
 #include "TN.h"
 
 // for debugging
@@ -43,7 +42,7 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   }
 }
 
-void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola, bool ini)
+void Synt::play(char *ip, uint8_t out, bool _play, bool pola)
 {
   static const uint16_t notes[] PROGMEM =
   { 0,
@@ -54,38 +53,9 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola, bool ini)
   };
 
 
-  if (ini)
-  {
-    set_up = false;
-    is_played = false;
-//    copyFromPGM(&songs[15], Buffer);
-//    p = Buffer;
-  }
-
-  if (_play & !set_up & !is_played)
-  {
-#ifdef _debug
-    DBG_OUT_PORT.print(F("init section.....\n "));
-#endif
-    copyFromPGM(&songs[snum], Buffer);
-#ifdef _debug
-    DBG_OUT_PORT.print(F("song num.... "));
-    DBG_OUT_PORT.println(snum);
-
-
-    p = Buffer;
-    while (*p != NULL)
-    {
-      DBG_OUT_PORT.print(*p);
-      p++;
-    }
-    DBG_OUT_PORT.println();
-#endif
-    p = Buffer;
-    // format: d=N,o=N,b=NNN:
-    // find the start (skip name, etc)
-    set_up = true;
-  }
+  if (ip == NULL) return;
+  if (!setup & !is_played) *p = 'x';
+  if (_play) set_up = true;
 
   //setup sections (run once, before playin song)
   if (set_up)
@@ -93,7 +63,8 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola, bool ini)
 #ifdef _debug
     DBG_OUT_PORT.print(F("setup section.....\n "));
 #endif
-    while (*p != ':') p++;   // ignore name
+    p = ip;
+	while (*p != ':') p++;   // ignore name
     p++;                     // skip ':'
 
     // get default duration
@@ -258,29 +229,7 @@ void Synt::play(uint8_t snum, uint8_t out, bool _play, bool pola, bool ini)
     {
       is_played = false; //End of playing
       digitalWrite(out, pola ? HIGH : LOW);
+      free(p);
     }
   }
 }
-
-// функция копирования массива из PROGMEM
-#if defined(__AVR__)
-void Synt::copyFromPGM(int charMap, char * _buf)
-{
-  uint16_t _ptr = pgm_read_word(charMap); // получаем адрес из таблицы ссылок
-  uint8_t i = 0;        // переменная - индекс массива буфера
-  do
-  {
-    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
-  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
-}
-#elif defined(__xtensa__)
-void Synt::copyFromPGM(const void* charMap, char * _buf)
-{
-  const void* _ptr = pgm_read_ptr(charMap); // получаем адрес из таблицы ссылок
-  uint8_t i = 0;        // переменная - индекс массива буфера
-  do
-  {
-    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
-  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
-}
-#endif

@@ -4,7 +4,7 @@ conf_data_t loadConfig(const char *filename)
 {
   conf_data_t data;
 
-  File file = SPIFFS.open(filename, "r");
+  File file = LittleFS.open(filename, "r");
 
   if (!file)
   {
@@ -232,9 +232,9 @@ void saveConfig(const char *filename, conf_data_t data)
   alarms["6"] = al6;
 
   // Delete existing file, otherwise the configuration is appended to the file
-  SPIFFS.remove(filename);
+  LittleFS.remove(filename);
 
-  File configFile = SPIFFS.open(filename, "w"); //Open config file for writing
+  File configFile = LittleFS.open(filename, "w"); //Open config file for writing
 
   if (!configFile)
   {
@@ -317,9 +317,43 @@ conf_data_t defaultConfig()
 
 conf_data_t loadConfig(const char *filename)
 {
-  conf_data_t data;
+  conf_data_t _data;
 
+  EEPROM.get(0, _data);           // прочитали из адреса 0
+
+  _data.alarms[0][0] = 1;
+  _data.alarms[0][1] = 11;
+  _data.alarms[0][2] = 59;
+  _data.alarms[0][3] = 13;
+  _data.alarms[0][4] = 0;
+
+  _data.alarms[1][0] = 1;
+  _data.alarms[1][1] = 12;
+  _data.alarms[1][2] = 01;
+  _data.alarms[1][3] = 14;
+  _data.alarms[1][4] = 0;
+
+  _data.alarms[2][0] = 1;
+  _data.alarms[2][1] = 12;
+  _data.alarms[2][2] = 03;
+  _data.alarms[2][3] = 15;
+  _data.alarms[2][4] = 0;
+
+  _data.auto_br      = true;
+  _data.br_level[0] = 220;
+  _data.br_level[1] = 1;
+  _data.br_level[2] = 1;
+  _data.br_level[3] = 14;
+
+
+  return _data;
+}
+
+conf_data_t first_use()
+{
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
+
+  conf_data_t data;
 
   strncpy(data.sta_ssid,  "MyWiFi", 33);
   strncpy(data.sta_pass,  "12345678", 33);
@@ -382,29 +416,11 @@ conf_data_t loadConfig(const char *filename)
       data.alarms[i][j] = 0;
     }
   }
-
-  data.alarms[0][0] = 1;
-  data.alarms[0][1] = 21;
-  data.alarms[0][2] = 40;
-  data.alarms[0][3] = 13;
-  data.alarms[0][4] = 0;
-
-  data.alarms[1][0] = 1;
-  data.alarms[1][1] = 21;
-  data.alarms[1][2] = 42;
-  data.alarms[1][3] = 14;
-  data.alarms[1][4] = 0;
-
-  data.alarms[2][0] = 1;
-  data.alarms[2][1] = 21;
-  data.alarms[2][2] = 44;
-  data.alarms[2][3] = 15;
-  data.alarms[2][4] = 0;
-
   return data;
 }
 
-void saveConfig(const char *filename, conf_data_t data)
+void saveConfig(const char *filename, conf_data_t _data)
 {
+  EEPROM.put(0, _data);           // записали по адресу 0
 }
 #endif

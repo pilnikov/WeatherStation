@@ -1,13 +1,27 @@
 
 //-------------------------------------------------------------- Установка яркости
-uint16_t auto_br(uint16_t lt)
+uint8_t auto_br(uint16_t lt)
 {
-  uint16_t c_br = 0;
+  // у = кх + в
 
-  int a = constrain(conf_data.br_level[2] - conf_data.br_level[1], 1, conf_data.br_level[2]);
-  int b = constrain(conf_data.br_level[3] - conf_data.br_level[0], 1, conf_data.br_level[3]);
+  uint8_t c_br = conf_data.br_level[2]; // b
+  float br = conf_data.br_level[3];
 
-  c_br = constrain((float)(lt - conf_data.br_level[0]) * a / b + conf_data.br_level[1], conf_data.br_level[1], conf_data.br_level[2]);
+  float dx = (float)conf_data.br_level[1] - conf_data.br_level[0]; //диапазон освещенности (dх)
+  float dy = (float)conf_data.br_level[3] - conf_data.br_level[2]; //уставки яркости (dу)
+  float ltt = (float)lt;
+
+  br = dy / dx * ltt + (float)conf_data.br_level[2];
+  if (dx < 0)   br = dy / dx * ltt + (float)conf_data.br_level[3];
+
+  c_br = constrain(br, conf_data.br_level[2], conf_data.br_level[3]);
+/*
+  DBG_OUT_PORT.print(F("brightness before..."));
+  DBG_OUT_PORT.println(br);
+
+  DBG_OUT_PORT.print(F("brightness ..."));
+  DBG_OUT_PORT.println(c_br);
+*/
   return c_br;
 }
 
@@ -19,8 +33,9 @@ uint16_t ft_read(bool snr_pres)
   {
     ft = analogRead(ANA_SNR);
   }
-  DBG_OUT_PORT.print(F("brightness from sensor..."));
-  DBG_OUT_PORT.println(ft);
+
+//  DBG_OUT_PORT.print(F("level from sensor..."));
+//  DBG_OUT_PORT.println(ft);
 
   return ft;
 }
@@ -54,7 +69,7 @@ bool time_m32_8(byte *in, uint8_t pos, char *old, const uint8_t *dposx, bool *ch
       printCharacter(d[i], dposx[i], nbuf + pos, font5x7, 5); // запись символа в вертушок для изменившихся позиций
       shift_ud(true, true, nbuf + pos, in + pos,  buff + pos, dposx[i],  dposx[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
     }
-    else 
+    else
     {
       printCharacter(old[i], dposx[i], in + pos, font5x7, 5); // отображение символов
     }

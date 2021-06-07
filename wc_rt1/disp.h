@@ -35,7 +35,7 @@ void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 void a595_init();
 
 bool scroll_String(int8_t, int8_t, String, int&, int&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
-uint16_t auto_br(uint16_t);
+uint8_t auto_br(uint16_t);
 
 void bat (uint8_t, byte*);
 void digit (uint8_t, uint8_t, byte*);

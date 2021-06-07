@@ -132,6 +132,9 @@
 
 #include "Udt.h"
 
+#if defined(__AVR_ATmega2560__)
+#include <EEPROM.h>
+#endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
 #include <WiFi.h>
@@ -165,7 +168,6 @@
 #include <ESPmDNS.h>
 #include <WiFiClient.h>
 #include <HTTPClient.h>
-#include <SPIFFS.h>
 #include <WebServer.h>
 #include <Update.h>
 #include <ESP32SSDP.h>
@@ -188,6 +190,7 @@
 #include "Netwf.h"
 #include <FS.h>
 #include <WiFiUdp.h>
+#include <LittleFS.h>
 #endif
 /*
   #include "..\lib\MyLib_sf2\src\Sysf2.h"
@@ -201,6 +204,7 @@
 
 #include "Sysf2.h"
 #include "Snd.h"
+#include "Songs.h"
 #include "Snr.h"
 #include "Fdsp.h"
 #include "BH1750.h"
@@ -363,19 +367,28 @@ String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
 String ts_snd (String);
 
+
+#if defined(__AVR_ATmega2560__)
+void copyFromPGM(const char* const*, char*);
+#endif
+# if defined(__xtensa__)
+void copyFromPGM(const void*, char*);
+#endif
+
+
 // ----------------------------------- NTP
 #if defined(__xtensa__)
-NTPTime NTP_t;
+static NTPTime NTP_t;
 #endif
 
 // ----------------------------------- Web server
 #if defined(ESP8266)
-ESP8266WebServer server(80);
-ESP8266HTTPUpdateServer httpUpdater;
+static ESP8266WebServer server(80);
+static ESP8266HTTPUpdateServer httpUpdater;
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32)
-WebServer server(80);
+static WebServer server(80);
 #endif
 
 // ---------------------------------------------------- HW info
@@ -414,7 +427,6 @@ const char ntp_server[] = "ru.pool.ntp.org";
 
 const char *conf_f = "/config.json";  // config file name
 
-bool                    fpp  = false; // первый проход программы
 bool                disp_on  = true;
 bool               nm_is_on  = false;
 bool             but0_press  = false;
@@ -427,6 +439,7 @@ uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
 uint16_t         cur_br_buf  = 0;
 
+char                   songBuff[500];
 uint8_t         debug_level  = 0; // 0 - отключен
 
 // ---------------------------------------------------- Constructors

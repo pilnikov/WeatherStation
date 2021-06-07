@@ -58,8 +58,8 @@ void GetSnr()
 
 #if defined(__AVR_ATmega2560__)
 
-// функция для печати из PROGMEM
-void printFromPGM(int charMap, char * _buf)
+// функция копирования из PROGMEM
+void copyFromPGM(const char* const* charMap, char * _buf)
 {
   uint16_t _ptr = pgm_read_word(charMap); // получаем адрес из таблицы ссылок
   uint8_t i = 0;        // переменная - индекс массива буфера
@@ -68,13 +68,15 @@ void printFromPGM(int charMap, char * _buf)
     _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
   } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
 }
+
+void(* resetFunc) (void) = 0; //Programm reset
 #endif
 
 
 # if defined(__xtensa__)
 
-// функция для печати из PROGMEM
-void printFromPGM(const void* charMap, char * _buf)
+// функция копирования из PROGMEM
+void copyFromPGM(const void* charMap, char * _buf)
 {
   const void* _ptr = pgm_read_ptr(charMap); // получаем адрес из таблицы ссылок
   uint8_t i = 0;        // переменная - индекс массива буфера
@@ -422,7 +424,7 @@ void GetNtp()
     {
       setTime(cur_time);
 
-      RtcDateTime cur_time1 = RtcDateTime(cur_time.Year() - 30, cur_time.Month(), cur_time.Day(), cur_time.Hour(), cur_time.Minute(), cur_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го 
+      RtcDateTime cur_time1 = RtcDateTime(cur_time.Year() - 30, cur_time.Month(), cur_time.Day(), cur_time.Hour(), cur_time.Minute(), cur_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го
 
       //----------------------------------------set time to chip dsXXXX
       switch (ram_data.type_rtc)
@@ -431,7 +433,7 @@ void GetNtp()
           DS3231.SetDateTime(cur_time1);
           break;
         case 2:
-          DS1302.SetDateTime(cur_time1);    
+          DS1302.SetDateTime(cur_time1);
           break;
         case 3:
           DS1307.SetDateTime(cur_time1);
@@ -498,21 +500,31 @@ void keyb_read()
     DBG_OUT_PORT.println(F("Reboot esp..."));
     ESP.restart();// держим от 9 до 15 сек - Перезапускаемся
   }
+#endif
 
   if (but0_pressed && millis() - setting_ms > 15000)                // держим больше 15 сек - сбрасываем усе на дефолт
   {
     if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot..."));
     conf_data = defaultConfig();
     saveConfig(conf_f, conf_data);
+
+#if defined(__AVR_ATmega2560__)
+    DBG_OUT_PORT.println(F("Reboot mega..."));
+    delay(500);
+    resetFunc();
+#endif
+
+#if defined(__xtensa__)
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF);
     delay(100);
     //ESP.reset();
     DBG_OUT_PORT.println(F("Reboot esp..."));
+    delay(500);
     ESP.restart();
+#endif
   }
   but0_press = but0_pressed;
-#endif
 }
 
 //------------------------------------------------------  Отправляем данные по USART
@@ -604,12 +616,12 @@ void Thermo()
   }
 }
 
-//------------------------------------------------------  Внутренняя флэшка SPIFFS
+//------------------------------------------------------  Внутренняя флэшка LittleFS
 # if defined(__xtensa__)
 
 void printFile(const char* filename) {
   // Open file for reading
-  File file = SPIFFS.open(filename, "r");
+  File file = LittleFS.open(filename, "r");
 
   if (!file)
   {
@@ -628,15 +640,15 @@ void printFile(const char* filename) {
 
 void fs_setup()
 {
-  if (!SPIFFS.begin())
+  if (!LittleFS.begin())
   {
     DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    SPIFFS.format();
+    LittleFS.format();
   }
   else
   {
 #if defined(ESP8266)
-    Dir dir = SPIFFS.openDir("/");
+    Dir dir = LittleFS.openDir("/");
     while (dir.next())
     {
       String fileName = dir.fileName();
@@ -647,7 +659,7 @@ void fs_setup()
 
 #if defined(ARDUINO_ARCH_ESP32)
 
-    File root = SPIFFS.open("/");
+    File root = LittleFS.open("/");
 
     String output = "[";
     if (root.isDirectory()) {

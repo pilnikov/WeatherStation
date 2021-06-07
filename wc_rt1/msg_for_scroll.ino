@@ -5,8 +5,8 @@ String pr_str(uint8_t num)
   if (conf_data.type_disp == 19) grad = '\357';
 
   char buf[255], buf1[255], stdr_b[20], swnr_b[20], sprcr_b[20], sdnr_b[20], sdne_b[20], smnr_b[20], smne_b[20];
-  int size_buf  = snprintf(buf,  2, "");
-  int size_buf1 = snprintf(buf1, 2, "");
+  int size_buf  = snprintf(buf,  2, " ");
+  int size_buf1 = snprintf(buf1, 2, " ");
 
 
   if (!conf_data.rus_lng)
@@ -14,8 +14,8 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-        printFromPGM(&sdne[weekday() - 1], sdne_b);
-        printFromPGM(&smne[wf_data.month - 1], smne_b);
+        copyFromPGM(&sdne[weekday() - 1], sdne_b);
+        copyFromPGM(&smne[wf_data.month - 1], smne_b);
 
         size_buf = snprintf(buf, 255, " Today is %s %d %s %d", sdne_b, day(), smne_b, year());
         break;
@@ -61,8 +61,8 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-        printFromPGM(&sdnr[weekday() - 1], sdnr_b);
-        printFromPGM(&smnr[wf_data.month - 1], smnr_b);
+        copyFromPGM(&sdnr[weekday() - 1], sdnr_b);
+        copyFromPGM(&smnr[wf_data.month - 1], smnr_b);
 
         size_buf = snprintf(buf, 255, " Сегодня %s %d %s %dг.", sdnr_b, day(), smnr_b, year());
         break;
@@ -81,7 +81,7 @@ String pr_str(uint8_t num)
 
           if (conf_data.use_pp == 2)
           {
-            printFromPGM(&swnr[wf_data_cur.wind_dir], swnr_b);
+            copyFromPGM(&swnr[wf_data_cur.wind_dir], swnr_b);
 
             size_buf1 = wf_data.descript.length() + 1;
             strncpy(buf1, wf_data.descript.c_str(), size_buf1);
@@ -112,10 +112,10 @@ String pr_str(uint8_t num)
         switch (conf_data.use_pp)
         {
           case 1:
-            printFromPGM(&stdr[wf_data.tod], stdr_b);
-            printFromPGM(&smnr[wf_data.month - 1], smnr_b);
-            printFromPGM(&swnr[wf_data.wind_dir], swnr_b);
-            printFromPGM(&sprcr[wf_data.prec], sprcr_b);
+            copyFromPGM(&stdr[wf_data.tod], stdr_b);
+            copyFromPGM(&smnr[wf_data.month - 1], smnr_b);
+            copyFromPGM(&swnr[wf_data.wind_dir], swnr_b);
+            copyFromPGM(&sprcr[wf_data.prec], sprcr_b);
 
             wf_data.temp_min > -99 ? size_buf = snprintf(buf, 255, " Прогноз погоды от GM на %s %d %s:температура от %d до %d%cC ветер %s %d - %dм/с %s oтн. влажность %d%% давление %dмм.рт.ст",
                                                 stdr_b, wf_data.day, smnr_b,
@@ -123,8 +123,8 @@ String pr_str(uint8_t num)
                                                 wf_data.hum_max, wf_data.press_max) : size_buf = snprintf(buf, 255, " Данные по прогнозу погоды не получены - проверьте настройки ");
             break;
           case 2:
-            printFromPGM(&smnr[wf_data.month - 1], smnr_b);
-            printFromPGM(&swnr[wf_data.wind_dir], swnr_b);
+            copyFromPGM(&smnr[wf_data.month - 1], smnr_b);
+            copyFromPGM(&swnr[wf_data.wind_dir], swnr_b);
 
             size_buf1 = wf_data.descript.length() + 1;
             strncpy(buf1, wf_data.descript.c_str(), size_buf1);

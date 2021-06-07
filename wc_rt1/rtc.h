@@ -25,7 +25,7 @@ void ISR_ATTR InteruptServiceRoutine();
 // other code can safely read and modify them
 
 uint16_t interuptCount = 0;
-bool interuptFlag = false;
+static bool interuptFlag_int = false, interuptFlag_oth = false;
 
 // ----------------------------------- Конструктор DS3231
 RtcDS3231<TwoWire> DS3231(Wire);

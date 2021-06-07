@@ -45,7 +45,22 @@
             <option value = '2'> DS1302 </option>
             <option value = '3'> DS1307 </option>
          </select></td></tr>
-         
+
+       <tr><td colspan='9' class='h'>GPIO</td></tr>
+ 
+         <tr><td width='30%'>SDA</td><td><input type='text' size='3' id='sda' name='sda' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>SCL</td><td><input type='text' size='3' id='scl' name='scl' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>DIO</td><td><input type='text' size='3' id='dio' name='dio' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>CLK</td><td><input type='text' size='3' id='clk' name='clk' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>DCS</td><td><input type='text' size='3' id='dcs' name='dcs' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>DWR</td><td><input type='text' size='3' id='dwr' name='dwr' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>TRM</td><td><input type='text' size='3' id='trm' name='trm' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>SQW</td><td><input type='text' size='3' id='sqw' name='sqw' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>SND</td><td><input type='text' size='3' id='snd' name='snd' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>LED</td><td><input type='text' size='3' id='led' name='led' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>BTN</td><td><input type='text' size='3' id='btn' name='btn' style='text-align:center;'/></td></tr>
+    
+
          <tr><td colspan='4' class='h'><input type='submit' value='Записать' onclick='set_parc();' /></td></tr>
     </table>
   
@@ -61,14 +76,27 @@
               var res = JSON.parse(xh.responseText);
               document.getElementById('tzone').value = res.tzon;
       	      document.getElementById('acorr').checked = res.acor;
-	          document.getElementById('upm').checked = res.uspm;
-	          document.getElementById('nmstart').value = res.nstr;
+	            document.getElementById('upm').checked = res.uspm;
+  	          document.getElementById('nmstart').value = res.nstr;
               document.getElementById('nmstop').value = res.nend;
-	          document.getElementById('ehb').checked = res.evhb;
-	          document.getElementById('sndpol').checked = res.sndpol;
-	          document.getElementById('ledpol').checked = res.ledpol;
-	          document.getElementById('rtyp').value = res.trts;
-        	}
+  	          document.getElementById('ehb').checked = res.evhb;
+  	          document.getElementById('sndpol').checked = res.sndpol;
+  	          document.getElementById('ledpol').checked = res.ledpol;
+  	          document.getElementById('rtyp').value = res.trts;
+
+              document.getElementById('sda').value = res.sda;
+              document.getElementById('scl').value = res.scl;
+              document.getElementById('dio').value = res.dio;
+              document.getElementById('clk').value = res.clk;
+              document.getElementById('dcs').value = res.dcs;
+              document.getElementById('dwr').value = res.dwr;
+              document.getElementById('trm').value = res.trm;
+              document.getElementById('sqw').value = res.sqw;
+              document.getElementById('snd').value = res.snd;
+              document.getElementById('led').value = res.led;
+              document.getElementById('btn').value = res.btn;
+
+          	}
           }
          xh.open("GET", "/jclock", true);
          xh.send(null);
@@ -104,7 +132,20 @@
         if (document.getElementById('ledpol').checked) ledpol = 1;
         srtyp = document.getElementById('rtyp').value;
 
-        url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp;
+        sda   = document.getElementById('sda').value;
+        scl   = document.getElementById('scl').value;
+        dio   = document.getElementById('dio').value;
+        clk   = document.getElementById('clk').value;
+        dcs   = document.getElementById('dcs').value;
+        dwr   = document.getElementById('dwr').value;
+        trm   = document.getElementById('trm').value;
+        sqw   = document.getElementById('sqw').value;
+        snd   = document.getElementById('snd').value;
+        led   = document.getElementById('led').value;
+        btn   = document.getElementById('btn').value;
+
+ 
+        url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+'&sda'+sda+'&scl'+scl+'&dio'+dio+'&clk'+clk+'&dcs'+dcs+'&dwr'+dwr+'&trm'+trm+'&sqw'+sqw+'&snd'+snd+'&led'+led+'&btn'+btn;
 
         var xh = new XMLHttpRequest();
         xh.open('GET', url, true);

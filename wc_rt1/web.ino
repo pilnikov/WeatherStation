@@ -30,7 +30,7 @@ void web_setup()
   server.on("/jtrm", handlejTrm);
   //server.on("/all",       handleAll  );
 
-  //-------------------------------------------------------------- for SPIFFS
+  //-------------------------------------------------------------- for LittleFS
   //list directory
   server.on("/list", HTTP_GET, handleFileList);
   //load editor
@@ -48,7 +48,7 @@ void web_setup()
   }, handleFileUpload);
 
   //called when the url is not defined here
-  //use it to load content from SPIFFS
+  //use it to load content from LittleFS
   server.onNotFound([]() {
     if (!handleFileRead(server.uri()))
       server.send(404, "text/plain", "FileNotFound");
@@ -256,12 +256,8 @@ void handleSetPard()
   conf_data.man_br = constrain(val, 0, 15);;
   conf_data.br_level[0] = server.arg("brd1").toInt();
   conf_data.br_level[1] = server.arg("brd2").toInt();
-  val = server.arg("brd3").toInt();
-  if (val == conf_data.br_level[1]) conf_data.br_level[2] = val + 1;
-  else conf_data.br_level[2] = val;
-  val = server.arg("brd4").toInt();
-  if (val == conf_data.br_level[0]) conf_data.br_level[3] = val + 1;
-  else conf_data.br_level[3] = val;
+  conf_data.br_level[2] = server.arg("brd3").toInt();
+  conf_data.br_level[3] = server.arg("brd4").toInt();
 
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
@@ -629,10 +625,10 @@ bool handleFileRead(String path)
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
-  if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
-    if (SPIFFS.exists(pathWithGz))
+  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
+    if (LittleFS.exists(pathWithGz))
       path += ".gz";
-    File file = SPIFFS.open(path, "r");
+    File file = LittleFS.open(path, "r");
     size_t sent = server.streamFile(file, contentType);
     file.close();
     return true;
@@ -648,7 +644,7 @@ void handleFileUpload()
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
     DBG_OUT_PORT.print(F("handleFileUpload Name: ")); DBG_OUT_PORT.println(filename);
-    fsUploadFile = SPIFFS.open(filename, "w");
+    fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
   }
   else if (upload.status == UPLOAD_FILE_WRITE) {
@@ -671,9 +667,9 @@ void handleFileDelete()
   DBG_OUT_PORT.println("handleFileDelete: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-  if (!SPIFFS.exists(path))
+  if (!LittleFS.exists(path))
     return server.send(404, "text/plain", "FileNotFound");
-  SPIFFS.remove(path);
+  LittleFS.remove(path);
   server.send(200, "text/plain", "");
   path = String();
   serv_ms = millis();
@@ -687,9 +683,9 @@ void handleFileCreate()
   DBG_OUT_PORT.println("handleFileCreate: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-  if (SPIFFS.exists(path))
+  if (LittleFS.exists(path))
     return server.send(500, "text/plain", "FILE EXISTS");
-  File file = SPIFFS.open(path, "w");
+  File file = LittleFS.open(path, "w");
   if (file)
     file.close();
   else
@@ -712,7 +708,7 @@ void handleFileList()
 
 #if defined(ESP8266)
 
-  Dir dir = SPIFFS.openDir(path);
+  Dir dir = LittleFS.openDir(path);
   String output = "[";
   while (dir.next()) {
     File entry = dir.openFile("r");
@@ -729,7 +725,7 @@ void handleFileList()
 
 #if defined(ARDUINO_ARCH_ESP32)
 
-  File root = SPIFFS.open(path);
+  File root = LittleFS.open(path);
   String output = "[";
   if (root.isDirectory()) {
     File file = root.openNextFile();

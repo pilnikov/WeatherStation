@@ -4,7 +4,8 @@ uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t);
 
 uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
 {
-  uint8_t h = conf_data.use_pm && hour() > 12 ? h = hour() - 12 : hour();
+  uint8_t h = 0;
+  h = conf_data.use_pm && hour() > 12 ? h = hour() - 12 : hour();
   uint8_t s_tstr = _width * 2;
   size_tstr = snprintf(tstr, s_tstr, "");
   bool out = false;
@@ -83,7 +84,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
 
         case 8: //День недели, дата
 
-          printFromPGM(&name_week7[weekday()], b1);
+          copyFromPGM(&name_week7[weekday()], b1);
 
           size_tstr = snprintf(tstr, s_tstr, "%2s%2d", b1, day());
           out = true;
@@ -186,7 +187,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
           break;
 
         case 8: //День недели, дата месяц
-          printFromPGM(&name_week7[weekday()], b1);
+          copyFromPGM(&name_week7[weekday()], b1);
           size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d", b1, day(), month());
           out = true;
           break;
@@ -257,7 +258,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
           break;
 
         case 5: //День недели, дата, месяц, год
-          printFromPGM(&name_week7[weekday()], b1);
+          copyFromPGM(&name_week7[weekday()], b1);
           size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d.02d", b1, day(), month(), year() % 100);
           out = true;
           break;
