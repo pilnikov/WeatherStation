@@ -41,7 +41,7 @@ uint16_t ft_read(bool snr_pres)
 }
 
 
-bool time_m32_8(byte *in, uint8_t pos, char *old, const uint8_t *dposx, bool *change, uint16_t *buff, bool pm)
+bool time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buff, bool pm)
 {
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];

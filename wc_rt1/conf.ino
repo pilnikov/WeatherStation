@@ -361,6 +361,10 @@ conf_data_t loadConfig(const char *filename)
   conf_data_t _data;
 
   EEPROM.get(0, _data);           // прочитали из адреса 0
+
+  _data.type_vdrv        = 3;
+  _data.type_disp        = 23;
+
   return _data;
 }
 

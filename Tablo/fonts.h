@@ -32,7 +32,7 @@
 #ifdef __AVR__
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-#elif defined(ESP8266) || defined(ESP32)
+#elif defined(__xtensa__)
 #include <pgmspace.h>
 #endif
 /*
@@ -41,7 +41,7 @@
     Standard ASCII 5x7 font
 */
 
-static const byte font5x7[] = {
+static const byte font5x7[] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, 0x00,
   0x3E, 0x5B, 0x4F, 0x5B, 0x3E,
   0x3E, 0x6B, 0x4F, 0x6B, 0x3E,

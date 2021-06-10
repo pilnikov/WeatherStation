@@ -21,6 +21,11 @@
 #include "fonts.h"
 #endif
 
+
+#if defined(__AVR_ATmega2560__)
+#include <RGBmatrixPanel.h> // Hardware-specific library
+#endif
+
 void dow_sel(uint8_t);
 
 String pr_str(uint8_t);
@@ -41,7 +46,7 @@ void bat (uint8_t, byte*);
 void digit (uint8_t, uint8_t, byte*);
 void mon_day (uint8_t, uint8_t);
 void ala (uint8_t);
-bool time_m32_8(byte*, uint8_t, byte*, char*, uint8_t*, bool*);
+bool time_m32_8(byte*, uint8_t, byte*, unsigned char*, uint8_t*, bool*);
 
 //-----------------------------------------------------------------------------new
 
@@ -169,7 +174,7 @@ static Max72 *m7219;
 const uint8_t q_dig = 6;  // количество цифр на дисплее
 
 uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
-static char oldDigit[q_dig];                       // убегающая цифра
+static unsigned char oldDigit[q_dig];                       // убегающая цифра
 
 int cur_sym_pos[4] = {0, 0, 0, 0};
 bool end_run_st = true, end_run_st_buf, m32_8time_act = false, blinkColon = false;
@@ -203,6 +208,20 @@ static HT1632C * m1632;
 #if defined(ARDUINO_ARCH_ESP32)
 static ESP32RGBmatrixPanel * m3264;
 #endif
+
+#if defined(__AVR_ATmega2560__)
+static RGBmatrixPanel *m3216;
+
+#define CLK 11  // MUST be on PORTB! (Use pin 11 on Mega)
+#define LAT 10
+#define OE  9
+#define A   A0
+#define B   A1
+#define C   A2
+#define D   A3
+
+#endif
+
 
 //---------------------------------------------------------------------------ILI9341
 #include "Adafruit_ILI9341.h"

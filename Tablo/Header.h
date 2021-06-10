@@ -1,6 +1,6 @@
-// testshapes demo for RGBmatrixPanel library.
-// Demonstrates the drawing abilities of the RGBmatrixPanel library.
-// For 32x64 RGB LED matrix.
+// testshapes demo for RGBm3216Panel library.
+// Demonstrates the drawing abilities of the RGBm3216Panel library.
+// For 32x64 RGB LED m3216.
 
 // NOTE THIS CAN ONLY BE USED ON A MEGA! NOT ENOUGH RAM ON UNO!
 
@@ -12,92 +12,167 @@
 #include <Wire.h>
 #include <BH1750.h>
 
+#include "Songs.h"
+#include "fonts.h"
+#include "rtc.h"
+
+#include <Snd.h>
 #include <Udt.h>
 #include <Sysf2.h>
 #include <Snr.h>
 #include <Fdsp.h>
 
-snr_data_t snr_data;
-snr_data_t ts_data;
-snr_data_t es_data;
-wf_data_t wf_data;
-wf_data_t wf_data_cur;
-conf_data_t conf_data;
-ram_data_t ram_data;
-rtc_data_t rtc_data;
 
 void synchro();
 String Serial_Read();
-void mx_mov_str(String, uint8_t, unsigned long);
+bool scroll_String(int8_t, int8_t, String, int&, int&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
+String pr_str(uint8_t);
+
 void parser(String);
 
-void matrix_init();
-void _matrix(uint8_t);
-void matrix_time();
+void m3216_init();
+bool time_m32_8(byte*, uint8_t, byte*, unsigned char*, uint8_t*, bool*);
+void copyFromPGM(const char* const*, byte *, uint8_t);
+
 
 
 #define DBG_OUT_PORT Serial
 
-#define _debug
-#define new_max
+//#define _debug
 
-static const uint8_t   uart_pin =  2;
+const char stdr_0[] PROGMEM = "ночь";
+const char stdr_1[] PROGMEM = "yтро";
+const char stdr_2[] PROGMEM = "день";
+const char stdr_3[] PROGMEM = "вечер";
 
-//-------------------------------------------------------Matrix
+const char* const stdr[] PROGMEM = {stdr_0, stdr_1, stdr_2, stdr_3};
 
-uint8_t  num_st = 1, max_st = 4;      //номер и макс кол-во прокручевыемых строк
-static const uint8_t      tsize = 1;  // Размер шрифта
-static uint16_t grad;
+const char swnr_0[] PROGMEM = "северный";
+const char swnr_1[] PROGMEM = "северо-восточный";
+const char swnr_2[] PROGMEM = "восточный";
+const char swnr_3[] PROGMEM = "юго-восточный";
+const char swnr_4[] PROGMEM = "южный";
+const char swnr_5[] PROGMEM = "юго-западный";
+const char swnr_6[] PROGMEM = "западный";
+const char swnr_7[] PROGMEM = "северо-западный";
 
-uint8_t colon; //номер разделителя
-const uint8_t num = 6;  // количество цифр
-uint8_t digHt;
-#ifdef new_max
-const uint8_t digPos[num] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране
-#else
-const uint8_t digPos[num] = {0, 4, 11, 16, 23, 28};
-#endif
-static char d[num] = {0, 0, 0, 0, 0, 0};            // цифры
-static char digoldig[num];                          // убегающая цифра
-static uint8_t digtrans[num];                       // позиция цифры по оси у
+const char* const swnr[] PROGMEM = {swnr_0, swnr_1, swnr_2, swnr_3, swnr_4, swnr_5, swnr_6, swnr_7};
 
-uint8_t spacer = 1; // Промежуток между символами (кол-во точек)
-uint8_t point = 0;
-int cur_sym_pos[2] = {0, 0};
-unsigned long lcd_scroll_time[2] = {millis(), millis()}, refresh_time = millis();
-bool str_run;
-String st1 = "Running String";
+const char sprcr_0[] PROGMEM = "дождь";
+const char sprcr_1[] PROGMEM = "ливень";
+const char sprcr_2[] PROGMEM = "снегопад";
+const char sprcr_3[] PROGMEM = "сильный снегопад";
+const char sprcr_4[] PROGMEM = "гроза";
+const char sprcr_5[] PROGMEM = "без осадков";
 
-const static char* stdr[4] = {"ночь", "yтро", "день", "вечер"};
-const static char* swnr[8] = {"северный", "северо-восточный", "восточный", "юго-восточный", "южный", "юго-западный", "западный", "северо-западный"};
-const static char* sprcr[6] = {"дождь", "ливень", "снегопад", "сильный снегопад", "гроза", "без осадков"};
-const static char* sdnr[7] = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"};
-const static char* sdne[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-const static char* smnr[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-const static char* smne[12] = {"January", "February ", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+const char* const sprcr[] PROGMEM = {sprcr_0, sprcr_1, sprcr_2, sprcr_3, sprcr_4, sprcr_5};
 
+const char sdnr_1[] PROGMEM = "воскресенье";
+const char sdnr_2[] PROGMEM = "понедельник";
+const char sdnr_3[] PROGMEM = "вторник";
+const char sdnr_4[] PROGMEM = "среда";
+const char sdnr_5[] PROGMEM = "четверг";
+const char sdnr_6[] PROGMEM = "пятница";
+const char sdnr_7[] PROGMEM = "суббота";
 
-#define CLK 11  // MUST be on PORTB! (Use pin 11 on Mega)
-#define LAT 10
-#define OE  9
-#define A   A0
-#define B   A1
-#define C   A2
-#define D   A3
+const char* const sdnr[] PROGMEM = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
 
-RGBmatrixPanel *matrix;
+const char sdne_1[] PROGMEM = "Sunday";
+const char sdne_2[] PROGMEM = "Monday";
+const char sdne_3[] PROGMEM = "Tuesday";
+const char sdne_4[] PROGMEM = "Wednesday";
+const char sdne_5[] PROGMEM = "Thursday";
+const char sdne_6[] PROGMEM = "Friday";
+const char sdne_7[] PROGMEM = "Saturday";
+
+const char* const sdne[] PROGMEM = {sdne_1, sdne_2, sdne_3, sdne_4, sdne_5, sdne_6, sdne_7};
+
+const char smnr_01[] PROGMEM = "января";
+const char smnr_02[] PROGMEM = "февраля";
+const char smnr_03[] PROGMEM = "марта";
+const char smnr_04[] PROGMEM = "апреля";
+const char smnr_05[] PROGMEM = "мая";
+const char smnr_06[] PROGMEM = "июня";
+const char smnr_07[] PROGMEM = "июля";
+const char smnr_08[] PROGMEM = "августа";
+const char smnr_09[] PROGMEM = "сентября";
+const char smnr_10[] PROGMEM = "октября";
+const char smnr_11[] PROGMEM = "ноября";
+const char smnr_12[] PROGMEM = "декабря";
+
+const char* const smnr[] PROGMEM = {smnr_01, smnr_02, smnr_03, smnr_04, smnr_05, smnr_06, smnr_07, smnr_08, smnr_09, smnr_10, smnr_11, smnr_12};
+
+const char smne_01[] PROGMEM = "January";
+const char smne_02[] PROGMEM = "February";
+const char smne_03[] PROGMEM = "March";
+const char smne_04[] PROGMEM = "April";
+const char smne_05[] PROGMEM = "May";
+const char smne_06[] PROGMEM = "June";
+const char smne_07[] PROGMEM = "July";
+const char smne_08[] PROGMEM = "August";
+const char smne_09[] PROGMEM = "September";
+const char smne_10[] PROGMEM = "October";
+const char smne_11[] PROGMEM = "November";
+const char smne_12[] PROGMEM = "December";
+
+const char* const smne[] PROGMEM = {smne_01, smne_02, smne_03, smne_04, smne_05, smne_06, smne_07, smne_08, smne_09, smne_10, smne_11, smne_12};
+
+static const int     CLK  PROGMEM = 11; // MUST be on PORTB! (Use pin 11 on Mega)
+static const int     LAT  PROGMEM = 10;
+static const int      OE  PROGMEM =  9;
+static const int       A  PROGMEM = A0;
+static const int       B  PROGMEM = A1;
+static const int       C  PROGMEM = A2;
+static const int       D  PROGMEM = A3;
+
+static const int ANA_SNR  PROGMEM = A4; // Пин фоторезистора
+static const int DHT_PIN  PROGMEM = A9; // Пин DHT22
+
+static const int uart_pin PROGMEM = 2;
+
+RGBmatrixPanel *m3216;
 
 //-------------------------------------------------------Sensor
 
-SNR sens;
+static SNR sens;
+
 
 //--------------------------------------------------- Common
 
-SF fsys;
-FD f_dsp;
+static SF fsys;
+static FD f_dsp;
 
-RtcDS3231<TwoWire> DS3231(Wire);       // Конструктор DS3231
+static BH1750 lightMeter;
 
-uint8_t       cur_br = 255;
-bool          inc_st;
-bool          web_ap = false;
+static Synt Buzz;               //Конструктор пищалки
+
+snr_data_t snr_data;
+wf_data_t wf_data;
+wf_data_t wf_data_cur;
+snr_data_t es_data;
+
+conf_data_t conf_data;
+ram_data_t ram_data;
+
+rtc_data_t rtc_data;
+
+
+uint16_t _weekday = 1, _month = 7, _day = 20, _year = 1975; //костыль
+
+
+//-------------------------------------------------------m3216
+
+const uint8_t q_dig = 6;  // количество цифр на дисплее
+
+bool end_run_st = true, end_run_st_buf, m32_8time_act = false, blinkColon = false;
+
+String st1 = "Starting....";
+
+byte screen[64]; // display buffer
+
+long irq_end [5];
+
+char songBuff[240];
+bool play_snd = false, nm_is_on = false, disp_on = true;
+
+uint8_t       cur_br = 255, debug_level = 0;
