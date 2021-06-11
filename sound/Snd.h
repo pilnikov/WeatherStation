@@ -31,12 +31,12 @@ class Synt
     void beep(uint8_t, bool);
   private:
     void soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola);
-    char *p;    
-	unsigned long dela = millis();
-	uint8_t default_dur = 4, default_oct = 6;
-	int bpm = 63, num;
-	long wholenote, duration;
-	byte note, scale, ddu;
+    char *p;
+    unsigned long dela = millis();
+    uint8_t default_dur = 4, default_oct = 6;
+    int bpm = 63, num;
+    long wholenote, duration;
+    byte note, scale, ddu;
     long wn;
     bool set_up = false, is_played = false;
   protected:

@@ -67,23 +67,23 @@ const char sprcr_5[] PROGMEM = "без осадков";
 
 const char* const sprcr[] PROGMEM = {sprcr_0, sprcr_1, sprcr_2, sprcr_3, sprcr_4, sprcr_5};
 
-const char sdnr_1[] PROGMEM = "воскресенье";
-const char sdnr_2[] PROGMEM = "понедельник";
-const char sdnr_3[] PROGMEM = "вторник";
-const char sdnr_4[] PROGMEM = "среда";
-const char sdnr_5[] PROGMEM = "четверг";
-const char sdnr_6[] PROGMEM = "пятница";
-const char sdnr_7[] PROGMEM = "суббота";
+const char sdnr_1[] PROGMEM = "понедельник";
+const char sdnr_2[] PROGMEM = "вторник";
+const char sdnr_3[] PROGMEM = "среда";
+const char sdnr_4[] PROGMEM = "четверг";
+const char sdnr_5[] PROGMEM = "пятница";
+const char sdnr_6[] PROGMEM = "суббота";
+const char sdnr_7[] PROGMEM = "воскресенье";
 
 const char* const sdnr[] PROGMEM = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
 
-const char sdne_1[] PROGMEM = "Sunday";
-const char sdne_2[] PROGMEM = "Monday";
-const char sdne_3[] PROGMEM = "Tuesday";
-const char sdne_4[] PROGMEM = "Wednesday";
-const char sdne_5[] PROGMEM = "Thursday";
-const char sdne_6[] PROGMEM = "Friday";
-const char sdne_7[] PROGMEM = "Saturday";
+const char sdne_1[] PROGMEM = "Monday";
+const char sdne_2[] PROGMEM = "Tuesday";
+const char sdne_3[] PROGMEM = "Wednesday";
+const char sdne_4[] PROGMEM = "Thursday";
+const char sdne_5[] PROGMEM = "Friday";
+const char sdne_6[] PROGMEM = "Saturday";
+const char sdne_7[] PROGMEM = "Sunday";
 
 const char* const sdne[] PROGMEM = {sdne_1, sdne_2, sdne_3, sdne_4, sdne_5, sdne_6, sdne_7};
 

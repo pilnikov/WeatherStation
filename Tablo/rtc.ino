@@ -124,7 +124,7 @@ void set_alarm() //Устанавливаем будильник
 
   for (uint8_t j = 0; j <= 6; j++) //Ищем ближайший актуальный будильник
   {
-    bool snday = (_weekday > 6 || _weekday < 2); //Сегодня выходной
+    bool snday = (_weekday == 6 || _weekday == 0); //Сегодня выходной
     if (conf_data.alarms[j][0] > 0 //будильник актививен
         && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || (conf_data.alarms[j][0] == 3 && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
         && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] > (uint16_t)hour() * 60 + minute()                 //минут будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
@@ -138,7 +138,7 @@ void set_alarm() //Устанавливаем будильник
       rtc_data.alarm = true;
     }
     //----------------------------------------------------------------------поиск самого раннего будильника
-    snday = ((_weekday + 1) > 6); //А не выходной ли завтра?
+    snday = ((_weekday + 1) > 5); //А не выходной ли завтра?
     if (conf_data.alarms[j][0] > 0 //будильник актививен
         & ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || ((conf_data.alarms[j][0] == 3) & snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
         & ((uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] < amin)

@@ -18,6 +18,8 @@
 
 #define OCTAVE_OFFSET 0
 #define isdigit(n) (n >= '0' && n <= '9')
+#define cp(a) (pgm_read_byte(a))
+
 
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
@@ -27,18 +29,16 @@
 class Synt
 {
   public:
-    void play(char*, uint8_t, bool, bool);
+    bool play(uint16_t, uint8_t, bool, bool);
     void beep(uint8_t, bool);
   private:
     void soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola);
-    char *p;    
-	unsigned long dela = millis();
-	uint8_t default_dur = 4, default_oct = 6;
-	int bpm = 63, num;
-	long wholenote, duration;
-	byte note, scale, ddu;
-    long wn;
-    bool set_up = false, is_played = false;
+	uint16_t p, _tone;
+	unsigned long dela = 0, dela2 = 0;
+	int num = 0;
+	long duration, wn;
+	byte note, scale, ddu, doc;
+	bool is_played = false, tone_act = false;
   protected:
 };
 
