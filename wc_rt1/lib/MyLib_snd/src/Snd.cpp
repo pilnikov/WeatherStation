@@ -41,8 +41,11 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
     digitalWrite(out, pola ? HIGH : LOW);
   }
 }
-
+#if defined(ESP8266)
+bool Synt::play(const void* _ptr, uint8_t out, bool set_up, bool pola)
+#elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
 bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
+#endif
 {
   static const uint16_t notes[] PROGMEM =
   { 0,
@@ -52,16 +55,17 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
     NOTE_C7, NOTE_CS7, NOTE_D7, NOTE_DS7, NOTE_E7, NOTE_F7, NOTE_FS7, NOTE_G7, NOTE_GS7, NOTE_A7, NOTE_AS7, NOTE_B7
   };
 
+  int num = 0;
+
 
   if (cp(_ptr) != ':') return false;
- 
+
   //setup sections (run once, before playin song)
   if (set_up)
   {
     uint8_t default_dur = 4, default_oct = 6;
     int bpm = 63;
-    long wholenote = 0;
-	char flag;
+    char flag = ' ';
 
     p = _ptr;
 
@@ -72,11 +76,11 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
     while (!isdigit(cp(p))) p++; // find value of d, skip "=,"
 
     num = 0;
-    while (isdigit(cp(p))) 
-	{
-		num = (num * 10 + cp(p) - '0');// parce the value
-		p++;
-	}	
+    while (isdigit(cp(p)))
+    {
+      num = (num * 10 + cp(p) - '0');// parce the value
+      p++;
+    }
     if ((num > -1) & (flag == 'd')) default_dur = num; // accept d dur
 
 
@@ -98,161 +102,149 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
     while (!isdigit(cp(p))) p++; // find value of b, skip "=,"
 
     num = 0;
-    while (isdigit(cp(p))) 
-	{
-		num = (num * 10 + cp(p) - '0'); // parce the value
-		p++;
-	}
-	if (flag == 'b') bpm = num; // accept BPM
+    while (isdigit(cp(p)))
+    {
+      num = (num * 10 + cp(p) - '0'); // parce the value
+      p++;
+    }
+    if (flag == 'b') bpm = num; // accept BPM
+    p++;
 
     // BPM usually expresses the number of quarter notes per minute
-    wholenote = (60 * 1000L / bpm) * 4;  // this is the time for whole note (in milliseconds)
+    wn = (60 * 1000L / bpm) * 4;  // this is the time for whole note (in milliseconds)
 
-    wn = wholenote;
     ddu = default_dur;
     doc = default_oct;
 
     is_played = true;
 
     dela = 0;
-    dela2 = 0;
   }// End setup sections
 
-  if (is_played)                // now begin note loop
+  if (is_played & (millis() > dela))              // now begin note loop
   {
-    Serial.print("Dela  ");
-	Serial.println(dela, 10);
-	Serial.print("dela2  ");
-	Serial.println(dela2,10);
+      byte note = 0, scale = doc;
+	  long duration = wn / ddu; // we will need to check if we are a dotted note after
+	  
+	  // first, get note duration, if available
+      num = 0;
 
-	
-	if (millis() > dela2)
-    {
-      if (millis() > dela)
+      while (isdigit(cp(p)))
       {
-        
-        // first, get note duration, if available
-        num = 0;
-
-        while (isdigit(cp(p))) 
-		{
-			num = num * 10 + cp(p) - '0';
-			p++;
-		}
-        duration = wn / ddu;          // we will need to check if we are a dotted note after
-
-        if (num > -1) duration = wn / num; // now get the note
-
-
-        note = 0;
-
-        switch (cp(p))
-        {
-          case 'c':
-            note = 1;
-            break;
-          case 'd':
-            note = 3;
-            break;
-          case 'e':
-            note = 5;
-            break;
-          case 'f':
-            note = 6;
-            break;
-          case 'g':
-            note = 8;
-            break;
-          case 'a':
-            note = 10;
-            break;
-          case 'b':
-            note = 12;
-            break;
-          case 'p':
-          default:
-            note = 0;
-        }
-
+        num = num * 10 + cp(p) - '0';
         p++;
-
-        // now, get optional '#' sharp
-        if (cp(p) == '#')
-        {
-          note++;
-          p++;
-        }
-
-        // now, get optional '.' dotted note
-        if (cp(p) == '.')
-        {
-          duration += duration / 2;
-          p++;
-        }
-
-        // now, get scale
-
-        num = 0;
-
-        while (isdigit(cp(p)))
-		{
-			num = num * 10 + cp(p) - '0';
-			p++;
-		}
-        scale = doc;
-
-        if (num > -1) scale = num;
-
-        scale += OCTAVE_OFFSET;
-		Serial.print("Scale ");
-		Serial.println(scale, 10);
-
-        if (cp(p) == ',') p++;       // skip comma for next note (or we may be at the end)
-
-        if (note) // now play the note //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        {
-			_tone = pgm_read_word_near(&notes[(scale - 4) * 12 + note]);
-
-			#if !defined(ESP32)
-				tone(out, _tone);
-			#else
-				ledcWriteTone(out, _tone);
-			#endif
-			tone_act = true;
-			dela2 = millis() + duration;
-
-			if (millis() > dela2)
-			{
-				tone_act = false;
-				#if !defined(ESP32)
-					noTone(out);
-				#else
-					ledcWriteTone(out, 0);
-				#endif
-			}
-        }
-        else dela = millis() + duration;
       }
-    }
-    if (tone_act) 
-	{
-		#if !defined(ESP32)
-			tone(out, _tone);
-		#else
-			ledcWriteTone(out, _tone);
-		#endif
-	}	
+      if (num > 0) duration = wn / num; // now get the note
 
-    if (cp(p) == 'x')
-    {
-		#if !defined(ESP32)
-			noTone(out);
-		#else
-			ledcWriteTone(out, 0);
-		#endif
+      switch (cp(p))
+      {
+        case 'c':
+          note = 1;
+          break;
+        case 'd':
+          note = 3;
+          break;
+        case 'e':
+          note = 5;
+          break;
+        case 'f':
+          note = 6;
+          break;
+        case 'g':
+          note = 8;
+          break;
+        case 'a':
+          note = 10;
+          break;
+        case 'b':
+          note = 12;
+          break;
+        case 'p':
+        default:
+          note = 0;
+      }
+
+      p++;
+
+      // now, get optional '#' sharp
+      if (cp(p) == '#')
+      {
+        note++;
+        p++;
+      }
+
+      // now, get optional '.' dotted note
+      if (cp(p) == '.')
+      {
+        duration += duration / 2;
+        p++;
+      }
+
+      // now, get scale
+
+      num = 0;
+
+      while (isdigit(cp(p)))
+      {
+        num = num * 10 + cp(p) - '0';
+        p++;
+      }
+      if (num > 3) scale = num;
+
+      scale += OCTAVE_OFFSET;
+
+      if (cp(p) == ',') p++;       // skip comma for next note (or we may be at the end)
+
+      if (note) // now play the note //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      {
+        uint16_t _tone = pgm_read_word_near(&notes[(scale - 4) * 12 + note]);
+#ifdef _debug
+        DBG_OUT_PORT.print("Playing: ");  //  "Проигрывание: "
+        DBG_OUT_PORT.print(scale, 10); Serial.print(' ');
+        DBG_OUT_PORT.print(note, 10); Serial.print(" (");
+        DBG_OUT_PORT.print(_tone, 10);
+        DBG_OUT_PORT.print(") ");
+        DBG_OUT_PORT.println(duration, 10);
+#endif
+#if !defined(ESP32)
+        tone(out, _tone);
+#else
+        ledcWriteTone(out, _tone);
+#endif
+        dela = millis() + duration;
+        //delay(duration);
+        if (millis() > dela)
+        {
+#if !defined(ESP32)
+          noTone(out);
+#else
+          ledcWriteTone(out, 0);
+#endif
+        }
+      }
+      else
+      {
+        dela = millis() + duration;
+#ifdef _debug
+        DBG_OUT_PORT.print("Pausing: ");  //  "Пауза:"
+        DBG_OUT_PORT.println(duration, 10);
+#endif
+#if !defined(ESP32)
+        noTone(out);
+#else
+        ledcWriteTone(out, 0);
+#endif
+      }
+	  if (cp(p) == 'x')
+	  {
+#if !defined(ESP32)
+		noTone(out);
+#else
+		ledcWriteTone(out, 0);
+#endif
 		is_played = false; //End of playing
 		digitalWrite(out, pola ? HIGH : LOW);
-    }
-  }
+	  }
+	}
   return is_played;
-}
+}  

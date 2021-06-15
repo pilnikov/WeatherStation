@@ -29,16 +29,24 @@
 class Synt
 {
   public:
+#if defined(ESP8266)
+    bool play(const void*, uint8_t, bool, bool);
+#elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
     bool play(uint16_t, uint8_t, bool, bool);
+#endif
     void beep(uint8_t, bool);
   private:
-    void soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola);
-	uint16_t p, _tone;
-	unsigned long dela = 0, dela2 = 0;
-	int num = 0;
-	long duration, wn;
-	byte note, scale, ddu, doc;
-	bool is_played = false, tone_act = false;
+   void soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola);
+
+#if defined(ESP8266)
+	const void* p;
+#elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
+	uint16_t p;
+#endif
+	unsigned long dela = 0;
+	long wn;
+	byte ddu, doc;
+	bool is_played = false;
   protected:
 };
 
