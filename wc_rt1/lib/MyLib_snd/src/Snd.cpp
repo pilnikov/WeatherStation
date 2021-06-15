@@ -77,7 +77,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 		num = (num * 10 + cp(p) - '0');// parce the value
 		p++;
 	}	
-    if ( num & (flag == 'd')) default_dur = num; // accept d dur
+    if ((num > -1) & (flag == 'd')) default_dur = num; // accept d dur
 
 
     // get default octave --------------------------------
@@ -88,7 +88,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 
     num = 0;
     while (isdigit(cp(p))) num = num * 10 + cp(p++) - '0'; // parce the value
-    if ((num) & (flag == 'o')) default_oct = num; // accept d octave
+    if ((num > -1) & (flag == 'o')) default_oct = num; // accept d octave
 
     // get BPM --------------------------------------------
     while (cp(p) != 'b') p++; // find 'b', skip ":"
@@ -141,7 +141,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 		}
         duration = wn / ddu;          // we will need to check if we are a dotted note after
 
-        if (num) duration = wn / num; // now get the note
+        if (num > -1) duration = wn / num; // now get the note
 
 
         note = 0;
@@ -201,7 +201,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 		}
         scale = doc;
 
-        if (num) scale = num;
+        if (num > -1) scale = num;
 
         scale += OCTAVE_OFFSET;
 		Serial.print("Scale ");

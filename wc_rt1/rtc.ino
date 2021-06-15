@@ -340,7 +340,6 @@ bool Alarmed()
     {
       case 0:
         rtc_data.a_muz = conf_data.alarms[rtc_data.n_cur_alm][3];
-        copyFromPGM(&songs[rtc_data.a_muz], songBuff);
         play_snd = true;
         break;
 
@@ -416,7 +415,6 @@ bool Alarmed()
     if (conf_data.every_hour_beep & !nm_is_on)
     {
       rtc_data.a_muz = 15;
-      copyFromPGM(&songs[rtc_data.a_muz], songBuff);
       play_snd = true;
     }
   }

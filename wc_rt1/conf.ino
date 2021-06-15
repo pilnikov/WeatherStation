@@ -4,7 +4,11 @@ conf_data_t loadConfig(const char *filename)
 {
   conf_data_t data;
 
+#if defined(ESP8266)
   File file = LittleFS.open(filename, "r");
+#elif defined(ARDUINO_ARCH_ESP32)
+  File file = LITTLEFS.open(filename, "r");
+#endif
 
   if (!file)
   {
@@ -257,10 +261,13 @@ void saveConfig(const char *filename, conf_data_t data)
   alarms["6"] = al6;
 
   // Delete existing file, otherwise the configuration is appended to the file
+#if defined(ESP8266)
   LittleFS.remove(filename);
-
   File configFile = LittleFS.open(filename, "w"); //Open config file for writing
-
+#elif defined(ARDUINO_ARCH_ESP32)
+  LITTLEFS.remove(filename);
+  File configFile = LITTLEFS.open(filename, "w"); //Open config file for writing
+#endif
   if (!configFile)
   {
     DBG_OUT_PORT.println(F("Failed to open config file for writing"));
@@ -362,8 +369,7 @@ conf_data_t loadConfig(const char *filename)
 
   EEPROM.get(0, _data);           // прочитали из адреса 0
 
-  _data.type_vdrv        = 3;
-  _data.type_disp        = 23;
+  _data.led_pola         = true;
 
   return _data;
 }
@@ -384,9 +390,9 @@ conf_data_t first_use()
   strncpy(data.esrv2_addr, "192.168.1.200", 17);
   strncpy(data.radio_addr, "192.168.1.33", 17);
   strncpy(data.owm_key,    " ", 35);
-  strncpy(data.ch1_name,   "Внутри",  17);
-  strncpy(data.ch2_name,   "Снаружи", 17);
-  strncpy(data.ch3_name,   "В бане",  17);
+  strncpy(data.ch1_name,   "Дома",  17);
+  strncpy(data.ch2_name,   "На улице", 17);
+  strncpy(data.ch3_name,   "В подполе",  17);
 
 
   data.auto_corr        = true;
@@ -407,9 +413,9 @@ conf_data_t first_use()
   data.time_zone        = 5;
   data.type_vdrv        = 1;
   data.type_disp        = 1;
-  data.type_snr1        = 6;
-  data.type_snr2        = 10;
-  data.type_snr3        = 4;
+  data.type_snr1        = 4;
+  data.type_snr2        = 6;
+  data.type_snr3        = 10;
   data.type_snrp        = 10;
   data.type_rtc         = 1;
   data.type_thermo      = 0;

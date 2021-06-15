@@ -17,7 +17,7 @@
 #if defined(ARDUINO_ARCH_ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "ESP32RGBmatrixPanel.h"
+#include <RGBmatrixPanel.h>
 #include "fonts.h"
 #endif
 
@@ -206,20 +206,11 @@ static HT1632C * m1632;
 
 //---------------------------------------------------------------------------Matrix
 #if defined(ARDUINO_ARCH_ESP32)
-static ESP32RGBmatrixPanel * m3264;
+static RGBmatrixPanel * m3216;
 #endif
 
 #if defined(__AVR_ATmega2560__)
-static RGBmatrixPanel *m3216;
-
-#define CLK 11  // MUST be on PORTB! (Use pin 11 on Mega)
-#define LAT 10
-#define OE  9
-#define A   A0
-#define B   A1
-#define C   A2
-#define D   A3
-
+static RGBmatrixPanel * m3216;
 #endif
 
 

@@ -238,20 +238,16 @@ void firq9() //0.04 sec running string is out switch to time view
   {
 #if defined(ARDUINO_ARCH_ESP32)
 
-    m3264 -> setBrightness(cur_br);
     int pos = 32;
-    m3264 -> setTextSize(1);
+    m3216 -> setTextSize(1);
     int colors[3];
     while (pos > -450)
     {
-      m3264 -> black();
-      m3264 -> setCursor(pos, 1);
+      m3216 -> setCursor(pos, 1);
       getRGB(abs(pos) % 255, 255, 255, colors);
-      m3264 -> setTextColor(m3264 -> AdafruitColor(colors[0], colors[1], colors[2]));
-      m3264 -> print(st1);
+      m3216 -> print(st1);
       pos -= 1;
       vTaskDelay(10);
-      m3264 -> update();
     }
 
 #endif

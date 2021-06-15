@@ -363,9 +363,7 @@ void handleSetPars1()
   serv_ms = millis();
 
   if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-  if (conf_data.use_pp == 2) {
-    wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
-  }
+  if (conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor
@@ -450,7 +448,7 @@ void handlejParc()
   json["sndpol"] = conf_data.snd_pola;
   json["ledpol"] = conf_data.led_pola;
   json["trts"] = conf_data.type_rtc;
- 
+
   json["sda"] = conf_data.gpio_sda;
   json["scl"] = conf_data.gpio_scl;
   json["dio"] = conf_data.gpio_dio;
@@ -541,7 +539,7 @@ void handleSetAlarm()
   if (debug_level == 14)
   {
     DBG_OUT_PORT.print(rtc_data.a_num); DBG_OUT_PORT.print(F(" alarm is...."));
-    for (int n = 0; n <= 4; n++) 
+    for (int n = 0; n <= 4; n++)
     {
       DBG_OUT_PORT.print(conf_data.alarms[rtc_data.a_num][n]); DBG_OUT_PORT.print(F(","));
     }
@@ -650,6 +648,7 @@ bool handleFileRead(String path)
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
+ #if defined(ESP8266)
   if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
     if (LittleFS.exists(pathWithGz))
       path += ".gz";
@@ -658,6 +657,16 @@ bool handleFileRead(String path)
     file.close();
     return true;
   }
+#elif defined(ARDUINO_ARCH_ESP32)
+  if (LITTLEFS.exists(pathWithGz) || LITTLEFS.exists(path)) {
+    if (LITTLEFS.exists(pathWithGz))
+      path += ".gz";
+    File file = LITTLEFS.open(path, "r");
+    size_t sent = server.streamFile(file, contentType);
+    file.close();
+    return true;
+  }
+#endif
   return false;
 }
 
@@ -669,7 +678,11 @@ void handleFileUpload()
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
     DBG_OUT_PORT.print(F("handleFileUpload Name: ")); DBG_OUT_PORT.println(filename);
+#if defined(ESP8266)
     fsUploadFile = LittleFS.open(filename, "w");
+#elif defined(ARDUINO_ARCH_ESP32)
+    fsUploadFile = LITTLEFS.open(filename, "w");
+#endif
     filename = String();
   }
   else if (upload.status == UPLOAD_FILE_WRITE) {
@@ -692,9 +705,15 @@ void handleFileDelete()
   DBG_OUT_PORT.println("handleFileDelete: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
+#if defined(ESP8266)
   if (!LittleFS.exists(path))
     return server.send(404, "text/plain", "FileNotFound");
   LittleFS.remove(path);
+#elif defined(ARDUINO_ARCH_ESP32)
+  if (!LITTLEFS.exists(path))
+    return server.send(404, "text/plain", "FileNotFound");
+  LITTLEFS.remove(path);
+#endif
   server.send(200, "text/plain", "");
   path = String();
   serv_ms = millis();
@@ -708,9 +727,16 @@ void handleFileCreate()
   DBG_OUT_PORT.println("handleFileCreate: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
+#if defined(ESP8266)
   if (LittleFS.exists(path))
     return server.send(500, "text/plain", "FILE EXISTS");
   File file = LittleFS.open(path, "w");
+#elif defined(ARDUINO_ARCH_ESP32)
+  if (LITTLEFS.exists(path))
+    return server.send(500, "text/plain", "FILE EXISTS");
+  File file = LITTLEFS.open(path, "w");
+#endif
+
   if (file)
     file.close();
   else
@@ -750,14 +776,12 @@ void handleFileList()
 
 #if defined(ARDUINO_ARCH_ESP32)
 
-  File root = LittleFS.open(path);
+  File root = LITTLEFS.open(path);
   String output = "[";
   if (root.isDirectory()) {
     File file = root.openNextFile();
     while (file) {
-      if (output != "[") {
-        output += ',';
-      }
+      if (output != "[") output += ',';
       output += "{\"type\":\"";
       output += (file.isDirectory()) ? "dir" : "file";
       output += "\",\"name\":\"";

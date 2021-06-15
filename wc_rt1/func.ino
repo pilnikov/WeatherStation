@@ -56,7 +56,7 @@ void GetSnr()
 #endif
 }
 
-#if defined(__AVR_ATmega2560__)
+#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
 
 // функция копирования из PROGMEM
 void copyFromPGM(const char* const* charMap, char * _buf)
@@ -66,15 +66,17 @@ void copyFromPGM(const char* const* charMap, char * _buf)
   do
   {
     _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
-  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
+  } while (_buf[i++] > 0);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
 }
+#endif
 
+
+#if defined(__AVR_ATmega2560__)
 void(* resetFunc) (void) = 0; //Programm reset
 #endif
 
 
-# if defined(__xtensa__)
-
+#if defined(ESP8266)
 // функция копирования из PROGMEM
 void copyFromPGM(const void* charMap, char * _buf)
 {
@@ -83,9 +85,11 @@ void copyFromPGM(const void* charMap, char * _buf)
   do
   {
     _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
-  } while (_buf[i++] != NULL);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
+  } while (_buf[i++] > 0);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
 }
+#endif
 
+# if defined(__xtensa__)
 
 //------------------------------------------------------  Делаем запрос данных с Gismeteo
 String gs_rcv(unsigned long city_id)
@@ -621,7 +625,11 @@ void Thermo()
 
 void printFile(const char* filename) {
   // Open file for reading
+#if defined(ESP8266)
   File file = LittleFS.open(filename, "r");
+#elif defined(ARDUINO_ARCH_ESP32)
+  File file = LITTLEFS.open(filename, "r");
+#endif
 
   if (!file)
   {
@@ -640,6 +648,7 @@ void printFile(const char* filename) {
 
 void fs_setup()
 {
+#if defined(ESP8266)
   if (!LittleFS.begin())
   {
     DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
@@ -647,7 +656,6 @@ void fs_setup()
   }
   else
   {
-#if defined(ESP8266)
     Dir dir = LittleFS.openDir("/");
     while (dir.next())
     {
@@ -655,29 +663,33 @@ void fs_setup()
       size_t fileSize = dir.fileSize();
       DBG_OUT_PORT.printf(" FS File: %s, size: %s\n", fileName.c_str(), fsys.formatBytes(fileSize).c_str());
     }
-#endif
+  }
+#elif defined(ARDUINO_ARCH_ESP32)
 
-#if defined(ARDUINO_ARCH_ESP32)
-
-    File root = LittleFS.open("/");
+  if (!LITTLEFS.begin())
+  {
+    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
+    LITTLEFS.format();
+  }
+  else
+  {
+    File root = LITTLEFS.open("/");
 
     String output = "[";
     if (root.isDirectory()) {
       File file = root.openNextFile();
       while (file) {
-        if (output != "[") {
-          output += ',';
-        }
+        if (output != "[") output += ',';
         output += "{\"type\":\"";
         output += (file.isDirectory()) ? "dir" : "file";
         output += "\",\"name\":\"";
-        output += String(file.name()).substring(1);
+        output += String(file.name());
         output += "\"}";
         file = root.openNextFile();
       }
       DBG_OUT_PORT.println(output);
     }
-# endif
   }
+# endif
 }
 #endif

@@ -204,7 +204,6 @@ void setup()
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_data.a_muz = 15;
-  copyFromPGM(&songs[rtc_data.a_muz], songBuff);
   play_snd = true;
 
   DBG_OUT_PORT.println(F("End of setup"));
@@ -215,22 +214,11 @@ void loop()
 
   // ----------------------------------------------------- Проигрываем звуки
 
-  if  (play_snd)
-  {
-    char* _ptr = songBuff;
-    if (*_ptr == ':')
-    {
-      while (*_ptr != NULL)
-      {
-        DBG_OUT_PORT.print(*_ptr);
-        _ptr++;
-      }
-      DBG_OUT_PORT.println();
-
-    }
-    else   DBG_OUT_PORT.print(F("\n wrong buffer..."));
-  }
-  Buzz.play(songBuff, conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
+#if defined(ESP8266)
+  Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
+#elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
+  Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
+#endif
   play_snd = false;
 
 

@@ -167,6 +167,7 @@
 #include <ESPAsyncTCP.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
+#include <LittleFS.h>
 #include <ArduinoOTA.h>
 
 //#include "..\lib\MyLib_hw\src\hw.h"
@@ -184,12 +185,12 @@
 #include <WebServer.h>
 #include <Update.h>
 #include <ESP32SSDP.h>
+#include <LITTLEFS.h>
 //#include <IRremote.h>
 
 #include <ArduinoOTA.h>
 
 //#include "..\lib\MyLib_nf\src\Netwf.h"
-
 #endif
 
 
@@ -203,7 +204,6 @@
 #include "Netwf.h"
 #include <FS.h>
 #include <WiFiUdp.h>
-#include <LittleFS.h>
 #endif
 /*
   #include "..\lib\MyLib_sf2\src\Sysf2.h"
@@ -249,7 +249,16 @@ static const int         DHT_PIN  PROGMEM = 0;   // Пин DHT22
 #if defined(ARDUINO_ARCH_ESP32)
 static const int        BUZ2_PIN  PROGMEM =  32;  // Пин пищалки 2
 static const int         ANA_SNR  PROGMEM =  35;  // Пин фоторезистора
-static const int         DHT_PIN  PROGMEM =  34;   // Пин DHT22
+static const int         DHT_PIN  PROGMEM =  34;  // Пин DHT22
+
+static const int           A_PIN  PROGMEM =   2;  // Пин A
+static const int           B_PIN  PROGMEM =  16;  // Пин B
+static const int           C_PIN  PROGMEM =  14;  // Пин C
+static const int           D_PIN  PROGMEM =  13;  // Пин D
+
+static const int         CLK_PIN  PROGMEM =  14;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+static const int         LAT_PIN  PROGMEM =  27;  // Пин LAT
+static const int          OE_PIN  PROGMEM =  32;  // Пин OE
 #endif
 
 
@@ -257,6 +266,16 @@ static const int         DHT_PIN  PROGMEM =  34;   // Пин DHT22
 static const int        BUZ2_PIN  PROGMEM =  A10; // Пин пищалки 2
 static const int         ANA_SNR  PROGMEM =  A4;  // Пин фоторезистора
 static const int         DHT_PIN  PROGMEM =  A9;  // Пин DHT22
+
+static const int           A_PIN  PROGMEM =  A0;  // Пин A
+static const int           B_PIN  PROGMEM =  A1;  // Пин B
+static const int           C_PIN  PROGMEM =  A2;  // Пин C
+static const int           D_PIN  PROGMEM =  A3;  // Пин D
+
+static const int         CLK_PIN  PROGMEM =  11;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+static const int         LAT_PIN  PROGMEM =  10;  // Пин LAT
+static const int          OE_PIN  PROGMEM =   9;  // Пин OE
+
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
@@ -409,12 +428,6 @@ uint8_t            hour_cnt  = 0;
 uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
 uint16_t         cur_br_buf  = 0;
-
-#if defined(__AVR_ATmega2560__)
-char                   songBuff[100];
-#elif defined(__xtensa__)
-char                   songBuff[500];
-#endif
 
 uint8_t         debug_level  = 0; // 0 - отключен
 
