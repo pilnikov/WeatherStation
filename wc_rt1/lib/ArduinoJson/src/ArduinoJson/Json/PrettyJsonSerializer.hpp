@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -16,11 +16,10 @@ class PrettyJsonSerializer : public JsonSerializer<TWriter> {
   typedef JsonSerializer<TWriter> base;
 
  public:
-  PrettyJsonSerializer(TWriter &writer) : base(writer), _nesting(0) {}
+  PrettyJsonSerializer(TWriter writer) : base(writer), _nesting(0) {}
 
   size_t visitArray(const CollectionData &array) {
     VariantSlot *slot = array.head();
-<<<<<<< HEAD
     if (slot) {
       base::write("[\r\n");
       _nesting++;
@@ -32,14 +31,6 @@ class PrettyJsonSerializer : public JsonSerializer<TWriter> {
         base::write(slot ? ",\r\n" : "\r\n");
       }
       _nesting--;
-=======
-    if (!slot)
-      return base::write("[]");
-
-    base::write("[\r\n");
-    _nesting++;
-    while (slot != 0) {
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
       indent();
       base::write("]");
     } else {
@@ -50,7 +41,6 @@ class PrettyJsonSerializer : public JsonSerializer<TWriter> {
 
   size_t visitObject(const CollectionData &object) {
     VariantSlot *slot = object.head();
-<<<<<<< HEAD
     if (slot) {
       base::write("{\r\n");
       _nesting++;
@@ -64,14 +54,6 @@ class PrettyJsonSerializer : public JsonSerializer<TWriter> {
         base::write(slot ? ",\r\n" : "\r\n");
       }
       _nesting--;
-=======
-    if (!slot)
-      return base::write("{}");
-
-    base::write("{\r\n");
-    _nesting++;
-    while (slot != 0) {
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
       indent();
       base::write("}");
     } else {

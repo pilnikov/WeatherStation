@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -33,14 +33,7 @@ class StringMover {
     return _startPtr;
   }
 
-<<<<<<< HEAD
   typedef storage_policies::store_by_address storage_policy;
-=======
-  // recover memory from last string
-  void reclaim(const char* str) {
-    _ptr = const_cast<char*>(str);
-  }
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
  private:
   char* _writePtr;

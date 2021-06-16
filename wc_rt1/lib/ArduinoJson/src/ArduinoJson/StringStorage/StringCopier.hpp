@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -47,19 +47,12 @@ class StringCopier {
     return _ptr != 0;
   }
 
-<<<<<<< HEAD
   const char* c_str() {
     return _ptr;
   }
 
   typedef storage_policies::store_by_copy storage_policy;
 
-=======
-  void reclaim(const char* s) {
-    _pool->reclaimLastString(s);
-  }
-
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
  private:
   MemoryPool* _pool;
   char* _ptr;

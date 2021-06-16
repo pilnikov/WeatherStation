@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -16,19 +16,8 @@ class ArduinoStringAdapter {
  public:
   ArduinoStringAdapter(const ::String& str) : _str(&str) {}
 
-<<<<<<< HEAD
   void copyTo(char* p, size_t n) const {
     memcpy(p, _str->c_str(), n);
-=======
-  char* save(MemoryPool* pool) const {
-    if (isNull())
-      return NULL;
-    size_t n = _str->length() + 1;
-    char* dup = pool->allocFrozenString(n);
-    if (dup)
-      memcpy(dup, _str->c_str(), n);
-    return dup;
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   }
 
   bool isNull() const {
@@ -50,13 +39,9 @@ class ArduinoStringAdapter {
     return _str->length();
   }
 
-<<<<<<< HEAD
   const char* begin() const {
     return _str->c_str();
   }
-=======
-  typedef storage_policy::store_by_copy storage_policy;
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
   typedef storage_policies::store_by_copy storage_policy;
 

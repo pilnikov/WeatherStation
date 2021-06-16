@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -10,7 +10,7 @@
 #include <ArduinoJson/Polyfills/ctype.hpp>
 #include <ArduinoJson/Polyfills/math.hpp>
 #include <ArduinoJson/Polyfills/type_traits.hpp>
-#include <ArduinoJson/Variant/VariantAs.hpp>
+#include <ArduinoJson/Variant/Converter.hpp>
 #include <ArduinoJson/Variant/VariantData.hpp>
 
 namespace ARDUINOJSON_NAMESPACE {
@@ -37,15 +37,10 @@ inline bool parseNumber(const char* s, VariantData& result) {
   }
 
 #if ARDUINOJSON_ENABLE_NAN
-<<<<<<< HEAD
   if (*s == 'n' || *s == 'N') {
     result.setFloat(traits::nan());
     return true;
   }
-=======
-  if (*s == 'n' || *s == 'N')
-    return traits::nan();
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 #endif
 
 #if ARDUINOJSON_ENABLE_INFINITY
@@ -56,11 +51,7 @@ inline bool parseNumber(const char* s, VariantData& result) {
 #endif
 
   if (!isdigit(*s) && *s != '.')
-<<<<<<< HEAD
     return false;
-=======
-    return return_type();
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
   mantissa_t mantissa = 0;
   exponent_t exponent_offset = 0;
@@ -77,18 +68,19 @@ inline bool parseNumber(const char* s, VariantData& result) {
     s++;
   }
 
-<<<<<<< HEAD
   if (*s == '\0') {
-    if (is_negative)
-      result.setNegativeInteger(UInt(mantissa));
-    else
-      result.setPositiveInteger(UInt(mantissa));
-    return true;
+    if (is_negative) {
+      const mantissa_t sintMantissaMax = mantissa_t(1)
+                                         << (sizeof(Integer) * 8 - 1);
+      if (mantissa <= sintMantissaMax) {
+        result.setInteger(Integer(~mantissa + 1));
+        return true;
+      }
+    } else {
+      result.setInteger(UInt(mantissa));
+      return true;
+    }
   }
-=======
-  if (*s == '\0')
-    return return_type(TUInt(mantissa), is_negative);
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
   // avoid mantissa overflow
   while (mantissa > traits::mantissa_max) {
@@ -142,14 +134,10 @@ inline bool parseNumber(const char* s, VariantData& result) {
 
   // we should be at the end of the string, otherwise it's an error
   if (*s != '\0')
-<<<<<<< HEAD
     return false;
 
   Float final_result =
       traits::make_float(static_cast<Float>(mantissa), exponent);
-=======
-    return return_type();
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
   result.setFloat(is_negative ? -final_result : final_result);
   return true;
@@ -160,6 +148,6 @@ inline T parseNumber(const char* s) {
   VariantData value;
   value.init();  // VariantData is a POD, so it has no constructor
   parseNumber(s, value);
-  return variantAs<T>(&value);
+  return Converter<T>::fromJson(VariantConstRef(&value));
 }
 }  // namespace ARDUINOJSON_NAMESPACE

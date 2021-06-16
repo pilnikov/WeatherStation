@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -41,122 +41,20 @@ inline bool variantCopyFrom(VariantData *dst, const VariantData *src,
   return dst->copyFrom(*src, pool);
 }
 
-<<<<<<< HEAD
 inline int variantCompare(const VariantData *a, const VariantData *b);
-=======
-inline bool variantEquals(const VariantData *a, const VariantData *b) {
-  if (a == b)
-    return true;
-  if (!a || !b)
-    return false;
-  return a->equals(*b);
-}
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
-inline bool variantIsArray(const VariantData *var) {
-  return var && var->isArray();
-}
-
-inline bool variantIsBoolean(const VariantData *var) {
-  return var && var->isBoolean();
-}
-
-template <typename T>
-inline bool variantIsInteger(const VariantData *var) {
-  return var && var->isInteger<T>();
-}
-
-inline bool variantIsFloat(const VariantData *var) {
-  return var && var->isFloat();
-}
-
-inline bool variantIsString(const VariantData *var) {
-  return var && var->isString();
-}
-
-inline bool variantIsObject(const VariantData *var) {
-  return var && var->isObject();
-}
-
-inline bool variantIsNull(const VariantData *var) {
-  return var == 0 || var->isNull();
-}
-
-inline bool variantSetBoolean(VariantData *var, bool value) {
-  if (!var)
-    return false;
-  var->setBoolean(value);
-  return true;
-}
-
-inline bool variantSetFloat(VariantData *var, Float value) {
-  if (!var)
-    return false;
-  var->setFloat(value);
-  return true;
-}
-
-inline bool variantSetLinkedRaw(VariantData *var,
-                                SerializedValue<const char *> value) {
-  if (!var)
-    return false;
-  var->setLinkedRaw(value);
-  return true;
-}
-
-template <typename T>
-inline bool variantSetOwnedRaw(VariantData *var, SerializedValue<T> value,
-                               MemoryPool *pool) {
-  return var != 0 && var->setOwnedRaw(value, pool);
-}
-
-<<<<<<< HEAD
-=======
-inline bool variantSetLinkedString(VariantData *var, const char *value) {
-  if (!var)
-    return false;
-  var->setLinkedString(value);
-  return true;
-}
-
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 inline void variantSetNull(VariantData *var) {
   if (!var)
     return;
   var->setNull();
 }
 
-<<<<<<< HEAD
 template <typename TAdaptedString>
 inline bool variantSetString(VariantData *var, TAdaptedString value,
                              MemoryPool *pool) {
   if (!var)
     return false;
   return var->setString(value, pool);
-}
-
-template <typename T>
-=======
-inline bool variantSetOwnedString(VariantData *var, char *value) {
-  if (!var)
-    return false;
-  var->setOwnedString(value);
-  return true;
-}
-
-template <typename T>
-inline bool variantSetOwnedString(VariantData *var, T value, MemoryPool *pool) {
-  return var != 0 && var->setOwnedString(value, pool);
-}
-
-template <typename T>
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
-inline bool variantSetInteger(VariantData *var, T value) {
-  ARDUINOJSON_ASSERT_INTEGER_TYPE_IS_SUPPORTED(T);
-  if (!var)
-    return false;
-  var->setInteger(value);
-  return true;
 }
 
 inline size_t variantSize(const VariantData *var) {
@@ -197,6 +95,10 @@ NO_INLINE VariantData *variantGetOrAddMember(VariantData *var,
                                              const TString &key,
                                              MemoryPool *pool) {
   return var != 0 ? var->getOrAddMember(adaptString(key), pool) : 0;
+}
+
+inline bool variantIsNull(const VariantData *var) {
+  return var == 0 || var->isNull();
 }
 
 }  // namespace ARDUINOJSON_NAMESPACE

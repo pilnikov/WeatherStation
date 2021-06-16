@@ -1,11 +1,12 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
 
 #include <ArduinoJson/Array/ArrayRef.hpp>
 #include <ArduinoJson/Document/JsonDocument.hpp>
+#include <ArduinoJson/Variant/Visitor.hpp>
 
 namespace ARDUINOJSON_NAMESPACE {
 
@@ -64,7 +65,6 @@ inline bool copyArray(T (&src)[N1][N2], JsonDocument& dst) {
   return copyArray(src, dst.to<ArrayRef>());
 }
 
-<<<<<<< HEAD
 template <typename T>
 class ArrayCopier1D : public Visitor<size_t> {
  public:
@@ -76,42 +76,11 @@ class ArrayCopier1D : public Visitor<size_t> {
     VariantSlot* slot = array.head();
 
     while (slot != 0 && size < _capacity) {
-      _destination[size++] = variantAs<T>(slot->data());
+      _destination[size++] =
+          Converter<T>::fromJson(VariantConstRef(slot->data()));
       slot = slot->next();
     }
     return size;
-  }
-
-  size_t visitObject(const CollectionData&) {
-    return 0;
-  }
-
-  size_t visitFloat(Float) {
-    return 0;
-  }
-
-  size_t visitString(const char*) {
-    return 0;
-  }
-
-  size_t visitRawJson(const char*, size_t) {
-    return 0;
-  }
-
-  size_t visitNegativeInteger(UInt) {
-    return 0;
-  }
-
-  size_t visitPositiveInteger(UInt) {
-    return 0;
-  }
-
-  size_t visitBoolean(bool) {
-    return 0;
-  }
-
-  size_t visitNull() {
-    return 0;
   }
 
  private:
@@ -133,33 +102,17 @@ class ArrayCopier2D : public Visitor<void> {
       slot = slot->next();
     }
   }
-  void visitObject(const CollectionData&) {}
-  void visitFloat(Float) {}
-  void visitString(const char*) {}
-  void visitRawJson(const char*, size_t) {}
-  void visitNegativeInteger(UInt) {}
-  void visitPositiveInteger(UInt) {}
-  void visitBoolean(bool) {}
-  void visitNull() {}
 
  private:
   T (*_destination)[N1][N2];
   size_t _capacity1, _capacity2;
 };
 
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 // Copy a JsonArray to a 1D array
 template <typename TSource, typename T, size_t N>
 inline typename enable_if<!is_array<T>::value, size_t>::type copyArray(
     const TSource& src, T (&dst)[N]) {
   return copyArray(src, dst, N);
-}
-
-// Copy a JsonDocument to a 1D array
-template <typename T, size_t N>
-inline size_t copyArray(const JsonDocument& src, T (&dst)[N]) {
-  return copyArray(src.as<ArrayConstRef>(), dst, N);
 }
 
 // Copy a JsonArray to a 1D array
@@ -175,12 +128,6 @@ template <typename TSource, typename T, size_t N1, size_t N2>
 inline void copyArray(const TSource& src, T (&dst)[N1][N2]) {
   ArrayCopier2D<T, N1, N2> copier(&dst);
   src.accept(copier);
-}
-
-// Copy a JsonDocument to a 2D array
-template <typename T, size_t N1, size_t N2>
-inline void copyArray(const JsonDocument& src, T (&dst)[N1][N2]) {
-  copyArray(src.as<ArrayConstRef>(), dst);
 }
 
 }  // namespace ARDUINOJSON_NAMESPACE

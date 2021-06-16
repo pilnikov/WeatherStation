@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -38,7 +38,6 @@ class String {
     return strcmp(lhs._data, rhs._data) == 0;
   }
 
-<<<<<<< HEAD
   friend bool operator!=(String lhs, String rhs) {
     if (lhs._data == rhs._data)
       return false;
@@ -48,9 +47,6 @@ class String {
       return true;
     return strcmp(lhs._data, rhs._data) != 0;
   }
-=======
-  typedef storage_policy::decide_at_runtime storage_policy;
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
  private:
   const char* _data;
@@ -66,15 +62,7 @@ class StringAdapter : public RamStringAdapter {
     return _isStatic;
   }
 
-<<<<<<< HEAD
   typedef storage_policies::decide_at_runtime storage_policy;
-=======
-  const char* save(MemoryPool* pool) const {
-    if (_isStatic)
-      return data();
-    return RamStringAdapter::save(pool);
-  }
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
  private:
   bool _isStatic;

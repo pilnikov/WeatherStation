@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -65,8 +65,16 @@ class ElementProxy : public VariantOperators<ElementProxy<TArray> >,
   }
 
   template <typename T>
-  FORCE_INLINE typename VariantAs<T>::type as() const {
+  FORCE_INLINE typename enable_if<!is_same<T, char*>::value, T>::type as()
+      const {
     return getUpstreamElement().template as<T>();
+  }
+
+  template <typename T>
+  FORCE_INLINE typename enable_if<is_same<T, char*>::value, const char*>::type
+  ARDUINOJSON_DEPRECATED("Replace as<char*>() with as<const char*>()")
+      as() const {
+    return as<const char*>();
   }
 
   template <typename T>
@@ -136,13 +144,10 @@ class ElementProxy : public VariantOperators<ElementProxy<TArray> >,
 
   VariantRef getElement(size_t index) const {
     return getOrAddUpstreamElement().getElement(index);
-<<<<<<< HEAD
   }
 
   VariantRef getOrAddElement(size_t index) const {
     return getOrAddUpstreamElement().getOrAddElement(index);
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   }
 
   FORCE_INLINE void remove(size_t index) const {
@@ -171,6 +176,10 @@ class ElementProxy : public VariantOperators<ElementProxy<TArray> >,
 
   FORCE_INLINE VariantRef getOrAddUpstreamElement() const {
     return _array.getOrAddElement(_index);
+  }
+
+  friend bool convertToJson(const this_type& src, VariantRef dst) {
+    return dst.set(src.getUpstreamElement());
   }
 
   TArray _array;

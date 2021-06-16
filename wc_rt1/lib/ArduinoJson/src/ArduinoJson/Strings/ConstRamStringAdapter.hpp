@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -39,13 +39,9 @@ class ConstRamStringAdapter {
     return _str;
   }
 
-<<<<<<< HEAD
   const char* begin() const {
     return _str;
   }
-=======
-  typedef storage_policy::store_by_address storage_policy;
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
 
   typedef storage_policies::store_by_address storage_policy;
 

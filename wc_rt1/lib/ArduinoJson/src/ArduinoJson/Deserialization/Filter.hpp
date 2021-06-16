@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -17,11 +17,11 @@ class Filter {
   }
 
   bool allowArray() const {
-    return _variant == true || _variant.is<ArrayRef>();
+    return _variant == true || _variant.is<ArrayConstRef>();
   }
 
   bool allowObject() const {
-    return _variant == true || _variant.is<ObjectRef>();
+    return _variant == true || _variant.is<ObjectConstRef>();
   }
 
   bool allowValue() const {
@@ -33,11 +33,7 @@ class Filter {
     if (_variant == true)  // "true" means "allow recursively"
       return *this;
     else
-<<<<<<< HEAD
       return Filter(_variant[key] | _variant["*"]);
-=======
-      return Filter(_variant[key]);
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   }
 
  private:

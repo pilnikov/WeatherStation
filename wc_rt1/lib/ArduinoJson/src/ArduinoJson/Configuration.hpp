@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -248,11 +248,8 @@
 #define ARDUINOJSON_DEBUG 0
 #endif
 #endif
-<<<<<<< HEAD
 
 #if ARDUINOJSON_HAS_NULLPTR && defined(nullptr)
 #error nullptr is defined as a macro. Remove the faulty #define or #undef nullptr
 // See https://github.com/bblanchon/ArduinoJson/issues/1355
 #endif
-=======
->>>>>>> 45b52aec473bd7023203015b24e667856f836575

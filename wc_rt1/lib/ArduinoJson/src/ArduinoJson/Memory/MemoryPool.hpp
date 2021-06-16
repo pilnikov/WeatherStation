@@ -1,5 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2020
+// ArduinoJson - https://arduinojson.org
+// Copyright Benoit Blanchon 2014-2021
 // MIT License
 
 #pragma once
@@ -57,7 +57,6 @@ class MemoryPool {
     return allocRight<VariantSlot>();
   }
 
-<<<<<<< HEAD
   template <typename TAdaptedString>
   const char* saveString(const TAdaptedString& str) {
     if (str.isNull())
@@ -77,15 +76,6 @@ class MemoryPool {
       newCopy[n] = 0;  // force null-terminator
     }
     return newCopy;
-=======
-  char* allocFrozenString(size_t n) {
-    if (!canAlloc(n))
-      return 0;
-    char* s = _left;
-    _left += n;
-    checkInvariants();
-    return s;
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   }
 
   void getFreeZone(char** zoneStart, size_t* zoneSize) const {
@@ -110,10 +100,6 @@ class MemoryPool {
     _overflowed = true;
   }
 
-  void reclaimLastString(const char* s) {
-    _left = const_cast<char*>(s);
-  }
-
   void clear() {
     _left = _begin;
     _right = _end;
@@ -128,21 +114,6 @@ class MemoryPool {
     return _begin <= p && p < _end;
   }
 
-<<<<<<< HEAD
-=======
-  template <typename T>
-  T* allocRight() {
-    return reinterpret_cast<T*>(allocRight(sizeof(T)));
-  }
-
-  void* allocRight(size_t bytes) {
-    if (!canAlloc(bytes))
-      return 0;
-    _right -= bytes;
-    return _right;
-  }
-
->>>>>>> 45b52aec473bd7023203015b24e667856f836575
   // Workaround for missing placement new
   void* operator new(size_t, void* p) {
     return p;
