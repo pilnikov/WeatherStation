@@ -1,4 +1,4 @@
-/**
+/*
    \mainpage Holtek HT1621
 
    \author Enrico Formenti
@@ -58,7 +58,7 @@
    - Test reading functions which use the internal RAM of HT1621 not the simulated RAM.
 */
 
-/**
+/*
    \file HT1621.h
    \brief A class for dealing with the Holtek HT1621 chip.
    \author Enrico Formenti
@@ -97,7 +97,7 @@ class HT1621 {
 
   protected:
 
-    /**
+    /*
       \var ram[32]
        This array is used to simulate the HT1621 internal ram whenever the read operations are not possible.
       \warning Define the label __HT1621 to disable this feature and use standard read procedures.
@@ -119,8 +119,8 @@ class HT1621 {
       SPECIAL_MODE = 0b1001 /*!< This instructs the HT1621 to prepare for executing a special command. */
     };
 
-    /*!
-       \enum Commands
+    /*
+	   enum Commands
        one left, non-significant segment is taken from the "mode" (right zero)
        This is an enum of available commands for the HT1621.
 
@@ -174,7 +174,7 @@ class HT1621 {
       TEST_OFF  = 0b11100011  /*!< Don't use! Only for manifacturers. This needs SPECIAL_MODE. */
     };
 
-    /**
+    /*
        \fn HT1621(uint8_t CSpin, uint8_t RWpin, uint8_t DATApin)
        \brief Constructor. Use begin() to complete the initialization of the chip.
        @param \c CSpin Channel select pin.
@@ -182,12 +182,12 @@ class HT1621 {
        @param \c DATApin Data pin both for reading or writing data.
     */
     HT1621(uint8_t CSpin, uint8_t RWpin, uint8_t DATApin) : _CS_pin(CSpin), _DATA_pin(DATApin), _RW_pin(RWpin) {};
-    /**
+    /*
         \fn void begin(void)
         \brief Init the HT1621. It inits the control bus. Moreover, it clears the (simulated) ram if \c __HT1621_READ is defined.
     */
     void begin(void);
-    /**
+    /*
        \fn void writeBits(uint8_t data, uint8_t cnt)
        \brief Send bits to the HT1621.
        @param data Data to be sent to the HT1621 seen as an array of bits.
@@ -197,7 +197,7 @@ class HT1621 {
        \sa readBits()
     */
     void writeBits(uint8_t data, uint8_t cnt);
-    /**
+    /*
        \fn uint8_t readBits(uint8_t cnt)
        \brief Reads bits from the HT1621.
        @param cnt Number of bits to read. Maximal number of bits that can be read is 8.
@@ -206,7 +206,7 @@ class HT1621 {
        \sa writeBits()
     */
     uint8_t readBits(uint8_t cnt);
-    /**
+    /*
        \fn void sendCommand(uint8_t cmd, bool first = true, bool last = true)
        \brief Sends a command to the HT1621.
        @param cmd Id of the command to send.
@@ -215,7 +215,7 @@ class HT1621 {
        \warning There is no check on the command id.
     */
     void sendCommand(uint8_t cmd);
-    /**
+    /*
        \fn void write(uint8_t address, uint8_t data)
        \brief Write \c data at the given address.
        @param address Address to which write the data. Max address is 32.
@@ -223,7 +223,7 @@ class HT1621 {
        \warning There is no check to verify if the address is valid.
     */
     void write(uint8_t address, uint8_t data);
-    /**
+    /*
        \fn void write_c(uint8_t address, uint8_t data, uint8_t cnt)
        \brief Write \c data at the given address and at the \c cnt successive addresses.
        @param address Address to which write the data. Max address is 32.
@@ -232,8 +232,8 @@ class HT1621 {
        \warning There is no check to verify if the address is valid. Moreover, pay attention that
        the address \c (address+cnt) has also to be valid.
     */
-    void write_c(uint8_t address, uint8_t data, uint8_t cnt);    /**
-    /**
+    void write_c(uint8_t address, uint8_t data, uint8_t cnt);
+    /*
        \fn void write(uint8_t address, uint8_t *data, uint8_t cnt)
        \brief Write \c cnt bytes starting at \c address and take data from buffer \c data.
        @param address Address to which start writing data. Max address is 32.
@@ -242,7 +242,7 @@ class HT1621 {
        \warning The buffer is byte aligned, so it is not very efficient. Indeed, only the 4 less significant
        bits are written.
        \warning There is no check that the buffer is of suitable length.
-*/
+	*/
     void write(uint8_t address, uint8_t *data, uint8_t cnt);
     /* \fn read(uint8_t address)
        \brief Read memory content at address \c address
@@ -251,7 +251,7 @@ class HT1621 {
        \warning There is no check to verify if the address is valid.
     */
     uint8_t read(uint8_t address);
-    /**
+    /*
        \fn void read(uint8_t address, uint8_t *data, uint8_t cnt)
        \brief Read \c cnt bytes starting from \c address into buffer \c data.
        @param address Memory address to read from.
@@ -261,12 +261,12 @@ class HT1621 {
        \warning There is no check that the buffer is of suitable length.
     */
     void read(uint8_t address, uint8_t *data, uint8_t cnt);
-    /**
+    /*
        \fn void clear_all()
        clear all memory content
     */
     void clear_all();
-    /**
+    /*
        \fn void write_all(uint8_t *data)
        \one step write all memory.
     */

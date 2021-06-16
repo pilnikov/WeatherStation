@@ -41,7 +41,7 @@ TM1637::TM1637(uint8_t Clk, uint8_t DP)
 
 int TM1637::writeByte(byte wr_data)
 {
-  uint8_t i,count1;
+  uint8_t i;
   for(i=0;i<8;i++)        //sent 8bit data
   {
     digitalWrite(Clkpin,LOW);
@@ -89,8 +89,6 @@ void TM1637::stop(void)
 //******************************************
 void TM1637::display(uint8_t BitAddr, int8_t DispData)
 {
-  int8_t SegData;
-  SegData = DispData;
   start();          //start signal sent to TM1637 from MCU
   writeByte(ADDR_FIXED);//
   stop();           //

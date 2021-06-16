@@ -146,8 +146,8 @@ String pr_str(uint8_t num)
         strncpy(buf1, WiFi.localIP().toString().c_str(), size_buf1);
 #endif
 
-        rtc_data.a_hour < 24 && rtc_data.a_min < 59 ? size_buf = snprintf(buf, 250, " Будильник зазвонит в %2d:%02d  Текущая яркость: %2d Ваш IP:%s", rtc_data.a_hour, rtc_data.a_min, cur_br, buf1)
-            : size_buf = snprintf(buf, 60, " Будильник не установлен  Текущая яркость:%2d Ваш IP:%s", cur_br, buf1);
+        rtc_data.a_hour < 24 && rtc_data.a_min < 59 ? size_buf = snprintf(buf, 160, " Будильник зазвонит в %2d:%02d  Текущая яркость: %2d Ваш IP:%s", rtc_data.a_hour, rtc_data.a_min, cur_br, buf1)
+            : size_buf = snprintf(buf, 160, " Будильник не установлен  Текущая яркость:%2d Ваш IP:%s", cur_br, buf1);
         break;
       default:
         break;

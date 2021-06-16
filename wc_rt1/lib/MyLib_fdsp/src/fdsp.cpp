@@ -75,7 +75,7 @@ void FD::lcd_rus(String &source)
   uint16_t k = source.length(); // source length
 
   byte n = 0x0;
-  char m;
+  char _m = ' ';
   
   while (i < k) 
   {
@@ -92,20 +92,20 @@ void FD::lcd_rus(String &source)
         case 0xD0: 
             i++;
 			n = source[i];
-            if (n == 0x81) m = 0xA2; // Ё
-			else if (n >= 0x90 && n <= 0xBF) m = utf_recode[n - 0x90]; // от А до п
+            if (n == 0x81) _m = 0xA2; // Ё
+			else if (n >= 0x90 && n <= 0xBF) _m = utf_recode[n - 0x90]; // от А до п
    		break;
         case 0xD1: 
 			i++;
             n = source[i];
-            if (n == 0x91) m = 0xB5; // ё
-            else if (n >= 0x80 && n <= 0x8F) m = utf_recode[n - 0x50]; // от р до я
+            if (n == 0x91) _m = 0xB5; // ё
+            else if (n >= 0x80 && n <= 0x8F) _m = utf_recode[n - 0x50]; // от р до я
 		break;
       }
  	}
-    else m = (char)n;
+    else _m = (char)n;
     
-	target += m;
+	target += _m;
     i++;
   }
   source = target;

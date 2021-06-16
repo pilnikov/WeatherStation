@@ -25,12 +25,11 @@ snr_data_t ES::get_ts(String inStr)
 		data.h1 = root["field4"];
 		data.h2 = root["field5"];
 		data.h3 = root["field6"];
-		data.p = root["field7"];
+		 data.p = root["field7"];
 
-		bool Ok = data.p > 700;
-# ifdef _debug
-		if (Ok)
+		if (data.p > 700)
 		{
+			DBG_OUT_PORT.println("Read data from TS");
 			DBG_OUT_PORT.print("TC1: ");
 			DBG_OUT_PORT.print(data.t1);
 			DBG_OUT_PORT.print(" C HC1: ");
@@ -51,7 +50,6 @@ snr_data_t ES::get_ts(String inStr)
 			DBG_OUT_PORT.println("mm rt. st.");
 		}
 		else   DBG_OUT_PORT.println("Failed!");
-# endif
 	}
 	return data;
 }

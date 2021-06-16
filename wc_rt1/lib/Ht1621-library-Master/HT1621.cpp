@@ -1,13 +1,12 @@
-/**
-   \file HT1621.cpp
-   \brief Implementation of a class for dealing with the Holtek HT1621 chip.
-   \author Enrico Formenti
-   \date 31 january 2015
-   \version 1.0
-   \copyright BSD license, check the License page on the blog for more information. All this text must be
-    included in any redistribution.
-    <br><br>
-    See macduino.blogspot.com for more details.
+/*
+   file HT1621.cpp
+   brief Implementation of a class for dealing with the Holtek HT1621 chip.
+   author Enrico Formenti
+   date 31 january 2015
+   version 1.0
+   copyright BSD license, check the License page on the blog for more information. All this text must be
+   included in any redistribution.
+   See macduino.blogspot.com for more details.
 
 */
 
@@ -23,7 +22,7 @@ void HT1621::begin()
   digitalWrite(_RW_pin, HIGH);
   digitalWrite(_DATA_pin, HIGH);
 
-  for (register uint8_t i = 0; i < 16; i++)  ram[i] = 0;
+  for (uint8_t i = 0; i < 16; i++)  ram[i] = 0;
 }
 
 // OCIO !!!
@@ -31,7 +30,7 @@ void HT1621::begin()
 // di 20 microsecondi...
 void HT1621::writeBits(uint8_t data, uint8_t cnt)
 {
-  for (register uint8_t i = 0; i < cnt; i++, data <<= 1)
+  for (uint8_t i = 0; i < cnt; i++, data <<= 1)
   {
     pinMode(_DATA_pin, OUTPUT);
 
@@ -112,7 +111,7 @@ void HT1621::write_c(uint8_t address, uint8_t data, uint8_t cnt)
 
   HT1621::writeBits(address, 5);
 
-  for (register uint8_t i = 0; i < cnt; i++)
+  for (uint8_t i = 0; i < cnt; i++)
   {
     HT1621::writeBits(data, 4);
 #ifndef __HT1621_READ
@@ -131,7 +130,7 @@ void HT1621::write(uint8_t address, uint8_t *data, uint8_t cnt)
 
   HT1621::writeBits(address, 5);
 
-  for (register uint8_t i = 0; i < cnt; i++)
+  for (uint8_t i = 0; i < cnt; i++)
   {
     HT1621::writeBits(data[address + i], 4);
 #ifndef __HT1621_READ
@@ -173,7 +172,7 @@ void HT1621::read(uint8_t address, uint8_t *data, uint8_t cnt)
 
   writeBits(READ_MODE, 4);
   writeBits(address, 5);
-  for (register uint8_t i = 0; i < cnt; i++) ram[address + i] = readBits(4);
+  for (uint8_t i = 0; i < cnt; i++) ram[address + i] = readBits(4);
 
   RELEASE_CS();
 }
