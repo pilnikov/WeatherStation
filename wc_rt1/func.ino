@@ -1,96 +1,68 @@
 //------------------------------------------------------  Получаем данные с датчиков
-void GetSnr()
+snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 {
   snr_data_t ts_data;
   snr_data_t es_data;
+  snr_data_t _snr_data;
 
-  snr_data.t1 = 99;
-  snr_data.t2 = 99;
-  snr_data.t3 = 99;
-  snr_data.h1 = 0;
-  snr_data.h2 = 0;
-  snr_data.h3 = 0;
-  snr_data.p = 700;
+  _snr_data.t1 = 99;
+  _snr_data.t2 = 99;
+  _snr_data.t3 = 99;
+  _snr_data.h1 = 0;
+  _snr_data.h2 = 0;
+  _snr_data.h3 = 0;
+  _snr_data.p = 700;
 
-  ram_data.temp_rtc = 99;
+  rd.temp_rtc = 99;
 
-  if ((ram_data.type_snr1 == 5 || ram_data.type_snr2 == 5 || ram_data.type_snr3 == 5) && ram_data.type_rtc == 1)
+  if ((rd.type_snr1 == 5 || rd.type_snr2 == 5 || rd.type_snr3 == 5) && rd.type_rtc == 1)
   {
     RtcTemperature t1 = DS3231.GetTemperature();
-    ram_data.temp_rtc = round(t1.AsFloatDegC());
+    rd.temp_rtc = round(t1.AsFloatDegC());
   }
 
 # if defined(__xtensa__)
   if (web_cli)
   {
-    if (ram_data.type_snr1 == 1 || ram_data.type_snr2 == 1 || ram_data.type_snr3 == 1 || ram_data.type_snrp == 1)
+    if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1)
     {
-      dmsg.callback(conf_data.type_disp, 2, 0, conf_data.rus_lng); // сообщение на индикатор о начале обмена с TS
-      String ts_str = ts_rcv(conf_data.ts_ch_id, conf_data.AKey_r);  // Получаем строчку данных от TS
+      dmsg.callback(cf.type_disp, 2, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
+      String ts_str = ts_rcv(cf.ts_ch_id, cf.AKey_r);  // Получаем строчку данных от TS
       ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
-      dmsg.callback(conf_data.type_disp, 2, 1, conf_data.rus_lng); // сообщение на индикатор о результатах обмена с TS
+      dmsg.callback(cf.type_disp, 2, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
-    if (ram_data.type_snr1 == 2 || ram_data.type_snr2 == 2 || ram_data.type_snr3 == 2 || ram_data.type_snrp == 2) es_data = e_srv.get_es(es_rcv(conf_data.esrv1_addr)); // Получаем данные от внешнего сервера1
-    if (ram_data.type_snr1 == 3 || ram_data.type_snr2 == 3 || ram_data.type_snr3 == 3 || ram_data.type_snrp == 3) es_data = e_srv.get_es(es_rcv(conf_data.esrv2_addr)); // Получаем данные от внешнего сервера2
+    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) es_data = e_srv.get_es(es_rcv(cf.esrv1_addr)); // Получаем данные от внешнего сервера1
+    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) es_data = e_srv.get_es(es_rcv(cf.esrv2_addr)); // Получаем данные от внешнего сервера2
 
-    if (conf_data.use_pp == 2) {
-      wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);// Получаем данные от OWM
+    if (cf.use_pp == 2) {
+      wf_data_cur = getOWM_current(cf.pp_city_id, cf.owm_key);// Получаем данные от OWM
     }
   }
 #endif
-  if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
+  if (rd.type_snr1 > 0 || rd.type_snr2 > 0 || rd.type_snr3 > 0)
   {
-    snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
+    _snr_data = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
 # if defined(__xtensa__)
   if (web_cli)
   {
-    if (conf_data.use_tst1 || conf_data.use_tst2 || conf_data.use_tst3 || conf_data.use_tsh1 || conf_data.use_tsh2 || conf_data.use_tsh3 || conf_data.use_tsp)
+    if (cf.use_tst1 || cf.use_tst2 || cf.use_tst3 || cf.use_tsh1 || cf.use_tsh2 || cf.use_tsh3 || cf.use_tsp)
     {
-      dmsg.callback(conf_data.type_disp, 1, 0, conf_data.rus_lng); // сообщение на индикатор о начале обмена с TS
-      ts_snd(e_srv.put_ts(conf_data.AKey_w, conf_data.use_tst1, conf_data.use_tst2, conf_data.use_tst3, conf_data.use_tsh1, conf_data.use_tsh2, conf_data.use_tsh3, conf_data.use_tsp, snr_data)); // Отправляем инфу на TS
-      dmsg.callback(conf_data.type_disp, 1, 1, conf_data.rus_lng); // сообщение на индикатор о результатах обмена с TS
+      dmsg.callback(cf.type_disp, 1, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
+      ts_snd(e_srv.put_ts(cf.AKey_w, cf.use_tst1, cf.use_tst2, cf.use_tst3, cf.use_tsh1, cf.use_tsh2, cf.use_tsh3, cf.use_tsp, _snr_data)); // Отправляем инфу на TS
+      dmsg.callback(cf.type_disp, 1, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
   }
 #endif
+  return _snr_data;
 }
-
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
-
-// функция копирования из PROGMEM
-void copyFromPGM(const char* const* charMap, char * _buf)
-{
-  uint16_t _ptr = pgm_read_word(charMap); // получаем адрес из таблицы ссылок
-  uint8_t i = 0;        // переменная - индекс массива буфера
-  do
-  {
-    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
-  } while (_buf[i++] > 0);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
-}
-#endif
-
 
 #if defined(__AVR_ATmega2560__)
 void(* resetFunc) (void) = 0; //Programm reset
 #endif
 
-
-#if defined(ESP8266)
-// функция копирования из PROGMEM
-void copyFromPGM(const void* charMap, char * _buf)
-{
-  const void* _ptr = pgm_read_ptr(charMap); // получаем адрес из таблицы ссылок
-  uint8_t i = 0;        // переменная - индекс массива буфера
-  do
-  {
-    _buf[i] = (char)(pgm_read_byte(_ptr++)); // прочитать символ из PGM в ячейку буфера, подвинуть указатель
-  } while (_buf[i++] > 0);              // повторять пока прочитанный символ не нулевой, подвинуть индекс буфера
-}
-#endif
-
 # if defined(__xtensa__)
-
 //------------------------------------------------------  Делаем запрос данных с Gismeteo
 String gs_rcv(unsigned long city_id)
 {
@@ -459,7 +431,9 @@ void GetNtp()
 void keyb_read()
 {
   bool but0_pressed = !digitalRead(conf_data.gpio_btn); // false - кнопка нажата
-
+  static bool but0_press;
+  static unsigned long setting_ms;
+  
   if (but0_pressed && !but0_press) setting_ms = millis(); // Нажимаем кнопку - запускаем таймер, начинаем отсчет времени удержания
 
   if (!but0_pressed && but0_press && millis() - setting_ms > 150 && millis() - setting_ms < 400) // держим от 0,15 до 0,4 сек
@@ -470,7 +444,11 @@ void keyb_read()
 
     num_st++;    // перебираем строки на матрицах и LCD
     if (num_st > 4) num_st = 1;
-    st1 = pr_str(num_st);
+    String local_ip = "192.168.0.0";
+#if defined(__xtensa__)
+    local_ip =  WiFi.localIP().toString();
+#endif
+    st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
     f_dsp.utf8rus(st1);
     cur_sym_pos[0] = 0;
     cur_sym_pos[1] = 0;
@@ -532,37 +510,37 @@ void keyb_read()
 }
 
 //------------------------------------------------------  Отправляем данные по USART
-String uart_st()
+String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_data_t rt, uint8_t c_br)
 {
   DynamicJsonDocument jsonBuffer(500);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["T"] = now();
-  json["U"] = cur_br;
-  json["V"] = snr_data.t1;
-  json["W"] = snr_data.t2;
-  json["X"] = snr_data.h1;
-  json["Y"] = snr_data.h2;
-  json["Z"] = snr_data.p;
-  json["M"] = rtc_data.a_hour;
-  json["N"] = rtc_data.a_min;
+  json["T"] = rt.ct;
+  json["U"] = c_br;
+  json["V"] = sn.t1;
+  json["W"] = sn.t2;
+  json["X"] = sn.h1;
+  json["Y"] = sn.h2;
+  json["Z"] = sn.p;
+  json["M"] = rt.a_hour;
+  json["N"] = rt.a_min;
 
-  if (conf_data.use_pp > 0)
+  if (cf.use_pp > 0)
   {
-    json["A"] = wf_data.tod;
-    json["B"] = wf_data.cloud;
-    json["C"] = wf_data.prec;
-    json["D"] = wf_data.rpower;
-    json["E"] = wf_data.spower;
-    json["F"] = wf_data.press_min;
-    json["G"] = wf_data.temp_max;
-    json["H"] = wf_data.temp_min;
-    json["I"] = wf_data.wind_max;
-    json["J"] = wf_data.wind_min;
-    json["K"] = wf_data.wind_dir;
-    json["L"] = (int)(wf_data.hum_max + wf_data.hum_min) / 2;
-    json["O"] = wf_data.day;
-    json["P"] = wf_data.month;
+    json["A"] = wf.tod;
+    json["B"] = wf.cloud;
+    json["C"] = wf.prec;
+    json["D"] = wf.rpower;
+    json["E"] = wf.spower;
+    json["F"] = wf.press_min;
+    json["G"] = wf.temp_max;
+    json["H"] = wf.temp_min;
+    json["I"] = wf.wind_max;
+    json["J"] = wf.wind_min;
+    json["K"] = wf.wind_dir;
+    json["L"] = (int)(wf.hum_max + wf.hum_min) / 2;
+    json["O"] = wf.day;
+    json["P"] = wf.month;
   }
 
   json["Q"] = "End";
@@ -574,47 +552,47 @@ String uart_st()
 
 void send_uart()
 {
-  DBG_OUT_PORT.println(uart_st());
+  DBG_OUT_PORT.println(uart_st(snr_data, wf_data, conf_data, rtc_data, cur_br));
 }
 
 //------------------------------------------------------  Термостат
-void Thermo()
+void Thermo(snr_data_t sn, conf_data_t cf)
 {
   bool act = 0;
-  if (conf_data.type_thermo > 0)
+  if (cf.type_thermo > 0)
   {
-    if (conf_data.src_thermo == 0)
+    if (cf.src_thermo == 0)
     {
-      act = (snr_data.t1 > conf_data.lb_thermo) && (snr_data.t1 < conf_data.hb_thermo);
+      act = (sn.t1 > cf.lb_thermo) && (sn.t1 < cf.hb_thermo);
     }
     else
     {
-      act = (snr_data.t2 > conf_data.lb_thermo) && (snr_data.t2 < conf_data.hb_thermo);
+      act = (sn.t2 > cf.lb_thermo) && (sn.t2 < cf.hb_thermo);
     }
     if (act)
     {
-      if (conf_data.type_thermo == 1)
+      if (cf.type_thermo == 1)
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
-        digitalWrite(conf_data.gpio_trm, HIGH);
+        digitalWrite(cf.gpio_trm, HIGH);
       }
       else
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
-        digitalWrite(conf_data.gpio_trm, LOW);
+        digitalWrite(cf.gpio_trm, LOW);
       }
     }
     else
     {
-      if (conf_data.type_thermo == 1)
+      if (cf.type_thermo == 1)
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
-        digitalWrite(conf_data.gpio_trm, LOW);
+        digitalWrite(cf.gpio_trm, LOW);
       }
       else
       {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
-        digitalWrite(conf_data.gpio_trm, HIGH);
+        digitalWrite(cf.gpio_trm, HIGH);
       }
     }
   }

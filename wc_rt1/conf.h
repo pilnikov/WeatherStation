@@ -123,6 +123,13 @@
   struct rtc_data_t
   {
   long          ct        = 1530687234; // Текущее время (UNIX format)
+  uint8_t       hour      = 62;         // Текущее время. Час.
+  uint8_t       min       = 62;         // Текущее время. Минута.
+  uint8_t       sec       = 62;         // Текущее время. Секунда.
+  uint8_t       day       = 32;         // Текущее время. День.
+  uint8_t       wday      =  9;         // Текущее время. День недели.
+  uint8_t       month     = 13;         // Текущее время. Месяц.
+  uint16_t      year      = 2030;       // Текущее время. Год.
   uint8_t       a_num     = 0;          // Номер будильника
   uint8_t       n_cur_alm = 6;          // Номер активного будильника
   uint8_t       a_hour    = 62;         // Час срабатывания будильника
@@ -342,29 +349,20 @@ void start_wifi();
 void stop_wifi();
 
 void GetNtp();
-void GetSnr();
-String uart_st();
+snr_data_t GetSnr(ram_data_t, conf_data_t);
+String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_data_t, uint8_t);
 void send_uart();
 void keyb_read();
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String tvoday(String);
-void Thermo();
+void Thermo(snr_data_t, conf_data_t);
 
 void wifi_conn(byte, byte, byte);
 String gs_rcv (unsigned long);
 String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
 String ts_snd (String);
-
-
-#if defined(__AVR_ATmega2560__)
-void copyFromPGM(const char* const*, char*);
-#endif
-# if defined(__xtensa__)
-void copyFromPGM(const void*, char*);
-#endif
-
 
 // ----------------------------------- NTP
 #if defined(__xtensa__)
@@ -390,44 +388,28 @@ ESP8266HWInfo hwi;
 
 BH1750 lightMeter;
 
-// ----------------------------------------------------
-bool play_snd      = false;
-
-bool web_ap        = false;
-bool web_cli       = false;
-unsigned long serv_ms = 60000;
-
-char tstr[255];
-int size_tstr = 0;
-
-# if defined(__xtensa__)
-
-static const char* name_week[]  = {"", "ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
-// ---------------------------------------------------- WiFi Default
-static const char  ap_ssid_def[] PROGMEM = "WiFi_Clock";
-static const char  ap_pass_def[] PROGMEM = "";
-static const char sta_ssid_def[] PROGMEM = "My_WiFi";
-static const char sta_pass_def[] PROGMEM = "";
-
 
 // ---------------------------------------------------- Common
+# if defined(__xtensa__)
 const char ntp_server[] = "ru.pool.ntp.org";
-
 #endif
 
 const char *conf_f = "/config.json";  // config file name
 
+bool               play_snd  = false;
+
+bool                web_ap   = false;
+bool                web_cli  = false;
+
 bool                disp_on  = true;
 bool               nm_is_on  = false;
-bool             but0_press  = false;
-bool              uart_send  = false;
+
 unsigned long   irq_end[10];
-unsigned long    setting_ms  = 0;
+unsigned long   serv_ms = 60000;
 
 uint8_t            hour_cnt  = 0;
 uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
-uint16_t         cur_br_buf  = 0;
 
 uint8_t         debug_level  = 0; // 0 - отключен
 

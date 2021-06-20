@@ -1,13 +1,26 @@
 
-uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t);
+uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t, conf_data_t, snr_data_t, rtc_data_t, uint8_t);
 
 
-uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
+uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf_data_t cf, snr_data_t sn, rtc_data_t rt, uint8_t c_br)
 {
+
+  const char name_week_0[] = "";
+  const char name_week_1[] = "8c";
+  const char name_week_2[] = "\357H";
+  const char name_week_3[] = "8t";
+  const char name_week_4[] = "cP";
+  const char name_week_5[] = "4t";
+  const char name_week_6[] = "\357t";
+  const char name_week_7[] = "c6";
+
+  const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
+
+  char tstr[255];
   uint8_t h = 0;
-  h = conf_data.use_pm && hour() > 12 ? h = hour() - 12 : hour();
+  h = cf.use_pm && rt.hour > 12 ? h = rt.hour - 12 : rt.hour;
   uint8_t s_tstr = _width * 2;
-  size_tstr = snprintf(tstr, s_tstr, "");
+  uint8_t size_tstr = snprintf(tstr, s_tstr, "");
   bool out = false;
   char b1[3];
 
@@ -17,105 +30,103 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
       switch (mod)
       {
         case 1: //Температура канал 1
-          if (snr_data.t1 <= -99 || snr_data.t1 >= 99) mod ++;
+          if (sn.t1 <= -99 || sn.t1 >= 99) mod ++;
           else
           {
-            if (snr_data.t1 > -10)  size_tstr = snprintf(tstr, s_tstr, "t\1%2d", snr_data.t1);
-            else size_tstr = snprintf(tstr, s_tstr, "t\2%2d", abs(snr_data.t1));
+            if (sn.t1 > -10)  size_tstr = snprintf(tstr, s_tstr, "t\1%2d", sn.t1);
+            else size_tstr = snprintf(tstr, s_tstr, "t\2%2d", abs(sn.t1));
             out = true;
           }
           break;
 
         case 2: //Влажность канал 1
-          if (snr_data.h1 <= 0 || snr_data.h1 > 99) mod ++;
+          if (sn.h1 <= 0 || sn.h1 > 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "H\1%2d", snr_data.h1);
+            size_tstr = snprintf(tstr, s_tstr, "H\1%2d", sn.h1);
             out = true;
           }
           break;
 
         case 3: //Температура канал 2
-          if (snr_data.t2 <= -99 || snr_data.t2 >= 99) mod ++;
+          if (sn.t2 <= -99 || sn.t2 >= 99) mod ++;
           else
           {
-            if (snr_data.t2 > -10) size_tstr = snprintf(tstr, s_tstr, "t\3%2d", snr_data.t2);
-            else size_tstr = snprintf(tstr, s_tstr, "t\4%2d", abs(snr_data.t2));
+            if (sn.t2 > -10) size_tstr = snprintf(tstr, s_tstr, "t\3%2d", sn.t2);
+            else size_tstr = snprintf(tstr, s_tstr, "t\4%2d", abs(sn.t2));
             out = true;
           }
           break;
 
         case 4: //Влажность канал 2
-          if (snr_data.h2 <= 0 || snr_data.h2 > 99) mod ++;
+          if (sn.h2 <= 0 || sn.h2 > 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "H\3%2d", snr_data.h2);
+            size_tstr = snprintf(tstr, s_tstr, "H\3%2d", sn.h2);
             out = true;
           }
           break;
 
         case 5: //Температура канал 3
-          if (snr_data.t3 <= -99 || snr_data.t3 >= 99) mod ++;
+          if (sn.t3 <= -99 || sn.t3 >= 99) mod ++;
           else
           {
-            if (snr_data.t3 > - 10)size_tstr = snprintf(tstr, s_tstr, "t\5%2d", snr_data.t3);
-            else size_tstr = snprintf(tstr, s_tstr, "t\6%2d", abs(snr_data.t3));
+            if (sn.t3 > - 10)size_tstr = snprintf(tstr, s_tstr, "t\5%2d", sn.t3);
+            else size_tstr = snprintf(tstr, s_tstr, "t\6%2d", abs(sn.t3));
             out = true;
           }
           break;
 
         case 6: //Влажность канал 3
-          if (snr_data.h3 <= 0 || snr_data.h3 > 99) mod ++;
+          if (sn.h3 <= 0 || sn.h3 > 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "H\5%d", snr_data.h3);
+            size_tstr = snprintf(tstr, s_tstr, "H\5%d", sn.h3);
             out = true;
           }
           break;
 
         case 7: //Давление
-          if (snr_data.p <= 700 || snr_data.p >= 800) mod ++;
+          if (sn.p <= 700 || sn.p >= 800) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "P%3d", snr_data.p);
+            size_tstr = snprintf(tstr, s_tstr, "P%3d", sn.p);
             out = true;
           }
           break;
 
         case 8: //День недели, дата
 
-          copyFromPGM(&name_week7[weekday()], b1);
-
-          size_tstr = snprintf(tstr, s_tstr, "%2s%2d", b1, day());
+          size_tstr = snprintf(tstr, s_tstr, "%2s%2d", name_week7[rt.wday], rt.day);
           out = true;
           break;
 
         case 9: //Месяц, год
-          size_tstr = snprintf(tstr, s_tstr, "%2d%2d", month(), year() % 100);
+          size_tstr = snprintf(tstr, s_tstr, "%2d%2d", rt.month, rt.year % 100);
           out = true;
           break;
 
         case 10: //Актуальный будильник
-          if (rtc_data.a_hour == 62 && rtc_data.a_min == 62) mod ++;
+          if (rt.a_hour == 62 && rt.a_min == 62) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "%2d%02d", rtc_data.a_hour, rtc_data.a_min);
+            size_tstr = snprintf(tstr, s_tstr, "%2d%02d", rt.a_hour, rt.a_min);
             out = true;
           }
           break;
 
         case 11: //Секунды
-          size_tstr = snprintf(tstr, s_tstr, "%02d5 ", second());
+          size_tstr = snprintf(tstr, s_tstr, "%02d5 ", rt.sec);
           out = true;
           break;
 
         case 12: //Текущая яркость
-          size_tstr = snprintf(tstr, s_tstr, "L%3d", cur_br);
+          size_tstr = snprintf(tstr, s_tstr, "L%3d", c_br);
           out = true;
           break;
 
         default:
-          size_tstr = snprintf(tstr, s_tstr, "%2d%02d", h, minute());
+          size_tstr = snprintf(tstr, s_tstr, "%2d%02d", h, rt.min);
           out = true;
           break;
       }
@@ -124,90 +135,89 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
       switch (mod)
       {
         case 1: //Температура канал 1
-          if (snr_data.t1 <= -99 || snr_data.t1 >= 99) mod ++;
+          if (sn.t1 <= -99 || sn.t1 >= 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "t1%4d", snr_data.t1);
+            size_tstr = snprintf(tstr, s_tstr, "t1%4d", sn.t1);
             out = true;
           }
           break;
 
         case 2: //Влажность канал 1
-          if (snr_data.h1 <= 0 || snr_data.h1 > 99) mod ++;
+          if (sn.h1 <= 0 || sn.h1 > 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "H1%4d", snr_data.h1);
+            size_tstr = snprintf(tstr, s_tstr, "H1%4d", sn.h1);
             out = true;
           }
           break;
 
         case 3: //Температура канал 2
-          if (snr_data.t2 <= -99 || snr_data.t2 >= 99) mod ++;
+          if (sn.t2 <= -99 || sn.t2 >= 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "t2%4d", snr_data.t2);
+            size_tstr = snprintf(tstr, s_tstr, "t2%4d", sn.t2);
             out = true;
           }
           break;
 
         case 4: //Влажность канал 2
-          if (snr_data.h2 <= 0 || snr_data.h2 > 99) mod ++;
+          if (sn.h2 <= 0 || sn.h2 > 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "H2%4d", snr_data.h2);
+            size_tstr = snprintf(tstr, s_tstr, "H2%4d", sn.h2);
             out = true;
           }
           break;
 
         case 5: //Температура канал 3
-          if (snr_data.t3 <= -99 || snr_data.t3 >= 99) mod ++;
+          if (sn.t3 <= -99 || sn.t3 >= 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "t3%4d", snr_data.t3);
+            size_tstr = snprintf(tstr, s_tstr, "t3%4d", sn.t3);
             out = true;
           }
           break;
 
         case 6: //Влажность канал 3
-          if (snr_data.h3 <= 0 || snr_data.h3 > 99) mod ++;
+          if (sn.h3 <= 0 || sn.h3 > 99) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "H3%4d", snr_data.h3);
+            size_tstr = snprintf(tstr, s_tstr, "H3%4d", sn.h3);
             out = true;
           }
           break;
 
         case 7: //Давление
-          if (snr_data.p <= 700 || snr_data.p >= 800)mod ++;
+          if (sn.p <= 700 || sn.p >= 800)mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "P%5d", snr_data.p);
+            size_tstr = snprintf(tstr, s_tstr, "P%5d", sn.p);
             out = true;
           }
           break;
 
         case 8: //День недели, дата месяц
-          copyFromPGM(&name_week7[weekday()], b1);
-          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d", b1, day(), month());
+          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d", name_week7[rt.wday], rt.day, rt.month);
           out = true;
           break;
 
         case 9: //Актуальный будильник
-          if (rtc_data.a_hour == 62 && rtc_data.a_min == 62) mod ++;
+          if (rt.a_hour == 62 && rt.a_min == 62) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "AL%2d.%02d", rtc_data.a_hour, rtc_data.a_min);
+            size_tstr = snprintf(tstr, s_tstr, "AL%2d.%02d", rt.a_hour, rt.a_min);
             out = true;
           }
           break;
 
         case 10: //Текущая яркость
-          size_tstr = snprintf(tstr, s_tstr, " L %2u  ", cur_br);
+          size_tstr = snprintf(tstr, s_tstr, " L %2u  ", c_br);
           out = true;
           break;
 
         default:
-          size_tstr = snprintf(tstr, s_tstr, "%2d.%02d.%02d", h, minute(), second());
+          size_tstr = snprintf(tstr, s_tstr, "%2d.%02d.%02d", h, rt.min, rt.sec);
           out = true;
           break;
       }
@@ -216,64 +226,63 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset)
       switch (mod)
       {
         case 1: //Температура, Влажность канал 1
-          if ((snr_data.h1 <= 0 || snr_data.h1 > 99) && (snr_data.t1 <= -99 || snr_data.t1 >= 99)) mod ++;
+          if ((sn.h1 <= 0 || sn.h1 > 99) && (sn.t1 <= -99 || sn.t1 >= 99)) mod ++;
           else
           {
-            if ((snr_data.h1 > 0 || snr_data.h1 <= 99) && (snr_data.t1 > -99 || snr_data.t1 < 99)) size_tstr = snprintf(tstr, s_tstr, "1.t%3d.H%2d", snr_data.t1, snr_data.h1);
-            if (snr_data.t1 <= -99 || snr_data.t1 >= 99) size_tstr = snprintf(tstr, s_tstr, "1.t---.H%2d", snr_data.t1, snr_data.h1);
-            if (snr_data.h1 <= 0   || snr_data.h1 >  99) size_tstr = snprintf(tstr, s_tstr, "1.t%3d.H--", snr_data.t1, snr_data.h1);
+            if ((sn.h1 > 0 || sn.h1 <= 99) && (sn.t1 > -99 || sn.t1 < 99)) size_tstr = snprintf(tstr, s_tstr, "1.t%3d.H%2d", sn.t1, sn.h1);
+            if (sn.t1 <= -99 || sn.t1 >= 99) size_tstr = snprintf(tstr, s_tstr, "1.t---.H%2d", sn.t1, sn.h1);
+            if (sn.h1 <= 0   || sn.h1 >  99) size_tstr = snprintf(tstr, s_tstr, "1.t%3d.H--", sn.t1, sn.h1);
             out = true;
           }
           break;
 
         case 2: //Температура, Влажность канал 2
-          if ((snr_data.h2 <= 0 || snr_data.h2 > 99) && (snr_data.t2 <= -99 || snr_data.t2 >= 99)) mod ++;
+          if ((sn.h2 <= 0 || sn.h2 > 99) && (sn.t2 <= -99 || sn.t2 >= 99)) mod ++;
           else
           {
-            if ((snr_data.h2 > 0 || snr_data.h2 <= 99) && (snr_data.t2 > -99 || snr_data.t2 < 99)) size_tstr = snprintf(tstr, s_tstr, "2.t%3d.H%2d", snr_data.t2, snr_data.h2);
-            if (snr_data.t2 <= -99 || snr_data.t2 >= 99) size_tstr = snprintf(tstr, s_tstr, "2.t---.H%2d", snr_data.t2, snr_data.h2);
-            if (snr_data.h2 <= 0   || snr_data.h2 >  99) size_tstr = snprintf(tstr, s_tstr, "2.t%3d.H--", snr_data.t2, snr_data.h2);
+            if ((sn.h2 > 0 || sn.h2 <= 99) && (sn.t2 > -99 || sn.t2 < 99)) size_tstr = snprintf(tstr, s_tstr, "2.t%3d.H%2d", sn.t2, sn.h2);
+            if (sn.t2 <= -99 || sn.t2 >= 99) size_tstr = snprintf(tstr, s_tstr, "2.t---.H%2d", sn.t2, sn.h2);
+            if (sn.h2 <= 0   || sn.h2 >  99) size_tstr = snprintf(tstr, s_tstr, "2.t%3d.H--", sn.t2, sn.h2);
             out = true;
           }
           break;
 
         case 3: //Температура, Влажность канал 3
-          if ((snr_data.h3 <= 0 || snr_data.h3 > 99) && (snr_data.t3 <= -99 || snr_data.t3 >= 99)) mod ++;
+          if ((sn.h3 <= 0 || sn.h3 > 99) && (sn.t3 <= -99 || sn.t3 >= 99)) mod ++;
           else
           {
-            if ((snr_data.h3 > 0 || snr_data.h3 <= 99) && (snr_data.t3 > -99 || snr_data.t3 < 99)) size_tstr = snprintf(tstr, s_tstr, "3.t%3d.H%2d", snr_data.t3, snr_data.h3);
-            if (snr_data.t3 <= -99 || snr_data.t3 >= 99) size_tstr = snprintf(tstr, s_tstr, "3.t---.H%2d", snr_data.t3, snr_data.h3);
-            if (snr_data.h3 <= 0   || snr_data.h3 >  99) size_tstr = snprintf(tstr, s_tstr, "3.t%3d.H--", snr_data.t3, snr_data.h3);
+            if ((sn.h3 > 0 || sn.h3 <= 99) && (sn.t3 > -99 || sn.t3 < 99)) size_tstr = snprintf(tstr, s_tstr, "3.t%3d.H%2d", sn.t3, sn.h3);
+            if (sn.t3 <= -99 || sn.t3 >= 99) size_tstr = snprintf(tstr, s_tstr, "3.t---.H%2d", sn.t3, sn.h3);
+            if (sn.h3 <= 0   || sn.h3 >  99) size_tstr = snprintf(tstr, s_tstr, "3.t%3d.H--", sn.t3, sn.h3);
             out = true;
           }
           break;
 
         case 4: //Давление
-          if (snr_data.p <= 700 || snr_data.p >= 800) mod ++;
+          if (sn.p <= 700 || sn.p >= 800) mod ++;
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, " P%4d  ", snr_data.p);
+            size_tstr = snprintf(tstr, s_tstr, " P%4d  ", sn.p);
             out = true;
           }
           break;
 
         case 5: //День недели, дата, месяц, год
-          copyFromPGM(&name_week7[weekday()], b1);
-          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d.02d", b1, day(), month(), year() % 100);
+          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d.02d", name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
           out = true;
           break;
 
         case 6: //Актуальный будильник, текущая яркость
-          if (rtc_data.a_hour == 62 && rtc_data.a_min == 62) size_tstr = sprintf(tstr, "A----L%2d", cur_br);
+          if (rt.a_hour == 62 && rt.a_min == 62) size_tstr = sprintf(tstr, "A----L%2d", c_br);
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "A%2u.%02dL%2d", rtc_data.a_hour, rtc_data.a_min, cur_br);
+            size_tstr = snprintf(tstr, s_tstr, "A%2u.%02dL%2d", rt.a_hour, rt.a_min, c_br);
             out = true;
           }
           break;
 
         default:
-          size_tstr = snprintf(tstr, s_tstr, "%2d-%02d-%02d", h, minute(), second());
+          size_tstr = snprintf(tstr, s_tstr, "%2d-%02d-%02d", h, rt.min, rt.sec);
           out = true;
           break;
       }

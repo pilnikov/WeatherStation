@@ -30,7 +30,7 @@ void irq_set()
       break;
 
     case 3:
-      GetSnr();
+      snr_data = GetSnr(ram_data, conf_data);
       irq_end[3] = millis();
       break;
 
@@ -76,7 +76,11 @@ void irq_set()
       num_st++; //Перебор строк.
       if (num_st > max_st) num_st = 1;
 
-      st1 = pr_str(num_st);
+      String local_ip = "192.168.0.0";
+#if defined(__xtensa__)
+      local_ip =  WiFi.localIP().toString();
+#endif
+      st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
 
       f_dsp.utf8rus(st1);
 
@@ -119,23 +123,28 @@ void firq4() // 55sec
 
 void firq6() // 0.5 sec main cycle
 {
+  //-------------Refresh current time in rtc_data------------------
+
+  rtc_data.hour      = hour();         // Текущее время. Час.
+  rtc_data.min       = minute();       // Текущее время. Минута.
+  rtc_data.sec       = second();       // Текущее время. Секунда.
+  rtc_data.day       = day();          // Текущее время. День.
+  rtc_data.wday      = weekday();      // Текущее время. День недели.
+  rtc_data.month     = month();        // Текущее время. Месяц.
+  rtc_data.year      = year();         // Текущее время. Год.
+
   if (disp_on)
   {
     //-------------Brigthness------------------
     if (conf_data.auto_br)
     {
-      snr_data.f = ft_read(ram_data.bh1750_present);
-      cur_br = auto_br(snr_data.f);
+      snr_data.f = ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), ANA_SNR);
+      cur_br = auto_br(snr_data.f, conf_data);
     }
     else
     {
       cur_br = conf_data.man_br;  // Man brigthness
       snr_data.f = cur_br;
-    }
-
-    if (cur_br != cur_br_buf)
-    {
-      cur_br_buf = cur_br;
     }
     //-----------------------------------------
 
@@ -149,7 +158,7 @@ void firq6() // 0.5 sec main cycle
     set_alarm();
     rtc_data.wasAlarm = false;
   }
-  Thermo();
+  Thermo(snr_data, conf_data);
   blinkColon = !blinkColon;
 
   //------------------------------------------------------ Отправляем данные через UART

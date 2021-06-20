@@ -1,7 +1,7 @@
 
-void CLS(void);
-void cleanPos(uint8_t);
-void printDot(uint8_t);
+void CLS(byte*);
+void cleanPos(uint8_t, byte*);
+void printDot(uint8_t, byte*);
 void printCharacter(unsigned char, uint8_t, byte*, const byte*, uint8_t);
 void print_(char*, uint8_t, byte*, uint8_t, const byte*, uint8_t, uint8_t);
 void compressor7(byte*, uint8_t, uint8_t);
@@ -11,26 +11,26 @@ void shift_ud(bool, bool, byte*, byte*, byte*, int8_t, int8_t);
    Erases all display
 */
 
-void CLS() // Clean screen buffer
+void CLS(byte *out) // Clean screen buffer
 {
-  memset(screen, 0, 64);
+  memset(out, 0, 64);
 }
 
 /*
    Erases one pos on display
 */
 
-void cleanPos(uint8_t pos)
+void cleanPos(uint8_t pos, byte *out)
 {
-  memset(screen + pos, 0, 1);
+  memset(out + pos, 0, 1);
 }
 
 /*
    Displays an dot  on a given display
 */
-void printDot(uint8_t pos)
+void printDot(uint8_t pos, byte *out)
 {
-  screen[pos] |= 0x80;
+  out[pos] |= 0x80;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

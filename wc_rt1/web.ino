@@ -107,6 +107,7 @@ void stop_serv()
 String cur_time_str()
 {
   char buf[25];
+  const char* name_week[]  = {"", "ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
 
   snprintf(buf, 25, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
            day(), month(), year(), hour(), minute(), second());
@@ -398,7 +399,7 @@ void handleSetPars2()
   ram_data.type_snr2 = conf_data.type_snr2;
   ram_data.type_snrp = conf_data.type_snrp;
 
-  GetSnr();
+  snr_data = GetSnr(ram_data, conf_data);
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor
@@ -568,7 +569,7 @@ void handleSelNum()
 //-------------------------------------------------------------- handlejUart
 void handlejUart()
 {
-  server.send(200, "text/json", uart_st());
+  server.send(200, "text/json", uart_st(snr_data, wf_data, conf_data, rtc_data, cur_br));
 }
 
 //-------------------------------------------------------------- handlejTrm
@@ -648,7 +649,7 @@ bool handleFileRead(String path)
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
- #if defined(ESP8266)
+#if defined(ESP8266)
   if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
     if (LittleFS.exists(pathWithGz))
       path += ".gz";

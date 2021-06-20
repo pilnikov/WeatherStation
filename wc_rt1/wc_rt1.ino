@@ -171,7 +171,7 @@ void setup()
 # endif
 
   //-------------------------------------------------------  Опрашиваем датчики
-  GetSnr();
+  snr_data = GetSnr(ram_data, conf_data);
 
   //-------------------------------------------------------- Гасим светодиод
   if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
@@ -182,8 +182,8 @@ void setup()
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
   {
-    snr_data.f = ft_read(ram_data.bh1750_present);
-    cur_br = auto_br(snr_data.f);
+    snr_data.f = ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), ANA_SNR);
+    cur_br = auto_br(snr_data.f, conf_data);
   }
   else
   {

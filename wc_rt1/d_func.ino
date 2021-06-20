@@ -1,20 +1,20 @@
 
 //-------------------------------------------------------------- Установка яркости
-uint8_t auto_br(uint16_t lt)
+uint8_t auto_br(uint16_t lt, conf_data_t cf)
 {
   // у = кх + в
 
-  uint8_t c_br = conf_data.br_level[2]; // b
-  float br = conf_data.br_level[3];
+  uint8_t c_br = cf.br_level[2]; // b
+  float br = cf.br_level[3];
 
-  float dx = (float)conf_data.br_level[1] - conf_data.br_level[0]; //диапазон освещенности (dх)
-  float dy = (float)conf_data.br_level[3] - conf_data.br_level[2]; //уставки яркости (dу)
+  float dx = (float)cf.br_level[1] - cf.br_level[0]; //диапазон освещенности (dх)
+  float dy = (float)cf.br_level[3] - cf.br_level[2]; //уставки яркости (dу)
   float ltt = (float)lt;
 
-  br = dy / dx * ltt + (float)conf_data.br_level[2];
-  if (dx < 0)   br = dy / dx * ltt + (float)conf_data.br_level[3];
+  br = dy / dx * ltt + (float)cf.br_level[2];
+  if (dx < 0)   br = dy / dx * ltt + (float)cf.br_level[3];
 
-  c_br = constrain(br, conf_data.br_level[2], conf_data.br_level[3]);
+  c_br = constrain(br, cf.br_level[2], cf.br_level[3]);
 /*
   DBG_OUT_PORT.print(F("brightness before..."));
   DBG_OUT_PORT.println(br);
@@ -25,13 +25,13 @@ uint8_t auto_br(uint16_t lt)
   return c_br;
 }
 
-uint16_t ft_read(bool snr_pres)
+uint16_t ft_read(bool snr_pres, uint16_t bh_lvl, const int in)
 {
   uint16_t ft = 7;
-  if (snr_pres) ft = lightMeter.readLightLevel();
+  if (snr_pres) ft = bh_lvl;
   else
   {
-    ft = analogRead(ANA_SNR);
+    ft = analogRead(in);
   }
 
 //  DBG_OUT_PORT.print(F("level from sensor..."));
@@ -41,24 +41,24 @@ uint16_t ft_read(bool snr_pres)
 }
 
 
-bool time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buff, bool pm)
+bool time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buff, bool pm, const uint8_t q_dig, rtc_data_t rt)
 {
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];
   uint8_t font_wdt = 5;
   byte nbuf[64];
 
-  uint8_t h = hour();
+  uint8_t h = rt.hour;
   // Do 24 hour to 12 hour format conversion when required.
-  if (pm && hour() > 12) h = hour() - 12;
+  if (pm && rt.hour > 12) h = rt.hour - 12;
 
   d[0] = ' ';
   if (h > 9) d[0] = h / 10 + '0';
   d[1] = h % 10 + '0';
-  d[2] = minute() / 10 + '0';
-  d[3] = minute() % 10 + '0';
-  d[4] = second() / 10 + '\x80';
-  d[5] = second() % 10 + '\x80';
+  d[2] = rt.min / 10 + '0';
+  d[3] = rt.min % 10 + '0';
+  d[4] = rt.sec / 10 + '\x80';
+  d[5] = rt.sec % 10 + '\x80';
 
   for (uint8_t i = 0; i < q_dig; i++)
   {

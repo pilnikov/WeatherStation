@@ -5,45 +5,45 @@ void time_view(uint8_t, uint8_t);
 void time_view(uint8_t type_disp, uint8_t type_vdrv)
 {
   uint8_t mod = 13;
-  if (end_run_st || nm_is_on) CLS();
+  if (end_run_st || nm_is_on) CLS(screen);
   switch (type_disp)
   {
     case 1:
       // 7SEGx4D
       if (nm_is_on || disp_mode == 10) disp_mode = 13;
-      seg7_mode(disp_mode, 4, screen, 0);
-      if (blinkColon) printDot(3);
+      seg7_mode(disp_mode, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (blinkColon) printDot(3, screen);
       break;
     case 2:
       // 7SEGx6D
       if (nm_is_on || disp_mode == 9) disp_mode = 11;
-      seg7_mode(disp_mode, 6, screen, 0);
+      seg7_mode(disp_mode, 6, screen, 0, conf_data, snr_data, rtc_data, cur_br);
       break;
     case 3:
       // 7SEGx8D
       if (nm_is_on || disp_mode == 6) disp_mode = 7;
-      seg7_mode(disp_mode, 8, screen, 0);
+      seg7_mode(disp_mode, 8, screen, 0, conf_data, snr_data, rtc_data, cur_br);
       break;
     case 10:
       // 14SEGx4D
       if (nm_is_on || disp_mode == 10) disp_mode = 13;
-      seg7_mode(disp_mode, 4, screen, 0);
-      if (blinkColon) printDot(3);
+      seg7_mode(disp_mode, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (blinkColon) printDot(3, screen);
       break;
     case 11:
       // 14SEGx8D
-      seg7_mode(mod, 4, screen, 0);
-      if (blinkColon) printDot(3);
+      seg7_mode(mod, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (blinkColon) printDot(3, screen);
       break;
     case 12:
       // 16SEGx4D
       break;
     case 13:
       // 16SEGx8D
-      seg7_mode(mod, 4, screen, 0);
+      seg7_mode(mod, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
       if (disp_mode == 10) disp_mode = 1;
-      if (!nm_is_on) seg7_mode(disp_mode, 4, screen, 8);
-      if (blinkColon) printDot(3);
+      if (!nm_is_on) seg7_mode(disp_mode, 4, screen, 8, conf_data, snr_data, rtc_data, cur_br);
+      if (blinkColon) printDot(3, screen);
       break;
     case 19:
       // 2LINEx16D
@@ -51,27 +51,27 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 20:
       // M32x8MONO
-      m32_8time_act = time_m32_8(screen, 0, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
+      m32_8time_act = time_m32_8(screen, 0, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm, q_dig, rtc_data);
       break;
     case 21:
       // m32x16MONO
-      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm, q_dig, rtc_data);
       break;
     case 22:
       // M32x16BICOL
-      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm, q_dig, rtc_data);
       break;
     case 23:
       // M32x16COLOR
-      //m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
+      //m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm, q_dig, rtc_data);
       break;
     case 24:
       // M64x32COLOR
-      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm, q_dig, rtc_data);
       break;
     case 25:
       // M64x64COLOR
-      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
+      m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm, q_dig, rtc_data);
       break;
     case 29:
       // 320x240COLOR
@@ -82,10 +82,10 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 31:
       // CUSTOM_2
-      seg7_mode(mod, 4, screen, 0);
-      if (blinkColon) printDot(5);
+      seg7_mode(mod, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (blinkColon) printDot(5, screen);
       if (disp_mode == 9) disp_mode = 1;
-      if (!nm_is_on) seg7_mode(disp_mode, 6, screen, 8);
+      if (!nm_is_on) seg7_mode(disp_mode, 6, screen, 8, conf_data, snr_data, rtc_data, cur_br);
       compressor7(screen, 0, 10);
       break;
     default:

@@ -148,8 +148,12 @@ conf_data_t loadConfig(const char *filename)
 
 void saveConfig(const char *filename, conf_data_t data)
 {
+  const char  ap_ssid_def[] = "WiFi_Clock";
+  const char  ap_pass_def[] = "";
+  const char sta_ssid_def[] = "My_WiFi";
+  const char sta_pass_def[] = "";
+  
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
-
 
   if ( data.type_vdrv    < 0  || data.type_vdrv  >  20) data.type_vdrv  = 0;
   if ( data.type_disp    < 0  || data.type_disp  >  50) data.type_disp  = 0;
@@ -282,6 +286,8 @@ void saveConfig(const char *filename, conf_data_t data)
 conf_data_t defaultConfig()
 {
   conf_data_t data;
+
+  // ---------------------------------------------------- WiFi Default
 
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 

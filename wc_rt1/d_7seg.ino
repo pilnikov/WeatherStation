@@ -20,7 +20,7 @@ void ht1621_init()
   uint8_t i = 0;
 
   ht21->clear_all();// clear memory
-  CLS();
+  CLS(screen);
 
   digit(1, 1, screen); /* 1 */
   digit(3, 2, screen); /* 2 */
