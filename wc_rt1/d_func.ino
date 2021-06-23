@@ -15,13 +15,13 @@ uint8_t auto_br(uint16_t lt, conf_data_t cf)
   if (dx < 0)   br = dy / dx * ltt + (float)cf.br_level[3];
 
   c_br = constrain(br, cf.br_level[2], cf.br_level[3]);
-/*
-  DBG_OUT_PORT.print(F("brightness before..."));
-  DBG_OUT_PORT.println(br);
+  /*
+    DBG_OUT_PORT.print(F("brightness before..."));
+    DBG_OUT_PORT.println(br);
 
-  DBG_OUT_PORT.print(F("brightness ..."));
-  DBG_OUT_PORT.println(c_br);
-*/
+    DBG_OUT_PORT.print(F("brightness ..."));
+    DBG_OUT_PORT.println(c_br);
+  */
   return c_br;
 }
 
@@ -34,8 +34,8 @@ uint16_t ft_read(bool snr_pres, uint16_t bh_lvl, const int in)
     ft = analogRead(in);
   }
 
-//  DBG_OUT_PORT.print(F("level from sensor..."));
-//  DBG_OUT_PORT.println(ft);
+  //  DBG_OUT_PORT.print(F("level from sensor..."));
+  //  DBG_OUT_PORT.println(ft);
 
   return ft;
 }
@@ -82,8 +82,6 @@ bool time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx,
 //-------------------------------------------------------------- Отображение бегущей строки
 bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, byte * out, const byte * font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
 {
-  byte inbyte[qbs]; //источник байтов
-
   unsigned char character = 0; // дергаем входящую сроку по символам
 
   memmove (out + x1,/* цель */out + x1 + qbs,/* источник */x2 - x1 - qbs + 1/* объем */);

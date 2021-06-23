@@ -6,6 +6,9 @@ String pr_str(uint8_t num)
   char buf[120], buf1[120], buf2[120],  buf3[120], buf4[120];
   uint16_t size_buf  = snprintf(buf,  2, " ");
   uint16_t size_buf1 = snprintf(buf1, 2, " ");
+  uint16_t ala_t = (int)rtc_data.a_hour * 60 + rtc_data.a_min;
+  uint16_t cur_t = (int) hour() * 60 + minute();
+  uint8_t ala_h = 0, ala_m = 0;
 
 
   if (!conf_data.rus_lng)
@@ -13,10 +16,10 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-          copyFromPGM(&sdne[_weekday - 1], buf1, sizeof(buf1));
-          copyFromPGM(&smne[_month - 1], buf2, sizeof(buf2));
+        copyFromPGM(&sdne[_weekday - 1], (byte*)buf1, sizeof(buf1));
+        copyFromPGM(&smne[_month - 1],   (byte*)buf2, sizeof(buf2));
 
-          size_buf = snprintf(buf, 100, " Today is %s %d %s %d", buf1, _day, buf2, _year);
+        size_buf = snprintf(buf, 100, " Today is %s %d %s %d", buf1, _day, buf2, _year);
         break;
       case 2:
         if (snr_data.t1 > -99 && snr_data.t1 < 99)
@@ -60,8 +63,8 @@ String pr_str(uint8_t num)
     switch (num)
     {
       case 1:
-        copyFromPGM(&sdnr[_weekday - 1], buf1, sizeof(buf1));
-        copyFromPGM(&smnr[_month - 1], buf2, sizeof(buf2));
+        copyFromPGM(&sdnr[_weekday - 1], (byte*)buf1, sizeof(buf1));
+        copyFromPGM(&smnr[_month - 1],   (byte*)buf2, sizeof(buf2));
         size_buf = snprintf(buf, 100, " Сегодня %s %d %s %dг.", buf1, _day, buf2, _year);
         break;
       case 2:
@@ -79,7 +82,7 @@ String pr_str(uint8_t num)
 
           if (conf_data.use_pp == 2)
           {
-            copyFromPGM(&swnr[wf_data_cur.wind_dir], buf2, sizeof(buf2));
+            copyFromPGM(&swnr[wf_data_cur.wind_dir], (byte*)buf2, sizeof(buf2));
 
             size_buf1 = wf_data.descript.length() + 1;
             strncpy(buf1, wf_data.descript.c_str(), size_buf1);
@@ -113,10 +116,10 @@ String pr_str(uint8_t num)
             size_buf = snprintf(buf, 100, " Прогноз погоды отключен");
             break;
           case 1:
-            copyFromPGM(&stdr[wf_data.tod], buf1, sizeof(buf1));
-            copyFromPGM(&smnr[wf_data.month - 1], buf2, sizeof(buf2));
-            copyFromPGM(&swnr[wf_data.wind_dir], buf3, sizeof(buf3));
-            copyFromPGM(&sprcr[wf_data.prec], buf4, sizeof(buf4));
+            copyFromPGM(&stdr[wf_data.tod], (byte*)buf1, sizeof(buf1));
+            copyFromPGM(&smnr[wf_data.month - 1], (byte*)buf2, sizeof(buf2));
+            copyFromPGM(&swnr[wf_data.wind_dir], (byte*)buf3, sizeof(buf3));
+            copyFromPGM(&sprcr[wf_data.prec], (byte*)buf4, sizeof(buf4));
 
             wf_data.temp_min > -99 ? size_buf = snprintf(buf, 100, " Прогноз погоды от GM на %s %d %s:температура от %d до %d%cC ветер %s %d - %dм/с %s oтн. влажность %d%% давление %dмм.рт.ст",
                                                 buf1, wf_data.day, buf2,
@@ -124,8 +127,8 @@ String pr_str(uint8_t num)
                                                 wf_data.hum_max, wf_data.press_max) : size_buf = snprintf(buf, 255, " Данные по прогнозу погоды не получены - проверьте настройки ");
             break;
           case 2:
-            copyFromPGM(&smnr[wf_data.month - 1], buf2, sizeof(buf2));
-            copyFromPGM(&swnr[wf_data.wind_dir], buf3, sizeof(buf3));
+            copyFromPGM(&smnr[wf_data.month - 1], (byte*)buf2, sizeof(buf2));
+            copyFromPGM(&swnr[wf_data.wind_dir], (byte*)buf3, sizeof(buf3));
 
             size_buf1 = wf_data.descript.length() + 1;
             strncpy(buf1, wf_data.descript.c_str(), size_buf1);
@@ -141,16 +144,13 @@ String pr_str(uint8_t num)
         break;
 
       case 4:
-        uint16_t alat = (int)rtc_data.a_hour * 60 + rtc_data.a_min;
-        uint16_t curt = (int) hour() * 60 + minute();
-        uint8_t alah = 0, alam = 0;
-        if (alat > curt)
+        if (ala_t > cur_t)
         {
-          alah = trunc((alat - curt) / 60);
-          alam = (alat - curt - (alah * 60));
+          ala_h = trunc((ala_t - cur_t) / 60);
+          ala_m = (ala_t - cur_t - (ala_h * 60));
         }
-        (alat > curt) ? size_buf = snprintf(buf, 115, " Будильник зазвонит через %2d ч. %2d мин. в %2d:%02d. Текущая яркость: %2d", alah, alam, rtc_data.a_hour, rtc_data.a_min, cur_br)
-            : size_buf = snprintf(buf, 100, " Будильник не установлен. Текущая яркость:%2d", cur_br);
+        (ala_t > cur_t) ? size_buf = snprintf(buf, 115, " Будильник зазвонит через %2d ч. %2d мин. в %2d:%02d. Текущая яркость: %2d", ala_h, ala_m, rtc_data.a_hour, rtc_data.a_min, cur_br)
+                                     : size_buf = snprintf(buf, 100, " Будильник не установлен. Текущая яркость:%2d", cur_br);
         break;
       default:
         break;

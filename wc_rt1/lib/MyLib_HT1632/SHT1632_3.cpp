@@ -201,9 +201,9 @@ void HT1632C::plot(const int rx, const int ry, const uint8_t color)
 
 void HT1632C::sendCmd(const uint8_t chip, const uint8_t cmd)
 {
-  uint16_t data = ((ID_CODE::CMD << 8) | cmd) << 5;
   chipSelect(chip);
   # if defined(__xtensa__)
+  uint16_t data = ((ID_CODE::CMD << 8) | cmd) << 5;
   SPI.write16(data);
   # endif 
   chipSelect(CS_NONE);
@@ -260,7 +260,7 @@ void HT1632C::debugFramebuffer()
   for (int chip = 0; chip < num_chips; chip++) {
     DEBUGF("Chip %d: ", chip);
     uint8_t* ptr = framebufferPtr(chip, 0);
-    for (int i = 0; i < chip_size; i++) {
+    for (uint8_t i = 0; i < chip_size; i++) {
       Serial.print(*(ptr + i), HEX);
       if (i != chip_size - 1) {
         DEBUGF(",");

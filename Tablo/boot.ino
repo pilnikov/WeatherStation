@@ -6,7 +6,7 @@ static uint16_t buffud[64];
 static bool d_notequal[q_dig];
 static const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
 static unsigned char oldDigit[q_dig];                       // убегающая цифра
-static uint8_t  num_st = 0; 
+static uint8_t  num_st = 0;
 static const uint8_t max_st = 3; //номер и макс кол-во прокручиваемых строк
 
 void irq_set()
@@ -88,22 +88,7 @@ void irq_set()
     disp_on = false;
   }
 
-  if  (play_snd)
-  {
-    char* _ptr = songBuff;
-    if (*_ptr == ':')
-    {
-      while (*_ptr != 'x')
-      {
-        DBG_OUT_PORT.print(*_ptr);
-        _ptr++;
-      }
-      DBG_OUT_PORT.println();
-
-    }
-    else   DBG_OUT_PORT.print(F("\n wrong buffer..."));
-  }
-  Buzz.play(songBuff, conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
+  Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
   play_snd = false;
 
   //------------------------------------------------------  Верифицируем ночной режим

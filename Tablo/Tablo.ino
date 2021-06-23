@@ -189,7 +189,6 @@ void setup() {
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_data.a_muz = 15;
-  copyFromPGM(&songs[rtc_data.a_muz], songBuff, sizeof(songBuff));
   play_snd = true;
 
   DBG_OUT_PORT.println(F("End of setup"));

@@ -37,9 +37,8 @@ void ili_time(void)
 
   if (conf_data.use_pm)
   {
-    uint8_t h = 0;
-    h = (hour() + 11) % 12 + 1; // take care of noon and midnight
-    //    snprintf(time_str, "%2d:%02d:%02d\n", h, minute(), second());
+    //uint8_t h = (hour() + 11) % 12 + 1; // take care of noon and midnight
+    //snprintf(time_str, "%2d:%02d:%02d\n", h, minute(), second());
     tft -> setCursor(SCREEN_WIDTH / 2, 20);
     tft -> print(time_str);
   }

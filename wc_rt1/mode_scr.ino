@@ -18,11 +18,10 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
 
   char tstr[255];
   uint8_t h = 0;
-  h = cf.use_pm && rt.hour > 12 ? h = rt.hour - 12 : rt.hour;
+  h = cf.use_pm && rt.hour > 12 ? rt.hour - 12 : rt.hour;
   uint8_t s_tstr = _width * 2;
-  uint8_t size_tstr = snprintf(tstr, s_tstr, "");
+  uint8_t size_tstr = snprintf(tstr, s_tstr, " ");
   bool out = false;
-  char b1[3];
 
   switch (_width)
   {
@@ -230,8 +229,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
           else
           {
             if ((sn.h1 > 0 || sn.h1 <= 99) && (sn.t1 > -99 || sn.t1 < 99)) size_tstr = snprintf(tstr, s_tstr, "1.t%3d.H%2d", sn.t1, sn.h1);
-            if (sn.t1 <= -99 || sn.t1 >= 99) size_tstr = snprintf(tstr, s_tstr, "1.t---.H%2d", sn.t1, sn.h1);
-            if (sn.h1 <= 0   || sn.h1 >  99) size_tstr = snprintf(tstr, s_tstr, "1.t%3d.H--", sn.t1, sn.h1);
+            if (sn.t1 <= -99 || sn.t1 >= 99) size_tstr = snprintf(tstr, s_tstr, "1.t---.H%2d", sn.h1);
+            if (sn.h1 <= 0   || sn.h1 >  99) size_tstr = snprintf(tstr, s_tstr, "1.t%3d.H--", sn.t1);
             out = true;
           }
           break;
@@ -241,8 +240,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
           else
           {
             if ((sn.h2 > 0 || sn.h2 <= 99) && (sn.t2 > -99 || sn.t2 < 99)) size_tstr = snprintf(tstr, s_tstr, "2.t%3d.H%2d", sn.t2, sn.h2);
-            if (sn.t2 <= -99 || sn.t2 >= 99) size_tstr = snprintf(tstr, s_tstr, "2.t---.H%2d", sn.t2, sn.h2);
-            if (sn.h2 <= 0   || sn.h2 >  99) size_tstr = snprintf(tstr, s_tstr, "2.t%3d.H--", sn.t2, sn.h2);
+            if (sn.t2 <= -99 || sn.t2 >= 99) size_tstr = snprintf(tstr, s_tstr, "2.t---.H%2d", sn.h2);
+            if (sn.h2 <= 0   || sn.h2 >  99) size_tstr = snprintf(tstr, s_tstr, "2.t%3d.H--", sn.t2);
             out = true;
           }
           break;
@@ -252,8 +251,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
           else
           {
             if ((sn.h3 > 0 || sn.h3 <= 99) && (sn.t3 > -99 || sn.t3 < 99)) size_tstr = snprintf(tstr, s_tstr, "3.t%3d.H%2d", sn.t3, sn.h3);
-            if (sn.t3 <= -99 || sn.t3 >= 99) size_tstr = snprintf(tstr, s_tstr, "3.t---.H%2d", sn.t3, sn.h3);
-            if (sn.h3 <= 0   || sn.h3 >  99) size_tstr = snprintf(tstr, s_tstr, "3.t%3d.H--", sn.t3, sn.h3);
+            if (sn.t3 <= -99 || sn.t3 >= 99) size_tstr = snprintf(tstr, s_tstr, "3.t---.H%2d", sn.h3);
+            if (sn.h3 <= 0   || sn.h3 >  99) size_tstr = snprintf(tstr, s_tstr, "3.t%3d.H--", sn.t3);
             out = true;
           }
           break;
@@ -268,7 +267,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
           break;
 
         case 5: //День недели, дата, месяц, год
-          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d.02d", name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
+          size_tstr = snprintf(tstr, s_tstr, "%2s.%02d.%02d.%02d", name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
           out = true;
           break;
 

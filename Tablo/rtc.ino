@@ -140,8 +140,8 @@ void set_alarm() //Устанавливаем будильник
     //----------------------------------------------------------------------поиск самого раннего будильника
     snday = ((_weekday + 1) > 5); //А не выходной ли завтра?
     if (conf_data.alarms[j][0] > 0 //будильник актививен
-        & ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || ((conf_data.alarms[j][0] == 3) & snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
-        & ((uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] < amin)
+        && (((conf_data.alarms[j][0] == 1 || conf_data.alarms[j][0] == 2) && !snday) || ((conf_data.alarms[j][0] == 3) && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
+        && ((uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] < amin)
        )
     {
       amin = (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2];
@@ -238,7 +238,6 @@ bool Alarmed()
     {
       case 0:
         rtc_data.a_muz = conf_data.alarms[rtc_data.n_cur_alm][3];
-        copyFromPGM(&songs[rtc_data.a_muz], songBuff, sizeof(songBuff));
         play_snd = true;
         break;
 
@@ -275,7 +274,6 @@ bool Alarmed()
     if (conf_data.every_hour_beep & !nm_is_on)
     {
       rtc_data.a_muz = 15;
-      copyFromPGM(&songs[rtc_data.a_muz], songBuff, sizeof(songBuff));
       play_snd = true;
     }
   }
