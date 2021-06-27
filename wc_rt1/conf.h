@@ -37,8 +37,8 @@
 ********************************************************** Config
   struct conf_data_t
   {
-  char      sta_ssid[33];
-  char      sta_pass[33];
+  char      sta_ssid[17];
+  char      sta_pass[17];
   char      ap_ssid[17];
   char      ap_pass[17];
   uint16_t  br_level[4];
@@ -57,18 +57,20 @@
   bool      use_tsh2;
   bool      use_tsh3;
   bool      use_tsp;
-  bool      use_es;
+  bool      wifi_off;
+  bool      udp_mon;
   uint8_t   use_pp;
   uint8_t   man_br;
+  uint8_t   nmd_br;
   uint8_t   nm_start;
   uint8_t   nm_stop;
   uint8_t   alarms[7][5];
   uint8_t   type_font;
   uint8_t   type_vdrv;
   uint8_t   type_disp;
-  char      ch1_name[8];
-  char      ch2_name[8];
-  char      ch3_name[8];
+  char      ch1_name[17];
+  char      ch2_name[17];
+  char      ch3_name[17];
   uint8_t   type_snr1;
   uint8_t   type_snr2;
   uint8_t   type_snr3;
@@ -86,9 +88,10 @@
   char      esrv1_addr[17];
   char      esrv2_addr[17];
   char      radio_addr[17];
+  char      srudp_addr[17];
   char      owm_key[35];
   char      test[3];
-  
+
   uint8_t gpio_sda = 255;
   uint8_t gpio_scl = 255;
   uint8_t gpio_dio = 255;
@@ -100,6 +103,10 @@
   uint8_t gpio_snd = 255;
   uint8_t gpio_led = 255;
   uint8_t gpio_btn = 255;
+  uint8_t gpio_dht = 255;
+  uint8_t gpio_ana = 255;
+  uint8_t gpio_uar = 255;
+  uint8_t gpio_bz2 = 255;
 
   };
 ********************************************************** Ram config
@@ -171,7 +178,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266SSDP.h>
-#include <ESPAsyncTCP.h>
+//#include <ESPAsyncTCP.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <LittleFS.h>
@@ -232,32 +239,16 @@
 #if defined(__xtensa__)
 #include "ntp.h"
 #include "Exts.h"
-#endif
-
-//#define DEBUG_UDP
 
 // ------------------------------------------------------ ConsoleUDP
-#ifdef DEBUG_UDP
 #include <udp_cons.h>
 udp_cons print_console_udp;
-#define DBG_OUT_PORT print_console_udp
-#else
-#define DBG_OUT_PORT Serial
 #endif
 
-// ------------------------------------------------------ GPIO
-#if defined(ESP8266)
-static const int        uart_pin  PROGMEM = 16;  // (D0)
-static const int         ANA_SNR  PROGMEM = A0;  // (A0) Пин фоторезистора
-static const int         DHT_PIN  PROGMEM = 0;   // Пин DHT22
-#endif
+#define DBG_OUT_PORT Serial
 
 // ------------------------------------------------------ GPIO
 #if defined(ARDUINO_ARCH_ESP32)
-static const int        BUZ2_PIN  PROGMEM =  32;  // Пин пищалки 2
-static const int         ANA_SNR  PROGMEM =  35;  // Пин фоторезистора
-static const int         DHT_PIN  PROGMEM =  34;  // Пин DHT22
-
 static const int           A_PIN  PROGMEM =   2;  // Пин A
 static const int           B_PIN  PROGMEM =  16;  // Пин B
 static const int           C_PIN  PROGMEM =  14;  // Пин C
@@ -270,10 +261,6 @@ static const int          OE_PIN  PROGMEM =  32;  // Пин OE
 
 
 #if defined(__AVR_ATmega2560__)
-static const int        BUZ2_PIN  PROGMEM =  A10; // Пин пищалки 2
-static const int         ANA_SNR  PROGMEM =  A4;  // Пин фоторезистора
-static const int         DHT_PIN  PROGMEM =  A9;  // Пин DHT22
-
 static const int           A_PIN  PROGMEM =  A0;  // Пин A
 static const int           B_PIN  PROGMEM =  A1;  // Пин B
 static const int           C_PIN  PROGMEM =  A2;  // Пин C
@@ -308,9 +295,6 @@ static const int          OE_PIN  PROGMEM =   9;  // Пин OE
 ********************************************************
 */
 
-#define        uart_pin  0
-#define         DHT_PIN  2
-#define         ANA_SNR  4  // Пин фоторезистора
 #endif
 
 // ----------------------------------- Typedef

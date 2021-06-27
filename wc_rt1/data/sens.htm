@@ -34,6 +34,9 @@
       <tr><td>Адрес внешн. сервера1</td><td><input type='text' size='17' id='esaddr1' name='esaddr1' style='text-align:center;' /></td></tr>
       <tr><td>Адрес внешн. сервера2</td><td><input type='text' size='17' id='esaddr2' name='esaddr2' style='text-align:center;' /></td></tr>
       <tr><td>Адрес радиоприемничка</td><td><input type='text' size='17' id='rdaddr' name='rdaddr'  style='text-align:center;' /></td></tr>
+      <tr><td>Адрес хоста для UDP консоли</td><td><input type='text' size='17' id='udp' name='udp'  style='text-align:center;' /></td></tr>
+      <tr><td>Использовать удаленную консоль</td><td>&nbsp;--------&nbsp;
+    	<input type='checkbox' id='udm' name='udm' onclick='sel_ts();'/></td></tr>
       
       <tr><td width='35%'>Прогноз погоды</td>
       <td><select id='usepp' name='usepp' onclick='chk_pp();'>
@@ -42,8 +45,6 @@
       <option value = '2'>OWM</option>
       </select></td></tr>
 
-	 </td></tr>
-      
       <tr><td colspan='2' class='h'>Типы датчиков</td></tr>
       
       <tr><td width='35%'>Канал 1</td>
@@ -110,10 +111,10 @@
 
       <tr><td colspan='4' class='h'>Текущие показания</td></tr>
 
-        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1--------------2-------------3&nbsp;
+        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1--------------2-------------3&nbsp;</td></tr>
         <tr><td width='20%'>Название</td><td>
         <input type='text' maxlength='8' size='3' id='name_ch1' name='name_ch1' style='text-align:center;' />
-		<input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
+    		<input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
         <input type='text' maxlength='8' size='3' id='name_ch3' name='name_ch3' style='text-align:center;' /></td></tr>
         <tr><td width='20%'>Температура</td><td>
         <input type='text' maxlength='3' size='3' id='cur_t1' name='cur_t1' style='text-align:center;' readonly />
@@ -124,8 +125,8 @@
         <input type='text' maxlength='3' size='3' id='cur_h2' name='cur_h2' style='text-align:center;' readonly />
         <input type='text' maxlength='3' size='3' id='cur_h3' name='cur_h3' style='text-align:center;' readonly /></td></tr>
         <tr><td>Давление</td><td>&nbsp;--------------------------&nbsp;
-		<input type='text' maxlength='3' size='3' id='cur_p'  name='cur_p'  style='text-align:center;' readonly /></td></tr>
-    
+    		<input type='text' maxlength='3' size='3' id='cur_p'  name='cur_p'  style='text-align:center;' readonly /></td></tr>
+
       <tr><td colspan='4' class='h'>Параметры аккаунта ТS:</td></tr>
 
         <tr><td>Channel ID</td><td><input type='text' size='6' id='tschan' name='tschan' style='text-align:center;' /></td></tr>
@@ -134,17 +135,17 @@
     
       <tr><td colspan='4' class='h'>Отправка показаний на ТS с датчиков:</td></tr>
 
-        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1----2----3&nbsp;
+        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1----2----3&nbsp;</td></tr>
         <tr><td width='20%'>Температура</td><td>
-		<input type='checkbox' id='utst1' name='utst1' onclick='sel_ts();'/>
-		<input type='checkbox' id='utst2' name='utst2' onclick='sel_ts();'/>
-		<input type='checkbox' id='utst3' name='utst3' onclick='sel_ts();'/></td></tr>
+		    <input type='checkbox' id='utst1' name='utst1' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='utst2' name='utst2' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='utst3' name='utst3' onclick='sel_ts();'/></td></tr>
         <tr><td width='20%'>Влажность</td><td>
-		<input type='checkbox' id='utsh1' name='utsh1' onclick='sel_ts();'/>
-		<input type='checkbox' id='utsh2' name='utsh2' onclick='sel_ts();'/>
-		<input type='checkbox' id='utsh3' name='utsh3' onclick='sel_ts();'/></td></tr>
+	    	<input type='checkbox' id='utsh1' name='utsh1' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='utsh2' name='utsh2' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='utsh3' name='utsh3' onclick='sel_ts();'/></td></tr>
         <tr><td>Давление</td><td>&nbsp;--------&nbsp;
-		<input type='checkbox' id='utsp' name='utsp' onclick='sel_ts();'/></td></tr>
+	    	<input type='checkbox' id='utsp' name='utsp' onclick='sel_ts();'/></td></tr>
  
   
       <tr><td colspan='4' class='h'><input type='submit' value='Записать' onclick='set_pars1();' /></td></tr>
@@ -167,6 +168,8 @@
             document.getElementById('esaddr1').value  = res.srve1;
             document.getElementById('esaddr2').value  = res.srve2;
             document.getElementById('rdaddr').value   = res.srvr;
+            document.getElementById('udp').value      = res.udp;
+            document.getElementById('udm').checked    = res.udm;
             document.getElementById('usepp').value    = res.prgp;
             document.getElementById('snr1').value     = res.s1;
             document.getElementById('snr2').value     = res.s2;
@@ -275,12 +278,14 @@
       function set_pars1()
       {
    
-        
+        var udm_t = 0;     
         var cid_t  = document.getElementById('cityID').value;
         var owmk_t = document.getElementById('owmk').value;
         var esa1_t = document.getElementById('esaddr1').value;
         var esa2_t = document.getElementById('esaddr2').value;
         var rda_t  = document.getElementById('rdaddr').value;
+        var udp_t  = document.getElementById('udp').value;
+        if (document.getElementById('udm').checked) udm_t = 1;
         var upp_t  = document.getElementById('usepp').value;
  
         url='/set_pars1?cid='+cid_t
@@ -288,6 +293,8 @@
 					 + '&esa1='+esa1_t
 					 + '&esa2='+esa2_t
 					 + '&rda=' +rda_t
+					 + '&udp=' +udp_t
+					 + '&udm=' +udm_t
 					 + '&upp=' +upp_t;
 
       var xh = new XMLHttpRequest();
@@ -305,10 +312,10 @@
         snr2_t   = document.getElementById('snr2').value;
         snr3_t   = document.getElementById('snr3').value;
         snrp_t   = document.getElementById('snrp').value;
- 	    period_t = document.getElementById('period').value;
-        nc1_t    = document.getElementById('name_ch1').value;
-        nc2_t    = document.getElementById('name_ch2').value;
-        nc3_t    = document.getElementById('name_ch3').value;
+ 	    period_t   = document.getElementById('period').value;
+         nc1_t   = document.getElementById('name_ch1').value;
+         nc2_t   = document.getElementById('name_ch2').value;
+         nc3_t   = document.getElementById('name_ch3').value;
       
         url='/set_pars2?snr1='    + snr1_t
 					 + '&snr2='   + snr2_t
@@ -365,7 +372,7 @@
 
       function sel_ts()
       {
-        var utst1_t = 0, utst2_t = 0, utst3_t = 0, utsh1_t = 0, utsh2_t = 0, utsh3_t = 0, utsp_t = 0;
+        var utst1_t = 0, utst2_t = 0, utst3_t = 0, utsh1_t = 0, utsh2_t = 0, utsh3_t = 0, utsp_t = 0, udm_t = 0;
 
         if (document.getElementById('utst1').checked) utst1_t = 1;
         if (document.getElementById('utst2').checked) utst2_t = 1;
@@ -397,44 +404,51 @@
          if (snr1_t == 3 || snr2_t == 3 || snr3_t == 3 || snrp_t == 3) showHide('esaddr2',  true);
          else showHide('esaddr2',  false);
 
+
+/////////////////////////////////// For UDP
+         if (document.getElementById('udm').checked)  udm_t = 1;
+         if (udm_t == 1) showHide('udp',  true);
+         else showHide('udp',  false);
+ 
+
 /////////////////////////////////// For NotUse
          if (snr1_t > 0) 
          {
            showHide('cur_t1',  true);
            showHide('cur_h1',  true);
-		   showHide('name_ch1',true);
+		       showHide('name_ch1',true);
          }
          else 
          {
            showHide('cur_t1',  false);
            showHide('cur_h1',  false);
-		   showHide('name_ch1',false);
+		       showHide('name_ch1',false);
          }
 
          if (snr2_t > 0) 
          {
            showHide('cur_t2',  true);
            showHide('cur_h2',  true);
-		   showHide('name_ch2',true);
+		       showHide('name_ch2',true);
          }
          else 
          {
            showHide('cur_t2',  false);
            showHide('cur_h2',  false);
-		   showHide('name_ch2',false);
+		       showHide('name_ch2',false);
          }
 
          if (snr3_t > 0) 
          {
            showHide('cur_t3',  true);
            showHide('cur_h3',  true);
-		   showHide('name_ch3',true);
+		       showHide('name_ch3',true);
          }
          else 
          {
            showHide('cur_t3',  false);
            showHide('cur_h3',  false);
- 		   showHide('name_ch3',false);
+ 		       showHide('name_ch3',false);
         }
 
          if (snrp_t > 0) 

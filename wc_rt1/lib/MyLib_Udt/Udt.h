@@ -26,7 +26,7 @@ typedef struct
 {
     uint8_t  day       =   0; // день  , для которого составлен прогноз
     uint8_t  month     =   0; // месяц , для которого составлен прогноз
-    uint16_t year      =2015; // год,    для которого составлен прогноз
+    uint16_t year      =2021; // год,    для которого составлен прогноз
     uint8_t  tod       =   0; // время суток, для которого составлен прогноз: 0 - ночь 1 - утро, 2 - день, 3 - вечер
     uint8_t  cloud     =   0; // облачность по градациям: 0 - ясно, 1- малооблачно, 2 - облачно, 3 - пасмурно
     uint8_t  prec      =  10; // тип осадков: 4 - дождь, 5 - ливень, 6,7 – снег, 8 - гроза, 9 - нет данных, 10 - без осадков
@@ -48,8 +48,8 @@ typedef struct
 
 typedef struct 
 {
-  char      sta_ssid[33];
-  char      sta_pass[33];
+  char      sta_ssid[17];
+  char      sta_pass[17];
   char      ap_ssid[17];
   char      ap_pass[17];
   uint16_t  br_level[4];
@@ -69,8 +69,10 @@ typedef struct
   bool      use_tsh3;
   bool      use_tsp;
   bool      wifi_off;
+  bool      udp_mon;
   uint8_t   use_pp;
   uint8_t   man_br;
+  uint8_t   nmd_br;
   uint8_t   nm_start;
   uint8_t   nm_stop;
   uint8_t   alarms[7][5];
@@ -97,6 +99,7 @@ typedef struct
   char      esrv1_addr[17];
   char      esrv2_addr[17];
   char      radio_addr[17];
+  char      srudp_addr[17];
   char      owm_key[35];
   char      test[3];
 
@@ -111,6 +114,10 @@ typedef struct
   uint8_t	gpio_snd = 255;
   uint8_t	gpio_led = 255;
   uint8_t	gpio_btn = 255;
+  uint8_t	gpio_dht = 255;
+  uint8_t	gpio_ana = 255;
+  uint8_t	gpio_uar = 255;
+  uint8_t	gpio_bz2 = 255;
 
 } conf_data_t;
 

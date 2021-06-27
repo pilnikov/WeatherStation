@@ -67,7 +67,8 @@
   
         <tr><td colspan='8' class='h'>Яркость</td></tr>
         
-        <tr><td>Ручная уставка яркости дисплея</td><td><input type='text' maxlength='2' size='1' id='brd' name='brd' style='text-align:center;'/></td></tr>
+        <tr><td>Ручная уставка яркости дисплея</td><td><input type='text' maxlength='2' size='1' id='mbrd' name='mbrd' style='text-align:center;'/></td></tr>
+        <tr><td>Уставка яркости дисплея в ночном режиме</td><td><input type='text' maxlength='2' size='1' id='nbrd' name='nbrd' style='text-align:center;'/></td></tr>
         <tr><td>Авто яркость</td><td><input type='checkbox' id='abrd' name='abrd' onclick='show_abr();'/></td></tr>
   
         <tr><td>Текущее значение   </td><td><input type='text' size='2' id='cur_foto' style='text-align:center;' readonly/></td></tr>
@@ -96,7 +97,8 @@
             document.getElementById('dtyp').value = res.dtyp;
             document.getElementById('ruslng').checked = res.rlng;
     	      document.getElementById('abrd').checked = res.abrd;
-    	      document.getElementById('brd').value = res.mbrd;
+    	      document.getElementById('mbrd').value = res.mbrd;
+    	      document.getElementById('nbrd').value = res.nbrd;
     	      document.getElementById('brd1').value = res.brlevel[0];
     	      document.getElementById('brd2').value = res.brlevel[1];
     	      document.getElementById('brd3').value = res.brlevel[2];
@@ -147,13 +149,14 @@
         dtyp = document.getElementById('dtyp').value;
         if (document.getElementById('ruslng').checked) rlng = 1;
         if (document.getElementById('abrd').checked) abrd = 1;
-        brd  = document.getElementById('brd').value;
+        mbrd = document.getElementById('mbrd').value;
+        nbrd = document.getElementById('nbrd').value;
         brd1 = document.getElementById('brd1').value;
         brd2 = document.getElementById('brd2').value;
         brd3 = document.getElementById('brd3').value;
         brd4 = document.getElementById('brd4').value;
 
-        url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&abrd='+abrd+'&brd='+brd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
+        url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
         var xh = new XMLHttpRequest();
         xh.open('GET', url, true);
@@ -188,13 +191,15 @@
          if (ctyp != 12 ) 
          {
            showHide('abrd',  true);
-           showHide('brd',  true);
+           showHide('mbrd',  true);
+           showHide('nbrd',  true);
            showHide('cur_foto',  true);
          }
          else 
          {
            showHide('abrd',  false);
-           showHide('brd',  false);
+           showHide('mbrd',  false);
+           showHide('nbrd',  false);
            showHide('cur_foto',  false);
          }
 

@@ -5,15 +5,7 @@
 void setup()
 {
   //------------------------------------------------------  Определяем консоль
-#ifdef DEBUG_UDP
-  DBG_OUT_PORT.begin(4023, IPAddress(192, 168, 111, 132));
-
-#else
   DBG_OUT_PORT.begin(115200);
-#if defined(__xtensa__)
-  DBG_OUT_PORT.setDebugOutput(true);
-#endif
-#endif
 
 
 #if defined(ESP8266)
@@ -57,7 +49,7 @@ void setup()
 
   if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
   {
-    sens.dht_preset(DHT_PIN, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
+    sens.dht_preset(conf_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
 
     ram_data_t sens_data = ram_data;
 
@@ -77,16 +69,16 @@ void setup()
 
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(conf_data.gpio_btn, INPUT_PULLUP);
-  if (!ram_data.bh1750_present) pinMode(ANA_SNR, INPUT);
+  if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
   pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
   if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 
   pinMode(conf_data.gpio_snd, OUTPUT);
 
 # if defined(ARDUINO_ARCH_ESP32)
-  pinMode(BUZ2_PIN, OUTPUT);
-  ledcAttachPin(BUZ2_PIN, conf_data.gpio_snd);
-  ledcSetup(BUZ2_PIN, 2000, 8); // 2 kHz PWM, 8-bit resolution
+  pinMode(conf_data.gpio_bz2, OUTPUT);
+  ledcAttachPin(conf_data.gpio_bz2, conf_data.gpio_snd);
+  ledcSetup(conf_data.gpio_bz2, 2000, 8); // 2 kHz PWM, 8-bit resolution
 # endif
 
   DBG_OUT_PORT.println(F("GPIO inital"));
@@ -101,7 +93,7 @@ void setup()
   {
     case 0:
 #if defined(ESP8266)
-      pinMode(uart_pin, INPUT_PULLUP);
+      pinMode(conf_data.gpio_uar, INPUT_PULLUP);
 #endif
       break;
     case 1:
@@ -135,6 +127,19 @@ void setup()
   //-------------------------------------------------------- Запускаем сетевые сервисы
 # if defined(__xtensa__)
   start_wifi();
+
+  //------------------------------------------------------  Переопределяем консоль
+  if (conf_data.udp_mon)
+  {
+    DBG_OUT_PORT.end();
+#undef   DBG_OUT_PORT
+#define  DBG_OUT_PORT print_console_udp
+    IP_Addr.fromString(conf_data.srudp_addr);
+    DBG_OUT_PORT.begin(4023, IP_Addr);
+    //DBG_OUT_PORT.setDebugOutput(true);
+  }
+
+
   if (web_cli || web_ap)
   {
     //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
@@ -182,12 +187,13 @@ void setup()
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
   {
-    snr_data.f = ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), ANA_SNR);
+    snr_data.f = ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
     cur_br = auto_br(snr_data.f, conf_data);
   }
   else
   {
-    cur_br = conf_data.man_br;  // Man brigthness
+    if (nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
+    else cur_br = conf_data.man_br;
     snr_data.f = cur_br;
   }
   DBG_OUT_PORT.print(F("brightness from sensor..."));
@@ -196,6 +202,12 @@ void setup()
   //------------------------------------------------------ Отправляем данные через UART
   if (conf_data.type_disp == 50)
   {
+    if (!conf_data.udp_mon)
+    {
+      //    DBG_OUT_PORT.stop();
+#undef DBG_OUT_PORT
+#define  DBG_OUT_PORT Serial
+    }
     DBG_OUT_PORT.end();
     DBG_OUT_PORT.begin(19200);
     send_uart();

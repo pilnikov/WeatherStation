@@ -138,12 +138,13 @@ void firq6() // 0.5 sec main cycle
     //-------------Brigthness------------------
     if (conf_data.auto_br)
     {
-      snr_data.f = ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), ANA_SNR);
+      snr_data.f = ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
       cur_br = auto_br(snr_data.f, conf_data);
     }
     else
     {
-      cur_br = conf_data.man_br;  // Man brigthness
+      if (nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
+      else cur_br = conf_data.man_br;
       snr_data.f = cur_br;
     }
     //-----------------------------------------
@@ -163,7 +164,7 @@ void firq6() // 0.5 sec main cycle
 
   //------------------------------------------------------ Отправляем данные через UART
 #if defined(ESP8266)
-  if (conf_data.type_disp == 50 && !digitalRead(uart_pin)) send_uart();
+  if (conf_data.type_disp == 50 && !digitalRead(conf_data.gpio_uar)) send_uart();
 #endif
 }
 

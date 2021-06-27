@@ -59,6 +59,10 @@
          <tr><td width='30%'>SND</td><td><input type='text' size='3' id='snd' name='snd' style='text-align:center;'/></td></tr>
          <tr><td width='30%'>LED</td><td><input type='text' size='3' id='led' name='led' style='text-align:center;'/></td></tr>
          <tr><td width='30%'>BTN</td><td><input type='text' size='3' id='btn' name='btn' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>DHT</td><td><input type='text' size='3' id='dht' name='dht' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>ANA</td><td><input type='text' size='3' id='ana' name='ana' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>UAR</td><td><input type='text' size='3' id='uar' name='uar' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>BZ2</td><td><input type='text' size='3' id='bz2' name='bz2' style='text-align:center;'/></td></tr>
     
 
          <tr><td colspan='4' class='h'><input type='submit' value='Записать' onclick='set_parc();' /></td></tr>
@@ -95,6 +99,10 @@
               document.getElementById('snd').value = res.snd;
               document.getElementById('led').value = res.led;
               document.getElementById('btn').value = res.btn;
+              document.getElementById('dht').value = res.dht;
+              document.getElementById('ana').value = res.ana;
+              document.getElementById('uar').value = res.uar;
+              document.getElementById('bz2').value = res.bz2;
 
           	}
           }
@@ -143,9 +151,13 @@
         snd   = document.getElementById('snd').value;
         led   = document.getElementById('led').value;
         btn   = document.getElementById('btn').value;
+        dht   = document.getElementById('dht').value;
+        ana   = document.getElementById('ana').value;
+        uar   = document.getElementById('uar').value;
+        bz2   = document.getElementById('bz2').value;
 
  
-        url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn;
+        url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+'&dht='+dht+'&ana='+ana+'&uar='+uar+'&bz2='+bz2;
 
         var xh = new XMLHttpRequest();
         xh.open('GET', url, true);

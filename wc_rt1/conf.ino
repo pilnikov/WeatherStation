@@ -43,8 +43,8 @@ conf_data_t loadConfig(const char *filename)
       // Get the root object in the document
       //JsonObject json = jsonBuffer.as<JsonObject>();
 
-      strncpy(data.sta_ssid,   " ", 33);
-      strncpy(data.sta_pass,   " ", 33);
+      strncpy(data.sta_ssid,   " ", 17);
+      strncpy(data.sta_pass,   " ", 17);
       strncpy(data.ap_ssid,    " ", 17);
       strncpy(data.ap_pass ,   " ", 17);
       strncpy(data.AKey_r,     " ", 17);
@@ -52,13 +52,14 @@ conf_data_t loadConfig(const char *filename)
       strncpy(data.esrv1_addr, " ", 17);
       strncpy(data.esrv2_addr, " ", 17);
       strncpy(data.radio_addr, " ", 17);
-      strncpy(data.owm_key,    " ", 35);
+      strncpy(data.srudp_addr, " ", 17);
+      strncpy(data.owm_key,    " ", 32);
       strncpy(data.ch1_name,   " ", 17);
       strncpy(data.ch2_name,   " ", 17);
       strncpy(data.ch3_name,   " ", 17);
 
-      strncpy(data.sta_ssid,   doc["sta_ssid"],   33);
-      strncpy(data.sta_pass,   doc["sta_pass"],   33);
+      strncpy(data.sta_ssid,   doc["sta_ssid"],   17);
+      strncpy(data.sta_pass,   doc["sta_pass"],   17);
       strncpy(data.ap_ssid,    doc["ap_ssid"],    17);
       strncpy(data.ap_pass,    doc["ap_pass"],    17);
       strncpy(data.AKey_r,     doc["AKey_r"],     17);
@@ -66,6 +67,7 @@ conf_data_t loadConfig(const char *filename)
       strncpy(data.esrv1_addr, doc["esrv1_addr"], 17);
       strncpy(data.esrv2_addr, doc["esrv2_addr"], 17);
       strncpy(data.radio_addr, doc["radio_addr"], 17);
+      strncpy(data.srudp_addr, doc["srudp_addr"], 17);
       strncpy(data.owm_key,    doc["owm_key"],    32);
       strncpy(data.ch1_name,   doc["ch1_name"],   17);
       strncpy(data.ch2_name,   doc["ch2_name"],   17);
@@ -86,6 +88,7 @@ conf_data_t loadConfig(const char *filename)
       data.use_tsh3         = doc["use_tsh3"];
       data.use_tsp          = doc["use_tsp"];
       data.use_pp           = doc["use_pp"];
+      data.udp_mon          = doc["udpm"];
       data.time_zone        = doc["time_zone"];
       data.type_vdrv        = doc["type_vdrv"];
       data.type_disp        = doc["type_disp"];
@@ -98,12 +101,13 @@ conf_data_t loadConfig(const char *filename)
       data.src_thermo       = doc["src_trs"];
       data.lb_thermo        = doc["lb_trs"];
       data.hb_thermo        = doc["hb_trs"];
-      data.nm_start = doc["nm_start"];
-      data.nm_stop  = doc["nm_stop"];
+      data.nm_start         = doc["nm_start"];
+      data.nm_stop          = doc["nm_stop"];
       data.ts_ch_id         = doc["ts_ch_id"];
       data.pp_city_id       = doc["pp_city_id"];
       data.period           = doc["period"]; // minutes
       data.man_br           = doc["man_br"];
+      data.nmd_br           = doc["nmd_br"];
       data.auto_br          = doc["auto_br"];
 
       data.gpio_sda         = doc["sda"];
@@ -117,6 +121,10 @@ conf_data_t loadConfig(const char *filename)
       data.gpio_snd         = doc["snd"];
       data.gpio_led         = doc["led"];
       data.gpio_btn         = doc["btn"];
+      data.gpio_dht         = doc["dht"];
+      data.gpio_ana         = doc["ana"];
+      data.gpio_uar         = doc["uar"];
+      data.gpio_bz2         = doc["bz2"];
 
       for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = doc["br_level"][i];
 
@@ -152,7 +160,7 @@ void saveConfig(const char *filename, conf_data_t data)
   const char  ap_pass_def[] = "";
   const char sta_ssid_def[] = "My_WiFi";
   const char sta_pass_def[] = "";
-  
+
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
 
   if ( data.type_vdrv    < 0  || data.type_vdrv  >  20) data.type_vdrv  = 0;
@@ -205,6 +213,7 @@ void saveConfig(const char *filename, conf_data_t data)
   json["esrv1_addr"]          = data.esrv1_addr;
   json["esrv2_addr"]          = data.esrv2_addr;
   json["radio_addr"]          = data.radio_addr;
+  json["srudp_addr"]          = data.srudp_addr;
   json["pp_city_id"]          = data.pp_city_id;
   json["owm_key"]             = data.owm_key;
   json["ch1_name"]            = data.ch1_name;
@@ -212,6 +221,7 @@ void saveConfig(const char *filename, conf_data_t data)
   json["ch3_name"]            = data.ch3_name;
   json["period"]              = data.period; // minutes
   json["man_br"]              = data.man_br;
+  json["nmd_br"]              = data.nmd_br;
   json["auto_br"]             = data.auto_br;
 
   json["sda"]                 = data.gpio_sda;
@@ -225,6 +235,10 @@ void saveConfig(const char *filename, conf_data_t data)
   json["snd"]                 = data.gpio_snd;
   json["led"]                 = data.gpio_led;
   json["btn"]                 = data.gpio_btn;
+  json["dht"]                 = data.gpio_dht;
+  json["ana"]                 = data.gpio_ana;
+  json["uar"]                 = data.gpio_uar;
+  json["bz2"]                 = data.gpio_bz2;
 
 
   JsonArray br_level = json.createNestedArray("br_level");
@@ -291,8 +305,8 @@ conf_data_t defaultConfig()
 
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-  strncpy(data.sta_ssid,  "MyWiFi", 33);
-  strncpy(data.sta_pass,  "12345678", 33);
+  strncpy(data.sta_ssid,  "MyWiFi", 17);
+  strncpy(data.sta_pass,  "12345678", 17);
   strncpy(data.ap_ssid,   "Radio_Clock", 17);
   strncpy(data.ap_pass ,  "12345678", 17);
   strncpy(data.AKey_r,     " ", 17);
@@ -300,6 +314,7 @@ conf_data_t defaultConfig()
   strncpy(data.esrv1_addr, "192.168.1.100", 17);
   strncpy(data.esrv2_addr, "192.168.1.200", 17);
   strncpy(data.radio_addr, "192.168.1.33", 17);
+  strncpy(data.srudp_addr, "192.168.1.30", 17);
   strncpy(data.owm_key,    " ", 35);
   strncpy(data.ch1_name,   "Внутри",  17);
   strncpy(data.ch2_name,   "Снаружи", 17);
@@ -320,6 +335,7 @@ conf_data_t defaultConfig()
   data.use_tsh3         = false;
   data.use_tsp          = false;
   data.wifi_off         = false;
+  data.udp_mon          = false;
   data.use_pp           = 0;
   data.time_zone        = 5;
   data.type_vdrv        = 0;
@@ -339,6 +355,7 @@ conf_data_t defaultConfig()
   data.pp_city_id       = 28438;
   data.period           = 10;
   data.man_br           = 7;
+  data.nmd_br           = 2;
   data.auto_br          = false;
 
   data.gpio_sda         = 4;
@@ -352,6 +369,10 @@ conf_data_t defaultConfig()
   data.gpio_snd         = 15;
   data.gpio_led         = 2;
   data.gpio_btn         = 0;
+  data.gpio_dht         = 0;
+  data.gpio_ana         = A0;
+  data.gpio_uar         = 16;
+  data.gpio_bz2         = 32;
 
 
   data.br_level[0]      = 1;
@@ -386,8 +407,8 @@ conf_data_t first_use()
 
   conf_data_t data;
 
-  strncpy(data.sta_ssid,  "MyWiFi", 33);
-  strncpy(data.sta_pass,  "12345678", 33);
+  strncpy(data.sta_ssid,  "MyWiFi", 17);
+  strncpy(data.sta_pass,  "12345678", 17);
   strncpy(data.ap_ssid,   "Radio_Clock", 17);
   strncpy(data.ap_pass ,  "12345678", 17);
   strncpy(data.AKey_r,     " ", 17);
@@ -395,6 +416,7 @@ conf_data_t first_use()
   strncpy(data.esrv1_addr, "192.168.1.100", 17);
   strncpy(data.esrv2_addr, "192.168.1.200", 17);
   strncpy(data.radio_addr, "192.168.1.33", 17);
+  strncpy(data.srudp_addr, "192.168.1.30", 17);
   strncpy(data.owm_key,    " ", 35);
   strncpy(data.ch1_name,   "Дома",  17);
   strncpy(data.ch2_name,   "На улице", 17);
@@ -415,6 +437,7 @@ conf_data_t first_use()
   data.use_tsh3         = false;
   data.use_tsp          = false;
   data.wifi_off         = false;
+  data.udp_mon          = false;
   data.use_pp           = 0;
   data.time_zone        = 5;
   data.type_vdrv        = 1;
@@ -434,6 +457,7 @@ conf_data_t first_use()
   data.pp_city_id       = 28438;
   data.period           = 10;
   data.man_br           = 14;
+  data.nmd_br           = 2;
   data.auto_br          = false;
 
   data.gpio_sda         = 20;
@@ -447,6 +471,10 @@ conf_data_t first_use()
   data.gpio_snd         = A7;
   data.gpio_led         = A6;
   data.gpio_btn         = A5;
+  data.gpio_dht         = A9;
+  data.gpio_ana         = A4;
+  data.gpio_uar         = A11;
+  data.gpio_bz2         = A10;
 
   data.br_level[0]      = 200;
   data.br_level[1]      = 1;

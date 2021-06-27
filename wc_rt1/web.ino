@@ -212,6 +212,7 @@ void handlejPard()
   json["rlng"] = conf_data.rus_lng;
   json["abrd"] = conf_data.auto_br;
   json["mbrd"] = conf_data.man_br;
+  json["nbrd"] = conf_data.nmd_br;
 
   JsonArray br_level = json.createNestedArray("brlevel");
   for (uint8_t i = 0; i <= 3; i++) br_level.add(conf_data.br_level[i]);
@@ -245,7 +246,7 @@ void handleSetFont()
 //-------------------------------------------------------------- handleSetPard
 void handleSetPard()
 {
-  //url='/set_pard?dtyp='+dtyp+'&rdsp='+rdsp+'&abrd='+abrd+'&brd='+brd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
+  //url='/set_pard?dtyp='+dtyp+'&rdsp='+rdsp+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
   uint8_t vdrv_buf = conf_data.type_vdrv;
 
@@ -253,8 +254,10 @@ void handleSetPard()
   conf_data.type_disp = server.arg("dtyp").toInt();
   conf_data.rus_lng = server.arg("rlng") == "1";
   conf_data.auto_br = server.arg("abrd") == "1";
-  uint16_t val = server.arg("brd").toInt();
+  uint16_t val = server.arg("mbrd").toInt();
   conf_data.man_br = constrain(val, 0, 15);;
+  val = server.arg("nbrd").toInt();
+  conf_data.nmd_br = constrain(val, 0, 15);;
   conf_data.br_level[0] = server.arg("brd1").toInt();
   conf_data.br_level[1] = server.arg("brd2").toInt();
   conf_data.br_level[2] = server.arg("brd3").toInt();
@@ -296,20 +299,22 @@ void handlejPars()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["cyid"] = conf_data.pp_city_id;
-  json["owmk"] = conf_data.owm_key;
+  json["cyid"]  = conf_data.pp_city_id;
+  json["owmk"]  = conf_data.owm_key;
   json["srve1"] = conf_data.esrv1_addr;
   json["srve2"] = conf_data.esrv2_addr;
-  json["srvr"] = conf_data.radio_addr;
-  json["prgp"] = conf_data.use_pp;
-  json["s1"] = conf_data.type_snr1;
-  json["s2"] = conf_data.type_snr2;
-  json["s3"] = conf_data.type_snr3;
-  json["sp"] = conf_data.type_snrp;
-  json["nc1"] = conf_data.ch1_name;
-  json["nc2"] = conf_data.ch2_name;
-  json["nc3"] = conf_data.ch3_name;
-  json["peri"] = conf_data.period;
+  json["srvr"]  = conf_data.radio_addr;
+  json["udp"]   = conf_data.srudp_addr;
+  json["udm"]   = conf_data.udp_mon;
+  json["prgp"]  = conf_data.use_pp;
+  json["s1"]    = conf_data.type_snr1;
+  json["s2"]    = conf_data.type_snr2;
+  json["s3"]    = conf_data.type_snr3;
+  json["sp"]    = conf_data.type_snrp;
+  json["nc1"]   = conf_data.ch1_name;
+  json["nc2"]   = conf_data.ch2_name;
+  json["nc3"]   = conf_data.ch3_name;
+  json["peri"]  = conf_data.period;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -349,7 +354,9 @@ void handleSetPars1()
            + '&esa1='+esa1_t
            + '&esa2='+esa2_t
            + '&rda=' +rda_t
-           + '&upp=' +upp_t;
+           + '&udp=' +udp_t
+           + '&upp=' +upp_t
+           + '&udm=' +udm_t;
   */
 
   conf_data.pp_city_id = constrain(server.arg("cid").toInt(), 0, 999999);
@@ -357,7 +364,9 @@ void handleSetPars1()
   strcpy(conf_data.esrv1_addr, server.arg("esa1").c_str());
   strcpy(conf_data.esrv2_addr, server.arg("esa2").c_str());
   strcpy(conf_data.radio_addr, server.arg("rda").c_str());
-  conf_data.use_pp = server.arg("upp").toInt();
+  strcpy(conf_data.srudp_addr, server.arg("udp").c_str());
+  conf_data.use_pp  = server.arg("upp").toInt();
+  conf_data.udp_mon = server.arg("udm") == "1";
 
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
@@ -461,6 +470,11 @@ void handlejParc()
   json["snd"] = conf_data.gpio_snd;
   json["led"] = conf_data.gpio_led;
   json["btn"] = conf_data.gpio_btn;
+  json["dht"] = conf_data.gpio_dht;
+  json["ana"] = conf_data.gpio_ana;
+  json["uar"] = conf_data.gpio_uar;
+  json["bz2"] = conf_data.gpio_bz2;
+
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -472,8 +486,9 @@ void handlejParc()
 //-------------------------------------------------------------- handleSetParc
 void handleSetParc()
 {
-  //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn;
-
+  //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+
+  //'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+
+  //'&dht='+dht+'&ana='+ana+'&uar='+uar+'&bz2='+bz2;
   conf_data.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
   conf_data.auto_corr = (server.arg("acorr") == "1");
   conf_data.use_pm = (server.arg("upm") == "1");
@@ -495,6 +510,10 @@ void handleSetParc()
   conf_data.gpio_snd = constrain(server.arg("snd").toInt(), 0, 255);
   conf_data.gpio_led = constrain(server.arg("led").toInt(), 0, 255);
   conf_data.gpio_btn = constrain(server.arg("btn").toInt(), 0, 255);
+  conf_data.gpio_dht = constrain(server.arg("dht").toInt(), 0, 255);
+  conf_data.gpio_ana = constrain(server.arg("ana").toInt(), 0, 255);
+  conf_data.gpio_uar = constrain(server.arg("uar").toInt(), 0, 255);
+  conf_data.gpio_bz2 = constrain(server.arg("bz2").toInt(), 0, 255);
 
 
   saveConfig(conf_f, conf_data);
