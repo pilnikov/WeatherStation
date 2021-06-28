@@ -5,8 +5,8 @@ void setup() {
 
   //------------------------------------------------------  Настраиваем конфигурацию
 
-  strncpy(conf_data.sta_ssid,   " ", 33);
-  strncpy(conf_data.sta_pass,   " ", 33);
+  strncpy(conf_data.sta_ssid,   " ", 17);
+  strncpy(conf_data.sta_pass,   " ", 17);
   strncpy(conf_data.ap_ssid,    " ", 17);
   strncpy(conf_data.ap_pass ,   " ", 17);
   strncpy(conf_data.AKey_r,     " ", 17);
@@ -14,7 +14,7 @@ void setup() {
   strncpy(conf_data.esrv1_addr, " ", 17);
   strncpy(conf_data.esrv2_addr, " ", 17);
   strncpy(conf_data.radio_addr, " ", 17);
-  strncpy(conf_data.owm_key,    " ", 35);
+  strncpy(conf_data.owm_key,    " ", 33);
   strncpy(conf_data.ch1_name, "Внутри",  17);
   strncpy(conf_data.ch2_name, "Снаружи", 17);
   strncpy(conf_data.ch3_name, "В бане",  17);

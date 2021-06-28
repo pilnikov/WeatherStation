@@ -33,12 +33,13 @@ void lcd_time()
   lcd -> setCursor(0, 1);
   bool _alarmed = rtc_data.a_hour < 24 && rtc_data.a_min < 59;
 
+  byte _h = hour()%100, _m = minute()%100, _s = second()%100, ah = rtc_data.a_hour%100, am = rtc_data.a_min%100;
   char msg[16];
-  snprintf(msg, 16, " %2u:%02u:%02u  -:-  ", hour(), minute(), second());
+  snprintf(msg, 16, " %2u:%02u:%02u  -:-  ", _h, _m, _s);
   if (_alarmed)
   {
-    snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u",hour()%100, minute()%100, second()%100, rtc_data.a_hour%100, rtc_data.a_min%100);
-    if (conf_data.rus_lng) snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u\355", hour()%100, minute()%100, second()%100, rtc_data.a_hour%100, rtc_data.a_min%100);
+    snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u",_h, _m, _s, ah, am);
+    if (conf_data.rus_lng) snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u\355", _h, _m, _s, ah, am);
   }
   lcd -> print(msg);
 }

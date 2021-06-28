@@ -23,11 +23,15 @@ void setup()
   //------------------------------------------------------  Читаем установки из EEPROM
 
   //conf_data = defaultConfig();
-
-  //conf_data = first_use();
   //saveConfig(conf_f, conf_data);
 
+#if defined(__AVR_ATmega2560__)
+  conf_data = defaultConfig();
+#endif
+
+# if defined(__xtensa__)
   conf_data = loadConfig(conf_f);
+#endif
 
   DBG_OUT_PORT.println(F("config loaded"));
 

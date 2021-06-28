@@ -19,7 +19,12 @@
 #define OCTAVE_OFFSET 0
 #define isdigit(n) (n >= '0' && n <= '9')
 #define cp(a) (pgm_read_byte(a))
+#if defined(ESP8266)
 #define inc_p(a) (void *) ((char*)a + 1)
+#elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
+#define inc_p(a) (uint16_t *) ((char*)a + 1)
+#endif
+
 
 
 #ifndef DBG_OUT_PORT
