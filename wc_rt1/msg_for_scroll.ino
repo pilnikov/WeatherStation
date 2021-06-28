@@ -82,8 +82,12 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
   if (cf.type_disp == 19) grad = '\357';
 
   char buf[255], buf1[255];
-  int size_buf  = snprintf(buf,  2, " ");
-  int size_buf1 = snprintf(buf1, 2, " ");
+  
+  int size_buf  = 1;
+  int size_buf1 = local_ip.length() + 1;
+
+  char _buff[size_buf1];
+  size_buf1 = 1;
 
 
   if (!cf.rus_lng)
@@ -202,11 +206,9 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         break;
 
       case 4:
-        size_buf1 = local_ip.length() + 1;
-        strncpy(buf1, local_ip.c_str(), size_buf1);
-
-        rt.a_hour < 24 && rt.a_min < 59 ? size_buf = snprintf(buf, 160, " Будильник зазвонит в %2d:%02d  Текущая яркость: %2d Ваш IP:%s", rt.a_hour, rt.a_min, c_br, buf1)
-                                               : size_buf = snprintf(buf, 160, " Будильник не установлен  Текущая яркость:%2d Ваш IP:%s", c_br, buf1);
+        strncpy(_buff, local_ip.c_str(), size_buf1);
+        rt.a_hour < 24 && rt.a_min < 59 ? size_buf = snprintf(buf, 160, " Будильник зазвонит в %2d:%02d  Текущая яркость: %2d Ваш IP:%s", rt.a_hour % 100, rt.a_min % 100, c_br % 100, _buff)
+            : size_buf = snprintf(buf, 160, " Будильник не установлен  Текущая яркость:%2d Ваш IP:%s", c_br % 100, _buff);
         break;
       default:
         break;

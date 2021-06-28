@@ -442,7 +442,11 @@ void man_set_time(const RtcDateTime & dt)
   set_alarm();
 }
 
+#if defined(__xtensa__)
+void IRAM_ATTR InteruptServiceRoutine()
+#elif defined (__AVR__)
 void ISR_ATTR InteruptServiceRoutine()
+#endif
 {
   // since this interupted any other running code,
   // don't do anything that takes long and especially avoid

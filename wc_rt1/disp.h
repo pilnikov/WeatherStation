@@ -39,7 +39,7 @@ void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 
 void a595_init();
 
-bool scroll_String(int8_t, int8_t, String, int&, int&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
+bool scroll_String(int8_t, int8_t, String, uint8_t&, uint8_t&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
 uint8_t auto_br(uint16_t, conf_data_t);
 
 void bat (uint8_t, byte*);
@@ -86,11 +86,11 @@ static Max72 *m7219;
 
 const uint8_t q_dig = 6;  // количество цифр на дисплее
 
-uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
+const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
 static unsigned char oldDigit[q_dig];                       // убегающая цифра
 
-int cur_sym_pos[4] = {0, 0, 0, 0};
-bool end_run_st = true, end_run_st_buf, m32_8time_act = false, blinkColon = false;
+uint8_t cur_sym_pos[2] = {0, 0};
+bool end_run_st = true, end_run_st_buf = true, m32_8time_act = false, blinkColon = false;
 
 String st1 = String();
 uint16_t buffud[64];

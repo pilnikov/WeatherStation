@@ -17,13 +17,10 @@ conf_data_t loadConfig(const char *filename)
   }
   else
   {
-
     // Allocate the document on the stack.
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/assistant to compute the capacity.
-
-
-    DynamicJsonDocument doc(3000);
+    DynamicJsonDocument doc(3100);
 
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, file);
@@ -41,106 +38,132 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
 
       // Get the root object in the document
-      //JsonObject json = jsonBuffer.as<JsonObject>();
-
       strncpy(data.sta_ssid,   " ", 17);
       strncpy(data.sta_pass,   " ", 17);
       strncpy(data.ap_ssid,    " ", 17);
       strncpy(data.ap_pass ,   " ", 17);
-      strncpy(data.AKey_r,     " ", 17);
-      strncpy(data.AKey_w,     " ", 17);
+      strncpy(data.owm_key,    " ", 33);
       strncpy(data.esrv1_addr, " ", 17);
       strncpy(data.esrv2_addr, " ", 17);
       strncpy(data.radio_addr, " ", 17);
       strncpy(data.srudp_addr, " ", 17);
-      strncpy(data.owm_key,    " ", 32);
       strncpy(data.ch1_name,   " ", 17);
       strncpy(data.ch2_name,   " ", 17);
       strncpy(data.ch3_name,   " ", 17);
+      strncpy(data.AKey_r,     " ", 17);
+      strncpy(data.AKey_w,     " ", 17);
 
-      strncpy(data.sta_ssid,   doc["sta_ssid"],   17);
-      strncpy(data.sta_pass,   doc["sta_pass"],   17);
-      strncpy(data.ap_ssid,    doc["ap_ssid"],    17);
-      strncpy(data.ap_pass,    doc["ap_pass"],    17);
-      strncpy(data.AKey_r,     doc["AKey_r"],     17);
-      strncpy(data.AKey_w,     doc["AKey_w"],     17);
-      strncpy(data.esrv1_addr, doc["esrv1_addr"], 17);
-      strncpy(data.esrv2_addr, doc["esrv2_addr"], 17);
-      strncpy(data.radio_addr, doc["radio_addr"], 17);
-      strncpy(data.srudp_addr, doc["srudp_addr"], 17);
-      strncpy(data.owm_key,    doc["owm_key"],    32);
-      strncpy(data.ch1_name,   doc["ch1_name"],   17);
-      strncpy(data.ch2_name,   doc["ch2_name"],   17);
-      strncpy(data.ch3_name,   doc["ch3_name"],   17);
+      //---Wifi.html----------------------------------------
+      //---AP-----------------------------------------------
+      strncpy(data.ap_ssid,    doc["ap_ssid"],  17);
+      strncpy(data.ap_pass,    doc["ap_pass"],  17);
 
-      data.wifi_off         = doc["wifi_off"];
-      data.auto_corr        = doc["auto_corr"];
-      data.use_pm           = doc["use_pm"];
-      data.every_hour_beep  = doc["e_h_b"];
-      data.snd_pola         = doc["snd_pola"];
-      data.led_pola         = doc["led_pola"];
-      data.rus_lng          = doc["rus_lng"];
-      data.use_tst1         = doc["use_tst1"];
-      data.use_tst2         = doc["use_tst2"];
-      data.use_tst3         = doc["use_tst3"];
-      data.use_tsh1         = doc["use_tsh1"];
-      data.use_tsh2         = doc["use_tsh2"];
-      data.use_tsh3         = doc["use_tsh3"];
-      data.use_tsp          = doc["use_tsp"];
-      data.use_pp           = doc["use_pp"];
-      data.udp_mon          = doc["udpm"];
-      data.time_zone        = doc["time_zone"];
-      data.type_vdrv        = doc["type_vdrv"];
-      data.type_disp        = doc["type_disp"];
-      data.type_snr1        = doc["type_snr1"];
-      data.type_snr2        = doc["type_snr2"];
-      data.type_snr3        = doc["type_snr3"];
-      data.type_snrp        = doc["type_snrp"];
-      data.type_rtc         = doc["type_rtc"];
-      data.type_thermo      = doc["type_trs"];
-      data.src_thermo       = doc["src_trs"];
-      data.lb_thermo        = doc["lb_trs"];
-      data.hb_thermo        = doc["hb_trs"];
-      data.nm_start         = doc["nm_start"];
-      data.nm_stop          = doc["nm_stop"];
-      data.ts_ch_id         = doc["ts_ch_id"];
-      data.pp_city_id       = doc["pp_city_id"];
-      data.period           = doc["period"]; // minutes
-      data.man_br           = doc["man_br"];
-      data.nmd_br           = doc["nmd_br"];
-      data.auto_br          = doc["auto_br"];
+      //---STA----------------------------------------------
+      strncpy(data.sta_ssid,   doc["sta_ssid"], 17);
+      strncpy(data.sta_pass,   doc["sta_pass"], 17);
 
-      data.gpio_sda         = doc["sda"];
-      data.gpio_scl         = doc["scl"];
-      data.gpio_dio         = doc["dio"];
-      data.gpio_clk         = doc["clk"];
-      data.gpio_dcs         = doc["dcs"];
-      data.gpio_dwr         = doc["dwr"];
-      data.gpio_trm         = doc["trm"];
-      data.gpio_sqw         = doc["sqw"];
-      data.gpio_snd         = doc["snd"];
-      data.gpio_led         = doc["led"];
-      data.gpio_btn         = doc["btn"];
-      data.gpio_dht         = doc["dht"];
-      data.gpio_ana         = doc["ana"];
-      data.gpio_uar         = doc["uar"];
-      data.gpio_bz2         = doc["bz2"];
+      data.wifi_off          = doc["wifi_off"];
 
+      //---Clock.html----------------------------------------
+      //---Options for clock---------------------------------
+      data.time_zone         = doc["tzo"];
+      data.auto_corr         = doc["auto_corr"];
+      data.use_pm            = doc["upm"];
+      data.every_hour_beep   = doc["e_h_b"];
+      data.snd_pola          = doc["snd_pola"];
+      data.led_pola          = doc["led_pola"];
+      data.nm_start          = doc["nm_start"];
+      data.nm_stop           = doc["nm_stop"];
+      data.type_rtc          = doc["rtc_t"];
+
+      //---GPIO-----------------------------------------------
+      data.gpio_sda          = doc["sda"];
+      data.gpio_scl          = doc["scl"];
+      data.gpio_dio          = doc["dio"];
+      data.gpio_clk          = doc["clk"];
+      data.gpio_dcs          = doc["dcs"];
+      data.gpio_dwr          = doc["dwr"];
+      data.gpio_trm          = doc["trm"];
+      data.gpio_sqw          = doc["sqw"];
+      data.gpio_snd          = doc["snd"];
+      data.gpio_led          = doc["led"];
+      data.gpio_btn          = doc["btn"];
+      data.gpio_dht          = doc["dht"];
+      data.gpio_ana          = doc["ana"];
+      data.gpio_uar          = doc["uar"];
+      data.gpio_bz2          = doc["bz2"];
+
+      //---Display.html--------------------------------------
+      //---Options for display-------------------------------
+      data.type_vdrv         = doc["vdrv_t"];
+      data.type_disp         = doc["disp_t"];
+      data.rus_lng           = doc["rus_lng"];
+      data.type_font         = doc["type_font"];
+
+      //---Brigthness----------------------------------------
+      data.man_br            = doc["man_br"];
+      data.nmd_br            = doc["nmd_br"];
+      data.auto_br           = doc["auto_br"];
+
+      //---Brigthness levels---------------------------------
       for (uint8_t i = 0; i <= 3; i++) data.br_level[i]  = doc["br_level"][i];
 
-      data.type_font        = doc["type_font"];
+      //---Sensor.html---------------------------------------
+      //---Options for sensor--------------------------------
+      data.pp_city_id        = doc["pp_city_id"];
+      strncpy(data.owm_key,    doc["owm_key"], 33);
+      strncpy(data.esrv1_addr, doc["esrv1_a"], 17);
+      strncpy(data.esrv2_addr, doc["esrv2_a"], 17);
+      strncpy(data.radio_addr, doc["radio_a"], 17);
+      strncpy(data.srudp_addr, doc["srudp_a"], 17);
+      data.udp_mon           = doc["udm"];
+      data.use_pp            = doc["upp"];
 
+      //---Sensor type---------------------------------------
+      data.type_snr1         = doc["snr1_t"];
+      data.type_snr2         = doc["snr2_t"];
+      data.type_snr3         = doc["snr3_t"];
+      data.type_snrp         = doc["snrp_t"];
+      data.period            = doc["period"]; // minutes
+
+      //---Sensor actual value-------------------------------
+      strncpy(data.ch1_name,   doc["ch1_name"], 17);
+      strncpy(data.ch2_name,   doc["ch2_name"], 17);
+      strncpy(data.ch3_name,   doc["ch3_name"], 17);
+
+      //---TS Account----------------------------------------
+      data.ts_ch_id          = doc["ts_ch_id"];
+      strncpy(data.AKey_r,     doc["AKey_r"], 17);
+      strncpy(data.AKey_w,     doc["AKey_w"], 17);
+
+      //---TS sender-----------------------------------------
+      data.use_tst1          = doc["utst1"];
+      data.use_tst2          = doc["utst2"];
+      data.use_tst3          = doc["utst3"];
+      data.use_tsh1          = doc["utsh1"];
+      data.use_tsh2          = doc["utsh2"];
+      data.use_tsh3          = doc["utsh3"];
+      data.use_tsp           = doc["utsp"];
+
+      //---Thermo.html---------------------------------------
+      //---Options for thermostat----------------------------
+      data.type_thermo       = doc["trs_t"];
+      data.src_thermo        = doc["src_trs"];
+      data.lb_thermo         = doc["lb_trs"];
+      data.hb_thermo         = doc["hb_trs"];
+
+      //---Alarm.html----------------------------------------
+      //---Options for alarms--------------------------------
       for (uint8_t j = 0; j <= 4; j++)
       {
-        data.alarms[0][j] = doc["alarms"]["0"][j];
-        data.alarms[1][j] = doc["alarms"]["1"][j];
-        data.alarms[2][j] = doc["alarms"]["2"][j];
-        data.alarms[3][j] = doc["alarms"]["3"][j];
-        data.alarms[4][j] = doc["alarms"]["4"][j];
-        data.alarms[5][j] = doc["alarms"]["5"][j];
-        data.alarms[6][j] = doc["alarms"]["6"][j];
+        data.alarms[0][j] = doc["al"]["0"][j];
+        data.alarms[1][j] = doc["al"]["1"][j];
+        data.alarms[2][j] = doc["al"]["2"][j];
+        data.alarms[3][j] = doc["al"]["3"][j];
+        data.alarms[4][j] = doc["al"]["4"][j];
+        data.alarms[5][j] = doc["al"]["5"][j];
+        data.alarms[6][j] = doc["al"]["6"][j];
       }
-      //  data = defaultConfig();
     }
     else
     {
@@ -156,12 +179,7 @@ conf_data_t loadConfig(const char *filename)
 
 void saveConfig(const char *filename, conf_data_t data)
 {
-  const char  ap_ssid_def[] = "WiFi_Clock";
-  const char  ap_pass_def[] = "";
-  const char sta_ssid_def[] = "My_WiFi";
-  const char sta_pass_def[] = "";
-
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
+   if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
 
   if ( data.type_vdrv    < 0  || data.type_vdrv  >  20) data.type_vdrv  = 0;
   if ( data.type_disp    < 0  || data.type_disp  >  50) data.type_disp  = 0;
@@ -169,61 +187,35 @@ void saveConfig(const char *filename, conf_data_t data)
   if ( data.type_snr2    < 0  || data.type_snr2  >  11) data.type_snr2  = 0;
   if ( data.type_snr3    < 0  || data.type_snr3  >  11) data.type_snr3  = 0;
   if ( data.type_snrp    < 0  || data.type_snrp  >  11) data.type_snrp  = 0;
-  if ( data.ap_ssid[0] == ' ' || data.ap_ssid[0] ==  0) strncpy( data.ap_ssid, ap_ssid_def, sizeof(ap_ssid_def));
+  if ( data.ap_ssid[0] == ' ' || data.ap_ssid[0] ==  0) strncpy( data.ap_ssid, "Radio_Clock", 17);
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
 
-  json["sta_ssid"]            = data.sta_ssid;
-  json["sta_pass"]            = data.sta_pass;
+  //---Wifi.html----------------------------------------
+  //---AP-----------------------------------------------
   json["ap_ssid"]             = data.ap_ssid;
   json["ap_pass"]             = data.ap_pass;
+
+  //---STA----------------------------------------------
+  json["sta_ssid"]            = data.sta_ssid;
+  json["sta_pass"]            = data.sta_pass;
+
   json["wifi_off"]            = data.wifi_off;
+
+  //---Clock.html----------------------------------------
+  //---Options for clock---------------------------------
+  json["tzo"]                 = data.time_zone;
   json["auto_corr"]           = data.auto_corr;
-  json["use_pm"]              = data.use_pm;
+  json["upm"]                 = data.use_pm;
   json["e_h_b"]               = data.every_hour_beep;
   json["snd_pola"]            = data.snd_pola;
   json["led_pola"]            = data.led_pola;
-  json["rus_lng"]             = data.rus_lng;
-  json["use_tst1"]            = data.use_tst1;
-  json["use_tst2"]            = data.use_tst2;
-  json["use_tst3"]            = data.use_tst3;
-  json["use_tsh1"]            = data.use_tsh1;
-  json["use_tsh2"]            = data.use_tsh2;
-  json["use_tsh3"]            = data.use_tsh3;
-  json["use_tsp"]             = data.use_tsp;
-  json["use_pp"]              = data.use_pp;
-  json["time_zone"]           = data.time_zone;
-  json["type_vdrv"]           = data.type_vdrv;
-  json["type_disp"]           = data.type_disp;
-  json["type_snr1"]           = data.type_snr1;
-  json["type_snr2"]           = data.type_snr2;
-  json["type_snr3"]           = data.type_snr3;
-  json["type_snrp"]           = data.type_snrp;
-  json["type_rtc"]            = data.type_rtc;
-  json["type_trs"]            = data.type_thermo;
-  json["src_trs"]             = data.src_thermo;
-  json["lb_trs"]              = data.lb_thermo;
-  json["hb_trs"]              = data.hb_thermo;
   json["nm_start"]            = data.nm_start;
   json["nm_stop"]             = data.nm_stop;
-  json["ts_ch_id"]            = data.ts_ch_id;
-  json["AKey_r"]              = data.AKey_r;
-  json["AKey_w"]              = data.AKey_w;
-  json["esrv1_addr"]          = data.esrv1_addr;
-  json["esrv2_addr"]          = data.esrv2_addr;
-  json["radio_addr"]          = data.radio_addr;
-  json["srudp_addr"]          = data.srudp_addr;
-  json["pp_city_id"]          = data.pp_city_id;
-  json["owm_key"]             = data.owm_key;
-  json["ch1_name"]            = data.ch1_name;
-  json["ch2_name"]            = data.ch2_name;
-  json["ch3_name"]            = data.ch3_name;
-  json["period"]              = data.period; // minutes
-  json["man_br"]              = data.man_br;
-  json["nmd_br"]              = data.nmd_br;
-  json["auto_br"]             = data.auto_br;
+  json["rtc_t"]               = data.type_rtc;
 
+  //---GPIO-----------------------------------------------
   json["sda"]                 = data.gpio_sda;
   json["scl"]                 = data.gpio_scl;
   json["dio"]                 = data.gpio_dio;
@@ -240,14 +232,68 @@ void saveConfig(const char *filename, conf_data_t data)
   json["uar"]                 = data.gpio_uar;
   json["bz2"]                 = data.gpio_bz2;
 
+  //---Display.html--------------------------------------
+  //---Options for display-------------------------------
+  json["vdrv_t"]              = data.type_vdrv;
+  json["disp_t"]              = data.type_disp;
+  json["rus_lng"]             = data.rus_lng;
+  json["type_font"]           = data.type_font;
 
+  //---Brigthness----------------------------------------
+  json["man_br"]              = data.man_br;
+  json["nmd_br"]              = data.nmd_br;
+  json["auto_br"]             = data.auto_br;
+
+  //---Brigthness levels---------------------------------
   JsonArray br_level = json.createNestedArray("br_level");
   for (uint8_t i = 0; i <= 3; i++) br_level.add(data.br_level[i]);
 
-  json["type_font"]           = data.type_font;
+  //---Sensor.html---------------------------------------
+  //---Options for sensor--------------------------------
+  json["pp_city_id"]          = data.pp_city_id;
+  json["owm_key"]             = data.owm_key;
+  json["esrv1_a"]             = data.esrv1_addr;
+  json["esrv2_a"]             = data.esrv2_addr;
+  json["radio_a"]             = data.radio_addr;
+  json["srudp_a"]             = data.srudp_addr;
+  json["udm"]                 = data.udp_mon;
+  json["upp"]                 = data.use_pp;
 
-  //DynamicJsondocument jsonBuffer2(128);
-  // JsonObject json2 = doc.to<JsonObject>();
+  //---Sensor type---------------------------------------
+  json["snr1_t"]              = data.type_snr1;
+  json["snr2_t"]              = data.type_snr2;
+  json["snr3_t"]              = data.type_snr3;
+  json["snrp_t"]              = data.type_snrp;
+  json["period"]              = data.period; // minutes
+
+  //---Sensor actual value-------------------------------
+  json["ch1_name"]            = data.ch1_name;
+  json["ch2_name"]            = data.ch2_name;
+  json["ch3_name"]            = data.ch3_name;
+
+  //---TS Account----------------------------------------
+  json["ts_ch_id"]            = data.ts_ch_id;
+  json["AKey_r"]              = data.AKey_r;
+  json["AKey_w"]              = data.AKey_w;
+
+  //---TS sender-----------------------------------------
+  json["utst1"]               = data.use_tst1;
+  json["utst2"]               = data.use_tst2;
+  json["utst3"]               = data.use_tst3;
+  json["utsh1"]               = data.use_tsh1;
+  json["utsh2"]               = data.use_tsh2;
+  json["utsh3"]               = data.use_tsh3;
+  json["utsp"]                = data.use_tsp;
+
+  //---Thermo.html---------------------------------------
+  //---Options for thermostat----------------------------
+  json["trs_t"]               = data.type_thermo;
+  json["src_trs"]             = data.src_thermo;
+  json["lb_trs"]              = data.lb_thermo;
+  json["hb_trs"]              = data.hb_thermo;
+
+  //---Alarm.html----------------------------------------
+  //---Options for alarms--------------------------------
   DynamicJsonDocument doc2(700);
   JsonObject json2 = doc2.to<JsonObject>();
 
@@ -269,7 +315,7 @@ void saveConfig(const char *filename, conf_data_t data)
     al6.add(data.alarms[6][j]);
   }
 
-  JsonObject alarms = json.createNestedObject("alarms");
+  JsonObject alarms = json.createNestedObject("al");
   alarms["0"] = al0;
   alarms["1"] = al1;
   alarms["2"] = al2;
@@ -277,6 +323,7 @@ void saveConfig(const char *filename, conf_data_t data)
   alarms["4"] = al4;
   alarms["5"] = al5;
   alarms["6"] = al6;
+
 
   // Delete existing file, otherwise the configuration is appended to the file
 #if defined(ESP8266)
@@ -315,7 +362,7 @@ conf_data_t defaultConfig()
   strncpy(data.esrv2_addr, "192.168.1.200", 17);
   strncpy(data.radio_addr, "192.168.1.33", 17);
   strncpy(data.srudp_addr, "192.168.1.30", 17);
-  strncpy(data.owm_key,    " ", 35);
+  strncpy(data.owm_key,    " ", 33);
   strncpy(data.ch1_name,   "Внутри",  17);
   strncpy(data.ch2_name,   "Снаружи", 17);
   strncpy(data.ch3_name,   "В бане",  17);
@@ -417,7 +464,7 @@ conf_data_t first_use()
   strncpy(data.esrv2_addr, "192.168.1.200", 17);
   strncpy(data.radio_addr, "192.168.1.33", 17);
   strncpy(data.srudp_addr, "192.168.1.30", 17);
-  strncpy(data.owm_key,    " ", 35);
+  strncpy(data.owm_key,    " ", 33);
   strncpy(data.ch1_name,   "Дома",  17);
   strncpy(data.ch2_name,   "На улице", 17);
   strncpy(data.ch3_name,   "В подполе",  17);

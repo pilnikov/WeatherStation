@@ -174,7 +174,11 @@ void firq7() // 0.2 sec Communications with server
   {
 #if defined(__xtensa__)
     server.handleClient();
-    if (debug_level == 2) DBG_OUT_PORT.printf("Serv sec %u\n", (millis() - serv_ms) / 1000);
+    if (debug_level == 2) 
+    {
+      uint16_t a = (millis() - serv_ms) / 1000;
+      DBG_OUT_PORT.printf("Serv sec %u\n", a);
+    }
 
     ArduinoOTA.handle();
     if ((millis() - serv_ms) > 300000L && conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду

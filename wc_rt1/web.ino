@@ -296,7 +296,7 @@ void handlejTS()
 //-------------------------------------------------------------- handlejPars
 void handlejPars()
 {
-  DynamicJsonDocument jsonBuffer(512);
+  DynamicJsonDocument jsonBuffer(700);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["cyid"]  = conf_data.pp_city_id;
@@ -673,7 +673,7 @@ bool handleFileRead(String path)
     if (LittleFS.exists(pathWithGz))
       path += ".gz";
     File file = LittleFS.open(path, "r");
-    size_t sent = server.streamFile(file, contentType);
+    server.streamFile(file, contentType);
     file.close();
     return true;
   }
@@ -682,7 +682,7 @@ bool handleFileRead(String path)
     if (LITTLEFS.exists(pathWithGz))
       path += ".gz";
     File file = LITTLEFS.open(path, "r");
-    size_t sent = server.streamFile(file, contentType);
+    server.streamFile(file, contentType);
     file.close();
     return true;
   }

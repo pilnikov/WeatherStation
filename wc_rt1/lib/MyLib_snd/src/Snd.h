@@ -19,6 +19,7 @@
 #define OCTAVE_OFFSET 0
 #define isdigit(n) (n >= '0' && n <= '9')
 #define cp(a) (pgm_read_byte(a))
+#define inc_p(a) (void *) ((char*)a + 1)
 
 
 #ifndef DBG_OUT_PORT

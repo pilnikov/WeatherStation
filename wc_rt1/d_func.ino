@@ -80,7 +80,7 @@ bool time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx,
 }
 
 //-------------------------------------------------------------- Отображение бегущей строки
-bool scroll_String(int8_t x1, int8_t x2, String in, int &icp, int &cbp, byte * out, const byte * font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
+bool scroll_String(int8_t x1, int8_t x2, String in, uint8_t &icp, uint8_t &cbp, byte * out, const byte * font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
 {
   unsigned char character = 0; // дергаем входящую сроку по символам
 

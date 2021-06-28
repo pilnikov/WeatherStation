@@ -100,7 +100,7 @@ typedef struct
   char      esrv2_addr[17];
   char      radio_addr[17];
   char      srudp_addr[17];
-  char      owm_key[35];
+  char      owm_key[33];
   char      test[3];
 
   uint8_t	gpio_sda = 255;

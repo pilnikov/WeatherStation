@@ -20,7 +20,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
   uint8_t h = 0;
   h = cf.use_pm && rt.hour > 12 ? rt.hour - 12 : rt.hour;
   uint8_t s_tstr = _width * 2;
-  uint8_t size_tstr = snprintf(tstr, s_tstr, " ");
+  uint8_t size_tstr = 1;
   bool out = false;
 
   switch (_width)

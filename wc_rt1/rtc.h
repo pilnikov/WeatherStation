@@ -1,7 +1,7 @@
 
 #include <RtcDS3231.h>
 #include <RtcDS1307.h>
-#include <ThreeWire.h>  
+#include <ThreeWire.h>
 #include <RtcDS1302.h>
 
 void rtc_init();
@@ -10,16 +10,16 @@ void set_alarm();
 bool Alarmed();
 void ds3231_write();
 void man_set_time();
-void ISR_ATTR InteruptServiceRoutine();
 
 // ----------------------------------- RTC
-#if defined(__AVR__)
-  #define RtcSquareWaveInterrupt 4 // Mega2560
+#if defined(__xtensa__)
+void IRAM_ATTR InteruptServiceRoutine();
+#define RtcSquareWaveInterrupt 5 // Номер прерывания
+#elif defined (__AVR__)
+void ISR_ATTR InteruptServiceRoutine();
+#define RtcSquareWaveInterrupt 4 // Mega2560
 #endif
 
-#if defined(__xtensa__)
-  #define RtcSquareWaveInterrupt 5 // Номер прерывания
-#endif
 
 // marked volatile so interrupt can safely modify them and
 // other code can safely read and modify them
@@ -34,5 +34,5 @@ RtcDS3231<TwoWire> DS3231(Wire);
 RtcDS1307<TwoWire> DS1307(Wire);
 
 // ----------------------------------- Конструктор DS1302
-ThreeWire myWire(conf_data.gpio_dio,conf_data.gpio_clk,conf_data.gpio_dcs); // IO, SCLK, CE
+ThreeWire myWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
 RtcDS1302<ThreeWire> DS1302(myWire);

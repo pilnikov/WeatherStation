@@ -1,6 +1,5 @@
 void a595_init()
 {
-  char tstr[255];
 
 #if defined(ARDUINO_ARCH_ESP32)
   //G1  R1 |
@@ -19,6 +18,7 @@ void a595_init()
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
   if (conf_data.type_disp == 23)
   {
+    char tstr[255];
 
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
     m3216 -> begin();
