@@ -41,9 +41,9 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
     digitalWrite(out, pola ? HIGH : LOW);
   }
 }
-#if defined(ESP8266)
+#if defined(__xtensa__)
 bool Synt::play(const void* _ptr, uint8_t out, bool set_up, bool pola)
-#elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
+#elif defined (__AVR__)
 bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 #endif
 {
