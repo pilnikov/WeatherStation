@@ -38,12 +38,11 @@ class FD
   private:
   protected:
 };
-extern FD fdisp;
 
 class HT // Для специализированного дисплея на HT1621
 {
   public:
-  inline void 
+  void 
 	dow_sel(uint8_t, byte*), 			//Выбор дня недели
 	bat(uint8_t, byte*), 				//Батарейка  private:
     digit(uint8_t, uint8_t, byte*), 	// Большие цифры
@@ -52,8 +51,6 @@ class HT // Для специализированного дисплея на HT
   private:
   protected:
 };
-extern HT hdisp;
-
 
 class MSG // Сообщения на индикатор
 {
@@ -64,5 +61,4 @@ class MSG // Сообщения на индикатор
   private:
   protected:
 };
-extern MSG mdisp;
 #endif

@@ -22,7 +22,7 @@
 #if defined(ESP8266)
 #define inc_p(a) (void *) ((char*)a + 1)
 #elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
-#define inc_p(a) (uint16_t *) ((char*)a + 1)
+#define inc_p(a) (uint16_t) ((char*)a + 1)
 #endif
 
 

@@ -19,7 +19,6 @@ conf_data_t defaultConfig()
   strncpy(_data.ch2_name, "Снаружи", 17);
   strncpy(_data.ch3_name, "В бане",  17);
 
-
   _data.auto_corr        = false;
   _data.use_pm           = false;
   _data.every_hour_beep  = true;
@@ -45,14 +44,20 @@ conf_data_t defaultConfig()
   _data.nmd_br           = 2;
   _data.auto_br          = true;
 
-  _data.gpio_dio         = A3;
-  _data.gpio_clk         = A2;
-  _data.gpio_dcs         = A1;
-  _data.gpio_dwr         = A0;
+  _data.gpio_sda         = 20;
+  _data.gpio_scl         = 21;
+  _data.gpio_dio         = 57; //A3
+  _data.gpio_clk         = 56; //A2
+  _data.gpio_dcs         = 55; //A1
+  _data.gpio_dwr         = 54; //A0
+  _data.gpio_trm         = 60; //A6
   _data.gpio_sqw         = 19;
-  _data.gpio_snd         = A7;
-  _data.gpio_led         = A6;
-  _data.gpio_btn         = A5;
+  _data.gpio_snd         = 61; //A7
+  _data.gpio_led         = 60; //A6
+  _data.gpio_btn         = 59; //A5
+  _data.gpio_dht         = 63; //A9
+  _data.gpio_ana         = 58; //A4
+  _data.gpio_uar         = 65; //A11
 
   //--------------------------------Уровни для автояркости
   _data.br_level[0]      = 200;
@@ -219,6 +224,27 @@ void m3216_ramFormer(byte *in)
       m3216 -> drawPixel(x, y + 8, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, cur_br, true) : 0);
     }
   }
+}
+
+//------------------------------------------------------  Получаем данные с датчиков
+void GetSnr()
+{
+  snr_data_t ts_data;
+
+  snr_data.t1 = 99;
+  snr_data.t2 = 99;
+  snr_data.t3 = 99;
+  snr_data.h1 = 0;
+  snr_data.h2 = 0;
+  snr_data.h3 = 0;
+  snr_data.p = 700;
+
+  ram_data.temp_rtc = 99;
+
+  RtcTemperature t1 = DS3231.GetTemperature();
+  ram_data.temp_rtc = round(t1.AsFloatDegC());
+
+  snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
 }
 
 void(* resetFunc) (void) = 0; //Programm reset

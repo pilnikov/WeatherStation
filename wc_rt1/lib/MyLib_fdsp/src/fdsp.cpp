@@ -278,19 +278,12 @@ void FD::CLS(byte *out) // Clean screen buffer
   memset(out, 0, 64);
 }
 
-/*
-   Erases one pos on display
-*/
-
-void FD::cleanPos(uint8_t pos, byte *out)
+void FD::cleanPos(uint8_t pos, byte *out) // Erases one pos on display
 {
   memset(out + pos, 0, 1);
 }
 
-/*
-   Displays an dot  on a given display
-*/
-void printDot(uint8_t pos, byte *out)
+void FD::printDot(uint8_t pos, byte *out) // Displays an dot  on a given display
 {
   out[pos] |= 0x80;
 }
@@ -307,7 +300,6 @@ void FD::printCharacter(unsigned char character, uint8_t x, byte *out, const byt
   }
 }
 
-
 void FD::print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* font, uint8_t font_wdt, uint8_t spacer_wdt)
 {
   unsigned char character = 0;
@@ -322,7 +314,6 @@ void FD::print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byt
     icp++;     // переходим к следующему символу в строке
   }
 }
-
 
 void FD::shift_ud(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8_t x1, int8_t x2)
 {
@@ -411,19 +402,9 @@ uint16_t FD::ft_read(bool snr_pres, uint16_t bh_lvl, const int in)
 }
 
 
-//массив батарейка
-static const uint8_t batt[6] = {0x02, 0x82, 0x92, 0xD2, 0xF2, 0xF3};
-
-//массив больших цифр
-static const uint8_t dig1[10] = {0xF5, 0x60, 0xB6, 0xF2, 0x63, 0xD3, 0xD7, 0x70, 0xF7, 0xF3};
-
-//массив маленьких цифр
-static const uint8_t dig2[10] = {0xFA, 0x60, 0xD6, 0xF4, 0x6C, 0xBC, 0xBE, 0xE0, 0xFE, 0xFC};
-
-
 
 //-------------------------------------------------------------- Выбор дня недели
-inline void HT::dow_sel(uint8_t _dow, byte *in)
+void HT::dow_sel(uint8_t _dow, byte *in)
 {
   in[22] &= 0x3;
   in[23] = 0x0;
@@ -455,8 +436,11 @@ inline void HT::dow_sel(uint8_t _dow, byte *in)
   }
 }
 
-inline void HT::bat(uint8_t num, byte *in) //Батарейка
+void HT::bat(uint8_t num, byte *in) //Батарейка
 {
+  //массив батарейка
+  const uint8_t batt[6] = {0x02, 0x82, 0x92, 0xD2, 0xF2, 0xF3};
+  
   in[22] &= 0xC;
   in[21] = 0x0;
 
@@ -464,9 +448,12 @@ inline void HT::bat(uint8_t num, byte *in) //Батарейка
   in[22] |= batt[num] & 0x0F;
 }
 
-inline void HT::digit(uint8_t place, uint8_t num, byte *in) // Большие цифры
+void HT::digit(uint8_t place, uint8_t num, byte *in) // Большие цифры
 {
+  //массив больших цифр
+  const uint8_t dig1[10] = {0xF5, 0x60, 0xB6, 0xF2, 0x63, 0xD3, 0xD7, 0x70, 0xF7, 0xF3};
   uint8_t place2 = place + 1;
+  
   if (place == 7) place2 = 31;
 
   in[place] = 0x0;
@@ -476,8 +463,11 @@ inline void HT::digit(uint8_t place, uint8_t num, byte *in) // Большие ц
   in[place2] |= dig1[num] & 0x0F;
 }
 
-inline void HT::mon_day(uint8_t mon, uint8_t _day, byte *in) //Маленькие цифры (Месяц, число, год)
+void HT::mon_day(uint8_t mon, uint8_t _day, byte *in) //Маленькие цифры (Месяц, число, год)
 {
+  //массив маленьких цифр
+  const uint8_t dig2[10] = {0xFA, 0x60, 0xD6, 0xF4, 0x6C, 0xBC, 0xBE, 0xE0, 0xFE, 0xFC};
+  
   in[25] = 0x0;
   in[26] = 0x0;
   in[27] &= 0x8;
@@ -495,7 +485,7 @@ inline void HT::mon_day(uint8_t mon, uint8_t _day, byte *in) //Маленьки�
   in[29] |= (dig2[mon % 10] & 0x0F) + (mon / 10);
 }
 
-inline void HT::ala(uint8_t num, byte *in) //Будильник
+void HT::ala(uint8_t num, byte *in) //Будильник
 {
   in[0] &= 0x1;
   in[6] &= 0x7;
