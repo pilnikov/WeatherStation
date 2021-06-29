@@ -20,3 +20,5 @@ static bool interuptFlag_int = false, interuptFlag_oth = false;
 
 // ----------------------------------- Конструктор DS3231
 RtcDS3231<TwoWire> DS3231(Wire);
+
+RtcDateTime _now;

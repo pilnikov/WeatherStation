@@ -293,7 +293,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
   if (out)
   {
     f_dsp.utf8rus(tstr);
-    print_(tstr, strlen(tstr), in, _offset, font14s, 2, 0);
+    f_dsp.print_(tstr, strlen(tstr), in, _offset, font14s, 2, 0);
     return strlen(tstr);
   }
   else

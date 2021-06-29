@@ -412,6 +412,7 @@ NF nsys;
 SF fsys;
 SNR sens;
 FD f_dsp;
+HT h_dsp;
 MSG dmsg;
 
 #endif /* _wc_h */

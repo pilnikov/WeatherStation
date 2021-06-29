@@ -99,15 +99,6 @@ bool d_notequal[q_dig];
 byte screen[64]; // display buffer
 
 //---------------------------------------------------------------------------HT1621
-//массив батарейка
-static const uint8_t batt[6] = {0x02, 0x82, 0x92, 0xD2, 0xF2, 0xF3};
-
-//массив больших цифр
-static const uint8_t dig1[10] = {0xF5, 0x60, 0xB6, 0xF2, 0x63, 0xD3, 0xD7, 0x70, 0xF7, 0xF3};
-
-//массив маленьких цифр
-static const uint8_t dig2[10] = {0xFA, 0x60, 0xD6, 0xF4, 0x6C, 0xBC, 0xBE, 0xE0, 0xFE, 0xFC};
-
 #include <HT1621.h>
 
 // refere to Macduino website for pin connections and their meaning

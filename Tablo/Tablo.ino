@@ -2,109 +2,10 @@
 
 void setup() {
   DBG_OUT_PORT.begin(115200);
-
-  //------------------------------------------------------  Настраиваем конфигурацию
-
-  strncpy(conf_data.sta_ssid,   " ", 17);
-  strncpy(conf_data.sta_pass,   " ", 17);
-  strncpy(conf_data.ap_ssid,    " ", 17);
-  strncpy(conf_data.ap_pass ,   " ", 17);
-  strncpy(conf_data.AKey_r,     " ", 17);
-  strncpy(conf_data.AKey_w,     " ", 17);
-  strncpy(conf_data.esrv1_addr, " ", 17);
-  strncpy(conf_data.esrv2_addr, " ", 17);
-  strncpy(conf_data.radio_addr, " ", 17);
-  strncpy(conf_data.owm_key,    " ", 33);
-  strncpy(conf_data.ch1_name, "Внутри",  17);
-  strncpy(conf_data.ch2_name, "Снаружи", 17);
-  strncpy(conf_data.ch3_name, "В бане",  17);
-
-
-  conf_data.auto_corr        = false;
-  conf_data.use_pm           = false;
-  conf_data.every_hour_beep  = true;
-  conf_data.snd_pola         = false;
-  conf_data.led_pola         = true;
-  conf_data.rus_lng          = true;
-  conf_data.use_tst1         = false;
-  conf_data.use_tst2         = false;
-  conf_data.use_tst3         = false;
-  conf_data.use_tsh1         = false;
-  conf_data.use_tsh2         = false;
-  conf_data.use_tsh3         = false;
-  conf_data.use_tsp          = false;
-  conf_data.wifi_off         = false;
-  conf_data.use_pp           = 0;
-  conf_data.time_zone        = 5;
-  conf_data.type_vdrv        = 3;
-  conf_data.type_disp        = 23;
-
-  //---------------------------- Датчики
-  conf_data.type_snr1        = 10;
-  conf_data.type_snr2        = 4;
-  conf_data.type_snr3        = 0;
-  conf_data.type_snrp        = 10;
-
-  conf_data.type_rtc         = 1;
-  conf_data.type_thermo      = 0;
-  conf_data.src_thermo       = 0;
-  conf_data.lb_thermo        = 0;
-  conf_data.hb_thermo        = 0;
-  conf_data.nm_start         = 17;
-  conf_data.nm_stop          = 7;
-  conf_data.ts_ch_id         = 0;
-  conf_data.pp_city_id       = 0;
-  conf_data.period           = 10;
-  conf_data.man_br           = 14;
-  conf_data.auto_br          = true;
-
-  conf_data.gpio_sda         = 20;
-  conf_data.gpio_scl         = 21;
-  conf_data.gpio_dio         = A3;
-  conf_data.gpio_clk         = A2;
-  conf_data.gpio_dcs         = A1;
-  conf_data.gpio_dwr         = A0;
-  conf_data.gpio_trm         = A6;
-  conf_data.gpio_sqw         = 19;
-  conf_data.gpio_snd         = A7;
-  conf_data.gpio_led         = A6;
-  conf_data.gpio_btn         = A5;
-
-  //--------------------------------Уровни для автояркости
-  conf_data.br_level[0]      = 200;
-  conf_data.br_level[1]      = 1;
-  conf_data.br_level[2]      = 1;
-  conf_data.br_level[3]      = 230;
-
-  conf_data.type_font        = 0;
-
-  //--------------------------------Будильники
-
-  for (uint8_t i = 0; i <= 6; i++)
-  {
-    for (uint8_t j = 0; j <= 4; j++)
-    {
-      conf_data.alarms[i][j] = 0;
-    }
-  }
-  conf_data.alarms[0][0] = 2;
-  conf_data.alarms[0][1] = 16;
-  conf_data.alarms[0][2] = 30;
-  conf_data.alarms[0][3] = 13;
-  conf_data.alarms[0][4] = 0;
-
-  conf_data.alarms[1][0] = 2;
-  conf_data.alarms[1][1] = 16;
-  conf_data.alarms[1][2] = 38;
-  conf_data.alarms[1][3] = 7;
-  conf_data.alarms[1][4] = 0;
-
-  conf_data.alarms[2][0] = 2;
-  conf_data.alarms[2][1] = 11;
-  conf_data.alarms[2][2] = 59;
-  conf_data.alarms[2][3] = 8;
-  conf_data.alarms[2][4] = 0;
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
+  conf_data = loadConfig();
+  //conf_data = defaultConfig();
+  //saveConfig(conf_data);
 
   Wire.begin();
 
@@ -122,7 +23,7 @@ void setup() {
 
   if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
   {
-    sens.dht_preset(DHT_PIN, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
+    sens.dht_preset(conf_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
 
     ram_data_t sens_data = ram_data;
 
@@ -142,14 +43,14 @@ void setup() {
 
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(conf_data.gpio_btn, INPUT_PULLUP);
-  if (!ram_data.bh1750_present) pinMode(ANA_SNR, INPUT);
+  if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
   pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
   if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 
   pinMode(conf_data.gpio_snd, OUTPUT);
 
-  pinMode( uart_pin, OUTPUT );
-  digitalWrite(uart_pin, HIGH);
+  pinMode( conf_data.gpio_uar, OUTPUT );
+  digitalWrite(conf_data.gpio_uar, HIGH);
 
   DBG_OUT_PORT.println(F("GPIO inital"));
 
@@ -171,12 +72,13 @@ void setup() {
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
   {
-    snr_data.f = ft_read(ram_data.bh1750_present);
-    cur_br = auto_br(snr_data.f);
+    snr_data.f = f_dsp.ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+    cur_br = f_dsp.auto_br(snr_data.f, conf_data);
   }
   else
   {
-    cur_br = conf_data.man_br;  // Man brigthness
+    if (nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
+    else cur_br = conf_data.man_br;
     snr_data.f = cur_br;
   }
   DBG_OUT_PORT.print(F("brightness from sensor..."));

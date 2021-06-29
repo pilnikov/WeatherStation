@@ -1,7 +1,7 @@
 //#include ".\headers\fonts.h"
 #include "fonts.h"
 
-static int cur_sym_pos[2] = {0, 0};
+static uint8_t cur_sym_pos[2] = {0, 0};
 static uint16_t buffud[64];
 static bool d_notequal[q_dig];
 static const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
@@ -63,7 +63,7 @@ void irq_set()
     {
       if (num_st++ > max_st) num_st = 1;
 
-      st1 = pr_str(num_st);
+      st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, cur_br);
 
       f_dsp.utf8rus(st1);
 
@@ -75,7 +75,7 @@ void irq_set()
     }
   }
 
-  uint8_t h = hour();
+  uint8_t h = rtc_data.hour;
   //m3216 -> fillScreen(0);
   disp_on = true;
 
@@ -83,8 +83,8 @@ void irq_set()
   {
     //    bright = 50;
     m3216 -> drawPixel(h, 0, m3216 -> ColorHSV(500, 255, 100, true));
-    m3216 -> drawPixel(minute() / 2, 15, m3216 -> ColorHSV(500, 255, 100, true));
-    if (minute() % 10 == 0 && second() == 0) synchro();
+    m3216 -> drawPixel(rtc_data.min / 2, 15, m3216 -> ColorHSV(500, 255, 100, true));
+    if (rtc_data.min % 10 == 0 && rtc_data.sec == 0) synchro();
     disp_on = false;
   }
 
@@ -92,32 +92,41 @@ void irq_set()
   play_snd = false;
 
   //------------------------------------------------------  Верифицируем ночной режим
-  if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = ((hour() >= conf_data.nm_start) & (hour() < conf_data.nm_stop));
-  else nm_is_on = (hour() >= conf_data.nm_start || hour() < conf_data.nm_stop);
+  if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = ((rtc_data.hour >= conf_data.nm_start) & (rtc_data.hour < conf_data.nm_stop));
+  else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
 }
 
 
 void firq2() // 0.5 sec main cycle
 {
+  _now = DS3231.GetDateTime();
+  rtc_data.hour = _now.Hour();
+  rtc_data.min = _now.Minute();
+  rtc_data.sec = _now.Second();
+  rtc_data.wday = _now.DayOfWeek();
+  rtc_data.month = _now.Month();
+  rtc_data.day = _now.Day();
+  rtc_data.year = _now.Year(); //костыль
+
+
   if (disp_on)
   {
-    //-------------Brigthness------------------
+    //-------------------------------------------------------- Регулируем яркость дисплея
     if (conf_data.auto_br)
     {
-      snr_data.f = ft_read(ram_data.bh1750_present);
-      cur_br = auto_br(snr_data.f);
+      snr_data.f = f_dsp.ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      cur_br = f_dsp.auto_br(snr_data.f, conf_data);
     }
     else
     {
-      cur_br = conf_data.man_br;  // Man brigthness
+      if (nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
+      else cur_br = conf_data.man_br;
       snr_data.f = cur_br;
     }
-
     //-----------------------------------------
 
     // run slowely time displays here
-    m32_8time_act = time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud, conf_data.use_pm);
-
+    m32_8time_act = f_dsp.time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud,  font5x7, conf_data.use_pm, q_dig, rtc_data);
   }
   if (Alarmed()) rtc_data.wasAlarm = true;
   if (rtc_data.wasAlarm & !play_snd)
@@ -143,7 +152,7 @@ void firq3() // 0.125 sec
 
       if (d_notequal[i])
       {
-        shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
+        f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
       }
     }
   }
@@ -151,7 +160,7 @@ void firq3() // 0.125 sec
 
 void firq4() //0.04 sec running string is out switch to time view
 {
-  end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+  end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
   m3216_ramFormer(screen);
   m3216 -> swapBuffers(true);
 }

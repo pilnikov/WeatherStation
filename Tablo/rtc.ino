@@ -30,7 +30,7 @@ void rtc_check()
 
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
 
-  RtcDateTime _now = compiled;
+  _now = compiled;
 
 
   //--------RTC SETUP ------------
@@ -86,17 +86,6 @@ void rtc_check()
   {
     if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
   }
-
-  // never assume the Rtc was last configured by you, so
-  // just clear them to your needed state
-
-  setTime(_now.Hour(), _now.Minute(), _now.Second(), _now.Day(), _now.Month(), _now.Year());
-  _weekday = _now.DayOfWeek(),
-  _month = _now.Month(),
-  _day = _now.Day();
-  _year = _now.Year(); //костыль
-
-  if (debug_level == 13) printDateTime(now());
 }
 
 void set_alarm() //Устанавливаем будильник
@@ -124,10 +113,10 @@ void set_alarm() //Устанавливаем будильник
 
   for (uint8_t j = 0; j <= 6; j++) //Ищем ближайший актуальный будильник
   {
-    bool snday = (_weekday == 6 || _weekday == 0); //Сегодня выходной
+    bool snday = (rtc_data.wday == 6 || rtc_data.wday == 0); //Сегодня выходной
     if (conf_data.alarms[j][0] > 0 //будильник актививен
         && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || (conf_data.alarms[j][0] == 3 && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
-        && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] > (uint16_t)hour() * 60 + minute()                 //минут будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
+        && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] > (uint16_t)rtc_data.hour * 60 + rtc_data.min                 //минут будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
         && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] <= (uint16_t)rtc_data.a_hour * 60 + rtc_data.a_min //минут будильника <= текущих минут актуального будильника (выбор ближайшего)
        )
     {
@@ -138,7 +127,7 @@ void set_alarm() //Устанавливаем будильник
       rtc_data.alarm = true;
     }
     //----------------------------------------------------------------------поиск самого раннего будильника
-    snday = ((_weekday + 1) > 5); //А не выходной ли завтра?
+    snday = ((rtc_data.wday + 1) > 5); //А не выходной ли завтра?
     if (conf_data.alarms[j][0] > 0 //будильник актививен
         && (((conf_data.alarms[j][0] == 1 || conf_data.alarms[j][0] == 2) && !snday) || ((conf_data.alarms[j][0] == 3) && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
         && ((uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] < amin)
@@ -148,7 +137,7 @@ void set_alarm() //Устанавливаем будильник
       nmin = j;
     }
   }
-  if (!rtc_data.alarm & (nmin < 7) & ((int)conf_data.alarms[nmin][1] * 60 + conf_data.alarms[nmin][2] < (int)hour() * 60 + minute()))
+  if (!rtc_data.alarm & (nmin < 7) & ((int)conf_data.alarms[nmin][1] * 60 + conf_data.alarms[nmin][2] < (int)rtc_data.hour * 60 + rtc_data.min))
   {
     rtc_data.n_cur_alm = nmin;
     rtc_data.a_hour = conf_data.alarms[rtc_data.n_cur_alm][1];
@@ -160,25 +149,6 @@ void set_alarm() //Устанавливаем будильник
 
   if (ram_data.type_rtc == 1) ds3231_write();
 }
-
-#define countof(a) (sizeof(a) / sizeof(a[0]))
-
-void printDateTime(const RtcDateTime& dt)
-{
-  char datestring[20];
-
-  snprintf_P(datestring,
-             countof(datestring),
-             PSTR("%02u/%02u/%04u %02u:%02u:%02u\n"),
-             dt.Day(),
-             dt.Month(),
-             dt.Year(),
-             dt.Hour(),
-             dt.Minute(),
-             dt.Second() );
-  DBG_OUT_PORT.println(datestring);
-}
-
 
 void ds3231_write()
 {
@@ -220,14 +190,14 @@ bool Alarmed()
   {
     if (!interuptFlag_oth)  // check our flag that gets sets in the interupt
     {
-      al1_oth = ((hour() == rtc_data.a_hour) & (minute() == rtc_data.a_min)); //Сработал будильник №1
-      al2_oth = ((minute() == 0) & (second() == 0));                          //Сработал будильник №2
+      al1_oth = ((rtc_data.hour == rtc_data.a_hour) & (rtc_data.min == rtc_data.a_min)); //Сработал будильник №1
+      al2_oth = ((rtc_data.min == 0) & (rtc_data.sec == 0));                          //Сработал будильник №2
       wasAlarmed_oth = (al1_oth || al2_oth);
       interuptFlag_oth = wasAlarmed_oth; // set the flag
     }
   }
 
-  interuptFlag_oth = ((hour() == rtc_data.a_hour) || (minute() == rtc_data.a_min) || (minute() == 0) || (second() == 0));
+  interuptFlag_oth = ((rtc_data.hour == rtc_data.a_hour) || (rtc_data.min == rtc_data.a_min) || (rtc_data.min == 0) || (rtc_data.sec == 0));
 
   if (al1_int || al1_oth) //Сработал будильник №1
   {

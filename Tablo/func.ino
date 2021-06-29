@@ -1,3 +1,97 @@
+conf_data_t loadConfig()
+{
+  conf_data_t _data;
+  EEPROM.get(0, _data);           // прочитали из адреса 0
+  return _data;
+}
+
+void saveConfig(conf_data_t _data)
+{
+  EEPROM.put(0, _data);           // записали по адресу 0
+}
+
+conf_data_t defaultConfig()
+{
+  //------------------------------------------------------  Настраиваем конфигурацию
+  conf_data_t _data;
+
+  strncpy(_data.ch1_name, "Внутри",  17);
+  strncpy(_data.ch2_name, "Снаружи", 17);
+  strncpy(_data.ch3_name, "В бане",  17);
+
+
+  _data.auto_corr        = false;
+  _data.use_pm           = false;
+  _data.every_hour_beep  = true;
+  _data.snd_pola         = false;
+  _data.led_pola         = true;
+  _data.rus_lng          = true;
+  _data.use_pp           = 0;
+  _data.time_zone        = 5;
+  _data.type_vdrv        = 3;
+  _data.type_disp        = 23;
+
+  //---------------------------- Датчики
+  _data.type_snr1        = 10;
+  _data.type_snr2        = 4;
+  _data.type_snr3        = 0;
+  _data.type_snrp        = 10;
+
+  _data.type_rtc         = 1;
+  _data.nm_start         = 17;
+  _data.nm_stop          = 7;
+  _data.period           = 10;
+  _data.man_br           = 14;
+  _data.nmd_br           = 2;
+  _data.auto_br          = true;
+
+  _data.gpio_dio         = A3;
+  _data.gpio_clk         = A2;
+  _data.gpio_dcs         = A1;
+  _data.gpio_dwr         = A0;
+  _data.gpio_sqw         = 19;
+  _data.gpio_snd         = A7;
+  _data.gpio_led         = A6;
+  _data.gpio_btn         = A5;
+
+  //--------------------------------Уровни для автояркости
+  _data.br_level[0]      = 200;
+  _data.br_level[1]      = 1;
+  _data.br_level[2]      = 1;
+  _data.br_level[3]      = 230;
+
+  _data.type_font        = 0;
+
+  //--------------------------------Будильники
+
+  for (uint8_t i = 0; i <= 6; i++)
+  {
+    for (uint8_t j = 0; j <= 4; j++)
+    {
+      _data.alarms[i][j] = 0;
+    }
+  }
+  _data.alarms[0][0] = 2;
+  _data.alarms[0][1] = 16;
+  _data.alarms[0][2] = 30;
+  _data.alarms[0][3] = 13;
+  _data.alarms[0][4] = 0;
+
+  _data.alarms[1][0] = 2;
+  _data.alarms[1][1] = 16;
+  _data.alarms[1][2] = 38;
+  _data.alarms[1][3] = 7;
+  _data.alarms[1][4] = 0;
+
+  _data.alarms[2][0] = 2;
+  _data.alarms[2][1] = 11;
+  _data.alarms[2][2] = 59;
+  _data.alarms[2][3] = 8;
+  _data.alarms[2][4] = 0;
+
+  return _data;
+}
+
 void synchro()
 {
 
@@ -21,16 +115,10 @@ void synchro()
 #ifdef _debug
   DBG_OUT_PORT.println(F("\n inString.." + inString);
 #endif
-
-  parser(inString);
-
-  if (wf_data.day == 0) conf_data.use_pp = 0;
-
-  if (abs(rtc_data.ct - now()) > 2 && rtc_data.ct > 1476797813) setTime(rtc_data.ct);
-
-
-  cur_br = ((ram_data.lb + 1) * 16) - 1;
-  DBG_OUT_PORT.print(F("Cur_br ..."));  DBG_OUT_PORT.println(cur_br);
+                       parser(inString);
+                       if (wf_data.day == 0) conf_data.use_pp = 0;
+                       cur_br = ((ram_data.lb + 1) * 16) - 1;
+                       DBG_OUT_PORT.print(F("Cur_br ..."));  DBG_OUT_PORT.println(cur_br);
 }
 
 String Serial_Read() {
@@ -38,7 +126,7 @@ String Serial_Read() {
   String S_str = String(); // Формируемая из символов строка
   uint8_t i = 0;
   Serial3.begin(19200);
-  digitalWrite(uart_pin, LOW);
+  digitalWrite(conf_data.gpio_uar, LOW);
 
   do
   {
@@ -51,7 +139,7 @@ String Serial_Read() {
     S_str += c; //Формируем строку
     i++;
   }  while (c != '}' && i < 250); //пока не найдем "}"
-  digitalWrite(uart_pin, HIGH);
+  digitalWrite(conf_data.gpio_uar, HIGH);
   Serial3.end();
 
   return S_str;
@@ -111,3 +199,26 @@ void parser(String inStr)
   DBG_OUT_PORT.print(F("Current alarm: ")); DBG_OUT_PORT.print(rtc_data.a_hour); DBG_OUT_PORT.print(':'); DBG_OUT_PORT.println(rtc_data.a_min);
   //#endif
 }
+void m3216_init()
+{
+  m3216 = new RGBmatrixPanel(A, B, C, CLK, LAT, OE, true);
+  m3216 -> begin();
+  m3216 -> cp437(true);
+  m3216 -> setTextSize(1);
+  m3216 -> setTextWrap(false); // Allow text to run off right edge
+}
+
+void m3216_ramFormer(byte *in)
+{
+  for (uint8_t x = 0; x < 32; x++)
+  {
+    uint8_t dt = 0b1;
+    for (uint8_t y = 0; y < 8; y++)
+    {
+      m3216 -> drawPixel(x, y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, cur_br, true) : 0);
+      m3216 -> drawPixel(x, y + 8, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, cur_br, true) : 0);
+    }
+  }
+}
+
+void(* resetFunc) (void) = 0; //Programm reset

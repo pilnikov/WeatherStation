@@ -138,8 +138,8 @@ void firq6() // 0.5 sec main cycle
     //-------------Brigthness------------------
     if (conf_data.auto_br)
     {
-      snr_data.f = ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
-      cur_br = auto_br(snr_data.f, conf_data);
+      snr_data.f = f_dsp.ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      cur_br = f_dsp.auto_br(snr_data.f, conf_data);
     }
     else
     {
@@ -188,14 +188,14 @@ void firq7() // 0.2 sec Communications with server
   {
     if (conf_data.type_disp == 11)
     {
-      if (!nm_is_on) end_run_st = scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      if (!nm_is_on) end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
       ht1633_ramFormer2(screen, 0, 8);
       ht1633->setBrightness(cur_br);
       ht1633->write();
     }
     if (conf_data.type_disp == 31)
     {
-      if (!nm_is_on) end_run_st = scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      if (!nm_is_on) end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
       ht1633_ramFormer(screen, 0, 13);
       ht1633->setBrightness(cur_br);
       ht1633->write();
@@ -219,7 +219,7 @@ void firq8() // 0.125 sec
 
       if (d_notequal[i])
       {
-        shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
+        f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
       }
     }
   }
@@ -229,7 +229,7 @@ void firq9() //0.04 sec running string is out switch to time view
 {
   if (conf_data.type_disp > 19 && conf_data.type_disp < 29  && disp_on)
   {
-    if (!end_run_st) end_run_st = scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    if (!end_run_st) end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
   }
 
   if (ram_data.type_vdrv == 5 && conf_data.type_disp == 22 && disp_on)
