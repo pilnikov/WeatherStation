@@ -175,11 +175,11 @@ void parser(String inStr)
 
   rtc_data.ct        = json["T"];
   ram_data.lb        = json["U"];
-  es_data.t1         = json["V"];
-  es_data.t2         = json["W"];
-  es_data.h1         = json["X"];
-  es_data.h2         = json["Y"];
-  es_data.p          = json["Z"];
+  es_data1.t1         = json["V"];
+  es_data1.t2         = json["W"];
+  es_data1.h1         = json["X"];
+  es_data1.h2         = json["Y"];
+  es_data1.p          = json["Z"];
 
   wf_data.tod        = json ["A"];
   wf_data.cloud      = json ["B"];
@@ -200,9 +200,9 @@ void parser(String inStr)
   DBG_OUT_PORT.println(F("Data from ext server"));
   DBG_OUT_PORT.print(F("Current time is: ")); DBG_OUT_PORT.println(rtc_data.ct);
   DBG_OUT_PORT.print(F("Brightness ..."));  DBG_OUT_PORT.println(ram_data.lb);
-  DBG_OUT_PORT.print(F("Temperature inside: "));  DBG_OUT_PORT.print(es_data.t1); DBG_OUT_PORT.print(F(" degrees Celcius Humidity inside: ")); DBG_OUT_PORT.print(es_data.h1); DBG_OUT_PORT.println(F(" % "));
-  DBG_OUT_PORT.print(F("Temperature outside: ")); DBG_OUT_PORT.print(es_data.t2); DBG_OUT_PORT.print(F(" degrees Celcius Humidity outside: ")); DBG_OUT_PORT.print(es_data.h2); DBG_OUT_PORT.println(F(" % "));
-  DBG_OUT_PORT.print(F("Pressure: ")); DBG_OUT_PORT.print(es_data.p); DBG_OUT_PORT.println(F("mm rt. st."));
+  DBG_OUT_PORT.print(F("Temperature inside: "));  DBG_OUT_PORT.print(es_data1.t1); DBG_OUT_PORT.print(F(" degrees Celcius Humidity inside: ")); DBG_OUT_PORT.print(es_data1.h1); DBG_OUT_PORT.println(F(" % "));
+  DBG_OUT_PORT.print(F("Temperature outside: ")); DBG_OUT_PORT.print(es_data1.t2); DBG_OUT_PORT.print(F(" degrees Celcius Humidity outside: ")); DBG_OUT_PORT.print(es_data1.h2); DBG_OUT_PORT.println(F(" % "));
+  DBG_OUT_PORT.print(F("Pressure: ")); DBG_OUT_PORT.print(es_data1.p); DBG_OUT_PORT.println(F("mm rt. st."));
   DBG_OUT_PORT.print(F("Prognoz: ")); DBG_OUT_PORT.print(wf_data.day);
   DBG_OUT_PORT.print(F("Current alarm: ")); DBG_OUT_PORT.print(rtc_data.a_hour); DBG_OUT_PORT.print(':'); DBG_OUT_PORT.println(rtc_data.a_min);
   //#endif
@@ -234,8 +234,6 @@ void m3216_ramFormer(byte *in)
 //------------------------------------------------------  Получаем данные с датчиков
 void GetSnr()
 {
-  snr_data_t ts_data;
-
   snr_data.t1 = 99;
   snr_data.t2 = 99;
   snr_data.t3 = 99;
@@ -249,7 +247,7 @@ void GetSnr()
   RtcTemperature t1 = DS3231.GetTemperature();
   ram_data.temp_rtc = round(t1.AsFloatDegC());
 
-  snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
+  snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, es_data1, es_data1, es_data1, wf_data_cur); // Заполняем матрицу данных с датчиков
 }
 
 void(* resetFunc) (void) = 0; //Programm reset

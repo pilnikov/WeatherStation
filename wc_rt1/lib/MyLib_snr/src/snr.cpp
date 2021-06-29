@@ -482,7 +482,7 @@ float SNR::dht_read_h()
 	return ret;
 }
 
-snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, uint8_t type_press, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data, wf_data_t w_data)
+snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, uint8_t type_press, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data1, snr_data_t e_data2, wf_data_t w_data)
 {
 	snr_data_t data;
 
@@ -501,12 +501,12 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		t = t_data.t1;
 		break;
 	case 2:
-		h = e_data.h1;
-		t = e_data.t1;
+		h = e_data1.h1;
+		t = e_data1.t1;
 		break;
 	case 3:
-		h = e_data.h1;
-		t = e_data.t1;
+		h = e_data2.h1;
+		t = e_data2.t1;
 		break;
 	case 4:
 		t = dht_read_t();
@@ -565,12 +565,12 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		h = t_data.h2;
 		break;
 	case 2:
-		t = e_data.t2;
-		h = e_data.h2;
+		t = e_data1.t2;
+		h = e_data1.h2;
 		break;
 	case 3:
-		t = e_data.t2;
-		h = e_data.h2;
+		t = e_data2.t2;
+		h = e_data2.h2;
 		break;
 	case 4:
 		t = dht_read_t();
@@ -628,12 +628,12 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		h = t_data.h3;
 		break;
 	case 2:
-		t = e_data.t3;
-		h = e_data.h3;
+		t = e_data1.t3;
+		h = e_data1.h3;
 		break;
 	case 3:
-		t = e_data.t3;
-		h = e_data.h3;
+		t = e_data2.t3;
+		h = e_data2.h3;
 		break;
 	case 4:
 		t = dht_read_t();
@@ -687,10 +687,10 @@ snr_data_t SNR::read_snr(uint8_t channel1, uint8_t channel2, uint8_t channel3, u
 		p = t_data.p;
 		break;
 	case 2:
-		p = e_data.p;
+		p = e_data1.p;
 		break;
 	case 3:
-		p = e_data.p;
+		p = e_data2.p;
 		break;
 	case 8:
 		p = bmp180_read_p();

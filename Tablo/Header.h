@@ -60,7 +60,7 @@ static Synt Buzz;               //Конструктор пищалки
 snr_data_t snr_data;
 wf_data_t wf_data;
 wf_data_t wf_data_cur;
-snr_data_t es_data;
+snr_data_t es_data1;
 
 conf_data_t conf_data;
 ram_data_t ram_data;

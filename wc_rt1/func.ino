@@ -2,7 +2,8 @@
 snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 {
   snr_data_t ts_data;
-  snr_data_t es_data;
+  snr_data_t es_data1;
+  snr_data_t es_data2;
   snr_data_t _snr_data;
 
   _snr_data.t1 = 99;
@@ -31,8 +32,8 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
       ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
       dmsg.callback(cf.type_disp, 2, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
-    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) es_data = e_srv.get_es(es_rcv(cf.esrv1_addr)); // Получаем данные от внешнего сервера1
-    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) es_data = e_srv.get_es(es_rcv(cf.esrv2_addr)); // Получаем данные от внешнего сервера2
+    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) es_data1 = e_srv.get_es(es_rcv(cf.esrv1_addr)); // Получаем данные от внешнего сервера1
+    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) es_data2 = e_srv.get_es(es_rcv(cf.esrv2_addr)); // Получаем данные от внешнего сервера2
 
     if (cf.use_pp == 2) {
       wf_data_cur = getOWM_current(cf.pp_city_id, cf.owm_key);// Получаем данные от OWM
@@ -41,7 +42,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 #endif
   if (rd.type_snr1 > 0 || rd.type_snr2 > 0 || rd.type_snr3 > 0)
   {
-    _snr_data = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, ts_data, es_data, wf_data_cur); // Заполняем матрицу данных с датчиков
+    _snr_data = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, ts_data, es_data1, es_data2, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
 # if defined(__xtensa__)

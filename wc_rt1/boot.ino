@@ -263,7 +263,6 @@ void firq9() //0.04 sec running string is out switch to time view
     while (pos > -450)
     {
       m3216 -> setCursor(pos, 1);
-      getRGB(abs(pos) % 255, 255, 255, colors);
       m3216 -> print(st1);
       pos -= 1;
       vTaskDelay(10);

@@ -22,15 +22,15 @@ void setup()
 
   //------------------------------------------------------  Читаем установки из EEPROM
 
-  //conf_data = defaultConfig();
-  //saveConfig(conf_f, conf_data);
-
 #if defined(__AVR_ATmega2560__)
   conf_data = defaultConfig();
 #endif
 
 # if defined(__xtensa__)
   conf_data = loadConfig(conf_f);
+
+  //conf_data = defaultConfig();
+  //saveConfig(conf_f, conf_data);
 #endif
 
   DBG_OUT_PORT.println(F("config loaded"));
@@ -228,10 +228,10 @@ void setup()
 void loop()
 {
   // ----------------------------------------------------- Проигрываем звуки
-#if defined(ESP8266)
+#if defined(__xtensa__)
   //inital sound card
   Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
-#elif defined (__AVR__) || defined (ARDUINO_ARCH_ESP32)
+#elif defined (__AVR__)
   Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
 #endif
   play_snd = false;

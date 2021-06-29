@@ -34,7 +34,7 @@ public:
 
 	void dht_preset(uint8_t, uint8_t);
 	ram_data_t init(ram_data_t);
-	snr_data_t read_snr(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, snr_data_t, snr_data_t, wf_data_t);
+	snr_data_t read_snr(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, snr_data_t, snr_data_t, snr_data_t, wf_data_t);
 
 private:
 	//----------------------------------------------------------dht
