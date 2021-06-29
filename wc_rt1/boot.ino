@@ -1,6 +1,11 @@
 //#include ".\headers\fonts.h"
 #include "fonts.h"
 
+
+static uint8_t cur_sym_pos[2] = {0, 0};
+static uint8_t  num_st = 0;
+
+
 void irq_set()
 {
   //------------------------------------------------------ interrupts

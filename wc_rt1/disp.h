@@ -26,7 +26,6 @@
 #include <RGBmatrixPanel.h> // Hardware-specific library
 #endif
 
-void dow_sel(uint8_t);
 
 String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t);
 
@@ -39,14 +38,6 @@ void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 
 void a595_init();
 
-bool scroll_String(int8_t, int8_t, String, uint8_t&, uint8_t&, byte*, const byte*, uint8_t, uint8_t, uint8_t);
-uint8_t auto_br(uint16_t, conf_data_t);
-
-void bat (uint8_t, byte*);
-void digit (uint8_t, uint8_t, byte*);
-void mon_day (uint8_t, uint8_t);
-void ala (uint8_t);
-bool time_m32_8(byte*, uint8_t, unsigned char*, const uint8_t*, bool*, uint16_t*, bool, const uint8_t, rtc_data_t);
 
 //-----------------------------------------------------------------------------new
 
@@ -64,16 +55,6 @@ static HT16K33 * ht1633;
 
 
 //---------------------------------------------------------------------------LCD1602
-
-#define countof(a) (sizeof(a) / sizeof(a[0]))
-
-const uint8_t lcd_row = 2;
-const uint8_t lcd_col = 16;
-
-//LiquidCrystal_I2C lcd(lcd_adr, lcd_col, lcd_row); // set the LCD address to 0x27 for a 16 chars and 2 line display
-
-uint8_t  num_st = 1, max_st = 3; //номер и макс кол-во прокручиваемых строк
-
 static LiquidCrystal_I2C * lcd;
 
 //---------------------------------------------------------------------------MAX7219 4 x 8 x 8 Matrix Display
@@ -85,16 +66,17 @@ static LiquidCrystal_I2C * lcd;
 static Max72 *m7219;
 
 const uint8_t q_dig = 6;  // количество цифр на дисплее
+uint8_t  max_st = 3;      // макс кол-во прокручиваемых строк
 
+static bool d_notequal[q_dig];
 const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
-static unsigned char oldDigit[q_dig];                       // убегающая цифра
+static unsigned char oldDigit[q_dig];                   // убегающая цифра
+static uint16_t buffud[64];
 
-uint8_t cur_sym_pos[2] = {0, 0};
+
 bool end_run_st = true, end_run_st_buf = true, m32_8time_act = false, blinkColon = false;
 
 String st1 = String();
-uint16_t buffud[64];
-bool d_notequal[q_dig];
 
 byte screen[64]; // display buffer
 

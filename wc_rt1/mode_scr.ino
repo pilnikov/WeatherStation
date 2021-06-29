@@ -16,9 +16,10 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
 
   const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
 
-  char tstr[255];
-  uint8_t h = 0;
-  h = cf.use_pm && rt.hour > 12 ? rt.hour - 12 : rt.hour;
+  char tstr[10];
+  uint8_t h = cf.use_pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;
+   h = h % 100;
+
   uint8_t s_tstr = _width * 2;
   uint8_t size_tstr = 1;
   bool out = false;
@@ -272,16 +273,16 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
           break;
 
         case 6: //Актуальный будильник, текущая яркость
-          if (rt.a_hour == 62 && rt.a_min == 62) size_tstr = sprintf(tstr, "A----L%2d", c_br);
+          if (rt.a_hour == 62 && rt.a_min == 62) size_tstr = sprintf(tstr, "A----L%2d", c_br % 100);
           else
           {
-            size_tstr = snprintf(tstr, s_tstr, "A%2u.%02dL%2d", rt.a_hour, rt.a_min, c_br);
+            size_tstr = snprintf(tstr, s_tstr, "A%2u.%02dL%2d", rt.a_hour % 100, rt.a_min % 100, c_br % 100);
             out = true;
           }
           break;
 
         default:
-          size_tstr = snprintf(tstr, s_tstr, "%2d-%02d-%02d", h, rt.min, rt.sec);
+          size_tstr = snprintf(tstr, s_tstr, "%2d-%02d-%02d", h % 100, rt.min % 100, rt.sec % 100);
           out = true;
           break;
       }

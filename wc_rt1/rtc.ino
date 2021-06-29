@@ -37,8 +37,6 @@ void rtc_check()
   if (debug_level == 13) DBG_OUT_PORT.println(__TIME__);
 
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
-  if (debug_level == 13) printDateTime(compiled);
-  if (debug_level == 13) DBG_OUT_PORT.println();
 
   RtcDateTime _now = compiled;
 
@@ -257,22 +255,6 @@ void set_alarm() //Устанавливаем будильник
 
   if (ram_data.type_rtc == 1) ds3231_write();
   //------------------------------------------------------------------------------------ Верифицируем ночной режим
-}
-
-void printDateTime(const RtcDateTime& dt)
-{
-  char datestring[20];
-
-  snprintf_P(datestring,
-             countof(datestring),
-             PSTR("%02u/%02u/%04u %02u:%02u:%02u\n"),
-             dt.Month(),
-             dt.Day(),
-             dt.Year(),
-             dt.Hour(),
-             dt.Minute(),
-             dt.Second() );
-  DBG_OUT_PORT.print(datestring);
 }
 
 void setDateTime(const RtcDateTime& dt)

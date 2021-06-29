@@ -433,25 +433,15 @@ void keyb_read()
   bool but0_pressed = !digitalRead(conf_data.gpio_btn); // false - кнопка нажата
   static bool but0_press;
   static unsigned long setting_ms;
-  
-  if (but0_pressed && !but0_press) setting_ms = millis(); // Нажимаем кнопку - запускаем таймер, начинаем отсчет времени удержания
 
-  if (!but0_pressed && but0_press && millis() - setting_ms > 150 && millis() - setting_ms < 400) // держим от 0,15 до 0,4 сек
+  if (but0_pressed & !but0_press) setting_ms = millis(); // Нажимаем кнопку - запускаем таймер, начинаем отсчет времени удержания
+
+  if (!but0_pressed & but0_press & (millis() - setting_ms > 150) & (millis() - setting_ms < 400)) // держим от 0,15 до 0,4 сек
   {
     disp_mode++; // меняем содержимое экрана на 7ми сегментных индикаторах
     if (disp_mode > 12) disp_mode = 0;
-    irq_end[0] = millis();
 
-    num_st++;    // перебираем строки на матрицах и LCD
-    if (num_st > 4) num_st = 1;
-    String local_ip = "192.168.0.0";
-#if defined(__xtensa__)
-    local_ip =  WiFi.localIP().toString();
-#endif
-    st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-    f_dsp.utf8rus(st1);
-    cur_sym_pos[0] = 0;
-    cur_sym_pos[1] = 0;
+    max_st = 4;
     end_run_st = false; //Запуск бегущей строки;
 
     but0_press = but0_pressed;
