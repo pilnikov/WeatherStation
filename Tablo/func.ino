@@ -1,18 +1,21 @@
+
+//--------------------------------  Читаем конфигурацию из ЕЕПРОМ
 conf_data_t loadConfig()
 {
   conf_data_t _data;
-  EEPROM.get(0, _data);           // прочитали из адреса 0
+  EEPROM.get(0, _data);           
   return _data;
 }
 
+//--------------------------------  Пишем конфигурацию в ЕЕПРОМ
 void saveConfig(conf_data_t _data)
 {
-  EEPROM.put(0, _data);           // записали по адресу 0
+  EEPROM.put(0, _data);           
 }
 
+//--------------------------------  Настраиваем конфигурацию (дефолт)
 conf_data_t defaultConfig()
 {
-  //------------------------------------------------------  Настраиваем конфигурацию
   conf_data_t _data;
 
   strncpy(_data.ch1_name, "Внутри",  17);
@@ -97,12 +100,10 @@ conf_data_t defaultConfig()
   return _data;
 }
 
+//------------------------------------------------------  Получаем данные извне
 void synchro()
 {
-
-  //Синхронизация системного времени через сом порт (меседж вида "Т unix time")
-
-  // ---------------------------------------------------------------------------- Начальная инициализация
+  // --------------- Начальная инициализация
   rtc_data.ct = 1530687234; //Текущее время
   snr_data.h1  =   0; //Внутренняя влажность
   snr_data.t1  =  99; //Внутренняя температура
@@ -118,15 +119,17 @@ void synchro()
   String inString = Serial_Read();
 
 #ifdef _debug
-  DBG_OUT_PORT.println(F("\n inString.." + inString);
+  DBG_OUT_PORT.println(F("\n inString.." + inString));
 #endif
-                       parser(inString);
-                       if (wf_data.day == 0) conf_data.use_pp = 0;
-                       cur_br = ((ram_data.lb + 1) * 16) - 1;
-                       DBG_OUT_PORT.print(F("Cur_br ..."));  DBG_OUT_PORT.println(cur_br);
+  parser(inString);
+  if (wf_data.day == 0) conf_data.use_pp = 0;
+  cur_br = ((ram_data.lb + 1) * 16) - 1;
+  DBG_OUT_PORT.print(F("Cur_br ..."));  DBG_OUT_PORT.println(cur_br);
 }
 
-String Serial_Read() {
+//------------------------------------------------------  Читаем из Serial
+String Serial_Read() 
+{
   char c; // переменная для чтения сериал порта
   String S_str = String(); // Формируемая из символов строка
   uint8_t i = 0;
@@ -150,7 +153,7 @@ String Serial_Read() {
   return S_str;
 }
 
-
+//------------------------------------------------------  Парсим полученные извне данные
 void parser(String inStr)
 {
 # ifdef _debug
@@ -204,6 +207,8 @@ void parser(String inStr)
   DBG_OUT_PORT.print(F("Current alarm: ")); DBG_OUT_PORT.print(rtc_data.a_hour); DBG_OUT_PORT.print(':'); DBG_OUT_PORT.println(rtc_data.a_min);
   //#endif
 }
+
+//------------------------------------------------------  Инициализируем дисплей
 void m3216_init()
 {
   m3216 = new RGBmatrixPanel(A, B, C, CLK, LAT, OE, true);
