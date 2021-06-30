@@ -15,16 +15,25 @@ void rtc_init()
       pinMode(conf_data.gpio_sqw, INPUT);
 
       //--------RTC SETUP ------------
-      DS3231.Begin();
-      DS3231.Enable32kHzPin(false);
-      DS3231.SetSquareWavePin(DS3231SquareWavePin_ModeAlarmBoth);
-      DS3231.LatchAlarmsTriggeredFlags();
+      ds3231 = new RtcDS3231<TwoWire> (Wire);
+
+      ds3231 -> Begin();
+      ds3231 -> Enable32kHzPin(false);
+      ds3231 -> SetSquareWavePin(DS3231SquareWavePin_ModeAlarmBoth);
+      ds3231 -> LatchAlarmsTriggeredFlags();
       // setup external interupt
       attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
       break;
+    case 2:
+      myTWire = new ThreeWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
+      //ds1302 = new RtcDS1302<ThreeWire> (myTWire);
+      break;
+
     case 3:
-      DS1307.Begin();
-      DS1307.SetSquareWavePin(DS1307SquareWaveOut_Low);
+      ds1307 = new RtcDS1307<TwoWire> (Wire);
+
+      ds1307 -> Begin();
+      ds1307 -> SetSquareWavePin(DS1307SquareWaveOut_Low);
       break;
   }
   rtc_check();
@@ -50,17 +59,17 @@ void rtc_check()
       // the available pins for SDA, SCL
       // Wire.begin(0, 2); // due to limited pins, use pin 0 and 2 for SDA, SCL
 
-      DS3231.Begin();
+      ds3231 -> Begin();
 
-      if (!DS3231.IsDateTimeValid())
+      if (!ds3231 -> IsDateTimeValid())
       {
-        if (DS3231.LastError() != 0)
+        if (ds3231 -> LastError() != 0)
         {
           // we have a communications error
           // see https://www.arduino.cc/en/Reference/WireEndTransmission for
           // what the number means
           if (debug_level == 13) DBG_OUT_PORT.print(F("RTC communications error = "));
-          if (debug_level == 13) DBG_OUT_PORT.println(DS3231.LastError());
+          if (debug_level == 13) DBG_OUT_PORT.println(ds3231 -> LastError());
         }
         else
         {
@@ -74,21 +83,21 @@ void rtc_check()
           // it will also reset the valid flag internally unless the Rtc device is
           // having an issue
 
-          DS3231.SetDateTime(compiled);
+          ds3231 -> SetDateTime(compiled);
         }
       }
 
-      if (!DS3231.GetIsRunning())
+      if (!ds3231 -> GetIsRunning())
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC was not actively running, starting now"));
-        DS3231.SetIsRunning(true);
+        ds3231 -> SetIsRunning(true);
       }
 
-      _now = DS3231.GetDateTime();
+      _now = ds3231 -> GetDateTime();
       if (_now < compiled)
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
-        DS3231.SetDateTime(compiled);
+        ds3231 -> SetDateTime(compiled);
       }
       else if (_now > compiled)
       {
@@ -106,13 +115,13 @@ void rtc_check()
 
     case 2:
       if (debug_level == 13) DBG_OUT_PORT.println(F("Starting RTC check"));
-      if (!DS1302.GetIsRunning())
+      if (!ds1302 -> GetIsRunning())
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC was not actively running, starting now"));
-        DS1302.SetIsRunning(true);
+        ds1302 -> SetIsRunning(true);
       }
 
-      if (!DS1302.IsDateTimeValid())
+      if (!ds1302 -> IsDateTimeValid())
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC Time is not valid!"));
         // Common Causes:
@@ -125,14 +134,14 @@ void rtc_check()
         // it will also reset the valid flag internally unless the Rtc device is
         // having an issue
 
-        DS1302.SetDateTime(compiled);
+        ds1302 -> SetDateTime(compiled);
       }
 
-      _now = DS1302.GetDateTime();
+      _now = ds1302 -> GetDateTime();
       if (_now < compiled)
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
-        DS1302.SetDateTime(compiled);
+        ds1302 -> SetDateTime(compiled);
       }
       else if (_now > compiled)
       {
@@ -150,13 +159,13 @@ void rtc_check()
 
     case 3:
       if (debug_level == 13) DBG_OUT_PORT.println(F("Starting RTC check"));
-      if (!DS1307.GetIsRunning())
+      if (!ds1307 -> GetIsRunning())
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC was not actively running, starting now"));
-        DS1307.SetIsRunning(true);
+        ds1307 -> SetIsRunning(true);
       }
 
-      if (!DS1307.IsDateTimeValid())
+      if (!ds1307 -> IsDateTimeValid())
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC Time is not valid!"));
         // Common Causes:
@@ -169,14 +178,14 @@ void rtc_check()
         // it will also reset the valid flag internally unless the Rtc device is
         // having an issue
 
-        DS1307.SetDateTime(compiled);
+        ds1307 -> SetDateTime(compiled);
       }
 
-      _now = DS1307.GetDateTime();
+      _now = ds1307 -> GetDateTime();
       if (_now < compiled)
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
-        DS1307.SetDateTime(compiled);
+        ds1307 -> SetDateTime(compiled);
       }
       else if (_now > compiled)
       {
@@ -270,14 +279,14 @@ void ds3231_write()
     // Alarm 1 set to trigger every day when
     // the hours, minutes, and seconds match
     DS3231AlarmOne alarm1(0, rtc_data.a_hour, rtc_data.a_min, 0, DS3231AlarmOneControl_HoursMinutesSecondsMatch);
-    DS3231.SetAlarmOne(alarm1);
+    ds3231 -> SetAlarmOne(alarm1);
   }
   // Alarm 2 set to trigger at the top of the hour
   DS3231AlarmTwo alarm2(0, 0, 0, DS3231AlarmTwoControl_MinutesMatch);
-  DS3231.SetAlarmTwo(alarm2);
+  ds3231 -> SetAlarmTwo(alarm2);
 
   // throw away any old alarm state before we ran
-  DS3231.LatchAlarmsTriggeredFlags();
+  ds3231 -> LatchAlarmsTriggeredFlags();
 }
 
 bool Alarmed()
@@ -292,7 +301,7 @@ bool Alarmed()
 
       // this gives us which alarms triggered and
       // then allows for others to trigger again
-      DS3231AlarmFlag flag = DS3231.LatchAlarmsTriggeredFlags();
+      DS3231AlarmFlag flag = ds3231 -> LatchAlarmsTriggeredFlags();
 
       if (flag & DS3231AlarmFlag_Alarm1) al1_int = true; //Сработал будильник №1
       if (flag & DS3231AlarmFlag_Alarm2) al2_int = true; //Сработал будильник №2
@@ -412,13 +421,13 @@ void man_set_time(const RtcDateTime & dt)
   switch (ram_data.type_rtc)
   {
     case 1:
-      DS3231.SetDateTime(dt);
+      ds3231 -> SetDateTime(dt);
       break;
     case 2:
-      DS1302.SetDateTime(dt);    // Set the time and date on the chip.
+      ds1302 -> SetDateTime(dt);    // Set the time and date on the chip.
       break;
     case 3:
-      DS1307.SetDateTime(dt);
+      ds1307 -> SetDateTime(dt);
       break;
   }
   set_alarm();

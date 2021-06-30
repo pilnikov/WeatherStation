@@ -91,6 +91,7 @@ void start_serv()
   if (web_cli || web_ap)
   {
     server.begin();
+    
     DBG_OUT_PORT.println(F("Server started"));
   }
 }

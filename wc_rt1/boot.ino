@@ -20,10 +20,10 @@ void irq_set()
   */
 
   unsigned long t3 = conf_data.period * 2000L;
-  const uint8_t irq_q = 8;
+  const uint8_t irq_q = 9;
   static uint8_t _st;
   static unsigned long buff_ms, _sum;
-  const unsigned long timers[irq_q] = {120000L, 60000L, t3, 1800L, 180, 16, 6, 2}, base_t = 30L, _offset = base_t / (irq_q + 2); // значения * base_t -> время в мс
+  const unsigned long timers[irq_q] = {120000L, 60000L, t3, 1800L, 180, 16, 6, 2, 1}, base_t = 30L, _offset = base_t / (irq_q + 1); // значения * base_t -> время в мс
 
   uint8_t irq = irq_q + 1;
 
@@ -157,7 +157,9 @@ void firq6() // 0.5 sec main cycle
 
     // run slowely time displays here
     m32_8time_act = false;
-    if (!(conf_data.type_disp == 20 && !end_run_st)) time_view(conf_data.type_disp, ram_data.type_vdrv); //break time view while scroll a string
+    if ((conf_data.type_disp == 20) & !end_run_st & nm_is_on) end_run_st = true; // reset attempt to run string in night mode
+    if (!((conf_data.type_disp == 20) & !end_run_st)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
+
   }
   if (Alarmed()) rtc_data.wasAlarm = true;
   if (rtc_data.wasAlarm & !play_snd)
@@ -179,7 +181,7 @@ void firq7() // 0.180 sec Communications with server
 #if defined(__xtensa__)
   if (web_cli || web_ap)
   {
-    server.handleClient();
+//    server.handleClient();
     if (debug_level == 2)
     {
       uint16_t a = (millis() - serv_ms) / 1000;
@@ -187,8 +189,9 @@ void firq7() // 0.180 sec Communications with server
     }
     ArduinoOTA.handle();
     if (((millis() - serv_ms) > 300000L) & conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
-# endif
   }
+# endif
+
   if (ram_data.type_vdrv == 11)
   {
     if (conf_data.type_disp == 11)
@@ -230,6 +233,7 @@ void firq9() //0.030 sec running string is out switch to time view
   if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    if (conf_data.type_disp == 20) end_run_st_buf = end_run_st;
   }
 
   switch (ram_data.type_vdrv)

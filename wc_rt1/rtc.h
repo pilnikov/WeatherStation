@@ -28,11 +28,11 @@ uint16_t interuptCount = 0;
 static bool interuptFlag_int = false, interuptFlag_oth = false;
 
 // ----------------------------------- Конструктор DS3231
-RtcDS3231<TwoWire> DS3231(Wire);
+static RtcDS3231<TwoWire> * ds3231;
 
 // ----------------------------------- Конструктор DS1307
-RtcDS1307<TwoWire> DS1307(Wire);
+static RtcDS1307<TwoWire> * ds1307;
 
 // ----------------------------------- Конструктор DS1302
-ThreeWire myWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
-RtcDS1302<ThreeWire> DS1302(myWire);
+ThreeWire * myTWire;
+RtcDS1302<ThreeWire> * ds1302;

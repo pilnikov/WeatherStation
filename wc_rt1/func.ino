@@ -18,7 +18,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 
   if ((rd.type_snr1 == 5 || rd.type_snr2 == 5 || rd.type_snr3 == 5) && rd.type_rtc == 1)
   {
-    RtcTemperature t1 = DS3231.GetTemperature();
+    RtcTemperature t1 = ds3231 -> GetTemperature();
     rd.temp_rtc = round(t1.AsFloatDegC());
   }
 
@@ -407,13 +407,13 @@ void GetNtp()
       switch (ram_data.type_rtc)
       {
         case 1:
-          DS3231.SetDateTime(cur_time1);
+          ds3231 -> SetDateTime(cur_time1);
           break;
         case 2:
-          DS1302.SetDateTime(cur_time1);
+          ds1302 -> SetDateTime(cur_time1);
           break;
         case 3:
-          DS1307.SetDateTime(cur_time1);
+          ds1307 -> SetDateTime(cur_time1);
           break;
       }
       result = true;
