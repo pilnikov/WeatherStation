@@ -136,10 +136,10 @@ void setup()
   if (conf_data.udp_mon)
   {
     DBG_OUT_PORT.end();
-#undef   DBG_OUT_PORT
-#define  DBG_OUT_PORT print_console_udp
+
+//    DBG_OUT_PORT = *udp_cons;
     IP_Addr.fromString(conf_data.srudp_addr);
-    DBG_OUT_PORT.begin(4023, IP_Addr);
+//    DBG_OUT_PORT.begin(4023, IP_Addr);
     //DBG_OUT_PORT.setDebugOutput(true);
   }
 
@@ -208,15 +208,11 @@ void setup()
   {
     if (!conf_data.udp_mon)
     {
-      //    DBG_OUT_PORT.stop();
-#undef DBG_OUT_PORT
-#define  DBG_OUT_PORT Serial
+      DBG_OUT_PORT.end();
+      DBG_OUT_PORT.begin(19200);
+      send_uart();
     }
-    DBG_OUT_PORT.end();
-    DBG_OUT_PORT.begin(19200);
-    send_uart();
   }
-
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_data.a_muz = 15;

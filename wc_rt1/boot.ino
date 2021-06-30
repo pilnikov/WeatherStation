@@ -18,84 +18,95 @@ void irq_set()
     irq8.attach(0.062, firq8);
     irq9.attach(0.04, firq9);
   */
-  unsigned long timers [10] = {0, 3600000L, 1800000L, conf_data.period * 60000L, 55000L, 5000L, 500, 180, 63, 30};
 
-  uint8_t irq = 10;
-  for (uint8_t i = 1; i < 10;  i++) if (millis() - irq_end[i] >  timers[i]) irq = i;
+  unsigned long t3 = conf_data.period * 2000L;
+  const uint8_t irq_q = 8;
+  static uint8_t _st;
+  static unsigned long buff_ms, _sum;
+  const unsigned long timers[irq_q] = {120000L, 60000L, t3, 1800L, 180, 16, 6, 2}, base_t = 30L, _offset = base_t / (irq_q + 2); // значения * base_t -> время в мс
+
+  uint8_t irq = irq_q + 1;
+
+  if (millis() >= buff_ms)
+  {
+    if (_sum % timers[_st] == 0) irq = _st;
+    _st++;
+    if (_st > irq_q)
+    {
+      _st = 0;
+      _sum++;
+      if (_sum > timers[0]) _sum -= timers[0];
+    }
+    buff_ms += _offset;
+  }
+
   switch (irq)
   {
-    case 1:
+    case 0: // once per every hour
       firq1();
-      irq_end[1] = millis();
       break;
 
-    case 2:
+    case 1: // once per every 3 minute
       rtc_check();
-      irq_end[2] = millis();
       break;
 
-    case 3:
+    case 2: // conf_data.period * 1 minute
       snr_data = GetSnr(ram_data, conf_data);
-      irq_end[3] = millis();
       break;
 
-    case 4:
-      firq4();
-      irq_end[4] = millis();
+    case 3: // 55 sec
+      if (!nm_is_on & (conf_data.type_disp == 20)) end_run_st = !end_run_st_buf; //Запуск бегущей строки;
       break;
 
-    case 5:
+    case 4: // 5 sec
       disp_mode++;
-      if (disp_mode > 12) disp_mode -= 12;
-      irq_end[5] = millis();
+      if (disp_mode > 12) disp_mode %= 12;
       break;
-    case 6:
+
+    case 5: // 0.5 sec
       firq6();
-      irq_end[6] = millis();
+      break;
+
+    case 6:
+      firq7();
       break;
 
     case 7:
-      firq7();
-      irq_end[7] = millis();
+      if (m32_8time_act) firq8();
       break;
 
     case 8:
-      firq8();
-      irq_end[8] = millis();
+      if (disp_on) firq9();
       break;
 
-    case 9:
-      firq9();
-      irq_end[9] = millis();
-      break;
-    default:
+    default: // no IRQ
       break;
   }
 
-  if (end_run_st != end_run_st_buf)
+  if (end_run_st != end_run_st_buf) // перезапуск бегущей строки
   {
     end_run_st_buf = end_run_st;
 
-    if (end_run_st)
-    {
-      num_st++; //Перебор строк.
-      if (num_st > max_st) num_st = 1;
+    num_st++; //Перебор строк.
+    if (num_st > max_st) num_st = 1;
 
-      String local_ip = "192.168.0.0";
+    String local_ip = "192.168.0.0";
 #if defined(__xtensa__)
-      local_ip =  WiFi.localIP().toString();
+    local_ip =  WiFi.localIP().toString();
 #endif
-      st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
 
-      f_dsp.utf8rus(st1);
+    st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
+    f_dsp.utf8rus(st1);
 
-      if (conf_data.type_disp != 20 && !nm_is_on)
-      {
-        cur_sym_pos[0] = 0;
-        cur_sym_pos[1] = 0;
-        end_run_st = false; // перезапуск бегущей строки;
-      }
-    }
+    //    if (conf_data.type_disp != 20 && !nm_is_on)
+    cur_sym_pos[0] = 0;
+    cur_sym_pos[1] = 0;
+
+    DBG_OUT_PORT.print(F("num_st = "));
+    DBG_OUT_PORT.println(num_st);
+    DBG_OUT_PORT.print(F("st1 = "));
+    DBG_OUT_PORT.println(st1);
+
   }
 }
 
@@ -114,16 +125,6 @@ void firq1() // 1 hour
   }
 #endif
   hour_cnt++;
-}
-
-void firq4() // 55sec
-{
-  if (!nm_is_on && conf_data.type_disp == 20 && end_run_st)
-  {
-    cur_sym_pos[0] = 0;
-    cur_sym_pos[1] = 0;
-    end_run_st = false; // запуск бегущей строки
-  }
 }
 
 void firq6() // 0.5 sec main cycle
@@ -173,20 +174,19 @@ void firq6() // 0.5 sec main cycle
 #endif
 }
 
-void firq7() // 0.2 sec Communications with server
+void firq7() // 0.180 sec Communications with server
 {
+#if defined(__xtensa__)
   if (web_cli || web_ap)
   {
-#if defined(__xtensa__)
     server.handleClient();
-    if (debug_level == 2) 
+    if (debug_level == 2)
     {
       uint16_t a = (millis() - serv_ms) / 1000;
       DBG_OUT_PORT.printf("Serv sec %u\n", a);
     }
-
     ArduinoOTA.handle();
-    if ((millis() - serv_ms) > 300000L && conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
+    if (((millis() - serv_ms) > 300000L) & conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
 # endif
   }
   if (ram_data.type_vdrv == 11)
@@ -195,79 +195,80 @@ void firq7() // 0.2 sec Communications with server
     {
       if (!nm_is_on) end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
       ht1633_ramFormer2(screen, 0, 8);
-      ht1633->setBrightness(cur_br);
-      ht1633->write();
     }
     if (conf_data.type_disp == 31)
     {
       if (!nm_is_on) end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
       ht1633_ramFormer(screen, 0, 13);
-      ht1633->setBrightness(cur_br);
-      ht1633->write();
     }
+    ht1633->setBrightness(cur_br);
+    ht1633->write();
   }
 }
 
-void firq8() // 0.125 sec
+void firq8() // 0.060 sec
 {
   uint8_t pos = 0;
   if (conf_data.type_disp > 20 && conf_data.type_disp < 29) pos = 32;
 
-  if (m32_8time_act)
+  uint8_t font_wdt = 5;
+  byte nbuf[64];
+
+  for (uint8_t i = 0; i < q_dig; i++)
   {
-    uint8_t font_wdt = 5;
-    byte nbuf[64];
+    if (i > 3) font_wdt = 3;
 
-    for (uint8_t i = 0; i < q_dig; i++)
+    if (d_notequal[i])
     {
-      if (i > 3) font_wdt = 3;
-
-      if (d_notequal[i])
-      {
-        f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
-      }
+      f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
     }
   }
 }
 
-void firq9() //0.04 sec running string is out switch to time view
+void firq9() //0.030 sec running string is out switch to time view
 {
-  if (conf_data.type_disp > 19 && conf_data.type_disp < 29  && disp_on)
+  if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on)
   {
-    if (!end_run_st) end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
   }
 
-  if (ram_data.type_vdrv == 5 && conf_data.type_disp == 22 && disp_on)
+  switch (ram_data.type_vdrv)
   {
-    //ORANGE = 3 GREEN = 1
-    ht1632_ramFormer(screen, 3, 1);
-    m1632 -> pwm(cur_br);
-    m1632 -> sendFrame();
-  }
+    case 5:
+      if (conf_data.type_disp == 22)
+      {
+        //ORANGE = 3 GREEN = 1
+        ht1632_ramFormer(screen, 3, 1);
+        m1632 -> pwm(cur_br);
+        m1632 -> sendFrame();
+      }
+      break;
 
+    case 2:
+      if (conf_data.type_disp == 20)
+      {
+        m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
+        m7219_ramFormer(screen);
+        m7219 -> write();
+      }
+      break;
 
-  if (ram_data.type_vdrv == 2 && conf_data.type_disp == 20 && disp_on)
-  {
-    m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
-    m7219_ramFormer(screen);
-    m7219 -> write();
-  }
-
-  if (ram_data.type_vdrv == 3 && conf_data.type_disp == 23 && disp_on)
-  {
+    case 3:
+      if (conf_data.type_disp == 23)
+      {
 #if defined(ARDUINO_ARCH_ESP32)
-
-    int pos = 32;
-    m3216 -> setTextSize(1);
-    int colors[3];
-    while (pos > -450)
-    {
-      m3216 -> setCursor(pos, 1);
-      m3216 -> print(st1);
-      pos -= 1;
-      vTaskDelay(10);
-    }
-
+        int pos = 32;
+        m3216 -> setTextSize(1);
+        int colors[3];
+        while (pos > -450)
+        {
+          m3216 -> setCursor(pos, 1);
+          m3216 -> print(st1);
+          pos -= 1;
+          vTaskDelay(10);
+        }
 #endif
+      }
+      break;
   }
 }

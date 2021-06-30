@@ -240,12 +240,12 @@
 #include "ntp.h"
 #include "Exts.h"
 
+#define DBG_OUT_PORT Serial
+
 // ------------------------------------------------------ ConsoleUDP
 #include <udp_cons.h>
 udp_cons print_console_udp;
 #endif
-
-#define DBG_OUT_PORT Serial
 
 // ------------------------------------------------------ GPIO
 #if defined(ARDUINO_ARCH_ESP32)
@@ -388,7 +388,6 @@ bool                web_cli  = false;
 bool                disp_on  = true;
 bool               nm_is_on  = false;
 
-unsigned long   irq_end[10];
 unsigned long   serv_ms = 60000;
 
 uint8_t            hour_cnt  = 0;

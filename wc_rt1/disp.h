@@ -38,13 +38,6 @@ void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 
 void a595_init();
 
-
-//-----------------------------------------------------------------------------new
-
-//----------------------------------------------------------------------------Common
-
-//----------------------------------------------------------------------------7 SEG
-
 //----------------------------------------------------------------------------TM1637
 
 static TM1637 * tm1637;
@@ -74,7 +67,7 @@ static unsigned char oldDigit[q_dig];                   // убегающая ц
 static uint16_t buffud[64];
 
 
-bool end_run_st = true, end_run_st_buf = true, m32_8time_act = false, blinkColon = false;
+static bool end_run_st = true, end_run_st_buf = false, m32_8time_act = false, blinkColon = false;
 
 String st1 = String();
 
