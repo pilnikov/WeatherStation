@@ -443,7 +443,7 @@ void keyb_read()
     if (disp_mode > 12) disp_mode = 0;
 
     max_st = 4;
-    end_run_st = !end_run_st_buf; //Запуск бегущей строки;
+    end_run_st_b = false; //Запуск бегущей строки;
 
     but0_press = but0_pressed;
   }

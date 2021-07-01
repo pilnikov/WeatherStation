@@ -25,8 +25,7 @@ void rtc_init()
       attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
       break;
     case 2:
-      myTWire = new ThreeWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
-      //ds1302 = new RtcDS1302<ThreeWire> (myTWire);
+      ds1302_init();
       break;
 
     case 3:
@@ -37,6 +36,12 @@ void rtc_init()
       break;
   }
   rtc_check();
+}
+
+void ds1302_init()
+{
+  ThreeWire myTWire (conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
+  ds1302 = new RtcDS1302<ThreeWire> (myTWire);
 }
 
 void rtc_check()

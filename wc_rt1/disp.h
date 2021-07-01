@@ -67,7 +67,7 @@ static unsigned char oldDigit[q_dig];                   // убегающая ц
 static uint16_t buffud[64];
 
 
-static bool end_run_st = true, end_run_st_buf = false, m32_8time_act = false, blinkColon = false;
+static bool end_run_st = true, end_run_st_b = false, m32_8time_act = false, blinkColon = false;
 
 String st1 = String();
 

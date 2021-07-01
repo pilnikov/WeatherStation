@@ -21,8 +21,8 @@ void irq_set()
 
   unsigned long t3 = conf_data.period * 2000L;
   const uint8_t irq_q = 9;
-  static uint8_t _st;
-  static unsigned long buff_ms, _sum;
+  static uint8_t _st = 0;
+  static unsigned long buff_ms = millis(), _sum = 120000L;
   const unsigned long timers[irq_q] = {120000L, 60000L, t3, 1800L, 180, 16, 6, 2, 1}, base_t = 30L, _offset = base_t / (irq_q + 1); // значения * base_t -> время в мс
 
   uint8_t irq = irq_q + 1;
@@ -39,7 +39,7 @@ void irq_set()
     }
     buff_ms += _offset;
   }
-
+  
   switch (irq)
   {
     case 0: // once per every hour
@@ -49,13 +49,12 @@ void irq_set()
     case 1: // once per every 3 minute
       rtc_check();
       break;
-
     case 2: // conf_data.period * 1 minute
       snr_data = GetSnr(ram_data, conf_data);
       break;
 
     case 3: // 55 sec
-      if (!nm_is_on & (conf_data.type_disp == 20)) end_run_st = !end_run_st_buf; //Запуск бегущей строки;
+      end_run_st_b = !(!nm_is_on & (conf_data.type_disp == 20)); //Запуск бегущей строки;
       break;
 
     case 4: // 5 sec
@@ -77,37 +76,38 @@ void irq_set()
 
     case 8:
       if (disp_on) firq9();
+      if (end_run_st & !end_run_st_b) runing_string_start();// перезапуск бегущей строки
+      //end_run_st = true;
       break;
 
     default: // no IRQ
       break;
   }
+}
 
-  if (end_run_st != end_run_st_buf) // перезапуск бегущей строки
-  {
-    end_run_st_buf = end_run_st;
+void runing_string_start()
+{
+  num_st++; //Перебор строк.
+  if (num_st > max_st) num_st = 1;
 
-    num_st++; //Перебор строк.
-    if (num_st > max_st) num_st = 1;
-
-    String local_ip = "192.168.0.0";
+  String local_ip = "192.168.0.0";
 #if defined(__xtensa__)
-    local_ip =  WiFi.localIP().toString();
+  local_ip =  WiFi.localIP().toString();
 #endif
 
-    st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-    f_dsp.utf8rus(st1);
+  st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
+  f_dsp.utf8rus(st1);
 
-    //    if (conf_data.type_disp != 20 && !nm_is_on)
-    cur_sym_pos[0] = 0;
-    cur_sym_pos[1] = 0;
+  cur_sym_pos[0] = 0;
+  cur_sym_pos[1] = 0;
 
-    DBG_OUT_PORT.print(F("num_st = "));
-    DBG_OUT_PORT.println(num_st);
-    DBG_OUT_PORT.print(F("st1 = "));
-    DBG_OUT_PORT.println(st1);
+  end_run_st = false;
+  end_run_st_b = true;
 
-  }
+  DBG_OUT_PORT.print(F("num_st = "));
+  DBG_OUT_PORT.println(num_st);
+  DBG_OUT_PORT.print(F("st1 = "));
+  DBG_OUT_PORT.println(st1);
 }
 
 void firq1() // 1 hour
@@ -181,7 +181,7 @@ void firq7() // 0.180 sec Communications with server
 #if defined(__xtensa__)
   if (web_cli || web_ap)
   {
-//    server.handleClient();
+    //    server.handleClient();
     if (debug_level == 2)
     {
       uint16_t a = (millis() - serv_ms) / 1000;
@@ -194,14 +194,14 @@ void firq7() // 0.180 sec Communications with server
 
   if (ram_data.type_vdrv == 11)
   {
-    if (conf_data.type_disp == 11)
+    if ((conf_data.type_disp == 11) & !nm_is_on & !end_run_st)
     {
-      if (!nm_is_on) end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
       ht1633_ramFormer2(screen, 0, 8);
     }
-    if (conf_data.type_disp == 31)
+    if ((conf_data.type_disp == 31) & !nm_is_on & !end_run_st)
     {
-      if (!nm_is_on) end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
       ht1633_ramFormer(screen, 0, 13);
     }
     ht1633->setBrightness(cur_br);
@@ -230,10 +230,9 @@ void firq8() // 0.060 sec
 
 void firq9() //0.030 sec running string is out switch to time view
 {
-  if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on)
+  if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if (conf_data.type_disp == 20) end_run_st_buf = end_run_st;
   }
 
   switch (ram_data.type_vdrv)

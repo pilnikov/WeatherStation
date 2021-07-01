@@ -34,5 +34,4 @@ static RtcDS3231<TwoWire> * ds3231;
 static RtcDS1307<TwoWire> * ds1307;
 
 // ----------------------------------- Конструктор DS1302
-ThreeWire * myTWire;
-RtcDS1302<ThreeWire> * ds1302;
+static RtcDS1302<ThreeWire> * ds1302;

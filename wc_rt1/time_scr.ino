@@ -5,7 +5,7 @@ void time_view(uint8_t, uint8_t);
 void time_view(uint8_t type_disp, uint8_t type_vdrv)
 {
   uint8_t mod = 13;
-  if ((end_run_st != end_run_st_buf) || nm_is_on) f_dsp.CLS(screen);
+  if (!end_run_st || nm_is_on) f_dsp.CLS(screen);
   switch (type_disp)
   {
     case 1:

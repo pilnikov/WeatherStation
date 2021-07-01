@@ -29,8 +29,8 @@ void setup()
 # if defined(__xtensa__)
   conf_data = loadConfig(conf_f);
 
-  //conf_data = defaultConfig();
-  //saveConfig(conf_f, conf_data);
+  //  conf_data = defaultConfig();
+  //  saveConfig(conf_f, conf_data);
 #endif
 
   DBG_OUT_PORT.println(F("config loaded"));
@@ -135,11 +135,11 @@ void setup()
   //------------------------------------------------------  Переопределяем консоль
   if (conf_data.udp_mon)
   {
-    DBG_OUT_PORT.end();
+    //DBG_OUT_PORT.end();
 
-//    DBG_OUT_PORT = *udp_cons;
-    IP_Addr.fromString(conf_data.srudp_addr);
-//    DBG_OUT_PORT.begin(4023, IP_Addr);
+    //    DBG_OUT_PORT = *udp_cons;
+    //IP_Addr.fromString(conf_data.srudp_addr);
+    //    DBG_OUT_PORT.begin(4023, IP_Addr);
     //DBG_OUT_PORT.setDebugOutput(true);
   }
 
