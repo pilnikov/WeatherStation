@@ -36,6 +36,15 @@ void rtc_init()
       break;
   }
   rtc_check();
+
+  //-------------Refresh current time in rtc_data------------------
+  rtc_data.hour      = hour();         // Текущее время. Час.
+  rtc_data.min       = minute();       // Текущее время. Минута.
+  rtc_data.sec       = second();       // Текущее время. Секунда.
+  rtc_data.day       = day();          // Текущее время. День.
+  rtc_data.wday      = weekday();      // Текущее время. День недели.
+  rtc_data.month     = month();        // Текущее время. Месяц.
+  rtc_data.year      = year();         // Текущее время. Год.
 }
 
 void ds1302_init()

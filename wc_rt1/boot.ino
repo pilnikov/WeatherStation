@@ -22,7 +22,7 @@ void irq_set()
   unsigned long t3 = conf_data.period * 2000L;
   const uint8_t irq_q = 9;
   static uint8_t _st = 0;
-  static unsigned long buff_ms = millis(), _sum = 120000L;
+  static unsigned long buff_ms, _sum = 60002L;
   const unsigned long timers[irq_q] = {120000L, 60000L, t3, 1800L, 180, 16, 6, 2, 1}, base_t = 30L, _offset = base_t / (irq_q + 1); // значения * base_t -> время в мс
 
   uint8_t irq = irq_q + 1;
@@ -37,9 +37,9 @@ void irq_set()
       _sum++;
       if (_sum > timers[0]) _sum -= timers[0];
     }
-    buff_ms += _offset;
+    buff_ms = millis() + _offset;
   }
-  
+
   switch (irq)
   {
     case 0: // once per every hour
@@ -54,7 +54,8 @@ void irq_set()
       break;
 
     case 3: // 55 sec
-      end_run_st_b = !(!nm_is_on & (conf_data.type_disp == 20)); //Запуск бегущей строки;
+      max_st = 3;
+      runing_string_start(); //Запуск бегущей строки;
       break;
 
     case 4: // 5 sec
@@ -76,8 +77,6 @@ void irq_set()
 
     case 8:
       if (disp_on) firq9();
-      if (end_run_st & !end_run_st_b) runing_string_start();// перезапуск бегущей строки
-      //end_run_st = true;
       break;
 
     default: // no IRQ
@@ -102,12 +101,12 @@ void runing_string_start()
   cur_sym_pos[1] = 0;
 
   end_run_st = false;
-  end_run_st_b = true;
-
-  DBG_OUT_PORT.print(F("num_st = "));
-  DBG_OUT_PORT.println(num_st);
-  DBG_OUT_PORT.print(F("st1 = "));
-  DBG_OUT_PORT.println(st1);
+  /*
+    DBG_OUT_PORT.print(F("num_st = "));
+    DBG_OUT_PORT.println(num_st);
+    DBG_OUT_PORT.print(F("st1 = "));
+    DBG_OUT_PORT.println(st1);
+  */
 }
 
 void firq1() // 1 hour
@@ -157,8 +156,7 @@ void firq6() // 0.5 sec main cycle
 
     // run slowely time displays here
     m32_8time_act = false;
-    if ((conf_data.type_disp == 20) & !end_run_st & nm_is_on) end_run_st = true; // reset attempt to run string in night mode
-    if (!((conf_data.type_disp == 20) & !end_run_st)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
+    if (!((conf_data.type_disp == 20) & !end_run_st & !nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
 
   }
   if (Alarmed()) rtc_data.wasAlarm = true;
@@ -181,7 +179,7 @@ void firq7() // 0.180 sec Communications with server
 #if defined(__xtensa__)
   if (web_cli || web_ap)
   {
-    //    server.handleClient();
+    server.handleClient();
     if (debug_level == 2)
     {
       uint16_t a = (millis() - serv_ms) / 1000;
@@ -194,14 +192,22 @@ void firq7() // 0.180 sec Communications with server
 
   if (ram_data.type_vdrv == 11)
   {
-    if ((conf_data.type_disp == 11) & !nm_is_on & !end_run_st)
+    if (conf_data.type_disp == 11)
     {
-      end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      if  (!nm_is_on & !end_run_st)
+      {
+        end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
+      }
       ht1633_ramFormer2(screen, 0, 8);
     }
-    if ((conf_data.type_disp == 31) & !nm_is_on & !end_run_st)
+    if (conf_data.type_disp == 31)
     {
-      end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+      if  (!nm_is_on & !end_run_st)
+      {
+        end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
+      }
       ht1633_ramFormer(screen, 0, 13);
     }
     ht1633->setBrightness(cur_br);
@@ -233,6 +239,7 @@ void firq9() //0.030 sec running string is out switch to time view
   if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
 
   switch (ram_data.type_vdrv)

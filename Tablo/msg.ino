@@ -210,7 +210,7 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
           ala_h = ala_h % 100;
           ala_m = (ala_t - cur_t - (ala_h * 60)) % 100;
         }
-        (ala_t > cur_t) ? size_buf = snprintf(buf, 115, " Будильник зазвонит через %2d ч. %2d мин. в %2d:%02d. Текущая яркость: %2d", ala_h, ala_m, rtc_data.a_hour, rtc_data.a_min, cur_br)
+        (ala_t > cur_t) ? size_buf = snprintf(buf, 115, " Будильник зазвонит через %2d ч. %2d мин. в %2d:%02d. Текущая яркость: %2d", ala_h, ala_m, rt.a_hour, rt.a_min, cur_br)
                                      : size_buf = snprintf(buf, 100, " Будильник не установлен. Текущая яркость:%2d", cur_br);
         break;
       default:
