@@ -460,8 +460,8 @@ conf_data_t defaultConfig()
   _data.led_pola         = true;
   _data.rus_lng          = true;
   _data.time_zone        = 5;
-  _data.type_vdrv        = 1;
-  _data.type_disp        = 1;
+  _data.type_vdrv        = 11;
+  _data.type_disp        = 11;
   _data.type_snr1        = 4;
   _data.type_snr2        = 6;
   _data.type_snr3        = 10;
