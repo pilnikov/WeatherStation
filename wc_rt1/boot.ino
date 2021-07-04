@@ -95,12 +95,12 @@ void runing_string_start()
 #endif
 
   st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-/*
-  DBG_OUT_PORT.print(F("num_st = "));
-  DBG_OUT_PORT.println(num_st);
-  DBG_OUT_PORT.print(F("st1 = "));
-  DBG_OUT_PORT.println(st1);
-*/
+  /*
+    DBG_OUT_PORT.print(F("num_st = "));
+    DBG_OUT_PORT.println(num_st);
+    DBG_OUT_PORT.print(F("st1 = "));
+    DBG_OUT_PORT.println(st1);
+  */
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
@@ -266,17 +266,9 @@ void firq9() //0.030 sec running string is out switch to time view
     case 3:
       if (conf_data.type_disp == 23)
       {
-#if defined(ARDUINO_ARCH_ESP32)
-        int pos = 32;
-        m3216 -> setTextSize(1);
-        int colors[3];
-        while (pos > -450)
-        {
-          m3216 -> setCursor(pos, 1);
-          m3216 -> print(st1);
-          pos -= 1;
-          vTaskDelay(10);
-        }
+#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
+        m3216_ramFormer(screen);
+        m3216 -> swapBuffers(true);
 #endif
       }
       break;
