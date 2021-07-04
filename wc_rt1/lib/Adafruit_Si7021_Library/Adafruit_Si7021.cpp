@@ -54,17 +54,12 @@ bool Adafruit_Si7021::begin() {
 
   _wire->beginTransmission(_i2caddr);
   if (_wire->endTransmission())
-  {  
-   return false; // device not available at the expected address
-  }
-  
+    return false; // device not available at the expected address
+
   reset();
- 
   if (_readRegister8(SI7021_READRHT_REG_CMD) != 0x3A)
-  {  
-    return false;
-  }
-  
+    //return false;
+
   readSerialNumber();
   _readRevision();
 

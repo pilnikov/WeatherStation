@@ -28,10 +28,11 @@ uint16_t interuptCount = 0;
 static bool interuptFlag_int = false, interuptFlag_oth = false;
 
 // ----------------------------------- Конструктор DS3231
-static RtcDS3231<TwoWire> * ds3231;
+RtcDS3231<TwoWire> * ds3231;
 
 // ----------------------------------- Конструктор DS1307
-static RtcDS1307<TwoWire> * ds1307;
+RtcDS1307<TwoWire> * ds1307;
 
 // ----------------------------------- Конструктор DS1302
-static RtcDS1302<ThreeWire> * ds1302;
+RtcDS1302<ThreeWire> * ds1302;
+ThreeWire * myTWire;

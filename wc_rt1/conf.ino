@@ -416,7 +416,7 @@ conf_data_t defaultConfig()
   _data.gpio_led         = 2;
   _data.gpio_btn         = 0;
   _data.gpio_dht         = 0;
-  _data.gpio_ana         = A0;
+  _data.gpio_ana         = 17;
   _data.gpio_uar         = 16;
   _data.gpio_bz2         = 32;
 
@@ -467,6 +467,10 @@ conf_data_t defaultConfig()
   _data.type_snr3        = 10;
   _data.type_snrp        = 10;
   _data.type_rtc         = 1;
+  _data.type_thermo      = 0;
+  _data.src_thermo       = 0;
+  _data.lb_thermo        = 0;
+  _data.hb_thermo        = 0;
   _data.nm_start         = 0;
   _data.nm_stop          = 7;
   _data.period           = 10;
@@ -495,7 +499,7 @@ conf_data_t defaultConfig()
   _data.br_level[2]      = 1;
   _data.br_level[3]      = 14;
 
- for (uint8_t i = 0; i <= 6; i++)
+  for (uint8_t i = 0; i <= 6; i++)
   {
     for (uint8_t j = 0; j <= 4; j++)
     {

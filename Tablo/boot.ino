@@ -62,8 +62,9 @@ void irq_set()
     if (end_run_st)
     {
       if (num_st++ > max_st) num_st = 1;
+      String local_ip = "192.168.0.0";
 
-      st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, cur_br);
+      st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
 
       f_dsp.utf8rus(st1);
 

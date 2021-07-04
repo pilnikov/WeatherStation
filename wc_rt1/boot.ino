@@ -95,18 +95,18 @@ void runing_string_start()
 #endif
 
   st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
+/*
+  DBG_OUT_PORT.print(F("num_st = "));
+  DBG_OUT_PORT.println(num_st);
+  DBG_OUT_PORT.print(F("st1 = "));
+  DBG_OUT_PORT.println(st1);
+*/
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
   cur_sym_pos[1] = 0;
 
   end_run_st = false;
-  /*
-    DBG_OUT_PORT.print(F("num_st = "));
-    DBG_OUT_PORT.println(num_st);
-    DBG_OUT_PORT.print(F("st1 = "));
-    DBG_OUT_PORT.println(st1);
-  */
 }
 
 void firq1() // 1 hour

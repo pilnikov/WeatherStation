@@ -67,7 +67,7 @@ static unsigned char oldDigit[q_dig];                   // убегающая ц
 static uint16_t buffud[64];
 
 
-static bool end_run_st = true, end_run_st_b = false, m32_8time_act = false, blinkColon = false;
+static bool end_run_st = true, m32_8time_act = false, blinkColon = false;
 
 String st1 = String();
 
@@ -97,3 +97,10 @@ static RGBmatrixPanel * m3216;
 #include "Adafruit_ILI9341.h"
 
 static Adafruit_ILI9341 * tft;
+
+/*
+# if defined(PSTR)
+# undef PSTR
+# define PSTR(s) (__extension__({static const char __c[] PROGMEM = (s); &__c[0];}))
+# endif
+*/

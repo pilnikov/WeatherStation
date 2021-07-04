@@ -49,8 +49,10 @@ void rtc_init()
 
 void ds1302_init()
 {
-  ThreeWire myTWire (conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
-  ds1302 = new RtcDS1302<ThreeWire> (myTWire);
+  //ThreeWire myTWire (conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
+  myTWire = new ThreeWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
+  
+//  ds1302 = new RtcDS1302<ThreeWire> (myTWire);
 }
 
 void rtc_check()

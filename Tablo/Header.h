@@ -28,7 +28,7 @@ String Serial_Read();
 void parser(String);
 
 void m3216_init();
-String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, uint8_t); 
+String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t); 
 
 #define DBG_OUT_PORT Serial
 
@@ -36,10 +36,10 @@ String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t
 static const int     CLK  PROGMEM = 11; // MUST be on PORTB! (Use pin 11 on Mega)
 static const int     LAT  PROGMEM = 10;
 static const int      OE  PROGMEM =  9;
-static const int       A  PROGMEM = A0;
-static const int       B  PROGMEM = A1;
-static const int       C  PROGMEM = A2;
-static const int       D  PROGMEM = A3;
+static const int       A  PROGMEM = 54; //A0
+static const int       B  PROGMEM = 55; //A1
+static const int       C  PROGMEM = 56; //A2
+static const int       D  PROGMEM = 57; //A3
 
 static RGBmatrixPanel *m3216;
 

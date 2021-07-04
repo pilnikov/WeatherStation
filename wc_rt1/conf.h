@@ -261,10 +261,10 @@ static const int          OE_PIN  PROGMEM =  32;  // Пин OE
 
 
 #if defined(__AVR_ATmega2560__)
-static const int           A_PIN  PROGMEM =  A0;  // Пин A
-static const int           B_PIN  PROGMEM =  A1;  // Пин B
-static const int           C_PIN  PROGMEM =  A2;  // Пин C
-static const int           D_PIN  PROGMEM =  A3;  // Пин D
+static const int           A_PIN  PROGMEM =  54; //A0 Пин A
+static const int           B_PIN  PROGMEM =  55; //A1 Пин B
+static const int           C_PIN  PROGMEM =  56; //A2 Пин C
+static const int           D_PIN  PROGMEM =  57; //A3 Пин D
 
 static const int         CLK_PIN  PROGMEM =  11;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
 static const int         LAT_PIN  PROGMEM =  10;  // Пин LAT

@@ -75,7 +75,7 @@ void setup()
   pinMode(conf_data.gpio_btn, INPUT_PULLUP);
   if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
   pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
-  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
+  if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 
   pinMode(conf_data.gpio_snd, OUTPUT);
 
@@ -183,7 +183,7 @@ void setup()
   snr_data = GetSnr(ram_data, conf_data);
 
   //-------------------------------------------------------- Гасим светодиод
-  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
+  if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
