@@ -85,22 +85,18 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
   memset(buf, 0, 254);
   memset(buf1, 0, 254);
 
-  int size_buf  = 1;
-  int size_buf1 = 16;
-
-  char _buff[254];
-  memset(_buff, 0, 254);
-  strncpy(_buff, local_ip.c_str(), strlen(local_ip.c_str()) + 1);
-
-  size_buf1 = 1;
-
+  int size_buf  = -1;
+  int size_buf1 = -1;
+ 
   uint16_t ala_t = (int) rt.a_hour * 60 + rt.a_min;
   uint16_t cur_t = (int) rt.hour * 60 + rt.min;
   uint8_t ala_h = trunc((ala_t - cur_t) / 60);
   ala_h = ala_h % 100;
   uint8_t ala_m = (ala_t - cur_t - (ala_h * 60)) % 100;
 
-  size_buf = snprintf_P(buf, strlen(" String") + 1, PSTR(" String"));
+  String def_st = " Error";
+
+  def_st.toCharArray(buf, def_st.length());
 
   if (!cf.rus_lng)
   {
@@ -160,8 +156,12 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         }
         break;
       case 4:
-        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d. Curr brigthness:%2d Your IP:%s"), ala_h, ala_m, rt.a_hour, rt.a_min, cur_br, _buff)
-                                     : size_buf = snprintf_P(buf, 250, PSTR(" Alarm is not set. Curr brigthness:%2d Your IP:%s"), cur_br, _buff);
+        local_ip.toCharArray(buf1, local_ip.length());
+        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d. Curr brigthness:%2d Your IP:%s"), ala_h, ala_m, rt.a_hour, rt.a_min, cur_br, buf1)
+                                     : size_buf = snprintf_P(buf, 250, PSTR(" Alarm is not set. Curr brigthness:%2d Your IP:%s"), cur_br, buf1);
+        break;
+      default:
+        def_st.toCharArray(buf, def_st.length());
         break;
     }
   }
@@ -206,7 +206,7 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         switch (cf.use_pp)
         {
           case 1:
-            wf.temp_min > -99 ? size_buf = snprintf_P(buf, 250, PSTR(" Прогноз погоды от GM на % S % d % S: температура от % d до % d % cC ветер %s %d - %dм/с %S, oтн.влажность %d%%, давление %dмм.рт.ст"),
+            wf.temp_min > -99 ? size_buf = snprintf_P(buf, 250, PSTR(" Прогноз погоды от GM на %S %d %S: температура от %d до %d%cC ветер %s %d - %dм/с %S, oтн.влажность %d%%, давление %dмм.рт.ст"),
                                            stdr[wf.tod], wf.day, smnr[wf.month - 1],
                                            wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
                                            wf.hum_max, wf.press_max) : size_buf = snprintf_P(buf, 250, PSTR(" Данные по прогнозу погоды не получены - проверьте настройки "));
@@ -225,11 +225,15 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         }
         break;
       case 4:
-        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d. Текущая яркость:%2dВаш IP:%s"), ala_h, ala_m, rt.a_hour, rt.a_min, cur_br, _buff)
-                                     : size_buf = snprintf_P(buf, 250, PSTR(" Будильник не установлен. Текущая яркость:%2d Ваш IP:%s"), cur_br, _buff);
+        local_ip.toCharArray(buf1, local_ip.length());
+        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d. Текущая яркость:%2dВаш IP:%s"), ala_h, ala_m, rt.a_hour, rt.a_min, cur_br, buf1)
+                                     : size_buf = snprintf_P(buf, 250, PSTR(" Будильник не установлен. Текущая яркость:%2d Ваш IP:%s"), cur_br, buf1);
+      default:
+        def_st.toCharArray(buf, def_st.length());
+        break;
     }
   }
-  String out = " Error ";
-  if ((size_buf > 0) & (size_buf1 > 0) & (size_buf < 251) & (size_buf1 < 251))   out = String(buf);
-  return out;
+
+  if ((strlen(buf) > 0) & (strlen(buf) < 251))   def_st = String(buf);
+  return def_st;
 }

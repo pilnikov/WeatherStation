@@ -177,11 +177,11 @@ void lcd_time()
 
   byte _h = hour() % 100, _m = minute() % 100, _s = second() % 100, ah = rtc_data.a_hour % 100, am = rtc_data.a_min % 100;
   char msg[16];
-  snprintf(msg, 16, " %2u:%02u:%02u  -:-  ", _h, _m, _s);
+  snprintf_P(msg, 16, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
   if (_alarmed)
   {
-    snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u", _h, _m, _s, ah, am);
-    if (conf_data.rus_lng) snprintf(msg, 16, " %2u:%02u:%02u %2u:%02u\355", _h, _m, _s, ah, am);
+    snprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
+    if (conf_data.rus_lng) snprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
   }
   lcd -> print(msg);
 }
