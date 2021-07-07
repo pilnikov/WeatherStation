@@ -97,10 +97,3 @@ static RGBmatrixPanel * m3216;
 #include "Adafruit_ILI9341.h"
 
 static Adafruit_ILI9341 * tft;
-
-/*
-# if defined(PSTR)
-# undef PSTR
-# define PSTR(s) (__extension__({static const char __c[] PROGMEM = (s); &__c[0];}))
-# endif
-*/

@@ -3,32 +3,33 @@
 conf_data_t loadConfig()
 {
   conf_data_t _data;
-  EEPROM.get(0, _data);           
+  EEPROM.get(0, _data);
   return _data;
 }
 
 //--------------------------------  Пишем конфигурацию в ЕЕПРОМ
 void saveConfig(conf_data_t _data)
 {
-  EEPROM.put(0, _data);           
+  EEPROM.put(0, _data);
 }
 
 //--------------------------------  Настраиваем конфигурацию (дефолт)
 conf_data_t defaultConfig()
 {
   conf_data_t _data;
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-  strncpy(_data.ch1_name, "Внутри",  17);
-  strncpy(_data.ch2_name, "Снаружи", 17);
-  strncpy(_data.ch3_name, "В бане",  17);
+  strncpy(_data.ch1_name,   "Внутри",  17);
+  strncpy(_data.ch2_name,   "На улице", 17);
+  strncpy(_data.ch3_name,   "  ",  17);
 
-  _data.auto_corr        = false;
+
+  _data.auto_corr        = true;
   _data.use_pm           = false;
   _data.every_hour_beep  = true;
   _data.snd_pola         = false;
   _data.led_pola         = true;
   _data.rus_lng          = true;
-  _data.use_pp           = 0;
   _data.time_zone        = 5;
   _data.type_vdrv        = 3;
   _data.type_disp        = 23;
@@ -47,6 +48,11 @@ conf_data_t defaultConfig()
   _data.nmd_br           = 2;
   _data.auto_br          = true;
 
+  _data.type_thermo      = 0;
+  _data.src_thermo       = 0;
+  _data.lb_thermo        = 0;
+  _data.hb_thermo        = 0;
+
   _data.gpio_sda         = 20;
   _data.gpio_scl         = 21;
   _data.gpio_dio         = 57; //A3
@@ -61,17 +67,15 @@ conf_data_t defaultConfig()
   _data.gpio_dht         = 63; //A9
   _data.gpio_ana         = 58; //A4
   _data.gpio_uar         = 65; //A11
+  _data.gpio_bz2         = 64; //A10
 
   //--------------------------------Уровни для автояркости
-  _data.br_level[0]      = 200;
+  _data.br_level[0]      = 300;
   _data.br_level[1]      = 1;
   _data.br_level[2]      = 1;
-  _data.br_level[3]      = 230;
-
-  _data.type_font        = 0;
+  _data.br_level[3]      = 254;
 
   //--------------------------------Будильники
-
   for (uint8_t i = 0; i <= 6; i++)
   {
     for (uint8_t j = 0; j <= 4; j++)
@@ -79,6 +83,7 @@ conf_data_t defaultConfig()
       _data.alarms[i][j] = 0;
     }
   }
+  
   _data.alarms[0][0] = 2;
   _data.alarms[0][1] = 16;
   _data.alarms[0][2] = 30;
@@ -128,7 +133,7 @@ void synchro()
 }
 
 //------------------------------------------------------  Читаем из Serial
-String Serial_Read() 
+String Serial_Read()
 {
   char c; // переменная для чтения сериал порта
   String S_str = String(); // Формируемая из символов строка

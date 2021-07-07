@@ -28,9 +28,11 @@ String Serial_Read();
 void parser(String);
 
 void m3216_init();
-String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t); 
+String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t);
 
+#ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
+#endif
 
 //#define _debug
 static const int     CLK  PROGMEM = 11; // MUST be on PORTB! (Use pin 11 on Mega)
@@ -72,13 +74,25 @@ rtc_data_t rtc_data;
 
 const uint8_t q_dig = 6;  // количество цифр на дисплее
 
-bool end_run_st = true, end_run_st_buf, m32_8time_act = false, blinkColon = false;
+const uint8_t irq_q = 5;
+static uint8_t _st = 0;
+static unsigned long buff_ms, _sum = 120002L;
+unsigned long t3 = conf_data.period * 4000L;
+const unsigned long timers[irq_q] = {240000L, t3, 24, 3, 1}, base_t = 15L, _offset = trunc(base_t / irq_q + 1); // значения * base_t -> время в мс
+
+static uint8_t cur_sym_pos[3] = {0, 0, 0};
+static uint16_t buffud[64];
+static bool d_notequal[q_dig];
+const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
+static unsigned char oldDigit[q_dig];                       // убегающая цифра
+static uint8_t  num_st = 0;
+const uint8_t max_st = 4; //номер и макс кол-во прокручиваемых строк
+
+bool end_run_st = true, m32_8time_act = false, blinkColon = false;
 
 String st1 = "Starting....";
 
 byte screen[64]; // display buffer
-
-long irq_end [5];
 
 bool play_snd = false, nm_is_on = false, disp_on = true;
 

@@ -3,8 +3,8 @@
 void setup() {
   DBG_OUT_PORT.begin(115200);
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
-  conf_data = loadConfig();
-  //conf_data = defaultConfig();
+  //conf_data = loadConfig();
+  conf_data = defaultConfig();
   //saveConfig(conf_data);
 
   Wire.begin();
@@ -16,8 +16,18 @@ void setup() {
   DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(ram_data.type_rtc);
 
-  //------------------------------------------------------  Инициализируем датчики
+  //------------------------------------------------------  Записывваем текущее время в rtc_data
+  _now = DS3231.GetDateTime();
+  rtc_data.hour = _now.Hour();
+  rtc_data.min = _now.Minute();
+  rtc_data.sec = _now.Second();
+  rtc_data.wday = _now.DayOfWeek() + 1;
+  rtc_data.month = _now.Month();
+  rtc_data.day = _now.Day();
+  rtc_data.year = _now.Year(); //костыль
 
+  
+  //------------------------------------------------------  Инициализируем датчики
   if (ram_data.bh1750_present) lightMeter.begin();
 
 
@@ -88,6 +98,8 @@ void setup() {
 
   //synchro();
 
+  //------------------------------------------------------ Запускаем бегущую строку
+  runing_string_start(); // запуск бегущей строки
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_data.a_muz = 15;

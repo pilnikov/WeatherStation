@@ -1,14 +1,6 @@
 //#include ".\headers\fonts.h"
 #include "fonts.h"
 
-static uint8_t cur_sym_pos[2] = {0, 0};
-static uint16_t buffud[64];
-static bool d_notequal[q_dig];
-static const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
-static unsigned char oldDigit[q_dig];                       // убегающая цифра
-static uint8_t  num_st = 0;
-static const uint8_t max_st = 3; //номер и макс кол-во прокручиваемых строк
-
 void irq_set()
 {
   //------------------------------------------------------ interrupts
@@ -21,59 +13,45 @@ void irq_set()
     irq8.attach(0.062, firq8);
     irq9.attach(0.04, firq9);
   */
-  const unsigned long timers [5] = {3600000L, conf_data.period * 60000L, 500, 125, 25};
+  uint8_t irq = irq_q + 1;
 
-  uint8_t irq = 4;
-  for (uint8_t i = 0; i < 5;  i++) if (millis() - irq_end[i] >  timers[i]) irq = i;
+
+  if (millis() >= buff_ms)
+  {
+    if (_sum % timers[_st] == 0) irq = _st;
+    _st++;
+    if (_st > irq_q)
+    {
+      _st = 0;
+      _sum++;
+      if (_sum > timers[0]) _sum -= timers[0];
+    }
+    buff_ms = millis() + _offset;
+  }
+
   switch (irq)
   {
     case 0: // one per hour
       rtc_check();
-      irq_end[0] = millis();
       break;
 
     case 1: // one per 10 min
       GetSnr();
-      irq_end[1] = millis();
       break;
 
     case 2: // one per 0.5 sec
       firq2();
-      irq_end[2] = millis();
       break;
 
     case 3:
       firq3();  // one per 0.125 sec
-      irq_end[3] = millis();
       break;
 
     case 4: // one per 0.04 sec
       firq4();
-      irq_end[4] = millis();
       break;
     default:
       break;
-  }
-
-  if (end_run_st != end_run_st_buf)
-  {
-    end_run_st_buf = end_run_st;
-
-    if (end_run_st)
-    {
-      if (num_st++ > max_st) num_st = 1;
-      String local_ip = "192.168.0.0";
-
-      st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-
-      f_dsp.utf8rus(st1);
-
-      if (!nm_is_on)
-      {
-        cur_sym_pos[0] = 0;
-        cur_sym_pos[1] = 0;
-      }
-    }
   }
 
   uint8_t h = rtc_data.hour;
@@ -97,6 +75,28 @@ void irq_set()
   else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
 }
 
+void runing_string_start()
+{
+  num_st++; //Перебор строк.
+  if (num_st > max_st) num_st = 1;
+  if (num_st == 3) num_st = 4;
+
+  String local_ip = "192.168.0.0";
+
+  st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
+  /*
+    DBG_OUT_PORT.print(F("num_st = "));
+    DBG_OUT_PORT.println(num_st);
+    DBG_OUT_PORT.print(F("st1 = "));
+    DBG_OUT_PORT.println(st1);
+  */
+  f_dsp.utf8rus(st1);
+
+  cur_sym_pos[0] = 0;
+  cur_sym_pos[1] = 0;
+
+  end_run_st = false;
+}
 
 void firq2() // 0.5 sec main cycle
 {
@@ -104,7 +104,7 @@ void firq2() // 0.5 sec main cycle
   rtc_data.hour = _now.Hour();
   rtc_data.min = _now.Minute();
   rtc_data.sec = _now.Second();
-  rtc_data.wday = _now.DayOfWeek();
+  rtc_data.wday = _now.DayOfWeek() + 1;
   rtc_data.month = _now.Month();
   rtc_data.day = _now.Day();
   rtc_data.year = _now.Year(); //костыль
@@ -161,7 +161,14 @@ void firq3() // 0.125 sec
 
 void firq4() //0.04 sec running string is out switch to time view
 {
-  end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+  if (!nm_is_on & !end_run_st)
+  {
+    end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    if (end_run_st || (cur_sym_pos[0] < cur_sym_pos[2])) runing_string_start(); // перезапуск бегущей строки
+    cur_sym_pos[2] = cur_sym_pos[0];
+//    DBG_OUT_PORT.println(cur_sym_pos[2]);
+  }
+
   m3216_ramFormer(screen);
   m3216 -> swapBuffers(true);
 }
