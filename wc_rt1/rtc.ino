@@ -51,8 +51,8 @@ void ds1302_init()
 {
   //ThreeWire myTWire (conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
   myTWire = new ThreeWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
-  
-//  ds1302 = new RtcDS1302<ThreeWire> (myTWire);
+
+  //  ds1302 = new RtcDS1302<ThreeWire> (myTWire);
 }
 
 void rtc_check()
@@ -373,8 +373,26 @@ bool Alarmed()
         disp_on = false;
         cur_br = 0;
         snr_data.f = 0;
+        f_dsp.CLS(screen);
         switch (ram_data.type_vdrv)
         {
+          case 1:
+            tm1637->set_br(0);
+            tm1637->clear();
+            break;
+          case 2:
+            m7219->shutdown(true);
+            m7219->write();
+            break;
+          case 3:
+            if (conf_data.type_disp == 23)
+            {
+#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
+              m3216_ramFormer(screen);
+              m3216 -> swapBuffers(true);
+#endif
+            }
+            break;
           case 12:
             lcd->noBacklight();
             lcd->noDisplay();
@@ -383,14 +401,6 @@ bool Alarmed()
             ht1633->clear();
             ht1633->setBrightness(0);
             ht1633->write();
-            break;
-          case 1:
-            tm1637->set_br(0);
-            tm1637->clear();
-            break;
-          case 2:
-            m7219->shutdown(true);
-            m7219->write();
             break;
         }
         break;

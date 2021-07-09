@@ -59,7 +59,7 @@ static LiquidCrystal_I2C * lcd;
 static Max72 * m7219;
 
 const uint8_t q_dig = 6;  // количество цифр на дисплее
-uint8_t  max_st = 3;      // макс кол-во прокручиваемых строк
+uint8_t  max_st = 4;      // макс кол-во прокручиваемых строк
 
 static bool d_notequal[q_dig];
 const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
@@ -67,7 +67,7 @@ static unsigned char oldDigit[q_dig];                   // убегающая ц
 static uint16_t buffud[64];
 
 
-static bool end_run_st = true, m32_8time_act = false, blinkColon = false;
+static bool end_run_st = false, m32_8time_act = false, blinkColon = false;
 
 String st1 = String();
 

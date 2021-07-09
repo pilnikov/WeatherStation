@@ -106,7 +106,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 2:
       //MAX7219
-      if (conf_data.type_disp < 10 && disp_on)
+      if (conf_data.type_disp < 10)
       {
         m7adopt(screen, 0, 8);
         m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness

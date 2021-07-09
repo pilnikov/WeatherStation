@@ -54,7 +54,7 @@ void irq_set()
       break;
 
     case 3: // 55 sec
-      max_st = 3;
+      max_st = 4;
       if (end_run_st) runing_string_start(); //Запуск бегущей строки;
       break;
 
@@ -95,12 +95,12 @@ void runing_string_start() // ---------------------------- Запуск бегу
 #endif
 
   st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-/*
-  DBG_OUT_PORT.print(F("num_st = "));
-  DBG_OUT_PORT.println(num_st);
-  DBG_OUT_PORT.print(F("st1 = "));
-  DBG_OUT_PORT.println(st1);
-*/
+  /*
+    DBG_OUT_PORT.print(F("num_st = "));
+    DBG_OUT_PORT.println(num_st);
+    DBG_OUT_PORT.print(F("st1 = "));
+    DBG_OUT_PORT.println(st1);
+  */
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
@@ -158,8 +158,9 @@ void firq6() // 0.5 sec main cycle
     // run slowely time displays here
     m32_8time_act = false;
     if (!((conf_data.type_disp == 20) & !end_run_st & !nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
-
   }
+  else cur_br = 0;
+
   if (Alarmed()) rtc_data.wasAlarm = true;
   if (rtc_data.wasAlarm & !play_snd)
   {
@@ -248,16 +249,6 @@ void firq9() //0.030 sec running string is out switch to time view
 
   switch (ram_data.type_vdrv)
   {
-    case 5:
-      if (conf_data.type_disp == 22)
-      {
-        //ORANGE = 3 GREEN = 1
-        ht1632_ramFormer(screen, 3, 1);
-        m1632 -> pwm(cur_br);
-        m1632 -> sendFrame();
-      }
-      break;
-
     case 2:
       if (conf_data.type_disp == 20)
       {
@@ -274,6 +265,15 @@ void firq9() //0.030 sec running string is out switch to time view
         m3216_ramFormer(screen);
         m3216 -> swapBuffers(true);
 #endif
+      }
+      break;
+    case 5:
+      if (conf_data.type_disp == 22)
+      {
+        //ORANGE = 3 GREEN = 1
+        ht1632_ramFormer(screen, 3, 1);
+        m1632 -> pwm(cur_br);
+        m1632 -> sendFrame();
       }
       break;
   }

@@ -313,8 +313,8 @@ rtc_data_t rtc_data;
 #if defined(__xtensa__)
 #include "web.h"
 #endif
-// ----------------------------------- Force define func name
 
+// ----------------------------------- Force define func name
 void printFile(const char);
 void fs_setup();
 
@@ -369,9 +369,7 @@ ESP8266HWInfo hwi;
 #endif
 
 // ---------------------------------------------------- LM
-
 BH1750 lightMeter;
-
 
 // ---------------------------------------------------- Common
 # if defined(__xtensa__)
@@ -397,7 +395,6 @@ uint16_t             cur_br  = 0;
 uint8_t         debug_level  = 0; // 0 - отключен
 
 // ---------------------------------------------------- Constructors
-
 Synt Buzz;               //Конструктор пищалки
 
 # if defined(__xtensa__)
@@ -413,5 +410,9 @@ SNR sens;
 FD f_dsp;
 HT h_dsp;
 MSG dmsg;
+
+// ---------------------------------------------------- Variant of config
+//#define _dacha
+#define _work
 
 #endif /* _wc_h */

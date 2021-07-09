@@ -448,10 +448,15 @@ conf_data_t defaultConfig()
   conf_data_t _data;
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
+#ifdef defined _dacha
   strncpy(_data.ch1_name,   "В избе",  17);
   strncpy(_data.ch2_name,   "На улице", 17);
   strncpy(_data.ch3_name,   "В подполе",  17);
-
+#elif defined _work
+  strncpy(_data.ch1_name,   "Внутри",  17);
+  strncpy(_data.ch2_name,   "На улице", 17);
+  strncpy(_data.ch3_name,   " ",  17);
+#endif
 
   _data.auto_corr        = true;
   _data.use_pm           = false;
@@ -460,12 +465,26 @@ conf_data_t defaultConfig()
   _data.led_pola         = true;
   _data.rus_lng          = true;
   _data.time_zone        = 5;
+
+#ifdef defined _dacha
   _data.type_vdrv        = 11;
   _data.type_disp        = 11;
+
   _data.type_snr1        = 4;
   _data.type_snr2        = 6;
   _data.type_snr3        = 10;
   _data.type_snrp        = 10;
+
+#elif defined _work
+  _data.type_vdrv        = 3;
+  _data.type_disp        = 23;
+
+  _data.type_snr1        = 10;
+  _data.type_snr2        = 4;
+  _data.type_snr3        = 0;
+  _data.type_snrp        = 10;
+#endif
+
   _data.type_rtc         = 1;
   _data.type_thermo      = 0;
   _data.src_thermo       = 0;
@@ -494,10 +513,18 @@ conf_data_t defaultConfig()
   _data.gpio_uar         = 65; //A11
   _data.gpio_bz2         = 64; //A10
 
+#ifdef defined _dacha
   _data.br_level[0]      = 220;
   _data.br_level[1]      = 1;
   _data.br_level[2]      = 1;
   _data.br_level[3]      = 14;
+
+#elif defined _work
+  _data.br_level[0]      = 300;
+  _data.br_level[1]      = 1;
+  _data.br_level[2]      = 1;
+  _data.br_level[3]      = 254;
+#endif
 
   for (uint8_t i = 0; i <= 6; i++)
   {
@@ -506,11 +533,45 @@ conf_data_t defaultConfig()
       _data.alarms[i][j] = 0;
     }
   }
-  _data.alarms[0][0] = 1;
-  _data.alarms[0][1] = 19;
-  _data.alarms[0][2] = 00;
+
+#ifdef defined _dacha
+  _data.alarms[0][0] = 2;
+  _data.alarms[0][1] = 06;
+  _data.alarms[0][2] = 30;
   _data.alarms[0][3] = 13;
   _data.alarms[0][4] = 0;
+
+#elif defined _work
+  _data.alarms[0][0] = 2;
+  _data.alarms[0][1] = 16;
+  _data.alarms[0][2] = 30;
+  _data.alarms[0][3] = 13;
+  _data.alarms[0][4] = 0;
+
+  _data.alarms[1][0] = 2;
+  _data.alarms[1][1] = 16;
+  _data.alarms[1][2] = 38;
+  _data.alarms[1][3] = 7;
+  _data.alarms[1][4] = 0;
+
+  _data.alarms[2][0] = 2;
+  _data.alarms[2][1] = 11;
+  _data.alarms[2][2] = 59;
+  _data.alarms[2][3] = 8;
+  _data.alarms[2][4] = 0;
+
+  _data.alarms[3][0] = 2;
+  _data.alarms[3][1] = 7;
+  _data.alarms[3][2] = 30;
+  _data.alarms[3][3] = 8;
+  _data.alarms[3][4] = 3;
+
+  _data.alarms[4][0] = 1;
+  _data.alarms[4][1] = 16;
+  _data.alarms[4][2] = 50;
+  _data.alarms[4][3] = 8;
+  _data.alarms[4][4] = 4;
+#endif
 
   return _data;
 }
