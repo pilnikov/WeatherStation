@@ -448,9 +448,9 @@ conf_data_t defaultConfig()
   conf_data_t _data;
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-  strncpy(_data.ch1_name,   "Внутри",  17);
+  strncpy(_data.ch1_name,   "В избе",  17);
   strncpy(_data.ch2_name,   "На улице", 17);
-  strncpy(_data.ch3_name,   " ",  17);
+  strncpy(_data.ch3_name,   "В подполе",  17);
 
 
   _data.auto_corr        = true;
