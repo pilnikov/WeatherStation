@@ -250,9 +250,9 @@ udp_cons print_console_udp;
 // ------------------------------------------------------ GPIO
 #if defined(ARDUINO_ARCH_ESP32)
 static const int           A_PIN  PROGMEM =   2;  // Пин A
-static const int           B_PIN  PROGMEM =  16;  // Пин B
-static const int           C_PIN  PROGMEM =  14;  // Пин C
-static const int           D_PIN  PROGMEM =  13;  // Пин D
+static const int           B_PIN  PROGMEM =   5;  // Пин B
+static const int           C_PIN  PROGMEM =  18;  // Пин C
+static const int           D_PIN  PROGMEM =  23;  // Пин D
 
 static const int         CLK_PIN  PROGMEM =  14;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
 static const int         LAT_PIN  PROGMEM =  27;  // Пин LAT
@@ -269,7 +269,6 @@ static const int           D_PIN  PROGMEM =  57; //A3 Пин D
 static const int         CLK_PIN  PROGMEM =  11;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
 static const int         LAT_PIN  PROGMEM =  10;  // Пин LAT
 static const int          OE_PIN  PROGMEM =   9;  // Пин OE
-
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
@@ -317,10 +316,10 @@ rtc_data_t rtc_data;
 // ----------------------------------- Force define func name
 void printFile(const char);
 void fs_setup();
-
 conf_data_t loadConfig(const char);
 void saveConfig(const char, conf_data_t);
 conf_data_t defaultConfig();
+
 
 bool sta_init();
 bool sta_check();
@@ -378,6 +377,8 @@ const char ntp_server[] = "ru.pool.ntp.org";
 
 const char *conf_f = "/config.json";  // config file name
 
+bool               test_boot = false;
+
 bool               play_snd  = false;
 
 bool                web_ap   = false;
@@ -412,7 +413,7 @@ HT h_dsp;
 MSG dmsg;
 
 // ---------------------------------------------------- Variant of config
-//#define _dacha
-#define _work
+#define _dacha
+//#define _work
 
 #endif /* _wc_h */

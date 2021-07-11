@@ -158,7 +158,7 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         break;
       case 4:
         local_ip.toCharArray(buf1, local_ip.length() + 1);
-        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min)
+        ((ala_t > cur_t) & (ala_h < 24)) ? size_buf = snprintf_P(buf, 250, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min)
                                      : size_buf = snprintf_P(buf, 250, PSTR(" "));
         break;
       case 5:
@@ -231,7 +231,7 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         }
         break;
       case 4:
-        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min)
+        ((ala_t > cur_t) & (ala_h < 24)) ? size_buf = snprintf_P(buf, 250, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min)
                                      : size_buf = snprintf_P(buf, 250, PSTR(" "));
         break;
       case 5:

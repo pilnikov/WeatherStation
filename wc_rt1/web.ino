@@ -91,7 +91,7 @@ void start_serv()
   if (web_cli || web_ap)
   {
     server.begin();
-    
+
     DBG_OUT_PORT.println(F("Server started"));
   }
 }
@@ -105,28 +105,37 @@ void stop_serv()
 }
 
 //-------------------------------------------------------------- cur_time_str
-String cur_time_str()
+String cur_time_str(rtc_data_t rt)
 {
   char buf[25];
-  const char* name_week[]  = {"", "ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
 
-  snprintf(buf, 25, "%s %02u.%02u.%04u %02u:%02u:%02u", name_week[weekday()],
-           day(), month(), year(), hour(), minute(), second());
+  const char* sdnr_1 = PSTR("ВС");
+  const char* sdnr_2 = PSTR("ПН");
+  const char* sdnr_3 = PSTR("ВТ");
+  const char* sdnr_4 = PSTR("СР");
+  const char* sdnr_5 = PSTR("ЧТ");
+  const char* sdnr_6 = PSTR("ПТ");
+  const char* sdnr_7 = PSTR("СБ");
+
+  const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
+
+  snprintf_P(buf, 25, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
   return String(buf);
 }
 
 //-------------------------------------------------------------- handlejTime
 void handlejTime()
 {
+  rtc_data_t rt = rtc_data;
+
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["jhour"] = hour();
-  json["jmin"] = minute();
-  json["jday"] = day();
-  json["jmonth"] = month();
-  json["jyear"] = year();
-  json["tstr"] = cur_time_str();;
+  json["jhour"] = rt.hour;
+  json["jmin"] = rt.min;
+  json["jday"] = rt.day;
+  json["jmonth"] = rt.month;
+  json["jyear"] = rt.year;
+  json["tstr"] = cur_time_str(rt);
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -232,11 +241,7 @@ void handleSetFont()
   //url='/set_font?tfnt='+tfnt;
 
   conf_data.type_font = server.arg("tfnt").toInt();
-  strcpy(conf_data.test, "ok");
-  saveConfig(conf_f, conf_data);
   if (debug_level == 14) DBG_OUT_PORT.printf("font is.... %u", conf_data.type_font);
-
-  set_type_font();
 
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
@@ -264,6 +269,7 @@ void handleSetPard()
   conf_data.br_level[2] = server.arg("brd3").toInt();
   conf_data.br_level[3] = server.arg("brd4").toInt();
 
+  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -369,6 +375,7 @@ void handleSetPars1()
   conf_data.use_pp  = server.arg("upp").toInt();
   conf_data.udp_mon = server.arg("udm") == "1";
 
+  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -400,6 +407,7 @@ void handleSetPars2()
   strcpy(conf_data.ch2_name, server.arg("nc2").c_str());
   strcpy(conf_data.ch3_name, server.arg("nc3").c_str());
 
+  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -439,6 +447,7 @@ void handleSetPars3()
   conf_data.use_tsh3 = server.arg("utsh3") == "1";
   conf_data.use_tsp  = server.arg("utsp") == "1";
 
+  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -517,6 +526,7 @@ void handleSetParc()
   conf_data.gpio_bz2 = constrain(server.arg("bz2").toInt(), 0, 255);
 
 
+  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -525,17 +535,19 @@ void handleSetParc()
 //-------------------------------------------------------------- handlejAlarm
 void handlejAlarm()
 {
+  rtc_data_t rt = rtc_data;
+
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["anum"] = rtc_data.a_num;
-  json["atyp"] = conf_data.alarms[rtc_data.a_num][0];
-  json["ahou"] = conf_data.alarms[rtc_data.a_num][1];
-  json["amin"] = conf_data.alarms[rtc_data.a_num][2];
-  json["amel"] = conf_data.alarms[rtc_data.a_num][3];
-  json["aact"] = conf_data.alarms[rtc_data.a_num][4];
-  json["acth"] = rtc_data.a_hour;
-  json["actm"] = rtc_data.a_min;
+  json["anum"] = rt.a_num;
+  json["atyp"] = conf_data.alarms[rt.a_num][0];
+  json["ahou"] = conf_data.alarms[rt.a_num][1];
+  json["amin"] = conf_data.alarms[rt.a_num][2];
+  json["amel"] = conf_data.alarms[rt.a_num][3];
+  json["aact"] = conf_data.alarms[rt.a_num][4];
+  json["acth"] = rt.a_hour;
+  json["actm"] = rt.a_min;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -548,21 +560,22 @@ void handlejAlarm()
 void handleSetAlarm()
 {
   //url='/set_alm?satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
+  rtc_data_t rt = rtc_data;
 
-  conf_data.alarms[rtc_data.a_num][0] = server.arg("satyp").toInt();
+  conf_data.alarms[rt.a_num][0] = server.arg("satyp").toInt();
   uint8_t val = server.arg("ahour").toInt(); // час
-  conf_data.alarms[rtc_data.a_num][1] = constrain(val, 0, 23);
+  conf_data.alarms[rt.a_num][1] = constrain(val, 0, 23);
   val = server.arg("amin").toInt(); // минута
-  conf_data.alarms[rtc_data.a_num][2] = constrain(val, 0, 59);
-  conf_data.alarms[rtc_data.a_num][3] = server.arg("samel").toInt();
-  conf_data.alarms[rtc_data.a_num][4] = server.arg("saon").toInt();
+  conf_data.alarms[rt.a_num][2] = constrain(val, 0, 59);
+  conf_data.alarms[rt.a_num][3] = server.arg("samel").toInt();
+  conf_data.alarms[rt.a_num][4] = server.arg("saon").toInt();
 
   if (debug_level == 14)
   {
-    DBG_OUT_PORT.print(rtc_data.a_num); DBG_OUT_PORT.print(F(" alarm is...."));
+    DBG_OUT_PORT.print(rt.a_num); DBG_OUT_PORT.print(F(" alarm is...."));
     for (int n = 0; n <= 4; n++)
     {
-      DBG_OUT_PORT.print(conf_data.alarms[rtc_data.a_num][n]); DBG_OUT_PORT.print(F(","));
+      DBG_OUT_PORT.print(conf_data.alarms[rt.a_num][n]); DBG_OUT_PORT.print(F(","));
     }
     DBG_OUT_PORT.println();
   }
@@ -606,6 +619,7 @@ void handlejTrm()
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
+  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
 
   server.send(200, "text/json", st);
@@ -633,7 +647,7 @@ void handlejAct()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["tstr"] = cur_time_str();
+  json["tstr"] = cur_time_str(rtc_data);
   json["acth"] = rtc_data.a_hour;
   json["actm"] = rtc_data.a_min;
   json["t1"] = snr_data.t1;

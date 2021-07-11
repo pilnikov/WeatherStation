@@ -84,11 +84,7 @@ static HT1621 * ht21;
 static HT1632C * m1632;
 
 //---------------------------------------------------------------------------Matrix
-#if defined(ARDUINO_ARCH_ESP32)
-static RGBmatrixPanel * m3216;
-#endif
-
-#if defined(__AVR_ATmega2560__)
+#if defined(ARDUINO_ARCH_ESP32) || defined(__AVR_ATmega2560__)
 static RGBmatrixPanel * m3216;
 #endif
 

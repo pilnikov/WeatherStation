@@ -60,8 +60,6 @@
  *
  */
 
-#include <glcdfont.c>
-#include <Adafruit_GFX.h>
 #include "RGBmatrixPanel.h"
 #include "gamma.h"
 
@@ -346,8 +344,8 @@ void RGBmatrixPanel::begin(void) {
   tim_config.divider = 2; // Run Timer at 40 MHz
   tim_config.counter_dir = TIMER_COUNT_UP;
   tim_config.counter_en = TIMER_PAUSE;
-  tim_config.alarm_en = true;
-  tim_config.auto_reload = true;
+  tim_config.alarm_en = TIMER_ALARM_EN;
+  tim_config.auto_reload = TIMER_AUTORELOAD_EN;
   tim_config.intr_type = TIMER_INTR_LEVEL;
 
   timer_init(TIMER_GROUP_1, TIMER_0, &tim_config);
@@ -1016,41 +1014,4 @@ portEXIT_CRITICAL(&timer_spinlock[TIMER_GROUP_1]);
     *outclrreg = clkmask; // Set clock low
 #endif
   }
-}
-
-void RGBmatrixPanel::drawPartChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, int8_t size)
-{
-  
-  if((x > 31)      || // Clip right
-     (y > 15)      || // Clip bottom
-    ((x + 5) < 0)  || // Clip left
-    ((y + 7) < 0))    // Clip top
-	  return;
-
-  uint8_t a = abs(size);
-  uint8_t b = 7;
-
-  if (size > 0) 
-  {
-	  a = 0; 
-	  b = size;
-  }
- 	  
-  for (uint8_t i = 0; i < 5; i++ )
-	{ // Char bitmap = 5 columns
-		drawFastVLine(x + i, y + a, b - a, bg);
-		byte line = pgm_read_byte(&font[c * 5 + i]);
-		for (uint8_t j = a; j < b; j++)  
-		{
-			if (size > 0) 
-			{
-				if (line & 1 << (j + 7 - size)) drawPixel(x + i, y + j, color);
-			}
-			else 
-			{
-				if (line & 1 << (j + size)) drawPixel(x + i, y + j, color);
-			}
-		}
-	} 
-  drawFastVLine(x + 5, y + a, b - a, bg);
 }

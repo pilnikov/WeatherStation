@@ -37,6 +37,8 @@ conf_data_t loadConfig(const char *filename)
     {
       DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
 
+      _data.boot_mode               = doc["bm"];
+
       // Get the root object in the document
       strncpy(_data.sta_ssid,   " ", 17);
       strncpy(_data.sta_pass,   " ", 17);
@@ -191,6 +193,8 @@ void saveConfig(const char *filename, conf_data_t _data)
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
+
+  json["bm"]                  = _data.boot_mode;
 
   //---Wifi.html----------------------------------------
   //---AP-----------------------------------------------
@@ -351,6 +355,8 @@ conf_data_t defaultConfig()
 
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
+  _data.boot_mode        = 2;
+
   strncpy(_data.sta_ssid,  "MyWiFi", 17);
   strncpy(_data.sta_pass,  "12345678", 17);
   strncpy(_data.ap_ssid,   "Radio_Clock", 17);
@@ -448,16 +454,16 @@ conf_data_t defaultConfig()
   conf_data_t _data;
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-#ifdef defined _dacha
+#if defined _dacha
   strncpy(_data.ch1_name,   "В избе",  17);
   strncpy(_data.ch2_name,   "На улице", 17);
-  strncpy(_data.ch3_name,   "В подполе",  17);
+  strncpy(_data.ch3_name,   "Подпол",  17);
 #elif defined _work
   strncpy(_data.ch1_name,   "Внутри",  17);
   strncpy(_data.ch2_name,   "На улице", 17);
   strncpy(_data.ch3_name,   " ",  17);
 #endif
-
+  _data.boot_mode        = 2;
   _data.auto_corr        = true;
   _data.use_pm           = false;
   _data.every_hour_beep  = true;
@@ -466,7 +472,7 @@ conf_data_t defaultConfig()
   _data.rus_lng          = true;
   _data.time_zone        = 5;
 
-#ifdef defined _dacha
+#if defined _dacha
   _data.type_vdrv        = 11;
   _data.type_disp        = 11;
 
@@ -513,7 +519,7 @@ conf_data_t defaultConfig()
   _data.gpio_uar         = 65; //A11
   _data.gpio_bz2         = 64; //A10
 
-#ifdef defined _dacha
+#if defined _dacha
   _data.br_level[0]      = 220;
   _data.br_level[1]      = 1;
   _data.br_level[2]      = 1;
@@ -534,7 +540,7 @@ conf_data_t defaultConfig()
     }
   }
 
-#ifdef defined _dacha
+#if defined _dacha
   _data.alarms[0][0] = 2;
   _data.alarms[0][1] = 06;
   _data.alarms[0][2] = 30;

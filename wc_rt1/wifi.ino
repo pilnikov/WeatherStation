@@ -56,7 +56,7 @@ void start_wifi()
 
   uint8_t tru = 0;
 
-  while (WiFi.status() > 3 && tru < 20)
+  while ((WiFi.status() != WL_CONNECTED) & (tru < 20))
   {
     delay(500);
     DBG_OUT_PORT.print(F("."));

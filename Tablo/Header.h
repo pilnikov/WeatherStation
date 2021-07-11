@@ -34,21 +34,34 @@ String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t
 #define DBG_OUT_PORT Serial
 #endif
 
-//#define _debug
-static const int     CLK  PROGMEM = 11; // MUST be on PORTB! (Use pin 11 on Mega)
-static const int     LAT  PROGMEM = 10;
-static const int      OE  PROGMEM =  9;
-static const int       A  PROGMEM = 54; //A0
-static const int       B  PROGMEM = 55; //A1
-static const int       C  PROGMEM = 56; //A2
-static const int       D  PROGMEM = 57; //A3
+// ------------------------------------------------------ GPIO
+#if defined(ARDUINO_ARCH_ESP32)
+static const int           A_PIN  PROGMEM =   2;  // Пин A
+static const int           B_PIN  PROGMEM =   5;  // Пин B
+static const int           C_PIN  PROGMEM =  18;  // Пин C
+static const int           D_PIN  PROGMEM =  23;  // Пин D
+
+static const int         CLK_PIN  PROGMEM =  14;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+static const int         LAT_PIN  PROGMEM =  27;  // Пин LAT
+static const int          OE_PIN  PROGMEM =  32;  // Пин OE
+#endif
+
+
+#if defined(__AVR_ATmega2560__)
+static const int           A_PIN  PROGMEM =  54; //A0 Пин A
+static const int           B_PIN  PROGMEM =  55; //A1 Пин B
+static const int           C_PIN  PROGMEM =  56; //A2 Пин C
+static const int           D_PIN  PROGMEM =  57; //A3 Пин D
+
+static const int         CLK_PIN  PROGMEM =  11;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+static const int         LAT_PIN  PROGMEM =  10;  // Пин LAT
+static const int          OE_PIN  PROGMEM =   9;  // Пин OE
+#endif
 
 static RGBmatrixPanel *m3216;
 
 //-------------------------------------------------------Sensor
-
 static SNR sens;
-
 
 //--------------------------------------------------- Common
 
@@ -88,12 +101,10 @@ static unsigned char oldDigit[q_dig];                       // убегающа�
 static uint8_t  num_st = 0;
 const uint8_t max_st = 4; //номер и макс кол-во прокручиваемых строк
 
-bool end_run_st = true, m32_8time_act = false, blinkColon = false;
-
 String st1 = "Starting....";
 
 byte screen[64]; // display buffer
 
-bool play_snd = false, nm_is_on = false, disp_on = true;
+bool play_snd = false, nm_is_on = false, disp_on = true, end_run_st = true;
 
 uint8_t cur_br = 255, debug_level = 0;

@@ -48,12 +48,8 @@ typedef struct
 
 typedef struct 
 {
-  char      sta_ssid[17];
-  char      sta_pass[17];
-  char      ap_ssid[17];
-  char      ap_pass[17];
-  uint16_t  br_level[4];
-  int8_t    time_zone;
+  uint8_t   boot_mode = 0; // 0 - minimal; 1 - test; 2 - normal
+
   bool      auto_br;
   bool      auto_corr;
   bool      use_pm;
@@ -70,38 +66,29 @@ typedef struct
   bool      use_tsp;
   bool      wifi_off;
   bool      udp_mon;
-  uint8_t   use_pp;
-  uint8_t   man_br;
-  uint8_t   nmd_br;
-  uint8_t   nm_start;
-  uint8_t   nm_stop;
-  uint8_t   alarms[7][5];
-  uint8_t   type_font;
-  uint8_t   type_vdrv;
-  uint8_t   type_disp;
-  char      ch1_name[17];
-  char      ch2_name[17];
-  char      ch3_name[17];
-  uint8_t   type_snr1;
-  uint8_t   type_snr2;
-  uint8_t   type_snr3;
-  uint8_t   type_snrp;
-  uint8_t   type_rtc;
-  uint8_t   type_thermo;
-  uint8_t   src_thermo;
-  int       lb_thermo;
-  int       hb_thermo;
+
   unsigned long period;
   unsigned long pp_city_id;
   unsigned long ts_ch_id;
-  char      AKey_r[17];
-  char      AKey_w[17];
-  char      esrv1_addr[17];
-  char      esrv2_addr[17];
-  char      radio_addr[17];
-  char      srudp_addr[17];
-  char      owm_key[33];
-  char      test[3];
+
+  uint16_t  br_level[4];
+
+  uint8_t   use_pp = 0;
+  uint8_t   man_br = 0;
+  uint8_t   nmd_br = 0;
+  uint8_t   nm_start = 0;
+  uint8_t   nm_stop = 0;
+  uint8_t   alarms[7][5];
+  uint8_t   type_font = 0;
+  uint8_t   type_vdrv = 0;
+  uint8_t   type_disp = 0;
+  uint8_t   type_snr1 = 0;
+  uint8_t   type_snr2 = 0;
+  uint8_t   type_snr3 = 0;
+  uint8_t   type_snrp = 0;
+  uint8_t   type_rtc = 0;
+  uint8_t   type_thermo = 0;
+  uint8_t   src_thermo = 0;
 
   uint8_t	gpio_sda = 255;
   uint8_t	gpio_scl = 255;
@@ -119,6 +106,24 @@ typedef struct
   uint8_t	gpio_uar = 255;
   uint8_t	gpio_bz2 = 255;
 
+  int8_t    time_zone;
+  int       lb_thermo;
+  int       hb_thermo;
+
+  char      ch1_name[17];
+  char      ch2_name[17];
+  char      ch3_name[17];
+  char      sta_ssid[17];
+  char      sta_pass[17];
+  char      ap_ssid[17];
+  char      ap_pass[17];
+  char      AKey_r[17];
+  char      AKey_w[17];
+  char      esrv1_addr[17];
+  char      esrv2_addr[17];
+  char      radio_addr[17];
+  char      srudp_addr[17];
+  char      owm_key[33];
 } conf_data_t;
 
 typedef struct

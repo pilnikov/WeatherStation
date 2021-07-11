@@ -1,3 +1,20 @@
+String cur_time_str(rtc_data_t rt)
+{
+  char buf[25];
+
+  const char* sdnr_1 = PSTR("ВС");
+  const char* sdnr_2 = PSTR("ПН");
+  const char* sdnr_3 = PSTR("ВТ");
+  const char* sdnr_4 = PSTR("СР");
+  const char* sdnr_5 = PSTR("ЧТ");
+  const char* sdnr_6 = PSTR("ПТ");
+  const char* sdnr_7 = PSTR("СБ");
+
+  const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
+
+  snprintf_P(buf, 25, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
+  return String(buf);
+}
 
 //--------------------------------  Читаем конфигурацию из ЕЕПРОМ
 conf_data_t loadConfig()
@@ -28,7 +45,6 @@ conf_data_t defaultConfig()
   _data.use_pm           = false;
   _data.every_hour_beep  = true;
   _data.snd_pola         = false;
-  _data.led_pola         = true;
   _data.rus_lng          = true;
   _data.time_zone        = 5;
   _data.type_vdrv        = 3;
@@ -53,6 +69,9 @@ conf_data_t defaultConfig()
   _data.lb_thermo        = 0;
   _data.hb_thermo        = 0;
 
+#if defined(__AVR_ATmega2560__)
+  _data.led_pola         = true;
+
   _data.gpio_sda         = 20;
   _data.gpio_scl         = 21;
   _data.gpio_dio         = 57; //A3
@@ -69,6 +88,26 @@ conf_data_t defaultConfig()
   _data.gpio_uar         = 65; //A11
   _data.gpio_bz2         = 64; //A10
 
+#elif defined(ARDUINO_ARCH_ESP32)
+  _data.led_pola         = false;
+
+  _data.gpio_sda         = 22;
+  _data.gpio_scl         = 21;
+  _data.gpio_dio         = 23;
+  _data.gpio_clk         = 18;
+  _data.gpio_dcs         =  5;
+  _data.gpio_dwr         =  2;
+  _data.gpio_trm         =  2;
+  _data.gpio_sqw         = 19;
+  _data.gpio_snd         = 15;
+  _data.gpio_led         =  2;
+  _data.gpio_btn         =  0;
+  _data.gpio_dht         = 34;
+  _data.gpio_ana         = 35;
+  _data.gpio_uar         =  5;
+  _data.gpio_bz2         = 32;
+#endif
+
   //--------------------------------Уровни для автояркости
   _data.br_level[0]      = 300;
   _data.br_level[1]      = 1;
@@ -83,7 +122,7 @@ conf_data_t defaultConfig()
       _data.alarms[i][j] = 0;
     }
   }
-  
+
   _data.alarms[0][0] = 2;
   _data.alarms[0][1] = 16;
   _data.alarms[0][2] = 30;
@@ -138,6 +177,8 @@ String Serial_Read()
   char c; // переменная для чтения сериал порта
   String S_str = String(); // Формируемая из символов строка
   uint8_t i = 0;
+
+#if defined(__AVR_ATmega2560__)
   Serial3.begin(19200);
   digitalWrite(conf_data.gpio_uar, LOW);
 
@@ -154,7 +195,7 @@ String Serial_Read()
   }  while (c != '}' && i < 250); //пока не найдем "}"
   digitalWrite(conf_data.gpio_uar, HIGH);
   Serial3.end();
-
+#endif
   return S_str;
 }
 
@@ -216,14 +257,19 @@ void parser(String inStr)
 //------------------------------------------------------  Инициализируем дисплей
 void m3216_init()
 {
-  m3216 = new RGBmatrixPanel(A, B, C, CLK, LAT, OE, true);
+#if defined(__AVR_ATmega2560__)
+  m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
+#elif defined(ARDUINO_ARCH_ESP32)
+  uint8_t rgbPins[]  = {26, 25, 4, 13, 12, 33};
+  m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, D_PIN, CLK_PIN, LAT_PIN, OE_PIN, true, 64, rgbPins);
+#endif
   m3216 -> begin();
   m3216 -> cp437(true);
   m3216 -> setTextSize(1);
   m3216 -> setTextWrap(false); // Allow text to run off right edge
 }
 
-void m3216_ramFormer(byte *in)
+void m3216_ramFormer(byte *in, uint8_t cur_br, uint8_t text_size)
 {
   for (uint8_t x = 0; x < 32; x++)
   {

@@ -106,7 +106,7 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         size_buf = snprintf_P(buf, 250, PSTR(" Today is %S %d %S %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
         break;
       case 2:
-        size_buf  = snprintf_P(buf , 250, PSTR(" No data from sensors!"));
+        size_buf  = snprintf_P(buf , 250, PSTR(" "));
         if (sn.t1 > -99 && sn.t1 < 99) size_buf  = snprintf_P(buf , 250, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
         if (sn.t2 > -99 && sn.t2 < 99)
         {
@@ -140,7 +140,8 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
             wf.temp_min > -99 ? size_buf = snprintf_P(buf, 250, PSTR(" Weather forecast from GM on %S %d %S: temp from %d to %d%cC wind %S %d - %dm/s %S humid. %d%% press %dmm.m."),
                                            stdr[wf.tod], wf.day, smnr[wf.month - 1],
                                            wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
-                                           wf.hum_max, wf.press_max) : size_buf = snprintf_P(buf, 255, PSTR(" Forecast data not received! check the setting!"));
+                                           wf.hum_max, wf.press_max)
+                                           : size_buf = snprintf_P(buf, 255, PSTR(" Forecast data not received! check the setting!"));
             break;
           case 2:
             wf.descript.toCharArray(buf1, wf.descript.length() + 1);
@@ -151,14 +152,18 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
                                            : size_buf = snprintf_P(buf, 250, PSTR(" Forecast data not received! check the setting!"));
             break;
           default:
-            size_buf = snprintf_P(buf, 250, PSTR(" Forecast is disabled!"));
+            size_buf = snprintf_P(buf, 250, PSTR(" "));
             break;
         }
         break;
       case 4:
         local_ip.toCharArray(buf1, local_ip.length() + 1);
-        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d. Curr brigthness:%2d Your IP:%s"), ala_h, ala_m, rt.a_hour, rt.a_min, cur_br, buf1)
-                                     : size_buf = snprintf_P(buf, 250, PSTR(" Alarm is not set. Curr brigthness:%2d Your IP:%s"), cur_br, buf1);
+        ((ala_t > cur_t) & (ala_h < 24)) ? size_buf = snprintf_P(buf, 250, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min)
+                                     : size_buf = snprintf_P(buf, 250, PSTR(" "));
+        break;
+      case 5:
+        local_ip.toCharArray(buf1, local_ip.length() + 1);
+        size_buf = snprintf_P(buf, 250, PSTR(" Curr brigthness:%2d Your IP:%s"), cur_br, buf1);
         break;
       default:
         def_st.toCharArray(buf, def_st.length() + 1);
@@ -173,7 +178,7 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
         size_buf = snprintf_P(buf, 250, PSTR(" Сегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
         break;
       case 2:
-        size_buf  = snprintf_P(buf , 250, PSTR(" Нет данных от сенсров!"));
+        size_buf  = snprintf_P(buf , 250, PSTR(" "));
         if ((sn.t1 > -99) & (sn.t1 < 99)) size_buf  = snprintf_P(buf , 250, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
 
         if (sn.t2 > -99 && sn.t2 < 99)
@@ -209,7 +214,8 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
             wf.temp_min > -99 ? size_buf = snprintf_P(buf, 250, PSTR(" Прогноз погоды от GM на %S %d %S: температура от %d до %d%cC ветер %s %d - %dм/с %S, oтн.влажность %d%%, давление %dмм.рт.ст."),
                                            stdr[wf.tod], wf.day, smnr[wf.month - 1],
                                            wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
-                                           wf.hum_max, wf.press_max) : size_buf = snprintf_P(buf, 250, PSTR(" Данные по прогнозу погоды не получены - проверьте настройки!"));
+                                           wf.hum_max, wf.press_max)
+                                           : size_buf = snprintf_P(buf, 250, PSTR(" Данные по прогнозу погоды не получены - проверьте настройки!"));
             break;
           case 2:
             wf.descript.toCharArray(buf1, wf.descript.length() + 1);
@@ -220,15 +226,19 @@ String pr_str(uint8_t num, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_
                                            : size_buf = snprintf_P(buf, 250, PSTR(" Данные по прогнозу погоды не получены - проверьте настройки!"));
             break;
           default:
-            size_buf = snprintf_P(buf, 250, PSTR(" Прогноз погоды отключен!"));
+            size_buf = snprintf_P(buf, 250, PSTR(" "));
             break;
         }
         break;
       case 4:
-        local_ip.toCharArray(buf1, local_ip.length() + 1);
-        (ala_t > cur_t) ? size_buf = snprintf_P(buf, 250, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d. Текущая яркость:%2dВаш IP:%s"), ala_h, ala_m, rt.a_hour, rt.a_min, cur_br, buf1)
-                                     : size_buf = snprintf_P(buf, 250, PSTR(" Будильник не установлен. Текущая яркость:%2d Ваш IP:%s"), cur_br, buf1);
+        ((ala_t > cur_t) & (ala_h < 24)) ? size_buf = snprintf_P(buf, 250, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min)
+                                     : size_buf = snprintf_P(buf, 250, PSTR(" "));
         break;
+      case 5:
+        local_ip.toCharArray(buf1, local_ip.length() + 1);
+        size_buf = snprintf_P(buf, 250, PSTR(" Текущая яркость: % 2dВаш IP: % s"), cur_br, buf1);
+        break;
+
       default:
         def_st.toCharArray(buf, def_st.length() + 1);
         break;

@@ -79,31 +79,33 @@ void m7adopt(byte *in, uint8_t x1, uint8_t x2)
   m7219 -> setRam(in, x2 - x1);
 }
 
-
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
 void a595_init()
 {
+#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
 
-#if defined(ARDUINO_ARCH_ESP32)
-  //G1  R1 |
-  //GND B1 |
-  //G2  R2 |
-  //GND B2 |
-  //B   A  |
-  //D   C  |
-  //LAT CLK|
-  //GND OE |
+  //G1  R1 | 25 26
+  //GND B1 |  g  4
+  //G2  R2 | 12 13
+  //GND B2 |  g 33
+  //B   A  | 16  2
+  //D   C  | 23 18
+  //LAT CLK| 27 14
+  //GND OE |  g 32
 
   //                             (oe,clk,lat, r1, g1, b1, r2, g2, b2,  a,  b,  c, d)
 
-#endif
 
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
   if (conf_data.type_disp == 23)
   {
     char tstr[255];
-
+#if defined(__AVR_ATmega2560__)
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
+#elif defined(ARDUINO_ARCH_ESP32)
+    uint8_t rgbPins[]  = {26, 25, 4, 13, 12, 33};
+    m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, D_PIN, CLK_PIN, LAT_PIN, OE_PIN, true, 64, rgbPins);
+#endif
+
     m3216 -> begin();
     m3216 -> cp437(true);
     m3216 -> setTextSize(1);
@@ -123,10 +125,9 @@ void a595_init()
 #endif
 }
 
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
-
 void m3216_ramFormer(byte *in)
 {
+#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
   for (uint8_t x = 0; x < 32; x++)
   {
     uint8_t dt = 0b1;
@@ -136,10 +137,8 @@ void m3216_ramFormer(byte *in)
       m3216 -> drawPixel(x, y + 8, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(200, 255, cur_br, true) : 0);
     }
   }
-}
 #endif
-
-
+}
 
 //////////////////////////////////////////lcd//////////////////////////////////////////////////////////////////////
 void pcf8574_init()

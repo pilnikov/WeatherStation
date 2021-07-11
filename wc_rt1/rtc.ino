@@ -112,16 +112,16 @@ void rtc_check()
       _now = ds3231 -> GetDateTime();
       if (_now < compiled)
       {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
+        DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
         ds3231 -> SetDateTime(compiled);
       }
       else if (_now > compiled)
       {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
+        DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
       }
       else if (_now == compiled)
       {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
+        DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
       }
 
       // never assume the Rtc was last configured by you, so
@@ -420,10 +420,8 @@ bool Alarmed()
     {
       conf_data.alarms[rtc_data.n_cur_alm][0] = 0; //Сбрасываем одноразовый будильник если это был он
 
-      strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
       saveConfig(conf_f, conf_data);
     }
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2

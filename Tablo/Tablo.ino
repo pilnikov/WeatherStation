@@ -6,8 +6,11 @@ void setup() {
   //conf_data = loadConfig();
   conf_data = defaultConfig();
   //saveConfig(conf_data);
-
-  Wire.begin();
+# if defined(__xtensa__)
+    Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
+# elif defined(__AVR_ATmega2560__)
+    Wire.begin();
+# endif
 
   ram_data = fsys.i2c_scan(conf_data);
 
@@ -18,6 +21,7 @@ void setup() {
 
   //------------------------------------------------------  Записывваем текущее время в rtc_data
   _now = DS3231.GetDateTime();
+
   rtc_data.hour = _now.Hour();
   rtc_data.min = _now.Minute();
   rtc_data.sec = _now.Second();
@@ -26,7 +30,9 @@ void setup() {
   rtc_data.day = _now.Day();
   rtc_data.year = _now.Year(); //костыль
 
-  
+  DBG_OUT_PORT.print(F("Current time is "));
+  DBG_OUT_PORT.println(cur_time_str(rtc_data));
+
   //------------------------------------------------------  Инициализируем датчики
   if (ram_data.bh1750_present) lightMeter.begin();
 

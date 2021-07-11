@@ -29,5 +29,5 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 
-String cur_time_str();
+String cur_time_str(rtc_data_t);
 # endif

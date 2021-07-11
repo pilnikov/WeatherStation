@@ -4,27 +4,20 @@
 void irq_set()
 {
   //------------------------------------------------------ interrupts
-  /*  irq1.attach(3600, firq1);
-    irq2.attach(1800, rtc_check);
-    irq3.attach(conf_data.period * 60, GetSnr);
-    irq4.attach(55, firq4);
-    irq6.attach(0.5, firq6);
-    //irq7.attach(0.2, firq7);
-    irq8.attach(0.062, firq8);
-    irq9.attach(0.04, firq9);
-  */
   uint8_t irq = irq_q + 1;
-
 
   if (millis() >= buff_ms)
   {
-    if (_sum % timers[_st] == 0) irq = _st;
     _st++;
-    if (_st > irq_q)
+    if (_st >= irq_q)
     {
       _st = 0;
       _sum++;
-      if (_sum > timers[0]) _sum -= timers[0];
+      if (_sum > timers[0]) _sum = 1;
+    }
+    if (timers[_st] != 0)
+    {
+      if (_sum % timers[_st] == 0) irq = _st;
     }
     buff_ms = millis() + _offset;
   }
@@ -55,19 +48,23 @@ void irq_set()
   }
 
   uint8_t h = rtc_data.hour;
-  //m3216 -> fillScreen(0);
   disp_on = true;
 
   if (h < 7 || h >= 17) //гашение экрана в нерабочее время
   {
-    //    bright = 50;
     m3216 -> drawPixel(h, 0, m3216 -> ColorHSV(500, 255, 100, true));
     m3216 -> drawPixel(rtc_data.min / 2, 15, m3216 -> ColorHSV(500, 255, 100, true));
     if (rtc_data.min % 10 == 0 && rtc_data.sec == 0) synchro();
     disp_on = false;
   }
 
+  // ----------------------------------------------------- Проигрываем звуки
+#if defined(__xtensa__)
+  //inital sound card
+  Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
+#elif defined (__AVR__)
   Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
+#endif
   play_snd = false;
 
   //------------------------------------------------------  Верифицируем ночной режим
@@ -127,8 +124,9 @@ void firq2() // 0.5 sec main cycle
     //-----------------------------------------
 
     // run slowely time displays here
-    m32_8time_act = f_dsp.time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud,  font5x7, conf_data.use_pm, q_dig, rtc_data);
+    f_dsp.time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud,  font5x7, conf_data.use_pm, q_dig, rtc_data);
   }
+
   if (Alarmed()) rtc_data.wasAlarm = true;
   if (rtc_data.wasAlarm & !play_snd)
   {
@@ -137,24 +135,20 @@ void firq2() // 0.5 sec main cycle
   }
 }
 
-
 void firq3() // 0.125 sec
 {
   const uint8_t pos = 32;
 
-  if (m32_8time_act)
+  uint8_t font_wdt = 5;
+  static byte nbuf[64];
+
+  for (uint8_t i = 0; i < q_dig; i++)
   {
-    uint8_t font_wdt = 5;
-    static byte nbuf[64];
+    if (i > 3) font_wdt = 3;
 
-    for (uint8_t i = 0; i < q_dig; i++)
+    if (d_notequal[i])
     {
-      if (i > 3) font_wdt = 3;
-
-      if (d_notequal[i])
-      {
-        f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
-      }
+      f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
     }
   }
 }
@@ -163,12 +157,12 @@ void firq4() //0.04 sec running string is out switch to time view
 {
   if (!nm_is_on & !end_run_st)
   {
-    end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    //end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
     if (end_run_st || (cur_sym_pos[0] < cur_sym_pos[2])) runing_string_start(); // перезапуск бегущей строки
     cur_sym_pos[2] = cur_sym_pos[0];
-//    DBG_OUT_PORT.println(cur_sym_pos[2]);
+    //    DBG_OUT_PORT.println(cur_sym_pos[2]);
   }
 
-  m3216_ramFormer(screen);
+  m3216_ramFormer(screen, cur_br, 1);
   m3216 -> swapBuffers(true);
 }

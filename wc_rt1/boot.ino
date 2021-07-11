@@ -9,16 +9,6 @@ static uint8_t  num_st = 0;
 void irq_set()
 {
   //------------------------------------------------------ interrupts
-  /*  irq1.attach(3600, firq1);
-    irq2.attach(1800, rtc_check);
-    irq3.attach(conf_data.period * 60, GetSnr);
-    irq4.attach(55, firq4);
-    irq6.attach(0.5, firq6);
-    //irq7.attach(0.2, firq7);
-    irq8.attach(0.062, firq8);
-    irq9.attach(0.04, firq9);
-  */
-
   unsigned long t3 = conf_data.period * 2000L;
   const uint8_t irq_q = 9;
   static uint8_t _st = 0;
@@ -29,13 +19,17 @@ void irq_set()
 
   if (millis() >= buff_ms)
   {
-    if (_sum % timers[_st] == 0) irq = _st;
     _st++;
-    if (_st > irq_q)
+    if (_st >= irq_q)
     {
       _st = 0;
       _sum++;
-      if (_sum > timers[0]) _sum -= timers[0];
+      if (_sum > timers[0]) _sum = 1;
+    }
+
+    if (timers[_st] != 0)
+    {
+      if (_sum % timers[_st] == 0) irq = _st;
     }
     buff_ms = millis() + _offset;
   }

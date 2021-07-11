@@ -89,10 +89,6 @@ public:
   */
   void begin(void);
 
-  
-  void drawPartChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, int8_t size);
-
-   
   /*!
     @brief  Lowest-level pixel drawing function required by Adafruit_GFX.
             Does not have an immediate effect -- must call updateDisplay()

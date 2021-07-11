@@ -47,8 +47,8 @@ void rtc_check()
       // we have a communications error
       // see https://www.arduino.cc/en/Reference/WireEndTransmission for
       // what the number means
-      if (debug_level == 13) DBG_OUT_PORT.print(F("RTC communications error = "));
-      if (debug_level == 13) DBG_OUT_PORT.println(DS3231.LastError());
+      DBG_OUT_PORT.print(F("RTC communications error = "));
+      DBG_OUT_PORT.println(DS3231.LastError());
     }
     else
     {
@@ -56,7 +56,7 @@ void rtc_check()
       //    1) first time you ran and the device wasn't running yet
       //    2) the battery on the device is low or even missing
 
-      if (debug_level == 13) DBG_OUT_PORT.println(F("RTC lost confidence in the DateTime!"));
+      DBG_OUT_PORT.println(F("RTC lost confidence in the DateTime!"));
 
       // following line sets the RTC to the date & time this sketch was compiled
       // it will also reset the valid flag internally unless the Rtc device is
@@ -68,23 +68,23 @@ void rtc_check()
 
   if (!DS3231.GetIsRunning())
   {
-    if (debug_level == 13) DBG_OUT_PORT.println(F("RTC was not actively running, starting now"));
+    DBG_OUT_PORT.println(F("RTC was not actively running, starting now"));
     DS3231.SetIsRunning(true);
   }
 
   _now = DS3231.GetDateTime();
   if (_now < compiled)
   {
-    if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
+    DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
     DS3231.SetDateTime(compiled);
   }
   else if (_now > compiled)
   {
-    if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
+    DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
   }
   else if (_now == compiled)
   {
-    if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
+    DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
   }
 }
 
@@ -232,8 +232,6 @@ bool Alarmed()
     if (conf_data.alarms[rtc_data.n_cur_alm][0] == 4)
     {
       conf_data.alarms[rtc_data.n_cur_alm][0] = 0; //Сбрасываем одноразовый будильник если это был он
-
-      strcpy(conf_data.test, "ok"); //обновляем инфу в епроме
     }
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   }
