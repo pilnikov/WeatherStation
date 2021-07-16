@@ -11,10 +11,14 @@
 
 #if defined(__xtensa__)
 #include <pgmspace.h>
+
 #elif defined (__AVR__)
 #include <avr/pgmspace.h>
 #endif
 
+#if defined(ARDUINO_ARCH_ESP32)
+#include "esp32-hal-ledc.h"
+#endif
 
 #define OCTAVE_OFFSET 0
 #define isdigit(n) (n >= '0' && n <= '9')
