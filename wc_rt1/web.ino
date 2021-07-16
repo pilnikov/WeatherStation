@@ -119,7 +119,7 @@ String cur_time_str(rtc_data_t rt)
 
   const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
 
-  snprintf_P(buf, 25, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
+  snprintf_P(buf, 25, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), (wchar_t*)sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
   return String(buf);
 }
 

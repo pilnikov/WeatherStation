@@ -157,7 +157,7 @@ void firq4() //0.04 sec running string is out switch to time view
 {
   if (!nm_is_on & !end_run_st)
   {
-    //end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
     if (end_run_st || (cur_sym_pos[0] < cur_sym_pos[2])) runing_string_start(); // перезапуск бегущей строки
     cur_sym_pos[2] = cur_sym_pos[0];
     //    DBG_OUT_PORT.println(cur_sym_pos[2]);

@@ -36,7 +36,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             else
             {
               if (sn.t1 > -10)  size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\1%2d"), sn.t1);
-              else size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\2%2d"), abs(sn.t1));
+              else size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\2%2d"), (int)abs(sn.t1));
               _repeat = false;
             }
             break;
@@ -55,7 +55,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             else
             {
               if (sn.t2 > -10) size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\3%2d"), sn.t2);
-              else size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\4%2d"), abs(sn.t2));
+              else size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\4%2d"), (int)abs(sn.t2));
               _repeat = false;
             }
             break;
@@ -74,7 +74,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             else
             {
               if (sn.t3 > - 10)size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\5%2d"), sn.t3);
-              else size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\6%2d"), abs(sn.t3));
+              else size_tstr = snprintf_P(tstr, s_tstr, PSTR("t\6%2d"), (int)abs(sn.t3));
               _repeat = false;
             }
             break;
@@ -99,7 +99,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
 
           case 8: //День недели, дата
 
-            size_tstr = snprintf_P(tstr, s_tstr, PSTR("%2S%2d"), name_week7[rt.wday], rt.day);
+            size_tstr = snprintf_P(tstr, s_tstr, PSTR("%2S%2d"), (wchar_t*)name_week7[rt.wday], rt.day);
             _repeat = false;
             break;
 
@@ -200,7 +200,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 8: //День недели, дата месяц
-            size_tstr = snprintf_P(tstr, s_tstr, PSTR("%2S.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month);
+            size_tstr = snprintf_P(tstr, s_tstr, PSTR("%2S.%02d.%02d"), (wchar_t*)name_week7[rt.wday], rt.day, rt.month);
             _repeat = false;
             break;
 
@@ -270,7 +270,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 5: //День недели, дата, месяц, год
-            size_tstr = snprintf_P(tstr, s_tstr, PSTR("%2S.%02d.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
+            size_tstr = snprintf_P(tstr, s_tstr, PSTR("%2S.%02d.%02d.%02d"), (wchar_t*)name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
             _repeat = false;
             break;
 

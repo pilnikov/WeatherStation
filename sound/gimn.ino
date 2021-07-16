@@ -1,7 +1,8 @@
 
 void gimn()
 {
-  tone(BUZ_PIN, 174, 249.99975);
+#if !defined(ARDUINO_ARCH_ESP32)
+   tone(BUZ_PIN, 174, 249.99975);
   delay(277.7775);
   tone(BUZ_PIN, 233, 499.9995);
   delay(555.555);
@@ -197,4 +198,5 @@ void gimn()
   delay(555.555);
   tone(BUZ_PIN, 233, 1999.998);
   delay(2222.22);
+#endif
 }
