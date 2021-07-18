@@ -22,7 +22,11 @@ void rtc_init()
       ds3231 -> SetSquareWavePin(DS3231SquareWavePin_ModeAlarmBoth);
       ds3231 -> LatchAlarmsTriggeredFlags();
       // setup external interupt
+#if defined(ARDUINO_ARCH_ESP32)
+      attachInterrupt(digitalPinToInterrupt(conf_data.gpio_sqw), InteruptServiceRoutine, FALLING);
+#else
       attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
+#endif
       break;
     case 2:
       ds1302_init();
