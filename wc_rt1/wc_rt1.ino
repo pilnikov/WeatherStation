@@ -16,8 +16,6 @@ void setup()
   //------------------------------------------------------  Инициализируем встроенную файловую систему LittleFS
 
 # if defined(__xtensa__)
-  start_wifi();
-
   fs_setup();
   DBG_OUT_PORT.println(F("file system started"));
 #endif
@@ -137,6 +135,7 @@ void setup()
 
     //-------------------------------------------------------- Запускаем сетевые сервисы
 # if defined(__xtensa__)
+    start_wifi();
 
     //------------------------------------------------------  Переопределяем консоль
     if (conf_data.udp_mon)
@@ -228,7 +227,7 @@ void setup()
   else
   {
 #if defined(__xtensa__)
-    start_wifi();
+    //start_wifi();
     if (web_cli || web_ap)
     {
       nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
@@ -278,6 +277,8 @@ void loop()
   else
   {
 #if defined(__xtensa__)
+    start_wifi();
+
     if (web_cli || web_ap)
     {
       server.handleClient();

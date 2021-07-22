@@ -271,22 +271,22 @@ void m3216_init()
   m3216 -> setTextWrap(false); // Allow text to run off right edge
 }
 
-void m3216_ramFormer(byte *in, uint8_t cur_br, uint8_t text_size)
+void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 {
   for (uint8_t x = 0; x < 32; x++)
   {
     uint8_t dt = 0b1;
     for (uint8_t y = 0; y < 8; y++)
     {
-      for (uint8_t xz = 0; xz < text_size; xz++)
+      for (uint8_t xz = 0; xz < t_size; xz++)
       {
-        uint8_t _x = (x * text_size) + xz;
-        for (uint8_t yz = 0; yz < text_size; yz++)
+        uint8_t _x = (x * t_size) + xz;
+        for (uint8_t yz = 0; yz < t_size; yz++)
         {
-          uint8_t _y = (y * text_size) + yz;
-          uint8_t _yy = _y + (8 * text_size);
-          m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, cur_br, true) : 0);
-          m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, cur_br, true) : 0);
+          uint8_t _y = (y * t_size) + yz;
+          uint8_t _yy = _y + (8 * t_size);
+          m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, c_br, true) : 0);
+          m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, c_br, true) : 0);
         }
       }
     }
