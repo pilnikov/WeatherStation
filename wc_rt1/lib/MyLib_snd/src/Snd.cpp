@@ -224,8 +224,10 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
       uint16_t _tone = pgm_read_word_near(&notes[(scale - 4) * 12 + note]);
 #ifdef _debug
       DBG_OUT_PORT.print(F("Playing: "));  //  "Проигрывание: "
-      DBG_OUT_PORT.print(scale, 10); Serial.print(' ');
-      DBG_OUT_PORT.print(note, 10); Serial.print(" (");
+      DBG_OUT_PORT.print(scale, 10); 
+	  DBG_OUT_PORT.print(' ');
+      DBG_OUT_PORT.print(note, 10); 
+	  DBG_OUT_PORT.print(" (");
       DBG_OUT_PORT.print(_tone, 10);
       DBG_OUT_PORT.print(F(") "));
       DBG_OUT_PORT.println(duration, 10);

@@ -21,8 +21,8 @@ void setup() {
   DBG_OUT_PORT.println(ram_data.type_rtc);
 
   //------------------------------------------------------  Записывваем текущее время в rtc_data
-  _now = DS3231.GetDateTime();
-
+  //_now = DS3231.GetDateTime();
+  _now = RtcDateTime(__DATE__, __TIME__);
   rtc_data.hour = _now.Hour();
   rtc_data.min = _now.Minute();
   rtc_data.sec = _now.Second();
@@ -87,11 +87,20 @@ void setup() {
 
   //-------------------------------------------------------  Опрашиваем датчики
   GetSnr();
-
+  
+  snr_data.t1 = 11;
+  snr_data.t2 = 22;
+  snr_data.t3 = -33;
+  snr_data.h1 = 41;
+  snr_data.h2 = 42;
+  snr_data.h3 = 43;
+  snr_data.p = 728;
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
-
+  
+  rtc_data.a_hour = 20;
+  rtc_data.a_min = 15;
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
   {
@@ -118,7 +127,7 @@ void setup() {
   DBG_OUT_PORT.println(conf_data.led_pola);
   DBG_OUT_PORT.print(F("Thermo..."));
   DBG_OUT_PORT.println(conf_data.type_thermo);
- 
+
   if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5))   digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
@@ -126,6 +135,7 @@ void setup() {
   play_snd = true;
 
   DBG_OUT_PORT.println(F("End of setup"));
+  st1 = "Starting....";
 }
 
 void loop()

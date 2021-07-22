@@ -27,7 +27,7 @@
 #endif
 
 
-String pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t);
+void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, String&);
 
 void pcf8574_init();
 void lcd_time();
@@ -71,7 +71,7 @@ static uint16_t buffud[64];
 
 static bool end_run_st = false, m32_8time_act = false, blinkColon = false;
 
-String st1 = String();
+String st1 = (char*) malloc(240 * sizeof(char*));
 
 byte screen[64]; // display buffer
 

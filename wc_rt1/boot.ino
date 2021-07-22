@@ -84,14 +84,15 @@ void runing_string_start() // ---------------------------- Запуск бегу
 #if defined(__xtensa__)
   local_ip =  WiFi.localIP().toString();
 #endif
+  st1 = "";
 
-  st1 = pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-  //st1 = "string";
+  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
+/*
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
   DBG_OUT_PORT.print(F("st1 = "));
   DBG_OUT_PORT.println(st1);
-
+*/
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;

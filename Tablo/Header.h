@@ -28,7 +28,7 @@ String Serial_Read();
 void parser(String);
 
 void m3216_init();
-String pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t);
+void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, String&);
 
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
@@ -101,8 +101,8 @@ static unsigned char oldDigit[q_dig];                       // убегающа�
 static uint8_t  num_st = 1;
 uint8_t max_st = 4; //номер и макс кол-во прокручиваемых строк
 
-String st1 = "Starting....";
-
+String st1 = (char*) malloc(240 * sizeof(char*));
+ 
 byte screen[64]; // display buffer
 
 bool play_snd = false, nm_is_on = false, disp_on = true, end_run_st = false;

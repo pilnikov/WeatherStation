@@ -12,7 +12,7 @@ String cur_time_str(rtc_data_t rt)
 
   const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
 
-  snprintf_P(buf, 25, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
+  sprintf_P(buf, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
   return String(buf);
 }
 
@@ -36,9 +36,9 @@ conf_data_t defaultConfig()
   conf_data_t _data;
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-  strncpy(_data.ch1_name,   "Внутри",  17);
-  strncpy(_data.ch2_name,   "На улице", 17);
-  strncpy(_data.ch3_name,   "  ",  17);
+  strcpy(_data.ch1_name,   "Внутри");
+  strcpy(_data.ch2_name,   "На улице");
+  strcpy(_data.ch3_name,   "Канал3");
 
 
   _data.auto_corr        = true;
@@ -221,8 +221,8 @@ void parser(String inStr)
 
   JsonObject json = jsonBuffer.as<JsonObject>();
 
-  rtc_data.ct        = json["T"];
-  ram_data.lb        = json["U"];
+  rtc_data.ct         = json["T"];
+  ram_data.lb         = json["U"];
   es_data1.t1         = json["V"];
   es_data1.t2         = json["W"];
   es_data1.h1         = json["X"];

@@ -41,7 +41,7 @@ void irq_set()
       break;
 
     case 4: // one per 0.04 sec
-      firq4();
+      if (disp_on) firq4();
       break;
     default:
       break;
@@ -49,13 +49,14 @@ void irq_set()
 
   uint8_t h = rtc_data.hour;
   disp_on = true;
-  if (h < 7 || h >= 17) //гашение экрана в нерабочее время
-  {
-    m3216 -> drawPixel(h, 0, m3216 -> ColorHSV(500, 255, 100, true));
-    m3216 -> drawPixel(rtc_data.min / 2, 15, m3216 -> ColorHSV(500, 255, 100, true));
-    if (rtc_data.min % 10 == 0 && rtc_data.sec == 0) synchro();
-    disp_on = false;
-  }
+  /* if (h < 7 || h >= 17) //гашение экрана в нерабочее время
+    {
+     m3216 -> drawPixel(h, 0, m3216 -> ColorHSV(500, 255, 100, true));
+     m3216 -> drawPixel(rtc_data.min / 2, 15, m3216 -> ColorHSV(500, 255, 100, true));
+     if (rtc_data.min % 10 == 0 && rtc_data.sec == 0) synchro();
+     disp_on = false;
+    }
+  */
   // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__)
   //inital sound card
@@ -72,7 +73,9 @@ void irq_set()
 void runing_string_start()
 {
   String local_ip = "192.168.0.0";
-  st1 = pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
+
+  st1 = " ";
+  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
@@ -89,7 +92,8 @@ void runing_string_start()
 
 void firq2() // 0.5 sec main cycle
 {
-  _now = DS3231.GetDateTime();
+  //_now = DS3231.GetDateTime();
+  _now = RtcDateTime(__DATE__, __TIME__);
   rtc_data.hour = _now.Hour();
   rtc_data.min = _now.Minute();
   rtc_data.sec = _now.Second();
@@ -146,12 +150,19 @@ void firq3() // 0.125 sec
 
 void firq4() //0.04 sec running string is out switch to time view
 {
-  end_run_st = false;
-  if (!nm_is_on & !end_run_st)
+  //  if (!nm_is_on & !end_run_st)
+  if (!end_run_st)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if (end_run_st) runing_string_start(); // перезапуск бегущей строки
-    //    DBG_OUT_PORT.println(cur_sym_pos[2]);
+    if (end_run_st)
+    {
+      runing_string_start(); // перезапуск бегущей строки
+    }
+    /*  DBG_OUT_PORT.print(F("cur_sym_pos[0] is "));
+        DBG_OUT_PORT.println(cur_sym_pos[0]);
+        DBG_OUT_PORT.print(F("cur_sym_pos[1] is "));
+        DBG_OUT_PORT.println(cur_sym_pos[1]);
+    */
   }
 
   m3216_ramFormer(screen, cur_br, 2);

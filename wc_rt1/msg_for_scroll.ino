@@ -1,5 +1,5 @@
 
-String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_data_t rt, String local_ip, uint8_t c_br)
+void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_data_t rt, String local_ip, uint8_t c_br, String & out)
 {
   const char* stdr_0 = PSTR("ночь");
   const char* stdr_1 = PSTR("yтро");
@@ -85,9 +85,6 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
   memset(buf, 0, 254);
   memset(buf1, 0, 254);
 
-  int size_buf  = -1;
-  int size_buf1 = -1;
-
   uint16_t ala_t = (int) rt.a_hour * 60 + rt.a_min;
   uint16_t cur_t = (int) rt.hour * 60 + rt.min;
   uint8_t ala_h = trunc((ala_t - cur_t) / 60);
@@ -95,53 +92,50 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
   uint8_t ala_m = (ala_t - cur_t - (ala_h * 60)) % 100;
   bool _repeat = true;
 
-  String def_st = " Error";
-
-  def_st.toCharArray(buf, def_st.length() + 1);
-  DBG_OUT_PORT.print(F("num in "));
-  DBG_OUT_PORT.println(num);
-
   do
   {
+    memset(buf, 0, 254);
+    memset(buf1, 0, 254);
+
     if (!cf.rus_lng)
     {
       switch (num)
       {
         case 1:
-          size_buf = snprintf_P(buf, 250, PSTR(" Today is %S %d %S %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
+          sprintf_P(buf, PSTR(" Today is %S %d %S %d\n"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
           _repeat = false;
           break;
         case 2:
           if (sn.t1 > -99 && sn.t1 < 99)
           {
-            size_buf  = snprintf_P(buf , 250, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
+            sprintf_P(buf, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
             _repeat = false;
           }
           if (sn.t2 > -99 && sn.t2 < 99)
           {
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" %s "), cf.ch2_name);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" %s "), cf.ch2_name);
+            strcat(buf, buf1);
             if (cf.use_pp == 2)
             {
               wfc.descript.toCharArray(buf1, wfc.descript.length() + 1);
-              strncat(buf, buf1, strlen(buf1));
-              size_buf1 = snprintf_P(buf1, 250, PSTR(" wind %S %dm/s"), swnr[wfc.wind_dir], wfc.wind_min);
-              strncat(buf, buf1, strlen(buf1));
+              strcat(buf, buf1);
+              sprintf_P(buf1, PSTR(" wind %S %dm/s"), swnr[wfc.wind_dir], wfc.wind_min);
+              strcat(buf, buf1);
             }
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
+            strcat(buf, buf1);
             _repeat = false;
           }
           if (sn.t3 > -99 && sn.t3 < 99)
           {
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" %s %d%cC %d%%"), cf.ch3_name, sn.t3, grad, sn.h3);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" %s %d%cC %d%%"), cf.ch3_name, sn.t3, grad, sn.h3);
+            strcat(buf, buf1);
             _repeat = false;
           }
           if (sn.p > 700)
           {
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" preesure %dmm.m."), sn.p);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" preesure %dmm.m.\n"), sn.p);
+            strcat(buf, buf1);
             _repeat = false;
           }
           break;
@@ -151,10 +145,10 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
             case 1:
               if (wf.temp_min > -99)
               {
-                size_buf = snprintf_P(buf, 250, PSTR(" Weather forecast from GM on %S %d %S: temp from %d to %d%cC wind %S %d - %dm/s %S humid. %d%% press %dmm.m."),
-                                      stdr[wf.tod], wf.day, smnr[wf.month - 1],
-                                      wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
-                                      wf.hum_max, wf.press_max);
+                sprintf_P(buf, PSTR(" Weather forecast from GM on %S %d %S: temp from %d to %d%cC wind %S %d - %dm/s %S humid. %d%% press %dmm.m.\n"),
+                          stdr[wf.tod], wf.day, smnr[wf.month - 1],
+                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
+                          wf.hum_max, wf.press_max);
                 _repeat = false;
               }
               break;
@@ -163,9 +157,9 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
 
               if (wf.temp_min > -99)
               {
-                size_buf = snprintf_P(buf, 250, PSTR(" Weather forecast from OWM on %d %S: %s temp from %d to %d%cC wind %S %dm/s humid %d%% press %dmm.m."),
-                                      wf.day, smnr[wf.month - 1], buf1,
-                                      wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
+                sprintf_P(buf, PSTR(" Weather forecast from OWM on %d %S: %s temp from %d to %d%cC wind %S %dm/s humid %d%% press %dmm.m.\n"),
+                          wf.day, smnr[wf.month - 1], buf1,
+                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
                 _repeat = false;
               }
               break;
@@ -176,17 +170,17 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
         case 4:
           if ((ala_t > cur_t) & (ala_h < 24))
           {
-            size_buf = snprintf_P(buf, 250, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
+            sprintf_P(buf, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d\n"), ala_h, ala_m, rt.a_hour, rt.a_min);
             _repeat = false;
           }
           break;
         case 5:
           local_ip.toCharArray(buf1, local_ip.length() + 1);
-          size_buf = snprintf_P(buf, 250, PSTR(" Curr brigthness:%2d Your IP:%s"), c_br, buf1);
+          sprintf_P(buf, PSTR(" Curr brigthness:%2d Your IP:%s\n"), c_br, buf1);
           _repeat = false;
           break;
         default:
-           break;
+          break;
       }
     }
     else
@@ -194,42 +188,42 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
       switch (num)
       {
         case 1:
-          size_buf = snprintf_P(buf, 250, PSTR(" Сегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
+          sprintf_P(buf, PSTR(" Сегодня %S %d %S %dг.\n"), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
           _repeat = false;
           break;
         case 2:
           if ((sn.t1 > -99) & (sn.t1 < 99))
           {
-            size_buf  = snprintf_P(buf , 250, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
+            sprintf_P(buf, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
             _repeat = false;
           }
 
           if (sn.t2 > -99 && sn.t2 < 99)
           {
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" %s "), cf.ch2_name);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" %s "), cf.ch2_name);
+            strcat(buf, buf1);
             if (cf.use_pp == 2)
             {
               wfc.descript.toCharArray(buf1, wfc.descript.length() + 1);
-              strncat(buf, buf1, strlen(buf1));
-              size_buf1 = snprintf_P(buf1, 250, PSTR(" ветер %S %dм/с"), swnr[wfc.wind_dir], wfc.wind_min);
-              strncat(buf, buf1, strlen(buf1));
+              strcat(buf, buf1);
+              sprintf_P(buf1, PSTR(" ветер %S %dм/с"), swnr[wfc.wind_dir], wfc.wind_min);
+              strcat(buf, buf1);
             }
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
+            strcat(buf, buf1);
             _repeat = false;
           }
 
           if (sn.t3 > -99 && sn.t3 < 99)
           {
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" %s %d%cC %d%%"), cf.ch3_name, sn.t3, grad, sn.h3);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" %s %d%cC %d%%"), cf.ch3_name, sn.t3, grad, sn.h3);
+            strcat(buf, buf1);
             _repeat = false;
           }
           if (sn.p > 700)
           {
-            size_buf1 = snprintf_P(buf1, 250, PSTR(" давление %dмм рт.ст."), sn.p);
-            strncat(buf, buf1, strlen(buf1));
+            sprintf_P(buf1, PSTR(" давление %dмм рт.ст.\n"), sn.p);
+            strcat(buf, buf1);
             _repeat = false;
           }
           break;
@@ -239,10 +233,10 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
             case 1:
               if (wf.temp_min > -99)
               {
-                size_buf = snprintf_P(buf, 250, PSTR(" Прогноз погоды от GM на %S %d %S: температура от %d до %d%cC ветер %S %d - %dм/с %S, oтн.влажность %d%%, давление %dмм.рт.ст."),
-                                      stdr[wf.tod], wf.day, smnr[wf.month - 1],
-                                      wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
-                                      wf.hum_max, wf.press_max);
+                sprintf_P(buf, PSTR(" Прогноз погоды от GM на %S %d %S: температура от %d до %d%cC ветер %S %d - %dм/с %S, oтн.влажность %d%%, давление %dмм.рт.ст.\n"),
+                          stdr[wf.tod], wf.day, smnr[wf.month - 1],
+                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
+                          wf.hum_max, wf.press_max);
                 _repeat = false;
               }
               break;
@@ -251,9 +245,9 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
 
               if (wf.temp_min > -99)
               {
-                size_buf = snprintf_P(buf, 250, PSTR(" Прогноз погоды от OWM на %d %S: %s температура от %d до %d%cC ветер %S %dм/с, oтн.влажность %d%%, давление %dмм.рт.ст."),
-                                      wf.day, smnr[wf.month - 1], buf1,
-                                      wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
+                sprintf_P(buf, PSTR(" Прогноз погоды от OWM на %d %S: %s температура от %d до %d%cC ветер %S %dм/с, oтн.влажность %d%%, давление %dмм.рт.ст.\n"),
+                          wf.day, smnr[wf.month - 1], buf1,
+                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
                 _repeat = false;
               }
               break;
@@ -264,17 +258,17 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
         case 4:
           if ((ala_t > cur_t) & (ala_h < 24))
           {
-            size_buf = snprintf_P(buf, 250, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
+            sprintf_P(buf, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d\n"), ala_h, ala_m, rt.a_hour, rt.a_min);
             _repeat = false;
           }
           break;
         case 5:
           local_ip.toCharArray(buf1, local_ip.length() + 1);
-          size_buf = snprintf_P(buf, 250, PSTR(" Текущая яркость:%2d Ваш IP:%s"), c_br, buf1);
+          sprintf_P(buf, PSTR(" Текущая яркость:%2d Ваш IP:%s\n"), c_br, buf1);
           _repeat = false;
           break;
         default:
-         break;
+          break;
       }
     }
     num++;
@@ -284,15 +278,13 @@ String pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data
       _repeat = true;
     }
   } while (_repeat);
-  DBG_OUT_PORT.print(F("num out "));
-  DBG_OUT_PORT.println(num);
+ 
+  uint8_t x = 0;
 
-
-  if ((strlen(buf) > 0) & (strlen(buf) < 251))
+  while (buf[x] != '\n')
   {
-    def_st = String(buf);
-    DBG_OUT_PORT.print(F("out st "));
-    DBG_OUT_PORT.println(def_st);
-  }
-  return def_st;
+    out += buf[x];
+    x++;
+   }
+  out += '\0';
 }
