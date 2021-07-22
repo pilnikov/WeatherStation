@@ -49,7 +49,6 @@ void irq_set()
 
   uint8_t h = rtc_data.hour;
   disp_on = true;
-
   if (h < 7 || h >= 17) //гашение экрана в нерабочее время
   {
     m3216 -> drawPixel(h, 0, m3216 -> ColorHSV(500, 255, 100, true));
@@ -57,7 +56,6 @@ void irq_set()
     if (rtc_data.min % 10 == 0 && rtc_data.sec == 0) synchro();
     disp_on = false;
   }
-
   // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__)
   //inital sound card
@@ -66,7 +64,6 @@ void irq_set()
   Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
 #endif
   play_snd = false;
-
   //------------------------------------------------------  Верифицируем ночной режим
   if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = ((rtc_data.hour >= conf_data.nm_start) & (rtc_data.hour < conf_data.nm_stop));
   else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
@@ -74,19 +71,14 @@ void irq_set()
 
 void runing_string_start()
 {
-  num_st++; //Перебор строк.
-  if (num_st > max_st) num_st = 1;
-  if (num_st == 3) num_st = 4;
-
   String local_ip = "192.168.0.0";
+  st1 = pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
 
-  st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-  /*
-    DBG_OUT_PORT.print(F("num_st = "));
-    DBG_OUT_PORT.println(num_st);
-    DBG_OUT_PORT.print(F("st1 = "));
-    DBG_OUT_PORT.println(st1);
-  */
+  DBG_OUT_PORT.print(F("num_st = "));
+  DBG_OUT_PORT.println(num_st);
+  DBG_OUT_PORT.print(F("st1 = "));
+  DBG_OUT_PORT.println(st1);
+
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
@@ -106,7 +98,6 @@ void firq2() // 0.5 sec main cycle
   rtc_data.day = _now.Day();
   rtc_data.year = _now.Year(); //костыль
 
-
   if (disp_on)
   {
     //-------------------------------------------------------- Регулируем яркость дисплея
@@ -124,7 +115,7 @@ void firq2() // 0.5 sec main cycle
     //-----------------------------------------
 
     // run slowely time displays here
-    f_dsp.time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud,  font5x7, conf_data.use_pm, q_dig, rtc_data);
+    f_dsp.time_m32_8(screen, 32, oldDigit, digPos_x, d_notequal, buffud,  font5x7, conf_data.use_pm, q_dig, rtc_data); // display Time
   }
 
   if (Alarmed()) rtc_data.wasAlarm = true;
@@ -155,14 +146,14 @@ void firq3() // 0.125 sec
 
 void firq4() //0.04 sec running string is out switch to time view
 {
+  end_run_st = false;
   if (!nm_is_on & !end_run_st)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if (end_run_st || (cur_sym_pos[0] < cur_sym_pos[2])) runing_string_start(); // перезапуск бегущей строки
-    cur_sym_pos[2] = cur_sym_pos[0];
+    if (end_run_st) runing_string_start(); // перезапуск бегущей строки
     //    DBG_OUT_PORT.println(cur_sym_pos[2]);
   }
 
-  m3216_ramFormer(screen, cur_br, 1);
+  m3216_ramFormer(screen, cur_br, 2);
   m3216 -> swapBuffers(true);
 }

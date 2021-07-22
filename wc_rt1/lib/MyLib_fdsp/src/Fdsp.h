@@ -20,7 +20,7 @@ class FD
     utf8rus(char*),  		  // Конвертация из UTF8 в СР1251 для матриц
     utf8rus(String&),         // Конвертация из UTF8 в СР1251 для матриц
     lcd_rus(String&),         // Конвертация из UTF8 в СР1251 для LCD
-    CLS(byte*), 			  // Очистка массива
+    CLS(byte*, size_t), 	  // Очистка массива
     cleanPos(uint8_t, byte*), // Очистка выбранной позиции в массиве
     printDot(uint8_t, byte*), // Печать точки (для сегментных индикаторов)
     printCharacter(unsigned char, uint8_t, byte*, const byte*, uint8_t),   // Печать одного символа в буфер

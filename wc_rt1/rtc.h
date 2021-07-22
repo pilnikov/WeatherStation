@@ -19,6 +19,9 @@ void IRAM_ATTR InteruptServiceRoutine();
 void ISR_ATTR InteruptServiceRoutine();
 #define RtcSquareWaveInterrupt 4 // Mega2560
 #endif
+#if defined(ARDUINO_ARCH_ESP32)
+void IRAM_ATTR isr();
+#endif
 
 
 // marked volatile so interrupt can safely modify them and

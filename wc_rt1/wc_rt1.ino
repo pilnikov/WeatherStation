@@ -16,6 +16,8 @@ void setup()
   //------------------------------------------------------  Инициализируем встроенную файловую систему LittleFS
 
 # if defined(__xtensa__)
+  start_wifi();
+
   fs_setup();
   DBG_OUT_PORT.println(F("file system started"));
 #endif
@@ -37,7 +39,6 @@ void setup()
   //saveConfig(conf_f, conf_data);
 #endif
   DBG_OUT_PORT.println(F("config loaded"));
-
   if (conf_data.boot_mode > 0)
   {
     //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
@@ -89,11 +90,6 @@ void setup()
 
     pinMode(conf_data.gpio_snd, OUTPUT);
 
-# if defined(ARDUINO_ARCH_ESP32)
-    pinMode(conf_data.gpio_bz2, OUTPUT);
-    ledcAttachPin(conf_data.gpio_bz2, conf_data.gpio_snd);
-    ledcSetup(conf_data.gpio_bz2, 2000, 8); // 2 kHz PWM, 8-bit resolution
-# endif
 
     DBG_OUT_PORT.println(F("GPIO inital"));
 
@@ -141,7 +137,6 @@ void setup()
 
     //-------------------------------------------------------- Запускаем сетевые сервисы
 # if defined(__xtensa__)
-    start_wifi();
 
     //------------------------------------------------------  Переопределяем консоль
     if (conf_data.udp_mon)
@@ -228,6 +223,7 @@ void setup()
     //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
     rtc_data.a_muz = 15;
     play_snd = true;
+    DBG_OUT_PORT.println(F("End of setup"));
   }
   else
   {
@@ -241,14 +237,15 @@ void setup()
       start_serv();
     }
 #endif
+    DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
   }
-  DBG_OUT_PORT.println(F("End of setup"));
 }
 
 void loop()
 {
   if (conf_data.boot_mode > 0 || test_boot)
   {
+    if (test_boot) DBG_OUT_PORT.println(F("Safe mode!!!"));
 
     // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__)
@@ -277,11 +274,9 @@ void loop()
         saveConfig(conf_f, conf_data);
       }
     }
-
   }
   else
   {
-
 #if defined(__xtensa__)
     if (web_cli || web_ap)
     {

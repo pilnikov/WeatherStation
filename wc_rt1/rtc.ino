@@ -12,7 +12,7 @@ void rtc_init()
   {
     case 1:
       // set the interupt pin to input mode
-      pinMode(conf_data.gpio_sqw, INPUT);
+      pinMode(conf_data.gpio_sqw, INPUT_PULLUP);
 
       //--------RTC SETUP ------------
       ds3231 = new RtcDS3231<TwoWire> (Wire);
@@ -23,7 +23,7 @@ void rtc_init()
       ds3231 -> LatchAlarmsTriggeredFlags();
       // setup external interupt
 #if defined(ARDUINO_ARCH_ESP32)
-      attachInterrupt(digitalPinToInterrupt(conf_data.gpio_sqw), InteruptServiceRoutine, FALLING);
+      attachInterrupt(conf_data.gpio_sqw, isr, FALLING);
 #else
       attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
 #endif
@@ -377,7 +377,7 @@ bool Alarmed()
         disp_on = false;
         cur_br = 0;
         snr_data.f = 0;
-        f_dsp.CLS(screen);
+        f_dsp.CLS(screen, sizeof screen);
         switch (ram_data.type_vdrv)
         {
           case 1:
@@ -392,7 +392,7 @@ bool Alarmed()
             if (conf_data.type_disp == 23)
             {
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
-              m3216_ramFormer(screen);
+              m3216_ramFormer(screen, cur_br, text_size);
               m3216 -> swapBuffers(true);
 #endif
             }
@@ -473,3 +473,10 @@ void ISR_ATTR InteruptServiceRoutine()
   interuptCount++;
   interuptFlag_int = true;
 }
+
+#if defined(ARDUINO_ARCH_ESP32)
+void IRAM_ATTR isr() {
+  interuptCount++;
+  interuptFlag_int = true;
+}
+#endif

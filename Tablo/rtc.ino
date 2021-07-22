@@ -191,7 +191,7 @@ bool Alarmed()
     if (!interuptFlag_oth)  // check our flag that gets sets in the interupt
     {
       al1_oth = ((rtc_data.hour == rtc_data.a_hour) & (rtc_data.min == rtc_data.a_min)); //Сработал будильник №1
-      al2_oth = ((rtc_data.min == 0) & (rtc_data.sec == 0));                          //Сработал будильник №2
+      al2_oth = ((rtc_data.min == 0) & (rtc_data.sec == 0));                             //Сработал будильник №2
       wasAlarmed_oth = (al1_oth || al2_oth);
       interuptFlag_oth = wasAlarmed_oth; // set the flag
     }
@@ -233,7 +233,6 @@ bool Alarmed()
     {
       conf_data.alarms[rtc_data.n_cur_alm][0] = 0; //Сбрасываем одноразовый будильник если это был он
     }
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
   }
 
   if (al2_int || al2_oth) //Сработал будильник №2

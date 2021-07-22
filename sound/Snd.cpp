@@ -47,7 +47,7 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   }
 }
 #if defined(__xtensa__)
-bool Synt::play(const void* _ptr, uint8_t out, bool set_up, bool pola)
+bool Synt::play(void* _ptr, uint8_t out, bool set_up, bool pola)
 #elif defined (__AVR__)
 bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 #endif

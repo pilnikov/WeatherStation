@@ -3,7 +3,7 @@
 
 
 static uint8_t cur_sym_pos[3] = {0, 0, 0};
-static uint8_t  num_st = 0;
+static uint8_t  num_st = 1;
 
 
 void irq_set()
@@ -80,28 +80,25 @@ void irq_set()
 
 void runing_string_start() // ---------------------------- Запуск бегущей строки
 {
-  num_st++; //Перебор строк.
-  if (num_st > max_st) num_st = 1;
-
   String local_ip = "192.168.0.0";
 #if defined(__xtensa__)
   local_ip =  WiFi.localIP().toString();
 #endif
 
-  st1 = pr_str(num_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
-  /*
-    DBG_OUT_PORT.print(F("num_st = "));
-    DBG_OUT_PORT.println(num_st);
-    DBG_OUT_PORT.print(F("st1 = "));
-    DBG_OUT_PORT.println(st1);
-  */
+  //st1 = pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br);
+
+  DBG_OUT_PORT.print(F("num_st = "));
+  DBG_OUT_PORT.println(num_st);
+  DBG_OUT_PORT.print(F("st1 = "));
+  DBG_OUT_PORT.println(st1);
+
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
   cur_sym_pos[1] = 0;
 
   end_run_st = false;
-  if (conf_data.type_disp == 20) f_dsp.CLS(screen);
+  if (conf_data.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
 }
 
 void firq1() // 1 hour
@@ -193,8 +190,7 @@ void firq7() // 0.180 sec Communications with server
       if  (!nm_is_on & !end_run_st)
       {
         end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-        if (end_run_st || (cur_sym_pos[0] < cur_sym_pos[2])) runing_string_start(); // перезапуск бегущей строки
-        cur_sym_pos[2] = cur_sym_pos[0];
+        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
       }
       ht1633_ramFormer2(screen, 0, 8);
     }
@@ -203,8 +199,7 @@ void firq7() // 0.180 sec Communications with server
       if  (!nm_is_on & !end_run_st)
       {
         end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-        if (end_run_st || (cur_sym_pos[0] < cur_sym_pos[2])) runing_string_start(); // перезапуск бегущей строки
-        cur_sym_pos[2] = cur_sym_pos[0];
+        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
       }
       ht1633_ramFormer(screen, 0, 13);
     }
@@ -237,8 +232,7 @@ void firq9() //0.030 sec running string is out switch to time view
   if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if ((conf_data.type_disp != 20) & (end_run_st || (cur_sym_pos[0] < cur_sym_pos[2]))) runing_string_start(); // перезапуск бегущей строки
-    cur_sym_pos[2] = cur_sym_pos[0];
+    if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
 
   switch (ram_data.type_vdrv)
@@ -253,10 +247,10 @@ void firq9() //0.030 sec running string is out switch to time view
       break;
 
     case 3:
-      if (conf_data.type_disp == 23)
+      if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
       {
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
-        m3216_ramFormer(screen);
+        m3216_ramFormer(screen, cur_br, text_size);
         m3216 -> swapBuffers(true);
 #endif
       }

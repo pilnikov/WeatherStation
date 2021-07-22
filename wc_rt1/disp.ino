@@ -13,7 +13,7 @@ void m7219_init()
   else m7219 = new Max72(conf_data.gpio_dcs, 1, 4);
 
   m7219 -> begin();
-  f_dsp.CLS(screen);
+  f_dsp.CLS(screen, sizeof screen);
 
   if (conf_data.type_disp == 20)
   {
@@ -96,20 +96,22 @@ void a595_init()
   //                             (oe,clk,lat, r1, g1, b1, r2, g2, b2,  a,  b,  c, d)
 
 
-  if (conf_data.type_disp == 23)
+  if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
   {
     char tstr[255];
 #if defined(__AVR_ATmega2560__)
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 #elif defined(ARDUINO_ARCH_ESP32)
     uint8_t rgbPins[]  = {26, 25, 4, 13, 12, 33};
-    m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, D_PIN, CLK_PIN, LAT_PIN, OE_PIN, true, 64, rgbPins);
+    uint8_t wide = 32;
+    if (conf_data.type_disp != 23) wide = 64;
+    m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, D_PIN, CLK_PIN, LAT_PIN, OE_PIN, true, wide, rgbPins);
+    if (conf_data.type_disp == 24) text_size = 2;
+    if (conf_data.type_disp == 25) text_size = 4;
 #endif
 
     m3216 -> begin();
     m3216 -> cp437(true);
-    m3216 -> setTextSize(1);
-    m3216 -> setTextWrap(false); // Allow text to run off right edge
 
     st1 = "Hello";
     if (conf_data.rus_lng) st1 = "Салют";
@@ -119,13 +121,13 @@ void a595_init()
     strncpy(tstr, st1.c_str(), 6);
 
     f_dsp.print_(tstr, strlen(tstr), screen, 0, font5x7, 5, 1);
-    m3216_ramFormer(screen);
+    m3216_ramFormer(screen, cur_br, text_size);
     m3216 -> swapBuffers(true);
   }
 #endif
 }
 
-void m3216_ramFormer(byte *in)
+void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 {
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
   for (uint8_t x = 0; x < 32; x++)
@@ -133,8 +135,17 @@ void m3216_ramFormer(byte *in)
     uint8_t dt = 0b1;
     for (uint8_t y = 0; y < 8; y++)
     {
-      m3216 -> drawPixel(x, y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, cur_br, true) : 0);
-      m3216 -> drawPixel(x, y + 8, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(200, 255, cur_br, true) : 0);
+      for (uint8_t xz = 0; xz < text_size; xz++)
+      {
+        uint8_t _x = (x * text_size) + xz;
+        for (uint8_t yz = 0; yz < text_size; yz++)
+        {
+          uint8_t _y = (y * text_size) + yz;
+          uint8_t _yy = _y + (8 * text_size);
+          m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, cur_br, true) : 0);
+          m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, cur_br, true) : 0);
+        }
+      }
     }
   }
 #endif
@@ -208,7 +219,7 @@ void ht1621_init()
   uint8_t i = 0;
 
   ht21->clear_all();// clear memory
-  f_dsp.CLS(screen);
+  f_dsp.CLS(screen, sizeof screen);
 
   h_dsp.digit(1, 1, screen); /* 1 */
   h_dsp.digit(3, 2, screen); /* 2 */

@@ -89,7 +89,9 @@ conf_data_t defaultConfig()
   _data.gpio_bz2         = 64; //A10
 
 #elif defined(ARDUINO_ARCH_ESP32)
-  _data.led_pola         = false;
+  _data.type_snr1        = 6;
+
+  _data.led_pola         = true;
 
   _data.gpio_sda         = 22;
   _data.gpio_scl         = 21;
@@ -276,12 +278,20 @@ void m3216_ramFormer(byte *in, uint8_t cur_br, uint8_t text_size)
     uint8_t dt = 0b1;
     for (uint8_t y = 0; y < 8; y++)
     {
-      m3216 -> drawPixel(x, y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, cur_br, true) : 0);
-      m3216 -> drawPixel(x, y + 8, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, cur_br, true) : 0);
+      for (uint8_t xz = 0; xz < text_size; xz++)
+      {
+        uint8_t _x = (x * text_size) + xz;
+        for (uint8_t yz = 0; yz < text_size; yz++)
+        {
+          uint8_t _y = (y * text_size) + yz;
+          uint8_t _yy = _y + (8 * text_size);
+          m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, cur_br, true) : 0);
+          m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, cur_br, true) : 0);
+        }
+      }
     }
   }
 }
-
 //------------------------------------------------------  Получаем данные с датчиков
 void GetSnr()
 {

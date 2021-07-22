@@ -27,7 +27,7 @@
 #endif
 
 
-String pr_str(uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t);
+String pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t);
 
 void pcf8574_init();
 void lcd_time();
@@ -37,6 +37,7 @@ void ht1632_init();
 void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 
 void a595_init();
+void m3216_ramFormer(byte*, uint8_t, uint8_t);
 
 //----------------------------------------------------------------------------TM1637
 
@@ -60,6 +61,7 @@ static Max72 * m7219;
 
 const uint8_t q_dig = 6;  // количество цифр на дисплее
 uint8_t  max_st = 4;      // макс кол-во прокручиваемых строк
+uint8_t  text_size = 1;   // размер текста
 
 static bool d_notequal[q_dig];
 const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x

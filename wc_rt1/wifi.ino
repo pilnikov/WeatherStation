@@ -17,32 +17,9 @@ void stop_wifi()
   WiFi.disconnect();
 }
 
-/*void configModeCallback (WiFiManager *myWiFiManager)
-  {
-  st1 = "Please reboot and connect to " + String(conf_data.ap_ssid) + " with pass " + String(conf_data.ap_pass) + " for configure your WiFi connection! ";
-  if (conf_data.rus_lng)  st1 = "Перезагрузитесь и подключитесь к " + String(conf_data.ap_ssid) + " с паролем " + String(conf_data.ap_pass) + " для настройки подключения к вашей WiFi";
-  }
-*/
 //-------------------------------------------------------------- Start_wifi
 void start_wifi()
 {
-  /* WiFiManager wm;
-    //wm.resetSettings();
-    wm.setConfigPortalBlocking(false);
-    wm.setAPCallback(configModeCallback);
-    wm.setConfigPortalTimeout(30);
-    //  wm.autoConnect(conf_data.ap_ssid, conf_data.ap_pass);
-    //  wm.autoConnect(conf_data.ap_ssid, conf_data.ap_pass);
-
-    if  (!wm.autoConnect(conf_data.ap_ssid, conf_data.ap_pass))
-     {
-      DBG_OUT_PORT.println(F("failed to connect and hit timeout");
-      //reset and try again, or maybe put it to deep sleep
-      ESP.restart();
-      delay(1000);
-     }
-  */
-
   DBG_OUT_PORT.print(F("Connecting to "));
   DBG_OUT_PORT.println(conf_data.sta_ssid);
 
@@ -81,7 +58,6 @@ void start_wifi()
   else
   {
     DBG_OUT_PORT.print(F("Configuring access point..."));
-    /* You can remove the password parameter if you want the AP to be open. */
     WiFi.mode(WIFI_AP);
 
     WiFi.softAP(conf_data.ap_ssid, conf_data.ap_pass);

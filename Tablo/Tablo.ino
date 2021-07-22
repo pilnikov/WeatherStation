@@ -2,14 +2,15 @@
 
 void setup() {
   DBG_OUT_PORT.begin(115200);
+  DBG_OUT_PORT.println();
   //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
   //conf_data = loadConfig();
   conf_data = defaultConfig();
   //saveConfig(conf_data);
 # if defined(__xtensa__)
-    Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
+  Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
 # elif defined(__AVR_ATmega2560__)
-    Wire.begin();
+  Wire.begin();
 # endif
 
   ram_data = fsys.i2c_scan(conf_data);
@@ -60,8 +61,16 @@ void setup() {
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(conf_data.gpio_btn, INPUT_PULLUP);
   if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
+
+  DBG_OUT_PORT.print(F("GPIO for LED..."));
+  DBG_OUT_PORT.println(conf_data.gpio_led);
+  DBG_OUT_PORT.print(F("LED Pola..."));
+  DBG_OUT_PORT.println(conf_data.led_pola);
+  DBG_OUT_PORT.print(F("Thermo..."));
+  DBG_OUT_PORT.println(conf_data.type_thermo);
+
   pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
-  if (conf_data.type_thermo == 0  && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
+  if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5))  digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); //Включаем светодиод
 
   pinMode(conf_data.gpio_snd, OUTPUT);
 
@@ -79,8 +88,6 @@ void setup() {
   //-------------------------------------------------------  Опрашиваем датчики
   GetSnr();
 
-  //-------------------------------------------------------- Гасим светодиод
-  if (conf_data.type_thermo == 0 && ram_data.type_vdrv != 5)   digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
@@ -104,8 +111,15 @@ void setup() {
 
   //synchro();
 
-  //------------------------------------------------------ Запускаем бегущую строку
-  runing_string_start(); // запуск бегущей строки
+  //-------------------------------------------------------- Гасим светодиод
+  DBG_OUT_PORT.print(F("GPIO for LED..."));
+  DBG_OUT_PORT.println(conf_data.gpio_led);
+  DBG_OUT_PORT.print(F("LED Pola..."));
+  DBG_OUT_PORT.println(conf_data.led_pola);
+  DBG_OUT_PORT.print(F("Thermo..."));
+  DBG_OUT_PORT.println(conf_data.type_thermo);
+ 
+  if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5))   digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_data.a_muz = 15;
