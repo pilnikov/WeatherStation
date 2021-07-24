@@ -227,7 +227,7 @@ void setup()
   else
   {
 #if defined(__xtensa__)
-    //start_wifi();
+    start_wifi();
     if (web_cli || web_ap)
     {
       nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
@@ -277,9 +277,7 @@ void loop()
   else
   {
 #if defined(__xtensa__)
-    start_wifi();
-
-    if (web_cli || web_ap)
+     if (web_cli || web_ap)
     {
       server.handleClient();
       ArduinoOTA.handle();

@@ -252,7 +252,7 @@ void handleSetFont()
 }
 # endif //MATRIX
 
-//-------------------------------------------------------------- handleSetPard
+//-------------------------------------------------------------- handler Set Parameter for display
 void handleSetPard()
 {
   //url='/set_pard?dtyp='+dtyp+'&rdsp='+rdsp+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
@@ -264,9 +264,9 @@ void handleSetPard()
   conf_data.rus_lng = server.arg("rlng") == "1";
   conf_data.auto_br = server.arg("abrd") == "1";
   uint16_t val = server.arg("mbrd").toInt();
-  conf_data.man_br = constrain(val, 0, 15);;
+  conf_data.man_br = constrain(val, 0, 254);;
   val = server.arg("nbrd").toInt();
-  conf_data.nmd_br = constrain(val, 0, 15);;
+  conf_data.nmd_br = constrain(val, 0, 254);;
   conf_data.br_level[0] = server.arg("brd1").toInt();
   conf_data.br_level[1] = server.arg("brd2").toInt();
   conf_data.br_level[2] = server.arg("brd3").toInt();
@@ -279,7 +279,7 @@ void handleSetPard()
   if (vdrv_buf != conf_data.type_vdrv) handleExit();
 }
 
-//-------------------------------------------------------------- handlejTS
+//-------------------------------------------------------------- handler Get Parameter from TS
 void handlejTS()
 {
   DynamicJsonDocument jsonBuffer(512);
@@ -303,7 +303,7 @@ void handlejTS()
   st = String();
 }
 
-//-------------------------------------------------------------- handlejPars
+//-------------------------------------------------------------- handler Get Parameter from sensor
 void handlejPars()
 {
   DynamicJsonDocument jsonBuffer(700);
@@ -333,7 +333,7 @@ void handlejPars()
   st = String();
 }
 
-//-------------------------------------------------------------- handlejSnr
+//-------------------------------------------------------------- handler Get Parameter from sensor
 void handlejSnr()
 {
   DynamicJsonDocument jsonBuffer(512);
@@ -355,7 +355,7 @@ void handlejSnr()
   st = String();
 }
 
-//-------------------------------------------------------------- handle Set Parameter for sensor
+//-------------------------------------------------------------- handler Set Parameter for sensor
 void handleSetPars1()
 {
   /*
@@ -387,7 +387,7 @@ void handleSetPars1()
   if (conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 }
 
-//-------------------------------------------------------------- handle Set Parameter for sensor
+//-------------------------------------------------------------- handler Set Parameter for sensor
 void handleSetPars2()
 {
   /*
