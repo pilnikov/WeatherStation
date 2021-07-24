@@ -53,36 +53,9 @@ void web_setup()
     if (!handleFileRead(server.uri()))
       server.send(404, "text/plain", "FileNotFound");
   });
-  /*
-  	//get heap status, analog input value and all GPIO statuses in one json call
-  	server.on("/all", HTTP_GET, []() {
-  	  String json = "{";
-  	  json += "\"heap\":" + String(ESP.getFreeHeap());
-  	  json += ", \"analog\":" + String(analogRead(A0));
-  	  json += ", \"gpio\":" + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16)));
-  	  json += "}";
-  	  server.send(200, "text/json", json);
-  	  json = String();
-  	});
-    //    server.begin();
-    //    DBG_OUT_PORT.println(F("HTTP server started");
-    }
-    }
-
-    void fsb_run(void) {
-    server.handleClient();
-  */
-
   //-------------------------------------------------------------- http update
 
-#if defined(ESP8266)
   httpUpdater.setup(&server);
-#endif
-
-#if defined(ARDUINO_ARCH_ESP32)
-  HTTPUpload& upload = server.upload();
-#endif
-  //  server.begin();
 }
 
 //-------------------------------------------------------------- Start_serv
@@ -122,7 +95,7 @@ String cur_time_str(rtc_data_t rt)
   sprintf_P(buf, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
 #elif defined(ARDUINO_ARCH_ESP32)
   sprintf(buf, "%s %02u.%02u.%04u %02u:%02u:%02u", "DoW", rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
-#endif 
+#endif
   return String(buf);
 }
 

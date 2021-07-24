@@ -197,7 +197,7 @@
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include <WebServer.h>
-#include <Update.h>
+#include <HTTPUpdateServer.h>
 #include <ESP32SSDP.h>
 #include <LITTLEFS.h>
 //#include <IRremote.h>
@@ -360,6 +360,7 @@ static ESP8266HTTPUpdateServer httpUpdater;
 
 #if defined(ARDUINO_ARCH_ESP32)
 static WebServer server(80);
+HTTPUpdateServer httpUpdater;
 #endif
 
 // ---------------------------------------------------- HW info
