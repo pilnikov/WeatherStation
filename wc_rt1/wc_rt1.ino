@@ -20,6 +20,8 @@ void setup()
   DBG_OUT_PORT.println(F("file system started"));
 #endif
 
+  //------------------------------------------------------  Загружаем конфигурацию
+
   //------------------------------------------------------  Читаем установки из EEPROM
 
 #if defined(__AVR_ATmega2560__)
@@ -37,9 +39,41 @@ void setup()
   //saveConfig(conf_f, conf_data);
 #endif
   DBG_OUT_PORT.println(F("config loaded"));
+
+  //--------------------------------------------------------  Запускаем основные сетевые сервисы
+#if defined(__xtensa__)
+  //--------------------------------------------------------  Запускаем WiFi
+  start_wifi();
+
+  if (web_cli || web_ap)
+  {
+    //------------------------------------------------------  Переопределяем консоль
+    if (conf_data.udp_mon)
+    {
+      //DBG_OUT_PORT.end();
+
+      //    DBG_OUT_PORT = *udp_cons;
+      //IP_Addr.fromString(conf_data.srudp_addr);
+      //    DBG_OUT_PORT.begin(4023, IP_Addr);
+      //DBG_OUT_PORT.setDebugOutput(true);
+    }
+
+    //------------------------------------------------------  Запускаем сервер, ОТА, MDNS
+    nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
+
+    MDNS.begin(conf_data.ap_ssid);
+    DBG_OUT_PORT.printf("Open http://%s", conf_data.ap_ssid);
+    DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
+
+    web_setup();
+    start_serv();
+  }
+#endif
+  //conf_data.boot_mode = 0;
+  //------------------------------------------------------  Начинаем инициализацию Hardware
   if (conf_data.boot_mode > 0)
   {
-    //------------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
+    //----------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
     if  (conf_data.boot_mode == 1)
     {
       conf_data.boot_mode = 0;
@@ -83,8 +117,8 @@ void setup()
     //------------------------------------------------------  Инициализируем GPIO
     pinMode(conf_data.gpio_btn, INPUT_PULLUP);
     if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
-    pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
+    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
+    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 
     pinMode(conf_data.gpio_snd, OUTPUT);
 
@@ -97,6 +131,8 @@ void setup()
     DBG_OUT_PORT.println(ram_data.type_rtc);
 
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
+    memset(st1, 0, 254);
+    memset(screen, 0, 64);
 
     switch (ram_data.type_vdrv)
     {
@@ -133,22 +169,8 @@ void setup()
     DBG_OUT_PORT.print(F("Type chip driver of display = "));
     DBG_OUT_PORT.println(ram_data.type_vdrv);
 
-    //-------------------------------------------------------- Запускаем сетевые сервисы
+    //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
 # if defined(__xtensa__)
-    start_wifi();
-
-    //------------------------------------------------------  Переопределяем консоль
-    if (conf_data.udp_mon)
-    {
-      //DBG_OUT_PORT.end();
-
-      //    DBG_OUT_PORT = *udp_cons;
-      //IP_Addr.fromString(conf_data.srudp_addr);
-      //    DBG_OUT_PORT.begin(4023, IP_Addr);
-      //DBG_OUT_PORT.setDebugOutput(true);
-    }
-
-
     if (web_cli || web_ap)
     {
       //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
@@ -170,16 +192,7 @@ void setup()
         wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
       }
 
-      //------------------------------------------------------ Подключаем OTA, MDNS
-      nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
-
-      MDNS.begin(conf_data.ap_ssid);
-      DBG_OUT_PORT.printf("Open http://%s", conf_data.ap_ssid);
-      DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
-
-      //------------------------------------------------------ Запускаем сервер и SSDP
-      web_setup();
-      start_serv();
+      //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
     }
 # endif
@@ -188,7 +201,7 @@ void setup()
     snr_data = GetSnr(ram_data, conf_data);
 
     //-------------------------------------------------------- Гасим светодиод
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
+    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
     //-------------------------------------------------------- Устанавливаем будильники
     set_alarm();
@@ -223,21 +236,7 @@ void setup()
     rtc_data.a_muz = 15;
     play_snd = true;
     DBG_OUT_PORT.println(F("End of setup"));
-  }
-  else
-  {
-#if defined(__xtensa__)
-    start_wifi();
-    if (web_cli || web_ap)
-    {
-      nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
-      MDNS.begin(conf_data.ap_ssid);
-      web_setup();
-      start_serv();
-    }
-#endif
-    DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
-  }
+  } else    DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
 }
 
 void loop()
@@ -277,12 +276,11 @@ void loop()
   else
   {
 #if defined(__xtensa__)
-     if (web_cli || web_ap)
+    if (web_cli || web_ap)
     {
       server.handleClient();
       ArduinoOTA.handle();
     }
 # endif
   }
-
 }

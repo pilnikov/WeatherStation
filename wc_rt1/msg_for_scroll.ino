@@ -1,5 +1,5 @@
 
-void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_data_t rt, String local_ip, uint8_t c_br, String & out)
+void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_data_t rt, String local_ip, uint8_t c_br, char *out)
 {
   const char* stdr_0 = PSTR("ночь");
   const char* stdr_1 = PSTR("yтро");
@@ -82,8 +82,6 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
   if (cf.type_disp == 19) grad = '\357';
 
   char buf[254], buf1[254];
-  memset(buf, 0, 254);
-  memset(buf1, 0, 254);
 
   uint16_t ala_t = (int) rt.a_hour * 60 + rt.a_min;
   uint16_t cur_t = (int) rt.hour * 60 + rt.min;
@@ -279,12 +277,5 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
     }
   } while (_repeat);
  
-  uint8_t x = 0;
-
-  while (buf[x] != '\n')
-  {
-    out += buf[x];
-    x++;
-   }
-  out += '\0';
+  out = buf;
 }

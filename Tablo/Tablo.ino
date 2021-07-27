@@ -21,8 +21,9 @@ void setup() {
   DBG_OUT_PORT.println(ram_data.type_rtc);
 
   //------------------------------------------------------  Записывваем текущее время в rtc_data
-  //_now = DS3231.GetDateTime();
-  _now = RtcDateTime(__DATE__, __TIME__);
+  if (ram_data.type_rtc > 0) _now = DS3231.GetDateTime();
+  else _now = RtcDateTime(__DATE__, __TIME__);
+  
   rtc_data.hour = _now.Hour();
   rtc_data.min = _now.Minute();
   rtc_data.sec = _now.Second();
@@ -87,18 +88,18 @@ void setup() {
 
   //-------------------------------------------------------  Опрашиваем датчики
   GetSnr();
-  
-  snr_data.t1 = 11;
-  snr_data.t2 = 22;
-  snr_data.t3 = -33;
-  snr_data.h1 = 41;
-  snr_data.h2 = 42;
-  snr_data.h3 = 43;
-  snr_data.p = 728;
+
+  if (snr_data.t1 == 99) snr_data.t1 = 11;
+  if (snr_data.t2 == 99) snr_data.t2 = 22;
+  if (snr_data.t3 == 99) snr_data.t3 = -33;
+  if (snr_data.h1 == 0) snr_data.h1 = 41;
+  if (snr_data.h2 == 0) snr_data.h2 = 42;
+  if (snr_data.h3 == 0) snr_data.h3 = 43;
+  if (snr_data.p == 700) snr_data.p = 728;
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
-  
+
   rtc_data.a_hour = 20;
   rtc_data.a_min = 15;
   //-------------------------------------------------------- Регулируем яркость дисплея

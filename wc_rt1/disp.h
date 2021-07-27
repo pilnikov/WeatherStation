@@ -27,7 +27,7 @@
 #endif
 
 
-void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, String&);
+void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, char*);
 
 void pcf8574_init();
 void lcd_time();
@@ -71,9 +71,8 @@ static uint16_t buffud[64];
 
 static bool end_run_st = false, m32_8time_act = false, blinkColon = false;
 
-String st1 = (char*) malloc(240 * sizeof(char*));
-
-byte screen[64]; // display buffer
+static byte screen[64]; // display buffer
+static char st1[254];
 
 //---------------------------------------------------------------------------HT1621
 #include <HT1621.h>

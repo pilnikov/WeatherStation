@@ -91,10 +91,11 @@ String cur_time_str(rtc_data_t rt)
   const char* sdnr_7 = PSTR("СБ");
 
   const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
+
 #if defined(ESP8266)
   sprintf_P(buf, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
 #elif defined(ARDUINO_ARCH_ESP32)
-  sprintf(buf, "%s %02u.%02u.%04u %02u:%02u:%02u", "DoW", rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
+  sprintf(buf, "%02u.%02u.%04u %02u:%02u:%02u", rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
 #endif
   return String(buf);
 }
@@ -103,15 +104,16 @@ String cur_time_str(rtc_data_t rt)
 void handlejTime()
 {
   rtc_data_t rt = rtc_data;
+  String tstr = cur_time_str(rt);
 
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
-  json["jhour"] = rt.hour;
-  json["jmin"] = rt.min;
-  json["jday"] = rt.day;
+  json["jhour"]  = rt.hour;
+  json["jmin"]   = rt.min;
+  json["jday"]   = rt.day;
   json["jmonth"] = rt.month;
-  json["jyear"] = rt.year;
-  json["tstr"] = cur_time_str(rt);
+  json["jyear"]  = rt.year;
+  json["tstr"]   = tstr;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -622,8 +624,9 @@ void handlejAct()
 {
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
+  String tstr = cur_time_str(rtc_data);
 
-  json["tstr"] = cur_time_str(rtc_data);
+  json["tstr"] = tstr;
   json["acth"] = rtc_data.a_hour;
   json["actm"] = rtc_data.a_min;
   json["t1"] = snr_data.t1;

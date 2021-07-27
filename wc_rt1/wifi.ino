@@ -40,32 +40,45 @@ void start_wifi()
     tru ++;
   }
 
-  if (tru < 18)
+   if (tru < 18)
   {
-    DBG_OUT_PORT.println(F("\nWiFi connected"));
-    DBG_OUT_PORT.print(F("IP address: "));
-    DBG_OUT_PORT.println(WiFi.localIP());
-
     web_cli = true;
 
-    st1 = "Your IP:" + WiFi.localIP().toString();
-    if (conf_data.rus_lng)
-    {
-      st1 = "Ваш IP:" + WiFi.localIP().toString();
-      f_dsp.utf8rus(st1);
-    }
+    DBG_OUT_PORT.println(F("\nWiFi connected"));
+
+    myIP = WiFi.localIP();
+
+    DBG_OUT_PORT.print(F("Client IP address: "));
   }
   else
   {
+    web_ap = true;
+ 
     DBG_OUT_PORT.print(F("Configuring access point..."));
     WiFi.mode(WIFI_AP);
 
     WiFi.softAP(conf_data.ap_ssid, conf_data.ap_pass);
 
-    IPAddress myIP = WiFi.softAPIP();
+    myIP = WiFi.softAPIP();
+
     DBG_OUT_PORT.print(F("AP IP address: "));
-    DBG_OUT_PORT.println(myIP);
-    web_ap = true;
+  }
+  
+  DBG_OUT_PORT.println(myIP);
+
+  char ibuf[17];
+  memset(ibuf, 0, 17);
+
+  String my_ip = "192.168.0.0";
+  my_ip = myIP.toString();
+
+  my_ip.toCharArray(ibuf, myIP.length() + 1);
+  sprintf_P(st1, PSTR("Your IP:%s"), ibuf);
+
+  if (conf_data.rus_lng)
+  {
+    sprintf_P(st1, PSTR("Ваш IP:%s"), ibuf);
+    f_dsp.utf8rus(st1);
   }
 }
 #endif

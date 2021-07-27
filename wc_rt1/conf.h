@@ -400,7 +400,8 @@ uint8_t         debug_level  = 0; // 0 - отключен
 Synt Buzz;               //Конструктор пищалки
 
 # if defined(__xtensa__)
-IPAddress IP_Addr;
+IPAddress IP_Addr, myIP;
+
 File fsUploadFile;
 
 ES e_srv;

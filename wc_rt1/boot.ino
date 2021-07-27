@@ -82,17 +82,17 @@ void runing_string_start() // ---------------------------- Запуск бегу
 {
   String local_ip = "192.168.0.0";
 #if defined(__xtensa__)
-  local_ip =  WiFi.localIP().toString();
+  local_ip = myIP.toString();
 #endif
-  st1 = "";
+  memset(st1, 0, 254);
 
   pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
-/*
-  DBG_OUT_PORT.print(F("num_st = "));
-  DBG_OUT_PORT.println(num_st);
-  DBG_OUT_PORT.print(F("st1 = "));
-  DBG_OUT_PORT.println(st1);
-*/
+  /*
+    DBG_OUT_PORT.print(F("num_st = "));
+    DBG_OUT_PORT.println(num_st);
+    DBG_OUT_PORT.print(F("st1 = "));
+    DBG_OUT_PORT.println(st1);
+  */
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
@@ -233,7 +233,8 @@ void firq9() //0.030 sec running string is out switch to time view
   if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
+    if ((conf_data.type_disp != 20) & end_run_st) end_run_st = false; // перезапуск бегущей строки
+    // if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
 
   switch (ram_data.type_vdrv)

@@ -15,23 +15,9 @@ void m7219_init()
   m7219 -> begin();
   f_dsp.CLS(screen, sizeof screen);
 
-  if (conf_data.type_disp == 20)
-  {
-    st1 = "Hello";
-    if (conf_data.rus_lng) st1 = "Салют";
-
-    f_dsp.utf8rus(st1);
-
-    strncpy(tstr, st1.c_str(), 6);
-
-    f_dsp.print_(tstr, strlen(tstr), screen, 0, font5x7, 5, 1);
-    m7219_ramFormer(screen);
-  }
-
   if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
   {
-    st1 = "7219";
-    strncpy(tstr, st1.c_str(), 6);
+    strcpy(tstr, "7219");
     f_dsp.print_(tstr, 5, screen, 0, font14s, 2, 0);
     m7adopt(screen, 0, 4);
   }
@@ -111,18 +97,6 @@ void a595_init()
 #endif
 
     m3216 -> begin();
-    m3216 -> cp437(true);
-
-    st1 = "Hello";
-    if (conf_data.rus_lng) st1 = "Салют";
-
-    f_dsp.utf8rus(st1);
-
-    strncpy(tstr, st1.c_str(), 6);
-
-    f_dsp.print_(tstr, strlen(tstr), screen, 0, font5x7, 5, 1);
-    m3216_ramFormer(screen, cur_br, text_size);
-    m3216 -> swapBuffers(true);
   }
 #endif
 }
@@ -166,13 +140,13 @@ void pcf8574_init()
 
   lcd -> backlight(); //Включаем подсветку
 
-  st1 = "Hello";
-  if (conf_data.rus_lng) st1 = "Привет";
+  strcpy(st1, "Hello");
+  if (conf_data.rus_lng) strcpy(st1, "Привет");
   lcd -> setCursor(5, 0);
   f_dsp.lcd_rus(st1);
   lcd -> print (st1);
-  st1 = "World";
-  if (conf_data.rus_lng) st1 = "Мир!!!";
+  strcpy(st1, "World");
+  if (conf_data.rus_lng) strcpy(st1, "Мир!!!");
   lcd -> setCursor(5, 1);
   f_dsp.lcd_rus(st1);
   lcd -> print (st1);
@@ -187,11 +161,11 @@ void lcd_time()
 
   byte _h = hour() % 100, _m = minute() % 100, _s = second() % 100, ah = rtc_data.a_hour % 100, am = rtc_data.a_min % 100;
   char msg[16];
-  snprintf_P(msg, 16, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
+  sprintf_P(msg, 16, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
   if (_alarmed)
   {
-    snprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
-    if (conf_data.rus_lng) snprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
+    sprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
+    if (conf_data.rus_lng) sprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
   }
   lcd -> print(msg);
 }

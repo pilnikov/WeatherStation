@@ -40,29 +40,29 @@ conf_data_t loadConfig(const char *filename)
       _data.boot_mode               = doc["bm"];
 
       // Get the root object in the document
-      strncpy(_data.sta_ssid,   " ", 17);
-      strncpy(_data.sta_pass,   " ", 17);
-      strncpy(_data.ap_ssid,    " ", 17);
-      strncpy(_data.ap_pass ,   " ", 17);
-      strncpy(_data.owm_key,    " ", 33);
-      strncpy(_data.esrv1_addr, " ", 17);
-      strncpy(_data.esrv2_addr, " ", 17);
-      strncpy(_data.radio_addr, " ", 17);
-      strncpy(_data.srudp_addr, " ", 17);
-      strncpy(_data.ch1_name,   " ", 17);
-      strncpy(_data.ch2_name,   " ", 17);
-      strncpy(_data.ch3_name,   " ", 17);
-      strncpy(_data.AKey_r,     " ", 17);
-      strncpy(_data.AKey_w,     " ", 17);
+      memset(_data.sta_ssid,   0, 17);
+      memset(_data.sta_pass,   0, 17);
+      memset(_data.ap_ssid,    0, 17);
+      memset(_data.ap_pass ,   0, 17);
+      memset(_data.owm_key,    0, 33);
+      memset(_data.esrv1_addr, 0, 17);
+      memset(_data.esrv2_addr, 0, 17);
+      memset(_data.radio_addr, 0, 17);
+      memset(_data.srudp_addr, 0, 17);
+      memset(_data.ch1_name,   0, 17);
+      memset(_data.ch2_name,   0, 17);
+      memset(_data.ch3_name,   0, 17);
+      memset(_data.AKey_r,     0, 17);
+      memset(_data.AKey_w,     0, 17);
 
       //---Wifi.html----------------------------------------
       //---AP-----------------------------------------------
-      strncpy(_data.ap_ssid,    doc["ap_ssid"],  17);
-      strncpy(_data.ap_pass,    doc["ap_pass"],  17);
+      strcpy(_data.ap_ssid,    doc["ap_ssid"]);
+      strcpy(_data.ap_pass,    doc["ap_pass"]);
 
       //---STA----------------------------------------------
-      strncpy(_data.sta_ssid,   doc["sta_ssid"], 17);
-      strncpy(_data.sta_pass,   doc["sta_pass"], 17);
+      strcpy(_data.sta_ssid,   doc["sta_ssid"]);
+      strcpy(_data.sta_pass,   doc["sta_pass"]);
 
       _data.wifi_off          = doc["wifi_off"];
 
@@ -113,11 +113,11 @@ conf_data_t loadConfig(const char *filename)
       //---Sensor.html---------------------------------------
       //---Options for sensor--------------------------------
       _data.pp_city_id        = doc["pp_city_id"];
-      strncpy(_data.owm_key,    doc["owm_key"], 33);
-      strncpy(_data.esrv1_addr, doc["esrv1_a"], 17);
-      strncpy(_data.esrv2_addr, doc["esrv2_a"], 17);
-      strncpy(_data.radio_addr, doc["radio_a"], 17);
-      strncpy(_data.srudp_addr, doc["srudp_a"], 17);
+      strcpy(_data.owm_key,     doc["owm_key"]);
+      strcpy(_data.esrv1_addr,  doc["esrv1_a"]);
+      strcpy(_data.esrv2_addr,  doc["esrv2_a"]);
+      strcpy(_data.radio_addr,  doc["radio_a"]);
+      strcpy(_data.srudp_addr,  doc["srudp_a"]);
       _data.udp_mon           = doc["udm"];
       _data.use_pp            = doc["upp"];
 
@@ -129,14 +129,14 @@ conf_data_t loadConfig(const char *filename)
       _data.period            = doc["period"]; // minutes
 
       //---Sensor actual value-------------------------------
-      strncpy(_data.ch1_name,   doc["ch1_name"], 17);
-      strncpy(_data.ch2_name,   doc["ch2_name"], 17);
-      strncpy(_data.ch3_name,   doc["ch3_name"], 17);
+      strcpy(_data.ch1_name,   doc["ch1_name"]);
+      strcpy(_data.ch2_name,   doc["ch2_name"]);
+      strcpy(_data.ch3_name,   doc["ch3_name"]);
 
       //---TS Account----------------------------------------
       _data.ts_ch_id          = doc["ts_ch_id"];
-      strncpy(_data.AKey_r,     doc["AKey_r"], 17);
-      strncpy(_data.AKey_w,     doc["AKey_w"], 17);
+      strcpy(_data.AKey_r,      doc["AKey_r"]);
+      strcpy(_data.AKey_w,      doc["AKey_w"]);
 
       //---TS sender-----------------------------------------
       _data.use_tst1          = doc["utst1"];
@@ -357,20 +357,20 @@ conf_data_t defaultConfig()
 
   _data.boot_mode        = 2;
 
-  strncpy(_data.sta_ssid,  "MyWiFi", 17);
-  strncpy(_data.sta_pass,  "12345678", 17);
-  strncpy(_data.ap_ssid,   "Radio_Clock", 17);
-  strncpy(_data.ap_pass ,  "12345678", 17);
-  strncpy(_data.AKey_r,     " ", 17);
-  strncpy(_data.AKey_w,     " ", 17);
-  strncpy(_data.esrv1_addr, "192.168.1.100", 17);
-  strncpy(_data.esrv2_addr, "192.168.1.200", 17);
-  strncpy(_data.radio_addr, "192.168.1.33", 17);
-  strncpy(_data.srudp_addr, "192.168.1.30", 17);
-  strncpy(_data.owm_key,    " ", 33);
-  strncpy(_data.ch1_name,   "Внутри",  17);
-  strncpy(_data.ch2_name,   "Снаружи", 17);
-  strncpy(_data.ch3_name,   "В бане",  17);
+  strcpy(_data.sta_ssid,  "MyWiFi");
+  strcpy(_data.sta_pass,  "12345678");
+  strcpy(_data.ap_ssid,   "Radio_Clock");
+  strcpy(_data.ap_pass ,  "12345678");
+  memset(_data.AKey_r,    0, 17);
+  memset(_data.AKey_w,    0, 17);
+  strcpy(_data.esrv1_addr, "192.168.1.100");
+  strcpy(_data.esrv2_addr, "192.168.1.200");
+  strcpy(_data.radio_addr, "192.168.1.33");
+  strcpy(_data.srudp_addr, "192.168.1.30");
+  memset(_data.owm_key,    0, 33);
+  strcpy(_data.ch1_name,   "Внутри");
+  strcpy(_data.ch2_name,   "Снаружи");
+  strcpy(_data.ch3_name,   "В бане");
 
 
   _data.auto_corr        = true;
@@ -455,13 +455,13 @@ conf_data_t defaultConfig()
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
 #if defined _dacha
-  strncpy(_data.ch1_name,   "В избе",  17);
-  strncpy(_data.ch2_name,   "На улице", 17);
-  strncpy(_data.ch3_name,   "Подпол",  17);
+  strcpy(_data.ch1_name,   "В избе");
+  strcpy(_data.ch2_name,   "На улице");
+  strcpy(_data.ch3_name,   "Подпол");
 #elif defined _work
-  strncpy(_data.ch1_name,   "Внутри",  17);
-  strncpy(_data.ch2_name,   "На улице", 17);
-  strncpy(_data.ch3_name,   " ",  17);
+  strcpy(_data.ch1_name,   "Внутри");
+  strcpy(_data.ch2_name,   "На улице");
+  memset(_data.ch3_name,    0,  17);
 #endif
   _data.boot_mode        = 2;
   _data.auto_corr        = true;

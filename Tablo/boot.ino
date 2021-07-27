@@ -92,8 +92,9 @@ void runing_string_start()
 
 void firq2() // 0.5 sec main cycle
 {
-  //_now = DS3231.GetDateTime();
-  _now = RtcDateTime(__DATE__, __TIME__);
+  if (ram_data.type_rtc > 0) _now = DS3231.GetDateTime();
+  else _now = RtcDateTime(__DATE__, __TIME__);
+
   rtc_data.hour = _now.Hour();
   rtc_data.min = _now.Minute();
   rtc_data.sec = _now.Second();

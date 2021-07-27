@@ -108,6 +108,49 @@ void FD::lcd_rus(String &source)
   source = target;
 }
 
+void FD::lcd_rus(char *source)
+{
+  char *target;
+
+  uint16_t i = 0; // source symbol pos index
+  uint16_t k = strlen(source);// source length
+
+  byte n = 0x0;
+  char _m = ' ';
+  
+  while (i < k) 
+  {
+    n = source[i];
+
+    if (n == 0xD0 || n == 0xD1)   // Cyrillic symbol detected
+	{
+      switch (n) 
+	  {
+        // Позиция символа в массиве utf_recode вычисляется по формуле pos = код символа - 0х90 для символов от А до п, с кодами от 0x90 по 0xBF, с позициями с нулевой по сорок седьмую (0x2F в HEX)
+        // Для символов от р до я, с кодами от 0x80 по 0x8F, с позициями с сорок восьмой (0x30 в HEX) по шестьдесят третью (0x3F в HEX) pos = код символа - 0х50
+		// ё (код 0xD1 91) и Ё (код 0xD0 81) стоят особняком (выбиваются из общего строя) поэтому для них отдельные строки.
+
+        case 0xD0: 
+            i++;
+			n = source[i];
+            if (n == 0x81) _m = 0xA2; // Ё
+			else if (n >= 0x90 && n <= 0xBF) _m = utf_recode[n - 0x90]; // от А до п
+   		break;
+        case 0xD1: 
+			i++;
+            n = source[i];
+            if (n == 0x91) _m = 0xB5; // ё
+            else if (n >= 0x80 && n <= 0x8F) _m = utf_recode[n - 0x50]; // от р до я
+		break;
+      }
+    }
+	target += (char)n;
+	i++;
+  }
+  source = target;
+}
+
+
 /* Recode russian fonts from UTF-8 to Windows-1251 */
 void FD::utf8rus(String &source)
 {
@@ -140,7 +183,6 @@ void FD::utf8rus(String &source)
             break;
       }
     }
-
     target += (char)n;
 	i++;
   }
