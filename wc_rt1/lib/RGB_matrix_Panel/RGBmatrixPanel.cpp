@@ -912,7 +912,7 @@ static timg_dev_t *TG[2] = {&TIMERG0, &TIMERG1};
 static portMUX_TYPE timer_spinlock[TIMER_GROUP_MAX] = {
     portMUX_INITIALIZER_UNLOCKED, portMUX_INITIALIZER_UNLOCKED};
 portENTER_CRITICAL(&timer_spinlock[TIMER_GROUP_1]);
-TG[TIMER_GROUP_1]->hw_timer[TIMER_0].alarm_high = (uint32_t)(duration >> 32);
+TG[TIMER_GROUP_1]->hw_timer[TIMER_0].alarm_high = 0;
 TG[TIMER_GROUP_1]->hw_timer[TIMER_0].alarm_low = (uint32_t)duration;
 portEXIT_CRITICAL(&timer_spinlock[TIMER_GROUP_1]);
 #endif                  // ARDUINO_ARCH_SAMD

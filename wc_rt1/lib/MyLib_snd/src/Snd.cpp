@@ -80,45 +80,44 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 #endif
 
     // get default duration -------------------------------
-    while (cp(p) != 'd') p++; // find 'd', skip ":"
+    while (cp(p) != 'd') p = inc_p(p); // find 'd', skip ":"
     flag = cp(p);
 
-    while (!isdigit(cp(p))) p++; // find value of d, skip "=,"
+    while (!isdigit(cp(p))) p = inc_p(p); // find value of d, skip "=,"
 
     num = 0;
     while (isdigit(cp(p)))
     {
       num = (num * 10 + cp(p) - '0');// parce the value
-      p++;
+      p = inc_p(p);
     }
     if ((num > -1) & (flag == 'd')) default_dur = num; // accept d dur
 
 
     // get default octave --------------------------------
-    while (cp(p) != 'o') p++;; // find 'o'
+    while (cp(p) != 'o') p = inc_p(p); // find 'o'
     flag = cp(p);
 
-    while (!isdigit(cp(p))) p++; // find value of o, skip "=,"
+    while (!isdigit(cp(p))) p = inc_p(p); // find value of o, skip "=,"
 
     num = 0;
-    while (isdigit(cp(p))) num = num * 10 + cp(p++) - '0'; // parce the value
+    while (isdigit(cp(p))) num = num * 10 + cp(p = inc_p(p)) - '0'; // parce the value
     if ((num > -1) & (flag == 'o')) default_oct = num; // accept d octave
 
     // get BPM --------------------------------------------
-    while (cp(p) != 'b') p++; // find 'b', skip ":"
-
+    while (cp(p) != 'b') p = inc_p(p); // find 'b', skip ":"
     flag = cp(p);
 
-    while (!isdigit(cp(p))) p++; // find value of b, skip "=,"
+    while (!isdigit(cp(p))) p = inc_p(p); // find value of b, skip "=,"
 
     num = 0;
     while (isdigit(cp(p)))
     {
       num = (num * 10 + cp(p) - '0'); // parce the value
-      p++;
+      p = inc_p(p);
     }
     if (flag == 'b') bpm = num; // accept BPM
-    p++;
+    p = inc_p(p);
 
     // BPM usually expresses the number of quarter notes per minute
     wn = (60 * 1000L / bpm) * 4;  // this is the time for whole note (in milliseconds)
@@ -156,7 +155,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
     while (isdigit(cp(p)))
     {
       num = num * 10 + cp(p) - '0';
-      p++;
+      p = inc_p(p);
     }
     if (num > 0) duration = wn / num; // now get the note
 
@@ -188,20 +187,20 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
         note = 0;
     }
 
-    p++;
+    p = inc_p(p);
 
     // now, get optional '#' sharp
     if (cp(p) == '#')
     {
       note++;
-      p++;
+      p = inc_p(p);
     }
 
     // now, get optional '.' dotted note
     if (cp(p) == '.')
     {
       duration += duration / 2;
-      p++;
+      p = inc_p(p);
     }
 
     // now, get scale
@@ -211,23 +210,23 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
     while (isdigit(cp(p)))
     {
       num = num * 10 + cp(p) - '0';
-      p++;
+      p = inc_p(p);
     }
     if (num > 3) scale = num;
 
     scale += OCTAVE_OFFSET;
 
-    if (cp(p) == ',') p++;       // skip comma for next note (or we may be at the end)
+    if (cp(p) == ',') p = inc_p(p);       // skip comma for next note (or we may be at the end)
 
     if (note) // now play the note //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     {
       uint16_t _tone = pgm_read_word_near(&notes[(scale - 4) * 12 + note]);
 #ifdef _debug
       DBG_OUT_PORT.print(F("Playing: "));  //  "Проигрывание: "
-      DBG_OUT_PORT.print(scale, 10); 
-	  DBG_OUT_PORT.print(' ');
-      DBG_OUT_PORT.print(note, 10); 
-	  DBG_OUT_PORT.print(" (");
+      DBG_OUT_PORT.print(scale, 10);
+      DBG_OUT_PORT.print(' ');
+      DBG_OUT_PORT.print(note, 10);
+      DBG_OUT_PORT.print(" (");
       DBG_OUT_PORT.print(_tone, 10);
       DBG_OUT_PORT.print(F(") "));
       DBG_OUT_PORT.println(duration, 10);

@@ -72,7 +72,7 @@ void start_wifi()
   String my_ip = "192.168.0.0";
   my_ip = myIP.toString();
 
-  my_ip.toCharArray(ibuf, myIP.length() + 1);
+  my_ip.toCharArray(ibuf, my_ip.length() + 1);
   sprintf_P(st1, PSTR("Your IP:%s"), ibuf);
 
   if (conf_data.rus_lng)

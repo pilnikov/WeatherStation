@@ -78,10 +78,8 @@ void stop_serv()
 }
 
 //-------------------------------------------------------------- cur_time_str
-String cur_time_str(rtc_data_t rt)
+void cur_time_str(rtc_data_t rt, char in[])
 {
-  char buf[25];
-
   const char* sdnr_1 = PSTR("ВС");
   const char* sdnr_2 = PSTR("ПН");
   const char* sdnr_3 = PSTR("ВТ");
@@ -92,19 +90,27 @@ String cur_time_str(rtc_data_t rt)
 
   const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
 
-#if defined(ESP8266)
-  sprintf_P(buf, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
-#elif defined(ARDUINO_ARCH_ESP32)
-  sprintf(buf, "%02u.%02u.%04u %02u:%02u:%02u", rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
-#endif
-  return String(buf);
+  const char* sdne_1 = PSTR("Sun");
+  const char* sdne_2 = PSTR("Mon");
+  const char* sdne_3 = PSTR("Tue");
+  const char* sdne_4 = PSTR("Wed");
+  const char* sdne_5 = PSTR("Thu");
+  const char* sdne_6 = PSTR("Fri");
+  const char* sdne_7 = PSTR("Sat");
+
+  const char* const sdne[] = {sdne_1, sdne_2, sdne_3, sdne_4, sdne_5, sdne_6, sdne_7};
+
+  if (conf_data.rus_lng) sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
+  else sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdne[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
 }
 
 //-------------------------------------------------------------- handlejTime
 void handlejTime()
 {
+  char tstr[25];
+  memset (tstr, 0, 25);
   rtc_data_t rt = rtc_data;
-  String tstr = cur_time_str(rt);
+  cur_time_str(rt, tstr);
 
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
@@ -624,7 +630,11 @@ void handlejAct()
 {
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
-  String tstr = cur_time_str(rtc_data);
+
+  char tstr[25];
+  memset (tstr, 0, 25);
+  rtc_data_t rt = rtc_data;
+  cur_time_str(rt, tstr);
 
   json["tstr"] = tstr;
   json["acth"] = rtc_data.a_hour;

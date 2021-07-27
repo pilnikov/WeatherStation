@@ -93,7 +93,6 @@ void runing_string_start() // ---------------------------- Запуск бегу
     DBG_OUT_PORT.print(F("st1 = "));
     DBG_OUT_PORT.println(st1);
   */
-  f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
   cur_sym_pos[1] = 0;
@@ -233,8 +232,7 @@ void firq9() //0.030 sec running string is out switch to time view
   if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
   {
     end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if ((conf_data.type_disp != 20) & end_run_st) end_run_st = false; // перезапуск бегущей строки
-    // if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
+    if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
 
   switch (ram_data.type_vdrv)

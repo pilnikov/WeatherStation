@@ -159,13 +159,13 @@ void lcd_time()
   lcd -> setCursor(0, 1);
   bool _alarmed = rtc_data.a_hour < 24 && rtc_data.a_min < 59;
 
-  byte _h = hour() % 100, _m = minute() % 100, _s = second() % 100, ah = rtc_data.a_hour % 100, am = rtc_data.a_min % 100;
+  byte _h = rtc_data.hour % 100, _m = rtc_data.min % 100, _s = rtc_data.sec % 100, ah = rtc_data.a_hour % 100, am = rtc_data.a_min % 100;
   char msg[16];
-  sprintf_P(msg, 16, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
+  sprintf_P(msg, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
   if (_alarmed)
   {
-    sprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
-    if (conf_data.rus_lng) sprintf_P(msg, 16, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
+    sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
+    if (conf_data.rus_lng) sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
   }
   lcd -> print(msg);
 }

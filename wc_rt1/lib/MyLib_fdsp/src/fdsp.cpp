@@ -65,8 +65,7 @@ void FD::mir_seg(byte &in) //адаптация для мах7219
 
 void FD::lcd_rus(String &source)
 {
- String target;
-
+  String target;
 
   uint16_t i = 0; // source symbol pos index
   uint16_t k = source.length(); // source length
@@ -110,10 +109,9 @@ void FD::lcd_rus(String &source)
 
 void FD::lcd_rus(char *source)
 {
-  char *target;
-
-  uint16_t i = 0; // source symbol pos index
+  uint16_t i = 0, j = 0; // source symbol pos index
   uint16_t k = strlen(source);// source length
+  char target[k];
 
   byte n = 0x0;
   char _m = ' ';
@@ -144,10 +142,13 @@ void FD::lcd_rus(char *source)
 		break;
       }
     }
-	target += (char)n;
-	i++;
+    else _m = (char)n;
+    
+	target[j] = _m;
+    i++; j++;
   }
-  source = target;
+  for (i = 0; i < j; i++) source[i] = target[i];
+  for (i = j; i < k; i++) source[i] = 0;
 }
 
 
@@ -191,10 +192,11 @@ void FD::utf8rus(String &source)
 
 void FD::utf8rus(char *source)
 {
-  char * target;
-  
-  uint16_t i = 0;
+   
+  uint16_t i = 0, j = 0;
   uint16_t k = strlen(source);
+ 
+  char target[k];
 
   byte n = 0x0;
  
@@ -220,10 +222,11 @@ void FD::utf8rus(char *source)
             break;
       }
     }
-    target += (char)n;
-	i++;
+    target[j] = (char)n;
+	i++; j++;
   }
-  source = target;
+  for (i = 0; i < j; i++) source[i] = target[i];
+  for (i = j; i < k; i++) source[i] = 0;
 }
 
 bool FD::time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buff, const byte *font, bool pm, const uint8_t q_dig, rtc_data_t rt)
@@ -265,15 +268,15 @@ bool FD::time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dp
 }
 
 //-------------------------------------------------------------- Отображение бегущей строки
-bool FD::scroll_String(int8_t x1, int8_t x2, String in, uint8_t &icp, uint8_t &cbp, byte *out, const byte *font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
+bool FD::scroll_String(int8_t x1, int8_t x2, char* in, uint8_t &icp, uint8_t &cbp, byte *out, const byte *font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
 {
   unsigned char character = 0; // дергаем входящую сроку по символам
 
   memmove (out + x1,/* цель */out + x1 + qbs,/* источник */x2 - x1 - qbs + 1/* объем */);
 
-  if (icp < in.length() + x2 - x1)
+  if (icp < strlen(in) + x2 - x1)
   {
-    if (icp < in.length())
+    if (icp < strlen(in))
     {
       character = in[icp]; // достаем очередной символ
 

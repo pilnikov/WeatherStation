@@ -17,7 +17,7 @@ class FD
     roll_seg (byte&),		  // Переворот сегмента
     mir_seg (byte&), 		  // Адаптация для мах7219
     prn7(String&),   		  // Печать на семисегментном дисплее
-    utf8rus(char*),  		  // Конвертация из UTF8 в СР1251 для матриц
+    utf8rus(char*),           // Конвертация из UTF8 в СР1251 для матриц
     utf8rus(String&),         // Конвертация из UTF8 в СР1251 для матриц
     lcd_rus(char*),           // Конвертация из UTF8 в СР1251 для LCD
     lcd_rus(String&),         // Конвертация из UTF8 в СР1251 для LCD
@@ -30,7 +30,7 @@ class FD
     shift_ud(bool, bool, byte*, byte*, uint16_t*, int8_t, int8_t); // Сдвигать символ вверх/вниз
  
    bool
-	scroll_String(int8_t, int8_t, String, uint8_t&, uint8_t&, byte*, const byte*, uint8_t, uint8_t, uint8_t), // Бегущая строка
+	scroll_String(int8_t, int8_t, char*, uint8_t&, uint8_t&, byte*, const byte*, uint8_t, uint8_t, uint8_t), // Бегущая строка
     time_m32_8(byte*, uint8_t, unsigned char*, const uint8_t*, bool*, uint16_t*, const byte*, bool, const uint8_t, rtc_data_t); // Отображение текущего времени на матричном (32х8) дисплее 
    
    uint8_t auto_br(uint16_t, conf_data_t);       // Авто регулировка яркости с расчетом пределов
