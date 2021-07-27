@@ -389,11 +389,10 @@ bool Alarmed()
             m7219->write();
             break;
           case 3:
-            if (conf_data.type_disp == 23)
+            if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
             {
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
               m3216_ramFormer(screen, cur_br, text_size);
-              m3216 -> swapBuffers(true);
 #endif
             }
             break;

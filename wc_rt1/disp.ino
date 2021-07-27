@@ -79,7 +79,17 @@ void a595_init()
   //LAT CLK| 27 14
   //GND OE |  g 32
 
-  //                             (oe,clk,lat, r1, g1, b1, r2, g2, b2,  a,  b,  c, d)
+#if defined(ARDUINO_ARCH_ESP32)
+  static const int           A_PIN  PROGMEM =   2;  // Пин A
+  static const int           B_PIN  PROGMEM =   5;  // Пин B
+  static const int           C_PIN  PROGMEM =  18;  // Пин C
+  static const int           D_PIN  PROGMEM =  23;  // Пин D
+
+  static const int         CLK_PIN  PROGMEM =  14;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+  static const int         LAT_PIN  PROGMEM =  27;  // Пин LAT
+  static const int          OE_PIN  PROGMEM =  32;  // Пин OE
+#endif
+
 
 
   if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
@@ -87,11 +97,24 @@ void a595_init()
     char tstr[255];
 #if defined(__AVR_ATmega2560__)
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
+
 #elif defined(ARDUINO_ARCH_ESP32)
     uint8_t rgbPins[]  = {26, 25, 4, 13, 12, 33};
+    uint8_t addrPins[] = {2, 5, 18, 23};
+    uint8_t clockPin   = 14; // Must be on same port as rgbPins
+    uint8_t latchPin   = 27;
+    uint8_t oePin      = 32;
     uint8_t wide = 32;
     if (conf_data.type_disp != 23) wide = 64;
-    m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, D_PIN, CLK_PIN, LAT_PIN, OE_PIN, true, wide, rgbPins);
+
+    m3216 = new Adafruit_Protomatter(
+      wide,        // Matrix width in pixels
+      6,           // Bit depth -- 6 here provides maximum color options
+      1, rgbPins,  // # of matrix chains, array of 6 RGB pins for each
+      4, addrPins, // # of address pins (height is inferred), array of pins
+      clockPin, latchPin, oePin, // Other matrix control pins
+      true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
+
     if (conf_data.type_disp == 24) text_size = 2;
     if (conf_data.type_disp == 25) text_size = 4;
 #endif
@@ -116,8 +139,17 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
         {
           uint8_t _y = (y * t_size) + yz;
           uint8_t _yy = _y + (8 * t_size);
+#if defined(__AVR_ATmega2560__)
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, c_br, true) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, c_br, true) : 0);
+
+          m3216 -> swapBuffers(true);
+#elif defined(ARDUINO_ARCH_ESP32)
+          m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> colorHSV(700, 255, c_br) : 0);
+          m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> colorHSV(400, 255, c_br) : 0);
+
+          m3216 -> show();
+#endif
         }
       }
     }

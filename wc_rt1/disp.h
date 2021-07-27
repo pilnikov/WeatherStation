@@ -17,7 +17,7 @@
 #if defined(ARDUINO_ARCH_ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include <RGBmatrixPanel.h>
+#include <Adafruit_Protomatter.h>
 #include "fonts.h"
 #endif
 
@@ -85,10 +85,11 @@ static HT1621 * ht21;
 static HT1632C * m1632;
 
 //---------------------------------------------------------------------------Matrix
-#if defined(ARDUINO_ARCH_ESP32) || defined(__AVR_ATmega2560__)
+#if   defined(__AVR_ATmega2560__)
 static RGBmatrixPanel * m3216;
+#elif defined(ARDUINO_ARCH_ESP32)
+static Adafruit_Protomatter * m3216;
 #endif
-
 
 //---------------------------------------------------------------------------ILI9341
 #include "Adafruit_ILI9341.h"

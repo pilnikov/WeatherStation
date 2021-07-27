@@ -251,7 +251,6 @@ void firq9() //0.030 sec running string is out switch to time view
       {
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
         m3216_ramFormer(screen, cur_br, text_size);
-        m3216 -> swapBuffers(true);
 #endif
       }
       break;

@@ -248,17 +248,6 @@ udp_cons print_console_udp;
 #endif
 
 // ------------------------------------------------------ GPIO
-#if defined(ARDUINO_ARCH_ESP32)
-static const int           A_PIN  PROGMEM =   2;  // Пин A
-static const int           B_PIN  PROGMEM =   5;  // Пин B
-static const int           C_PIN  PROGMEM =  18;  // Пин C
-static const int           D_PIN  PROGMEM =  23;  // Пин D
-
-static const int         CLK_PIN  PROGMEM =  14;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
-static const int         LAT_PIN  PROGMEM =  27;  // Пин LAT
-static const int          OE_PIN  PROGMEM =  32;  // Пин OE
-#endif
-
 
 #if defined(__AVR_ATmega2560__)
 static const int           A_PIN  PROGMEM =  54; //A0 Пин A
