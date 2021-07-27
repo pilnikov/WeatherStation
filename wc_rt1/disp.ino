@@ -79,17 +79,16 @@ void a595_init()
   //LAT CLK| 27 14
   //GND OE |  g 32
 
-#if defined(ARDUINO_ARCH_ESP32)
-  static const int           A_PIN  PROGMEM =   2;  // Пин A
-  static const int           B_PIN  PROGMEM =   5;  // Пин B
-  static const int           C_PIN  PROGMEM =  18;  // Пин C
-  static const int           D_PIN  PROGMEM =  23;  // Пин D
+#if defined(__AVR_ATmega2560__)
+  uint8_t A_PIN =  54, //A0 Пин A
+          B_PIN =  55, //A1 Пин B
+          C_PIN =  56, //A2 Пин C
+          D_PIN =  57, //A3 Пин D
 
-  static const int         CLK_PIN  PROGMEM =  14;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
-  static const int         LAT_PIN  PROGMEM =  27;  // Пин LAT
-  static const int          OE_PIN  PROGMEM =  32;  // Пин OE
+          CLK_PIN =  11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+          LAT_PIN =  10,  // Пин LAT
+          OE_PIN =   9;   // Пин OE
 #endif
-
 
 
   if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
@@ -99,24 +98,33 @@ void a595_init()
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
 #elif defined(ARDUINO_ARCH_ESP32)
-    uint8_t rgbPins[]  = {26, 25, 4, 13, 12, 33};
-    uint8_t addrPins[] = {2, 5, 18, 23};
-    uint8_t clockPin   = 14; // Must be on same port as rgbPins
-    uint8_t latchPin   = 27;
-    uint8_t oePin      = 32;
-    uint8_t wide = 32;
+    uint8_t rgbPins[] = {26, 25, 4, 13, 12, 33},
+                         addrPins[] = {2, 5, 18, 23, 19},
+                                      clockPin   = 14, // Must be on same port as rgbPins
+                                      latchPin   = 27,
+                                      oePin      = 32,
+                                      naddr_pin  = 3,
+                                      wide       = 32;
     if (conf_data.type_disp != 23) wide = 64;
+    if (conf_data.type_disp == 24)
+    {
+      naddr_pin = 4;
+      text_size = 2;
+    }
+    if (conf_data.type_disp == 25)
+    {
+      naddr_pin = 5;
+      text_size = 4;
+    }
+
 
     m3216 = new Adafruit_Protomatter(
       wide,        // Matrix width in pixels
-      6,           // Bit depth -- 6 here provides maximum color options
+      1,           // Bit depth -- 6 here provides maximum color options
       1, rgbPins,  // # of matrix chains, array of 6 RGB pins for each
-      4, addrPins, // # of address pins (height is inferred), array of pins
+      naddr_pin, addrPins, // # of address pins (height is inferred), array of pins
       clockPin, latchPin, oePin, // Other matrix control pins
-      true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
-
-    if (conf_data.type_disp == 24) text_size = 2;
-    if (conf_data.type_disp == 25) text_size = 4;
+      false);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
 #endif
 
     m3216 -> begin();
@@ -145,8 +153,8 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 
           m3216 -> swapBuffers(true);
 #elif defined(ARDUINO_ARCH_ESP32)
-          m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> colorHSV(700, 255, c_br) : 0);
-          m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> colorHSV(400, 255, c_br) : 0);
+          m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> color565(c_br, 0 , 0) : 0);
+          m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> color565(0, c_br, 0) : 0);
 
           m3216 -> show();
 #endif
