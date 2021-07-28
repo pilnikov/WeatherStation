@@ -23,7 +23,7 @@ void setup() {
   //------------------------------------------------------  Записывваем текущее время в rtc_data
   if (ram_data.type_rtc > 0) _now = DS3231.GetDateTime();
   else _now = RtcDateTime(__DATE__, __TIME__);
-  
+
   rtc_data.hour = _now.Hour();
   rtc_data.min = _now.Minute();
   rtc_data.sec = _now.Second();
@@ -136,7 +136,7 @@ void setup() {
   play_snd = true;
 
   DBG_OUT_PORT.println(F("End of setup"));
-  st1 = "Starting....";
+  sprintf_P(st1, PSTR("Starting...."));
 }
 
 void loop()

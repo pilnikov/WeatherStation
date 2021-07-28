@@ -5,7 +5,6 @@
 // NOTE THIS CAN ONLY BE USED ON A MEGA! NOT ENOUGH RAM ON UNO!
 
 #include <ArduinoJson.h>
-#include <RGBmatrixPanel.h> // Hardware-specific library
 #include <RtcDS3231.h>
 #include <EEPROM.h>
 #include <Wire.h>
@@ -28,37 +27,22 @@ String Serial_Read();
 void parser(String);
 
 void m3216_init();
-void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, String&);
+void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, char*);
 
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
 
-// ------------------------------------------------------ GPIO
-#if defined(ARDUINO_ARCH_ESP32)
-static const int           A_PIN  PROGMEM =   2;  // Пин A
-static const int           B_PIN  PROGMEM =   5;  // Пин B
-static const int           C_PIN  PROGMEM =  18;  // Пин C
-static const int           D_PIN  PROGMEM =  23;  // Пин D
 
-static const int         CLK_PIN  PROGMEM =  14;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
-static const int         LAT_PIN  PROGMEM =  27;  // Пин LAT
-static const int          OE_PIN  PROGMEM =  32;  // Пин OE
+//---------------------------------------------------------------------------Matrix
+#if   defined(__AVR_ATmega2560__)
+#include <RGBmatrixPanel.h> // Hardware-specific library
+static RGBmatrixPanel * m3216;
+#elif defined(ARDUINO_ARCH_ESP32)
+#include <Adafruit_Protomatter.h>
+static Adafruit_Protomatter * m3216;
 #endif
 
-
-#if defined(__AVR_ATmega2560__)
-static const int           A_PIN  PROGMEM =  54; //A0 Пин A
-static const int           B_PIN  PROGMEM =  55; //A1 Пин B
-static const int           C_PIN  PROGMEM =  56; //A2 Пин C
-static const int           D_PIN  PROGMEM =  57; //A3 Пин D
-
-static const int         CLK_PIN  PROGMEM =  11;  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
-static const int         LAT_PIN  PROGMEM =  10;  // Пин LAT
-static const int          OE_PIN  PROGMEM =   9;  // Пин OE
-#endif
-
-static RGBmatrixPanel *m3216;
 
 //-------------------------------------------------------Sensor
 static SNR sens;
@@ -100,8 +84,9 @@ const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции циф
 static unsigned char oldDigit[q_dig];                       // убегающая цифра
 static uint8_t  num_st = 1;
 uint8_t max_st = 4; //номер и макс кол-во прокручиваемых строк
+uint8_t  text_size = 1;   // размер текста
 
-String st1 = (char*) malloc(240 * sizeof(char*));
+static char st1[254];
  
 byte screen[64]; // display buffer
 

@@ -49,14 +49,24 @@ void irq_set()
 
   uint8_t h = rtc_data.hour;
   disp_on = true;
-  /* if (h < 7 || h >= 17) //гашение экрана в нерабочее время
-    {
-     m3216 -> drawPixel(h, 0, m3216 -> ColorHSV(500, 255, 100, true));
-     m3216 -> drawPixel(rtc_data.min / 2, 15, m3216 -> ColorHSV(500, 255, 100, true));
-     if (rtc_data.min % 10 == 0 && rtc_data.sec == 0) synchro();
-     disp_on = false;
-    }
-  */
+  if (h < 7 || h >= 17) //гашение экрана в нерабочее время
+  {
+#if defined(__AVR_ATmega2560__)
+    m3216 -> drawPixel(h, 0, m3216 -> ColorHSV(500, 255, 100, true));
+    m3216 -> drawPixel(rtc_data.min / 2, 15, m3216 -> ColorHSV(500, 255, 100, true));
+
+    m3216 -> swapBuffers(true);
+#elif defined(ARDUINO_ARCH_ESP32)
+    m3216 -> drawPixel(h, 0, m3216 -> colorHSV(500, 255, 100));
+    m3216 -> drawPixel(rtc_data.min / 2, 15, m3216 -> colorHSV(500, 255, 100));
+
+    m3216 -> show();
+#endif
+
+    if (rtc_data.min % 10 == 0 && rtc_data.sec == 0) synchro();
+    disp_on = false;
+  }
+
   // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__)
   //inital sound card
@@ -74,7 +84,8 @@ void runing_string_start()
 {
   String local_ip = "192.168.0.0";
 
-  st1 = " ";
+  memset(st1, 0, 254);
+
   pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
 
   DBG_OUT_PORT.print(F("num_st = "));
@@ -166,6 +177,5 @@ void firq4() //0.04 sec running string is out switch to time view
     */
   }
 
-  m3216_ramFormer(screen, cur_br, 2);
-  m3216 -> swapBuffers(true);
+  m3216_ramFormer(screen, cur_br, text_size);
 }

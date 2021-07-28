@@ -99,12 +99,12 @@ void a595_init()
 
 #elif defined(ARDUINO_ARCH_ESP32)
     uint8_t rgbPins[] = {26, 25, 4, 13, 12, 33},
-                         addrPins[] = {2, 5, 18, 23, 19},
-                                      clockPin   = 14, // Must be on same port as rgbPins
-                                      latchPin   = 27,
-                                      oePin      = 32,
-                                      naddr_pin  = 3,
-                                      wide       = 32;
+                        addrPins[] = {2, 5, 18, 23, 19},
+                                     clockPin   = 14, // Must be on same port as rgbPins
+                                     latchPin   = 27,
+                                     oePin      = 32,
+                                     naddr_pin  = 3,
+                                     wide       = 32;
     if (conf_data.type_disp != 23) wide = 64;
     if (conf_data.type_disp == 24)
     {
@@ -127,7 +127,19 @@ void a595_init()
       false);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
 #endif
 
+#if defined(__AVR_ATmega2560__)
     m3216 -> begin();
+
+#elif defined(ARDUINO_ARCH_ESP32)
+
+    ProtomatterStatus status = m3216 -> begin();
+
+    if (status != PROTOMATTER_OK)
+    {
+      ram_data.type_vdrv = 0;
+      DBG_OUT_PORT.print(F("Failed initialize display - set it to 0..."));
+    }
+#endif
   }
 #endif
 }
