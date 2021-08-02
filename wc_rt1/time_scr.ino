@@ -47,7 +47,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 19:
       // 2LINEx16D
-      lcd_time();
+      lcd_time(rtc_data);
       break;
     case 20:
       // M32x8MONO

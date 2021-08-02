@@ -275,5 +275,4 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
       _repeat = true;
     }
   } while (_repeat);
-  f_dsp.utf8rus(out);
 }

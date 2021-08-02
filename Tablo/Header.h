@@ -71,12 +71,6 @@ rtc_data_t rtc_data;
 
 const uint8_t q_dig = 6;  // количество цифр на дисплее
 
-const uint8_t irq_q = 5;
-static uint8_t _st = 0;
-static unsigned long buff_ms, _sum = 120002L;
-unsigned long t3 = conf_data.period * 4000L;
-const unsigned long timers[irq_q] = {240000L, t3, 24, 3, 1}, base_t = 15L, _offset = trunc(base_t / irq_q + 1); // значения * base_t -> время в мс
-
 static uint8_t cur_sym_pos[3] = {0, 0, 0};
 static uint16_t buffud[64];
 static bool d_notequal[q_dig];

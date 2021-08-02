@@ -98,8 +98,8 @@ void a595_init()
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
 #elif defined(ARDUINO_ARCH_ESP32)
-    uint8_t rgbPins[] = {26, 25, 4, 13, 12, 33},
-                        addrPins[] = {2, 5, 18, 23, 19},
+    uint8_t rgbPins[] = {26, 25, 4, 13, 12, 19},
+                        addrPins[] = {2, 5, 18, 23, 33},
                                      clockPin   = 14, // Must be on same port as rgbPins
                                      latchPin   = 27,
                                      oePin      = 32,
@@ -120,11 +120,11 @@ void a595_init()
 
     m3216 = new Adafruit_Protomatter(
       wide,        // Matrix width in pixels
-      1,           // Bit depth -- 6 here provides maximum color options
+      6,           // Bit depth -- 6 here provides maximum color options
       1, rgbPins,  // # of matrix chains, array of 6 RGB pins for each
       naddr_pin, addrPins, // # of address pins (height is inferred), array of pins
       clockPin, latchPin, oePin, // Other matrix control pins
-      false);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
+      true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
 #endif
 
 #if defined(__AVR_ATmega2560__)
@@ -204,21 +204,22 @@ void pcf8574_init()
   lcd -> print (st1);
 }
 
-void lcd_time()
+void lcd_time(rtc_data_t rt)
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
-  lcd -> setCursor(0, 1);
-  bool _alarmed = rtc_data.a_hour < 24 && rtc_data.a_min < 59;
+  bool _alarmed = rt.a_hour < 24 && rt.a_min < 59;
 
-  byte _h = rtc_data.hour % 100, _m = rtc_data.min % 100, _s = rtc_data.sec % 100, ah = rtc_data.a_hour % 100, am = rtc_data.a_min % 100;
-  char msg[16];
+  uint8_t _h = rt.hour % 100, _m = rt.min % 100, _s = rt.sec % 100, ah = rt.a_hour % 100, am = rt.a_min % 100;
+  char msg[20];
+  memset (msg, 0, 16);
   sprintf_P(msg, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
   if (_alarmed)
   {
     sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
     if (conf_data.rus_lng) sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
   }
+  lcd -> setCursor(0, 1);
   lcd -> print(msg);
 }
 

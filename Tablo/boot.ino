@@ -1,9 +1,17 @@
 //#include ".\headers\fonts.h"
 #include "fonts.h"
 
+
 void irq_set()
 {
   //------------------------------------------------------ interrupts
+  static const uint8_t irq_q = 5;
+  static uint8_t _st = 0;
+  static unsigned long buff_ms, _sum = 120002L;
+  unsigned long t3 = conf_data.period * 4000L;
+  const unsigned long timers[irq_q] = {240000L, t3, 24, 3, 1}, base_t = 15L, _offset = trunc(base_t / irq_q + 1); // значения * base_t -> время в мс
+
+
   uint8_t irq = irq_q + 1;
 
   if (millis() >= buff_ms)

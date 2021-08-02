@@ -30,7 +30,7 @@
 void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, char);
 
 void pcf8574_init();
-void lcd_time();
+void lcd_time(rtc_data_t);
 void m7219_init();
 void m7219_ramFormer(byte*);
 void ht1632_init();
@@ -73,6 +73,7 @@ static bool end_run_st = false, m32_8time_act = false, blinkColon = false;
 
 static byte screen[64]; // display buffer
 static char st1[254];
+static char st2[20];
 
 //---------------------------------------------------------------------------HT1621
 #include <HT1621.h>

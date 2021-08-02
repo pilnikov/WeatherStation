@@ -85,6 +85,7 @@ void runing_string_start() // ---------------------------- Запуск бегу
   local_ip = myIP.toString();
 #endif
   memset(st1, 0, 254);
+  memset(st2, 0, 20);
 
   pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
   /*
@@ -93,6 +94,9 @@ void runing_string_start() // ---------------------------- Запуск бегу
     DBG_OUT_PORT.print(F("st1 = "));
     DBG_OUT_PORT.println(st1);
   */
+
+  if (conf_data.rus_lng & (ram_data.type_vdrv == 12)) f_dsp.lcd_rus(st1);
+  if (conf_data.rus_lng & (ram_data.type_vdrv != 12)) f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
   cur_sym_pos[1] = 0;
@@ -205,6 +209,23 @@ void firq7() // 0.180 sec Communications with server
     }
     ht1633->setBrightness(cur_br);
     ht1633->write();
+  }
+
+  if (ram_data.type_vdrv == 12)
+  {
+    if (conf_data.type_disp == 19)
+    {
+      if  (!nm_is_on & !end_run_st)
+      {
+        end_run_st = f_dsp.lcd_mov_str(16, cur_sym_pos[0], st1, st2);
+        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
+        else
+        {
+          lcd -> setCursor(0, 0);
+          lcd -> print(st2);
+        }
+      }
+    }
   }
 }
 

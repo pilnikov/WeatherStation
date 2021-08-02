@@ -133,7 +133,7 @@ void setup()
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
     memset(screen, 0, 64);
-//    ram_data.type_vdrv = 0;
+    //    ram_data.type_vdrv = 0;
 
     switch (ram_data.type_vdrv)
     {

@@ -266,7 +266,7 @@ void m3216_init()
   //GND B1 |  g  4
   //G2  R2 | 12 13
   //GND B2 |  g 33
-  //B   A  | 16  2
+  //B   A  |  5  2
   //D   C  | 23 18
   //LAT CLK| 27 14
   //GND OE |  g 32
