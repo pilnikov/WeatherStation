@@ -205,10 +205,11 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
 
   prog.press_min = (prog.press_max - 43) / 1.3332239; // перевод в мм.рт.ст
 
-  time_t dt = root["dt"];
-
-  prog.day = day(dt);
-  prog.month = month(dt);
+  uint32_t pdt = root["dt"];
+  RtcDateTime dt = RtcDateTime(pdt);
+ 
+  prog.day = dt.Day();
+  prog.month = dt.Month();
 
   prog.wind_dir = rumb_conv(dir);
 
@@ -378,7 +379,7 @@ String radio_snd(String cmd)
 void GetNtp()
 {
   bool result = false;
-  RtcDateTime cur_time  = RtcDateTime(__DATE__, __TIME__);
+  RtcDateTime c_time  = RtcDateTime(rtc_data.ct);
 
   DBG_OUT_PORT.println(F("True sync time with NTP"));
   if (web_cli)
@@ -386,42 +387,25 @@ void GetNtp()
     dmsg.callback(conf_data.type_disp, 0, 0, conf_data.rus_lng);; //сообщение на индикатор
 
     IPAddress addr(89, 109, 251, 21);
-    cur_time = NTP_t.getTime(addr, conf_data.time_zone);
-    if (cur_time.Year() < 2021)
+    c_time = NTP_t.getTime(addr, conf_data.time_zone);
+    if (c_time.Year() < 2021)
     {
       IPAddress addr(10, 98, 34, 10);
-      cur_time = NTP_t.getTime(addr, conf_data.time_zone);
+      c_time = NTP_t.getTime(addr, conf_data.time_zone);
     }
-    if (cur_time.Year() < 2021)
+    if (c_time.Year() < 2021)
     {
       IPAddress addr(88, 212, 196, 95);
-      cur_time = NTP_t.getTime(addr, conf_data.time_zone);
+      c_time = NTP_t.getTime(addr, conf_data.time_zone);
     }
-    if (cur_time.Year() > 2020)
+    if (c_time.Year() > 2020)
     {
-      setTime(cur_time);
-
-      RtcDateTime cur_time1 = RtcDateTime(cur_time.Year() - 30, cur_time.Month(), cur_time.Day(), cur_time.Hour(), cur_time.Minute(), cur_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го
-
-      //----------------------------------------set time to chip dsXXXX
-      switch (ram_data.type_rtc)
-      {
-        case 1:
-          ds3231 -> SetDateTime(cur_time1);
-          break;
-        case 2:
-          ds1302 -> SetDateTime(cur_time1);
-          break;
-        case 3:
-          ds1307 -> SetDateTime(cur_time1);
-          break;
-      }
+      RtcDateTime c_time1 = RtcDateTime(c_time.Year() - 30, c_time.Month(), c_time.Day(), c_time.Hour(), c_time.Minute(), c_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го
       result = true;
+      man_set_time(c_time1);
     }
     if (result) dmsg.callback(conf_data.type_disp, 0, 1, conf_data.rus_lng); //сообщение на индикатор
     else dmsg.callback(conf_data.type_disp, 0, 2, conf_data.rus_lng); //сообщение на индикатор
-
-    set_alarm();  //актуализируем будильники
   }
   if (result)   DBG_OUT_PORT.println(F("Sucsess !!!"));
   else   DBG_OUT_PORT.println(F("Failed !!!"));
@@ -442,7 +426,7 @@ void keyb_read()
     disp_mode++; // меняем содержимое экрана на 7ми сегментных индикаторах
     if (disp_mode > 12) disp_mode = 0;
 
-    max_st = 5;
+    max_st = 6;
     runing_string_start(); //Запуск бегущей строки;
 
     but0_press = but0_pressed;

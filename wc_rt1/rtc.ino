@@ -29,7 +29,9 @@ void rtc_init()
 #endif
       break;
     case 2:
-      ds1302_init();
+      //ThreeWire myTWire (conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
+      myTWire = new ThreeWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
+      //  ds1302 = new RtcDS1302<ThreeWire> (myTWire);
       break;
 
     case 3:
@@ -39,28 +41,7 @@ void rtc_init()
       ds1307 -> SetSquareWavePin(DS1307SquareWaveOut_Low);
       break;
   }
-  rtc_check();
 
-  //-------------Refresh current time in rtc_data------------------
-  rtc_data.hour      = hour();         // Текущее время. Час.
-  rtc_data.min       = minute();       // Текущее время. Минута.
-  rtc_data.sec       = second();       // Текущее время. Секунда.
-  rtc_data.day       = day();          // Текущее время. День.
-  rtc_data.wday      = weekday();      // Текущее время. День недели.
-  rtc_data.month     = month();        // Текущее время. Месяц.
-  rtc_data.year      = year();         // Текущее время. Год.
-}
-
-void ds1302_init()
-{
-  //ThreeWire myTWire (conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
-  myTWire = new ThreeWire(conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
-
-  //  ds1302 = new RtcDS1302<ThreeWire> (myTWire);
-}
-
-void rtc_check()
-{
   if (debug_level == 13) DBG_OUT_PORT.print(F("compiled: "));
   if (debug_level == 13) DBG_OUT_PORT.print(__DATE__);
   if (debug_level == 13) DBG_OUT_PORT.println(__TIME__);
@@ -69,16 +50,11 @@ void rtc_check()
 
   RtcDateTime _now = compiled;
 
+  if (debug_level == 13) DBG_OUT_PORT.println(F("Starting RTC check"));
 
   switch (ram_data.type_rtc)
   {
     case 1:
-
-      //--------RTC SETUP ------------
-      // if you are using ESP-01 then uncomment the line below to reset the pins to
-      // the available pins for SDA, SCL
-      // Wire.begin(0, 2); // due to limited pins, use pin 0 and 2 for SDA, SCL
-
       ds3231 -> Begin();
 
       if (!ds3231 -> IsDateTimeValid())
@@ -88,8 +64,11 @@ void rtc_check()
           // we have a communications error
           // see https://www.arduino.cc/en/Reference/WireEndTransmission for
           // what the number means
-          if (debug_level == 13) DBG_OUT_PORT.print(F("RTC communications error = "));
-          if (debug_level == 13) DBG_OUT_PORT.println(ds3231 -> LastError());
+          if (debug_level == 13)
+          {
+            DBG_OUT_PORT.print(F("RTC communications error = "));
+            DBG_OUT_PORT.println(ds3231 -> LastError());
+          }
         }
         else
         {
@@ -102,7 +81,6 @@ void rtc_check()
           // following line sets the RTC to the date & time this sketch was compiled
           // it will also reset the valid flag internally unless the Rtc device is
           // having an issue
-
           ds3231 -> SetDateTime(compiled);
         }
       }
@@ -114,27 +92,9 @@ void rtc_check()
       }
 
       _now = ds3231 -> GetDateTime();
-      if (_now < compiled)
-      {
-        DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
-        ds3231 -> SetDateTime(compiled);
-      }
-      else if (_now > compiled)
-      {
-        DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
-      }
-      else if (_now == compiled)
-      {
-        DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
-      }
-
-      // never assume the Rtc was last configured by you, so
-      // just clear them to your needed state
-      setDateTime(_now);
       break;
 
     case 2:
-      if (debug_level == 13) DBG_OUT_PORT.println(F("Starting RTC check"));
       if (!ds1302 -> GetIsRunning())
       {
         if (debug_level == 13) DBG_OUT_PORT.println(F("RTC was not actively running, starting now"));
@@ -143,38 +103,14 @@ void rtc_check()
 
       if (!ds1302 -> IsDateTimeValid())
       {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC Time is not valid!"));
-        // Common Causes:
-        //    1) first time you ran and the device wasn't running yet
-        //    2) the battery on the device is low or even missing
-
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC lost confidence in the DateTime!"));
-
-        // following line sets the RTC to the date & time this sketch was compiled
-        // it will also reset the valid flag internally unless the Rtc device is
-        // having an issue
-
+        if (debug_level == 13)
+        {
+          DBG_OUT_PORT.println(F("RTC Time is not valid!"));
+          DBG_OUT_PORT.println(F("RTC lost confidence in the DateTime!"));
+        }
         ds1302 -> SetDateTime(compiled);
       }
-
       _now = ds1302 -> GetDateTime();
-      if (_now < compiled)
-      {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
-        ds1302 -> SetDateTime(compiled);
-      }
-      else if (_now > compiled)
-      {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
-      }
-      else if (_now == compiled)
-      {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
-      }
-
-      // never assume the Rtc was last configured by you, so
-      // just clear them to your needed state
-      setDateTime(_now);
       break;
 
     case 3:
@@ -187,40 +123,45 @@ void rtc_check()
 
       if (!ds1307 -> IsDateTimeValid())
       {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC Time is not valid!"));
-        // Common Causes:
-        //    1) first time you ran and the device wasn't running yet
-        //    2) the battery on the device is low or even missing
-
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC lost confidence in the DateTime!"));
-
-        // following line sets the RTC to the date & time this sketch was compiled
-        // it will also reset the valid flag internally unless the Rtc device is
-        // having an issue
-
-        ds1307 -> SetDateTime(compiled);
+        if (debug_level == 13)
+        {
+          DBG_OUT_PORT.println(F("RTC Time is not valid!"));
+          DBG_OUT_PORT.println(F("RTC lost confidence in the DateTime!"));
+        }
+        ds1302 -> SetDateTime(compiled);
       }
-
       _now = ds1307 -> GetDateTime();
-      if (_now < compiled)
-      {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
-        ds1307 -> SetDateTime(compiled);
-      }
-      else if (_now > compiled)
-      {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
-      }
-      else if (_now == compiled)
-      {
-        if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
-      }
-
-      // never assume the Rtc was last configured by you, so
-      // just clear them to your needed state
-      setDateTime(_now);
       break;
   }
+
+  if (_now < compiled)
+  {
+    if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is older than compile time!  (Updating DateTime)"));
+    switch (ram_data.type_rtc)
+    {
+      case 1:
+        ds3231 -> SetDateTime(compiled);
+        break;
+      case 2:
+        ds1302 -> SetDateTime(compiled);
+        break;
+      case 3:
+        ds1307 -> SetDateTime(compiled);
+        break;
+    }
+  }
+  else if (_now > compiled)
+  {
+    if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is newer than compile time. (this is expected)"));
+  }
+  else if (_now == compiled)
+  {
+    if (debug_level == 13) DBG_OUT_PORT.println(F("RTC is the same as compile time! (not expected but all is fine)"));
+  }
+
+  // never assume the Rtc was last configured by you, so
+  // just clear them to your needed state
+  man_set_time(_now);
 }
 
 void set_alarm() //Устанавливаем будильник
@@ -248,10 +189,10 @@ void set_alarm() //Устанавливаем будильник
 
   for (uint8_t j = 0; j <= 6; j++) //Ищем ближайший актуальный будильник
   {
-    bool snday = (weekday() > 6 || weekday() < 2); //Сегодня выходной
+    bool snday = (rtc_data.wday > 6 || rtc_data.wday < 2); //Сегодня выходной
     if (conf_data.alarms[j][0] > 0 //будильник актививен
         && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || (conf_data.alarms[j][0] == 3 && snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
-        && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] > (uint16_t)hour() * 60 + minute()                 //минут будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
+        && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] > (uint16_t)rtc_data.hour * 60 + rtc_data.min                 //минут будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
         && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] <= (uint16_t)rtc_data.a_hour * 60 + rtc_data.a_min //минут будильника <= текущих минут актуального будильника (выбор ближайшего)
        )
     {
@@ -262,7 +203,7 @@ void set_alarm() //Устанавливаем будильник
       rtc_data.alarm = true;
     }
     //----------------------------------------------------------------------поиск самого раннего будильника
-    snday = ((weekday() + 1) > 6); //А не выходной ли завтра?
+    snday = ((rtc_data.wday + 1) > 6); //А не выходной ли завтра?
     if (conf_data.alarms[j][0] > 0 //будильник актививен
         && ((conf_data.alarms[j][0] == 1 || (conf_data.alarms[j][0] == 2) & !snday) || ((conf_data.alarms[j][0] == 3) & snday) || conf_data.alarms[j][0] == 4) //проверка на соответствие типу
         && (uint16_t)conf_data.alarms[j][1] * 60 + conf_data.alarms[j][2] < amin
@@ -272,7 +213,7 @@ void set_alarm() //Устанавливаем будильник
       nmin = j;
     }
   }
-  if (!rtc_data.alarm && nmin < 7 && (int)conf_data.alarms[nmin][1] * 60 + conf_data.alarms[nmin][2] < (int)hour() * 60 + minute())
+  if (!rtc_data.alarm && nmin < 7 && (int)conf_data.alarms[nmin][1] * 60 + conf_data.alarms[nmin][2] < (int)rtc_data.hour * 60 + rtc_data.min)
   {
     rtc_data.n_cur_alm = nmin;
     rtc_data.a_hour = conf_data.alarms[rtc_data.n_cur_alm][1];
@@ -282,42 +223,34 @@ void set_alarm() //Устанавливаем будильник
   }
   if (debug_level == 13) DBG_OUT_PORT.printf("alarm is... %02u : %02u  melody # %02u\n", rtc_data.a_hour, rtc_data.a_min, rtc_data.a_muz);
 
-  if (ram_data.type_rtc == 1) ds3231_write();
-  //------------------------------------------------------------------------------------ Верифицируем ночной режим
-}
-
-void setDateTime(const RtcDateTime& dt)
-{
-  setTime(dt.Hour(), dt.Minute(), dt.Second(), dt.Day(), dt.Month(), dt.Year());
-}
-
-
-void ds3231_write()
-{
-  if (rtc_data.alarm)
+  if (ram_data.type_rtc == 1)
   {
-    // Alarm 1 set to trigger every day when
-    // the hours, minutes, and seconds match
-    DS3231AlarmOne alarm1(0, rtc_data.a_hour, rtc_data.a_min, 0, DS3231AlarmOneControl_HoursMinutesSecondsMatch);
-    ds3231 -> SetAlarmOne(alarm1);
-  }
-  // Alarm 2 set to trigger at the top of the hour
-  DS3231AlarmTwo alarm2(0, 0, 0, DS3231AlarmTwoControl_MinutesMatch);
-  ds3231 -> SetAlarmTwo(alarm2);
+    if (rtc_data.alarm)
+    {
+      // Alarm 1 set to trigger every day when
+      // the hours, minutes, and seconds match
+      DS3231AlarmOne alarm1(0, rtc_data.a_hour, rtc_data.a_min, 0, DS3231AlarmOneControl_HoursMinutesSecondsMatch);
+      ds3231 -> SetAlarmOne(alarm1);
+    }
+    // Alarm 2 set to trigger at the top of the hour
+    DS3231AlarmTwo alarm2(0, 0, 0, DS3231AlarmTwoControl_MinutesMatch);
+    ds3231 -> SetAlarmTwo(alarm2);
 
-  // throw away any old alarm state before we ran
-  ds3231 -> LatchAlarmsTriggeredFlags();
+    // throw away any old alarm state before we ran
+    ds3231 -> LatchAlarmsTriggeredFlags();
+  }
 }
+
 
 bool Alarmed()
 {
-  bool wasAlarmed = false, wasAlarmed_int = false, wasAlarmed_oth = false, al1_int = false, al2_int = false, al1_oth = false, al2_oth = false;
+  bool wasAlarmed = false, al1_int = false, al2_int = false, al1_oth = false, al2_oth = false;
 
   if (ram_data.type_rtc == 1)
   {
-    if (interuptFlag_int)  // check our flag that gets sets in the interupt
+    if (wasAlarmed_int)  // check our flag that gets sets in the interupt
     {
-      interuptFlag_int = false; // reset the flag
+      wasAlarmed_int = false; // reset the flag
 
       // this gives us which alarms triggered and
       // then allows for others to trigger again
@@ -325,21 +258,13 @@ bool Alarmed()
 
       if (flag & DS3231AlarmFlag_Alarm1) al1_int = true; //Сработал будильник №1
       if (flag & DS3231AlarmFlag_Alarm2) al2_int = true; //Сработал будильник №2
-      wasAlarmed_int = (al1_int || al2_int);
     }
   }
   else
   {
-    if (!interuptFlag_oth)  // check our flag that gets sets in the interupt
-    {
-      al1_oth = ((hour() == rtc_data.a_hour) & (minute() == rtc_data.a_min)); //Сработал будильник №1
-      al2_oth = ((minute() == 0) & (second() == 0));                          //Сработал будильник №2
-      wasAlarmed_oth = (al1_oth || al2_oth);
-      interuptFlag_oth = wasAlarmed_oth; // set the flag
-    }
+    al1_oth = ((rtc_data.hour == rtc_data.a_hour) & (rtc_data.min == rtc_data.a_min) & (rtc_data.sec == 0)); //Сработал будильник №1
+    al2_oth = ((rtc_data.min == 0) & (rtc_data.sec == 0));                                                   //Сработал будильник №2
   }
-
-  interuptFlag_oth = ((hour() == rtc_data.a_hour) || (minute() == rtc_data.a_min) || (minute() == 0) || (second() == 0));
 
   if (al1_int || al1_oth) //Сработал будильник №1
   {
@@ -437,14 +362,12 @@ bool Alarmed()
     }
   }
 
-  wasAlarmed = (wasAlarmed_int || wasAlarmed_oth); // Сработал один из будильников
+  wasAlarmed = (al1_int || al1_oth || al2_int || al2_oth); // Сработал один из будильников
   return wasAlarmed;
 }
 
-void man_set_time(const RtcDateTime & dt)
+void man_set_time(const RtcDateTime &dt)
 {
-  setTime(dt.Hour(), dt.Minute(), dt.Second(), dt.Day(), dt.Month(), dt.Year());
-
   switch (ram_data.type_rtc)
   {
     case 1:
@@ -456,26 +379,57 @@ void man_set_time(const RtcDateTime & dt)
     case 3:
       ds1307 -> SetDateTime(dt);
       break;
+    default:
+      rtc_data.ct = dt;
+      break;
   }
+  GetTime();
   set_alarm();
 }
 
-#if defined(__xtensa__)
-void IRAM_ATTR InteruptServiceRoutine()
-#elif defined (__AVR__)
-void ISR_ATTR InteruptServiceRoutine()
-#endif
+void GetTime()
 {
-  // since this interupted any other running code,
-  // don't do anything that takes long and especially avoid
-  // any communications calls within this routine
-  interuptCount++;
-  interuptFlag_int = true;
+  if (millis() - prev_ms >= 1000)
+  {
+    rtc_data.ct++;
+    prev_ms += 1000;
+  }
+  RtcDateTime dt = RtcDateTime(rtc_data.ct);
+  switch (ram_data.type_rtc)
+  {
+    case 1:
+      dt = ds3231 -> GetDateTime();
+      break;
+    case 2:
+      dt = ds1302 -> GetDateTime();
+      break;
+    case 3:
+      dt = ds1307 -> GetDateTime();
+      break;
+  }
+
+  rtc_data.hour = dt.Hour();
+  rtc_data.min = dt.Minute();
+  rtc_data.sec = dt.Second();
+  rtc_data.wday = dt.DayOfWeek() + 1;
+  rtc_data.month = dt.Month();
+  rtc_data.day = dt.Day();
+  rtc_data.year = dt.Year(); //костыль
 }
 
-#if defined(ARDUINO_ARCH_ESP32)
-void IRAM_ATTR isr() {
-  interuptCount++;
-  interuptFlag_int = true;
+#if defined(ESP8266)
+void IRAM_ATTR InteruptServiceRoutine()
+{
+  wasAlarmed_int = true;
+}
+#elif defined(__AVR__)
+void ISR_ATTR InteruptServiceRoutine()
+{
+  wasAlarmed_int = true;
+}
+#elif defined(ARDUINO_ARCH_ESP32)
+void ARDUINO_ISR_ATTR isr() 
+{
+  wasAlarmed_int = true;
 }
 #endif

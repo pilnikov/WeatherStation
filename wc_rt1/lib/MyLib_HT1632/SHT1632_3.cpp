@@ -79,25 +79,21 @@ int HT1632C::init()
 
   pinMode(clk_pin, OUTPUT);
   pinMode(cs_pin, OUTPUT);
-
-  sendCmdonInit();
-
-  clear();
-  sendFrame();
-  return 0;
-}
-
-
-void HT1632C::sendCmdonInit()
-{
-  // init display
+ 
+ // init display
+ 
   sendCmd(CS_ALL, COMMAND_CODE::SYSDIS);
   sendCmd(CS_ALL, COMMAND_CODE::COMS00);
   sendCmd(CS_ALL, COMMAND_CODE::MSTMD);
   sendCmd(CS_ALL, COMMAND_CODE::RCCLK);
   sendCmd(CS_ALL, COMMAND_CODE::SYSON);
   sendCmd(CS_ALL, COMMAND_CODE::LEDON);
- }
+
+  clear();
+  sendFrame();
+  return 0;
+}
+
 
 int HT1632C::getWidth()
 {
@@ -159,12 +155,6 @@ void HT1632C::ramSet(byte *in, uint8_t in_size)
 void HT1632C::sendFrame()
 {
   for (int chip = 1; chip <= num_chips; ++chip) {
-	sendCmd(chip, COMMAND_CODE::SYSDIS);
-	sendCmd(chip, COMMAND_CODE::COMS00);
-//	sendCmd(chip, COMMAND_CODE::MSTMD);
-//	sendCmd(chip, COMMAND_CODE::RCCLK);
-	sendCmd(chip, COMMAND_CODE::SYSON);
-	sendCmd(chip, COMMAND_CODE::LEDON);
 	chipSelect(chip);
     for (uint8_t addr = 0; addr < chip_size; addr++)
     # if defined(__xtensa__)

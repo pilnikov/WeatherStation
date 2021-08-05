@@ -210,7 +210,6 @@
 
 #define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
-#include <TimeLib.h>
 #include <Wire.h>
 #include <SPI.h>
 

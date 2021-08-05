@@ -262,8 +262,8 @@ void loop()
     keyb_read();
 
     //------------------------------------------------------  Верифицируем ночной режим
-    if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (hour() >= conf_data.nm_start && hour() < conf_data.nm_stop);
-    else nm_is_on = (hour() >= conf_data.nm_start || hour() < conf_data.nm_stop);
+    if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (rtc_data.hour >= conf_data.nm_start && rtc_data.hour < conf_data.nm_stop);
+    else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
     //------------------------------------------------------  Нормализуем загрузку
     if (millis() > 5000)
     {
@@ -271,6 +271,7 @@ void loop()
       {
         conf_data.boot_mode = 2;
         saveConfig(conf_f, conf_data);
+        test_boot = false;
       }
     }
   }

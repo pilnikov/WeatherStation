@@ -41,14 +41,14 @@ void irq_set()
       break;
 
     case 1: // once per every 3 minute
-      rtc_check();
       break;
+
     case 2: // conf_data.period * 1 minute
       snr_data = GetSnr(ram_data, conf_data);
       break;
 
     case 3: // 55 sec
-      max_st = 4;
+      max_st = 5;
       if (end_run_st) runing_string_start(); //Запуск бегущей строки;
       break;
 
@@ -126,13 +126,7 @@ void firq6() // 0.5 sec main cycle
 {
   //-------------Refresh current time in rtc_data------------------
 
-  rtc_data.hour      = hour();         // Текущее время. Час.
-  rtc_data.min       = minute();       // Текущее время. Минута.
-  rtc_data.sec       = second();       // Текущее время. Секунда.
-  rtc_data.day       = day();          // Текущее время. День.
-  rtc_data.wday      = weekday();      // Текущее время. День недели.
-  rtc_data.month     = month();        // Текущее время. Месяц.
-  rtc_data.year      = year();         // Текущее время. Год.
+  GetTime();
 
   if (disp_on)
   {
@@ -279,7 +273,7 @@ void firq9() //0.030 sec running string is out switch to time view
       if (conf_data.type_disp == 22)
       {
         //ORANGE = 3 GREEN = 1
-        ht1632_ramFormer(screen, 3, 1);
+        ht1632_ramFormer(screen, 1, 3);
         m1632 -> pwm(cur_br);
         m1632 -> sendFrame();
       }

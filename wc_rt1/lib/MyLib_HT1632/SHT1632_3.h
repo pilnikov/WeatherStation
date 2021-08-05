@@ -63,7 +63,6 @@ class HT1632C {
     void setPanelWidth(uint8_t width);
     void setPanelHeight(uint8_t height);
 
-    void sendCmdonInit();
     int  getWidth();
     int  getHeight();
     void ledOn();
