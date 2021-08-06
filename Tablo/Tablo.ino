@@ -20,18 +20,8 @@ void setup() {
   DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(ram_data.type_rtc);
 
-  //------------------------------------------------------  Записывваем текущее время в rtc_data
-  if (ram_data.type_rtc > 0) _now = DS3231.GetDateTime();
-  else _now = RtcDateTime(__DATE__, __TIME__);
-
-  rtc_data.hour = _now.Hour();
-  rtc_data.min = _now.Minute();
-  rtc_data.sec = _now.Second();
-  rtc_data.wday = _now.DayOfWeek() + 1;
-  rtc_data.month = _now.Month();
-  rtc_data.day = _now.Day();
-  rtc_data.year = _now.Year(); //костыль
-
+  //------------------------------------------------------  Получаем текущее время
+  GetTime();
   DBG_OUT_PORT.print(F("Current time is "));
   DBG_OUT_PORT.println(cur_time_str(rtc_data));
 
@@ -62,14 +52,6 @@ void setup() {
   //------------------------------------------------------  Инициализируем GPIO
   pinMode(conf_data.gpio_btn, INPUT_PULLUP);
   if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
-
-  DBG_OUT_PORT.print(F("GPIO for LED..."));
-  DBG_OUT_PORT.println(conf_data.gpio_led);
-  DBG_OUT_PORT.print(F("LED Pola..."));
-  DBG_OUT_PORT.println(conf_data.led_pola);
-  DBG_OUT_PORT.print(F("Thermo..."));
-  DBG_OUT_PORT.println(conf_data.type_thermo);
-
   pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
   if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5))  digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); //Включаем светодиод
 
@@ -88,14 +70,6 @@ void setup() {
 
   //-------------------------------------------------------  Опрашиваем датчики
   GetSnr();
-
-  if (snr_data.t1 == 99) snr_data.t1 = 11;
-  if (snr_data.t2 == 99) snr_data.t2 = 22;
-  if (snr_data.t3 == 99) snr_data.t3 = -33;
-  if (snr_data.h1 == 0) snr_data.h1 = 41;
-  if (snr_data.h2 == 0) snr_data.h2 = 42;
-  if (snr_data.h3 == 0) snr_data.h3 = 43;
-  if (snr_data.p == 700) snr_data.p = 728;
 
   //-------------------------------------------------------- Устанавливаем будильники
   set_alarm();
@@ -122,13 +96,6 @@ void setup() {
   //synchro();
 
   //-------------------------------------------------------- Гасим светодиод
-  DBG_OUT_PORT.print(F("GPIO for LED..."));
-  DBG_OUT_PORT.println(conf_data.gpio_led);
-  DBG_OUT_PORT.print(F("LED Pola..."));
-  DBG_OUT_PORT.println(conf_data.led_pola);
-  DBG_OUT_PORT.print(F("Thermo..."));
-  DBG_OUT_PORT.println(conf_data.type_thermo);
-
   if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5))   digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску

@@ -33,7 +33,6 @@ void irq_set()
   switch (irq)
   {
     case 0: // one per hour
-      rtc_check();
       break;
 
     case 1: // one per 10 min
@@ -95,12 +94,12 @@ void runing_string_start()
   memset(st1, 0, 254);
 
   pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
-
+/*
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
   DBG_OUT_PORT.print(F("st1 = "));
   DBG_OUT_PORT.println(st1);
-
+*/
   f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
@@ -111,17 +110,8 @@ void runing_string_start()
 
 void firq2() // 0.5 sec main cycle
 {
-  if (ram_data.type_rtc > 0) _now = DS3231.GetDateTime();
-  else _now = RtcDateTime(__DATE__, __TIME__);
-
-  rtc_data.hour = _now.Hour();
-  rtc_data.min = _now.Minute();
-  rtc_data.sec = _now.Second();
-  rtc_data.wday = _now.DayOfWeek() + 1;
-  rtc_data.month = _now.Month();
-  rtc_data.day = _now.Day();
-  rtc_data.year = _now.Year(); //костыль
-
+  GetTime();
+  
   if (disp_on)
   {
     //-------------------------------------------------------- Регулируем яркость дисплея

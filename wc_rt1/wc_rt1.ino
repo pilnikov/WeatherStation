@@ -62,13 +62,17 @@ void setup()
     nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
 
     MDNS.begin(conf_data.ap_ssid);
-    DBG_OUT_PORT.printf("Open http://%s", conf_data.ap_ssid);
+    DBG_OUT_PORT.print(F("Open http://"));
+    DBG_OUT_PORT.print(conf_data.ap_ssid);
     DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
 
     web_setup();
     start_serv();
   }
 #endif
+
+  DBG_OUT_PORT.print(F("boot mode is..."));
+  DBG_OUT_PORT.println(conf_data.boot_mode);
   //conf_data.boot_mode = 0;
   //------------------------------------------------------  Начинаем инициализацию Hardware
   if (conf_data.boot_mode > 0)
@@ -175,23 +179,13 @@ void setup()
     if (web_cli || web_ap)
     {
       //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
-      if (ram_data.type_rtc == 0 && web_cli)
-      {
-        GetNtp();
-      }
+      if (ram_data.type_rtc == 0 && web_cli) GetNtp();
 
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
-      if (conf_data.use_pp == 1 && web_cli)
-      {
-        wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-      }
-
+      if (conf_data.use_pp == 1 && web_cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
 
       //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
-      if (conf_data.use_pp == 2 && web_cli)
-      {
-        wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
-      }
+      if (conf_data.use_pp == 2 && web_cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();

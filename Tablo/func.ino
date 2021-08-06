@@ -382,7 +382,7 @@ void GetSnr()
 
   ram_data.temp_rtc = 99;
 
-  RtcTemperature t1 = DS3231.GetTemperature();
+  RtcTemperature t1 = ds3231 -> GetTemperature();
   ram_data.temp_rtc = round(t1.AsFloatDegC());
 
   snr_data = sens.read_snr(ram_data.type_snr1, ram_data.type_snr2, ram_data.type_snr3, ram_data.type_snrp, ram_data.temp_rtc, es_data1, es_data1, es_data1, wf_data_cur); // Заполняем матрицу данных с датчиков

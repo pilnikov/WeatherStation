@@ -416,13 +416,6 @@ uint8_t FD::auto_br(uint16_t lt, conf_data_t cf)
   if (dx < 0)   br = dy / dx * ltt + (float)cf.br_level[3];
 
   c_br = constrain(br, cf.br_level[2], cf.br_level[3]);
-  /*
-    DBG_OUT_PORT.print(F("brightness before..."));
-    DBG_OUT_PORT.println(br);
-
-    DBG_OUT_PORT.print(F("brightness ..."));
-    DBG_OUT_PORT.println(c_br);
-  */
   return c_br;
 }
 
@@ -544,5 +537,32 @@ void HT::ala(uint8_t num, byte *in) //Будильник
     case 3:
       in[0] |= 0x2;
       break;
+  }
+}
+
+/*
+   Scroll a string across displays
+   Includes fade in where string starts on right-most display preceded by blank space
+   and scrolls left. This also includes a fade out where characters travel off the left
+   display followed by blank space
+*/
+bool FD::lcd_mov_str(uint8_t window_wdt, uint8_t &stringIndex, char *in, char *out)
+{
+  stringIndex++;
+  
+  if (stringIndex > strlen(in) + window_wdt)
+  {
+    stringIndex = 0;
+	return true;
+  }
+  else
+  {
+	for (uint8_t posIdx = 0; posIdx < window_wdt; posIdx++)
+	{
+		uint8_t i = stringIndex + posIdx - window_wdt;
+		out[posIdx] = ' ';
+		if ((i >= 0) & (i < strlen(in))) out[posIdx] = in[i]; //front
+	}
+	return false;
   }
 }
