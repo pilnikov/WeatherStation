@@ -207,7 +207,7 @@ wf_data_t getOWM_forecast(unsigned long cityID, char weatherKey[32])
 
   uint32_t pdt = root["dt"];
   RtcDateTime dt = RtcDateTime(pdt);
- 
+
   prog.day = dt.Day();
   prog.month = dt.Month();
 
@@ -415,74 +415,94 @@ void GetNtp()
 //------------------------------------------------------  Обрабатываем клавиатуру
 void keyb_read()
 {
-  bool but0_pressed = !digitalRead(conf_data.gpio_btn); // false - кнопка нажата
-  static bool but0_press;
-  static unsigned long setting_ms;
+  btn_released = btn_state_flag & digitalRead(conf_data.gpio_btn);
+  if (btn_state_flag & !digitalRead(conf_data.gpio_btn)) tmr_started = true;
+  if (btn_released) tmr_started = false;
+  btn_state_flag = false;
 
-  if (but0_pressed & !but0_press) setting_ms = millis(); // Нажимаем кнопку - запускаем таймер, начинаем отсчет времени удержания
-
-  if (!but0_pressed & but0_press & (millis() - setting_ms > 150) & (millis() - setting_ms < 400)) // держим от 0,15 до 0,4 сек
+  if (btn_released & (millis() - setting_ms > 150) & (millis() - setting_ms < 2000)) // держим от 0,15 до 2 сек
   {
     disp_mode++; // меняем содержимое экрана на 7ми сегментных индикаторах
     if (disp_mode > 12) disp_mode = 0;
-
     max_st = 6;
     runing_string_start(); //Запуск бегущей строки;
-
-    but0_press = but0_pressed;
   }
 
 #if defined(__xtensa__)
   bool serv_act = (web_cli || web_ap);
-
-  if (but0_pressed && !serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 3 && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  // Включаем светодиод
-  if (but0_pressed &&  serv_act && millis() - setting_ms > 2000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 3 && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Выключаем светодиод
-  if (but0_pressed && millis() - setting_ms > 9000 && conf_data.type_thermo == 0  && ram_data.type_vdrv != 3 && ram_data.type_vdrv != 5) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
-
-  if (!but0_pressed && but0_press && !serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)
+  if (btn_released & (millis() - setting_ms > 2000 && millis() - setting_ms < 9000)) // держим от 2 до 9 сек
   {
-    serv_ms = millis();
-    start_serv();  // держим от 2 до 9 сек - Запускаем web морду
-    but0_press = but0_pressed;
+    if (!serv_act)
+    {
+      serv_ms = millis();
+      start_serv();  //Запускаем web морду
+      if ((conf_data.type_thermo == 0)  & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Включаем светодиод
+    }
+    else
+    {
+      serv_ms = millis() + 60000L;
+      stop_serv();  //Останавливаем web морду
+      if ((conf_data.type_thermo == 0)  & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
+    }
   }
 
-  if (!but0_pressed && but0_press && serv_act && millis() - setting_ms > 2000 && millis() - setting_ms < 9000)
-  {
-    serv_ms = millis() + 60000L;
-    stop_serv();  // держим от 2 до 9 сек - Останавливаем web морду
-    but0_press = but0_pressed;
-  }
-  if (!but0_pressed && but0_press && millis() - setting_ms > 9000 && millis() - setting_ms < 15000)
-  {
-    DBG_OUT_PORT.println(F("Reboot esp..."));
-    ESP.restart();// держим от 9 до 15 сек - Перезапускаемся
-  }
 #endif
+  if ((millis() - setting_ms > 9000) & (conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
 
-  if (but0_pressed && millis() - setting_ms > 15000)                // держим больше 15 сек - сбрасываем усе на дефолт
+  if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000)) //держим от 9 до 15 сек
   {
-    if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot..."));
+#if defined(__xtensa__)
+    stop_serv();
+    DBG_OUT_PORT.println(F("Reboot ESPp..."));
+    ESP.restart();                                                                      //Перезагружаемся
+#elif defined(__AVR__)
+    DBG_OUT_PORT.println(F("Reboot Mega..."));
+    resetFunc();
+#endif
+  }
+
+  if (btn_released & (millis() - setting_ms > 15000))                  //держим больше 15 сек
+  {
+    if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot...")); //Cбрасываем усе на дефолт и перезагружаемся
     conf_data = defaultConfig();
     saveConfig(conf_f, conf_data);
 
-#if defined(__AVR_ATmega2560__)
-    DBG_OUT_PORT.println(F("Reboot mega..."));
-    delay(500);
+#if defined(__xtensa__)
+    stop_serv();
+    DBG_OUT_PORT.println(F("Reboot ESP..."));
+    ESP.restart();
+#elif defined(__AVR_ATmega2560__)
+    DBG_OUT_PORT.println(F("Reboot Mega..."));
     resetFunc();
 #endif
-
-#if defined(__xtensa__)
-    WiFi.disconnect();
-    WiFi.mode(WIFI_OFF);
-    delay(100);
-    //ESP.reset();
-    DBG_OUT_PORT.println(F("Reboot esp..."));
-    delay(500);
-    ESP.restart();
-#endif
   }
-  but0_press = but0_pressed;
+  if (millis() - setting_ms > 20000) tmr_started = false;
+  if (!tmr_started) setting_ms = millis();
+  if (tmr_started)
+  {
+    DBG_OUT_PORT.print(F("Timer ..."));
+    DBG_OUT_PORT.println(millis() - setting_ms);
+  }
 }
+
+#if defined(ESP8266)
+void IRAM_ATTR isr1() //Отпускаем кнопку
+{
+  btn_state_flag = true;
+}
+
+#elif defined(__AVR__)
+void ISR_ATTR isr1() //Отпускаем кнопку
+{
+  btn_state_flag = true;
+}
+
+#elif defined(ARDUINO_ARCH_ESP32)
+void ARDUINO_ISR_ATTR isr1() //Отпускаем кнопку
+{
+  btn_state_flag = true;
+}
+#endif
 
 //------------------------------------------------------  Отправляем данные по USART
 String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_data_t rt, uint8_t c_br)

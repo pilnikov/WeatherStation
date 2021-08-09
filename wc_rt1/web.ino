@@ -61,6 +61,8 @@ void web_setup()
 //-------------------------------------------------------------- Start_serv
 void start_serv()
 {
+  if (!web_cli & !web_ap) start_wifi();
+  
   if (web_cli || web_ap)
   {
     server.begin();
@@ -73,6 +75,7 @@ void start_serv()
 void stop_serv()
 {
   server.stop();
+  DBG_OUT_PORT.print(F("Serwer stopped...."));
   if (debug_level == 14) DBG_OUT_PORT.println(F("Server stopped"));
   stop_wifi();
 }

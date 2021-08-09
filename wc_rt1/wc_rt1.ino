@@ -120,6 +120,8 @@ void setup()
 
     //------------------------------------------------------  Инициализируем GPIO
     pinMode(conf_data.gpio_btn, INPUT_PULLUP);
+    attachInterrupt(conf_data.gpio_btn, isr1, CHANGE);
+    
     if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод

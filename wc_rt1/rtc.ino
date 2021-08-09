@@ -23,9 +23,9 @@ void rtc_init()
       ds3231 -> LatchAlarmsTriggeredFlags();
       // setup external interupt
 #if defined(ARDUINO_ARCH_ESP32)
-      attachInterrupt(conf_data.gpio_sqw, isr, FALLING);
+      attachInterrupt(conf_data.gpio_sqw, isr0, FALLING);
 #else
-      attachInterrupt(RtcSquareWaveInterrupt, InteruptServiceRoutine, FALLING);
+      attachInterrupt(SQW, isr0, FALLING);
 #endif
       break;
     case 2:
@@ -244,7 +244,7 @@ void set_alarm() //Устанавливаем будильник
 
 bool Alarmed()
 {
-  bool wasAlarmed = false, al1_int = false, al2_int = false, al1_oth = false, al2_oth = false;
+  bool wasAlarmed = false, al1 = false, al2 = false;
 
   if (ram_data.type_rtc == 1)
   {
@@ -256,17 +256,17 @@ bool Alarmed()
       // then allows for others to trigger again
       DS3231AlarmFlag flag = ds3231 -> LatchAlarmsTriggeredFlags();
 
-      if (flag & DS3231AlarmFlag_Alarm1) al1_int = true; //Сработал будильник №1
-      if (flag & DS3231AlarmFlag_Alarm2) al2_int = true; //Сработал будильник №2
+      if (flag & DS3231AlarmFlag_Alarm1) al1 = true; //Сработал будильник №1
+      if (flag & DS3231AlarmFlag_Alarm2) al2 = true; //Сработал будильник №2
     }
   }
   else
   {
-    al1_oth = ((rtc_data.hour == rtc_data.a_hour) & (rtc_data.min == rtc_data.a_min) & (rtc_data.sec == 0)); //Сработал будильник №1
-    al2_oth = ((rtc_data.min == 0) & (rtc_data.sec == 0));                                                   //Сработал будильник №2
+    al1 = ((rtc_data.hour == rtc_data.a_hour) & (rtc_data.min == rtc_data.a_min) & (rtc_data.sec == 0)); //Сработал будильник №1
+    al2 = ((rtc_data.min == 0) & (rtc_data.sec == 0));                                                   //Сработал будильник №2
   }
 
-  if (al1_int || al1_oth) //Сработал будильник №1
+  if (al1) //Сработал будильник №1
   {
     if (debug_level == 13) DBG_OUT_PORT.println(F("alarm one is run!"));
 
@@ -352,7 +352,7 @@ bool Alarmed()
     }
   }
 
-  if (al2_int || al2_oth) //Сработал будильник №2
+  if (al2) //Сработал будильник №2
   {
     if (debug_level == 13) DBG_OUT_PORT.println(F("alarm two is run!"));
     if (conf_data.every_hour_beep & !nm_is_on)
@@ -362,7 +362,7 @@ bool Alarmed()
     }
   }
 
-  wasAlarmed = (al1_int || al1_oth || al2_int || al2_oth); // Сработал один из будильников
+  wasAlarmed = (al1 || al2); // Сработал один из будильников
   return wasAlarmed;
 }
 
@@ -418,17 +418,17 @@ void GetTime()
 }
 
 #if defined(ESP8266)
-void IRAM_ATTR InteruptServiceRoutine()
+void IRAM_ATTR isr0()
 {
   wasAlarmed_int = true;
 }
 #elif defined(__AVR__)
-void ISR_ATTR InteruptServiceRoutine()
+void ISR_ATTR isr0()
 {
   wasAlarmed_int = true;
 }
 #elif defined(ARDUINO_ARCH_ESP32)
-void ARDUINO_ISR_ATTR isr() 
+void ARDUINO_ISR_ATTR isr0() 
 {
   wasAlarmed_int = true;
 }

@@ -325,6 +325,18 @@ String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
 String ts_snd (String);
 
+#if defined(ESP8266)
+void IRAM_ATTR isr1();
+void IRAM_ATTR isr2();
+#elif defined(__AVR__)
+void ISR_ATTR isr1();
+void ISR_ATTR isr2();
+#elif defined(ARDUINO_ARCH_ESP32)
+void ARDUINO_ISR_ATTR isr1();
+#endif
+
+
+
 // ----------------------------------- NTP
 #if defined(__xtensa__)
 static NTPTime NTP_t;
@@ -373,6 +385,10 @@ uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
 
 uint8_t         debug_level  = 0; // 0 - отключен
+
+static unsigned long setting_ms = millis();
+static bool btn_state_flag = false, tmr_started = false, btn_released = false;
+
 
 // ---------------------------------------------------- Constructors
 Synt Buzz;               //Конструктор пищалки

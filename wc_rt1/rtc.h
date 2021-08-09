@@ -12,13 +12,13 @@ void GetTime();
 
 // ----------------------------------- interrupt
 #if defined(ESP8266)
-void IRAM_ATTR InteruptServiceRoutine();
-#define RtcSquareWaveInterrupt 5 // Номер прерывания
+void IRAM_ATTR isr0();
+#define SQW 5 // Номер прерывания
 #elif defined(__AVR__)
-void ISR_ATTR InteruptServiceRoutine();
-#define RtcSquareWaveInterrupt 4 // Mega2560
+void ISR_ATTR isr0();
+#define SQW 4 // Mega2560
 #elif defined(ARDUINO_ARCH_ESP32)
-void ARDUINO_ISR_ATTR isr();
+void ARDUINO_ISR_ATTR isr0();
 #endif
 
 

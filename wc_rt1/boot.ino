@@ -125,7 +125,8 @@ void firq1() // 1 hour
 void firq6() // 0.5 sec main cycle
 {
   //-------------Refresh current time in rtc_data------------------
-
+  static unsigned long alarm_time;
+  
   GetTime();
 
   if (disp_on)
@@ -150,8 +151,16 @@ void firq6() // 0.5 sec main cycle
   }
   else cur_br = 0;
 
-  if (Alarmed()) rtc_data.wasAlarm = true;
-  if (rtc_data.wasAlarm & !play_snd)
+  if (!rtc_data.wasAlarm) //Проверка будильников
+  {
+    if (Alarmed())
+    {
+      rtc_data.wasAlarm = true;
+      alarrm_time = millis() + 1000;
+    }
+  }
+
+  if (rtc_data.wasAlarm & (millis() - alarm_time > 1000)) //Перезапуск будильников
   {
     set_alarm();
     rtc_data.wasAlarm = false;

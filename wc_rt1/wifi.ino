@@ -5,16 +5,17 @@ void stop_wifi()
 {
   if (web_cli)     //Останавливаем клиента
   {
-    if (debug_level == 15) DBG_OUT_PORT.println(F( "Client stopped"));
+    DBG_OUT_PORT.println(F( "Client stopped"));
   }
   if (web_ap)     //Останавливаем АР
   {
-    if (debug_level == 15) DBG_OUT_PORT.println(F( "AP stopped"));
+    DBG_OUT_PORT.println(F( "AP stopped"));
   }
   web_ap   = false;
   web_cli  = false;
   WiFi.mode(WIFI_OFF);
   WiFi.disconnect();
+  DBG_OUT_PORT.print(F("WiFi stopped...."));
 }
 
 //-------------------------------------------------------------- Start_wifi
@@ -40,7 +41,7 @@ void start_wifi()
     tru ++;
   }
 
-   if (tru < 18)
+  if (tru < 18)
   {
     web_cli = true;
 
@@ -53,7 +54,7 @@ void start_wifi()
   else
   {
     web_ap = true;
- 
+
     DBG_OUT_PORT.print(F("Configuring access point..."));
     WiFi.mode(WIFI_AP);
 
@@ -63,7 +64,7 @@ void start_wifi()
 
     DBG_OUT_PORT.print(F("AP IP address: "));
   }
-  
+
   DBG_OUT_PORT.println(myIP);
 
   char ibuf[17];
