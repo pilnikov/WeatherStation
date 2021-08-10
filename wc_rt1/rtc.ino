@@ -24,6 +24,8 @@ void rtc_init()
       // setup external interupt
 #if defined(ARDUINO_ARCH_ESP32)
       attachInterrupt(conf_data.gpio_sqw, isr0, FALLING);
+#elif defined(ESP8266)
+      attachInterrupt(5, isr0, FALLING);
 #else
       attachInterrupt(SQW, isr0, FALLING);
 #endif
@@ -389,7 +391,7 @@ void man_set_time(const RtcDateTime &dt)
 
 void GetTime()
 {
-  if (millis() - prev_ms >= 1000)
+  if (millis() >= prev_ms)
   {
     rtc_data.ct++;
     prev_ms += 1000;
@@ -428,7 +430,7 @@ void ISR_ATTR isr0()
   wasAlarmed_int = true;
 }
 #elif defined(ARDUINO_ARCH_ESP32)
-void ARDUINO_ISR_ATTR isr0() 
+void ARDUINO_ISR_ATTR isr0()
 {
   wasAlarmed_int = true;
 }

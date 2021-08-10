@@ -13,7 +13,6 @@ void GetTime();
 // ----------------------------------- interrupt
 #if defined(ESP8266)
 void IRAM_ATTR isr0();
-#define SQW 5 // Номер прерывания
 #elif defined(__AVR__)
 void ISR_ATTR isr0();
 #define SQW 4 // Mega2560
@@ -35,5 +34,5 @@ RtcDS1307<TwoWire> * ds1307;
 RtcDS1302<ThreeWire> * ds1302;
 ThreeWire * myTWire;
 
-static bool wasAlarmed_int = false;
+volatile bool wasAlarmed_int = false;
 static uint32_t prev_ms;

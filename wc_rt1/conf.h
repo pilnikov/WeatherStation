@@ -387,8 +387,8 @@ uint16_t             cur_br  = 0;
 uint8_t         debug_level  = 0; // 0 - отключен
 
 static unsigned long setting_ms = millis();
-static bool btn_state_flag = false, tmr_started = false, btn_released = false;
-
+static bool tmr_started = false, btn_released = false;
+volatile bool btn_state_flag = false; 
 
 // ---------------------------------------------------- Constructors
 Synt Buzz;               //Конструктор пищалки

@@ -244,10 +244,9 @@ void loop()
 
     // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__)
-    //inital sound card
     Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #elif defined (__AVR__)
-    Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);   //inital sound card
+    Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola); 
 #endif
     play_snd = false;
 
@@ -260,6 +259,7 @@ void loop()
     //------------------------------------------------------  Верифицируем ночной режим
     if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (rtc_data.hour >= conf_data.nm_start && rtc_data.hour < conf_data.nm_stop);
     else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
+    
     //------------------------------------------------------  Нормализуем загрузку
     if (millis() > 5000)
     {
@@ -271,7 +271,7 @@ void loop()
       }
     }
   }
-  else
+  else //-------------------------------------------------- Minimal boot
   {
 #if defined(__xtensa__)
     if (web_cli || web_ap)

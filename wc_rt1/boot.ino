@@ -156,11 +156,11 @@ void firq6() // 0.5 sec main cycle
     if (Alarmed())
     {
       rtc_data.wasAlarm = true;
-      alarrm_time = millis() + 1000;
+      alarm_time = millis() + 2000;
     }
   }
 
-  if (rtc_data.wasAlarm & (millis() - alarm_time > 1000)) //Перезапуск будильников
+  if (rtc_data.wasAlarm & (millis() > alarm_time)) //Перезапуск будильников
   {
     set_alarm();
     rtc_data.wasAlarm = false;
