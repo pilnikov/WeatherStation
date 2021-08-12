@@ -241,7 +241,8 @@ void set_alarm() //Устанавливаем будильник
     rtc_data.a_muz = conf_data.alarms[rtc_data.n_cur_alm][3];
     rtc_data.alarm = true;
   }
-  if ((debug_level == 13) & rtc_data.alarm) DBG_OUT_PORT.printf("alarm is... %02u : %02u  melody # %02u\n", rtc_data.a_hour, rtc_data.a_min, rtc_data.a_muz);
+  //if ((debug_level == 13) & rtc_data.alarm) DBG_OUT_PORT.printf("alarm is... %02u : %02u  melody # %02u\n", rtc_data.a_hour, rtc_data.a_min, rtc_data.a_muz);
+  if (rtc_data.alarm) DBG_OUT_PORT.printf("alarm is... %02u : %02u  melody # %02u\n", rtc_data.a_hour, rtc_data.a_min, rtc_data.a_muz);
 
   if ((ram_data.type_rtc == 1) & rtc_data.alarm)
   {
@@ -267,6 +268,7 @@ bool Alarmed()
   {
     if (wasAlarmed_int)  // check our flag that gets sets in the interupt
     {
+      DBG_OUT_PORT.println(F("Interrupt done"));
       wasAlarmed_int = false; // reset the flag
 
       // this gives us which alarms triggered and
@@ -372,7 +374,8 @@ bool Alarmed()
 
   if (al2) //Сработал будильник №2
   {
-    if (debug_level == 13) DBG_OUT_PORT.println(F("alarm two is run!"));
+    //    if (debug_level == 13) DBG_OUT_PORT.println(F("alarm two is run!"));
+    DBG_OUT_PORT.println(F("alarm two is run!"));
     if (conf_data.every_hour_beep & !nm_is_on)
     {
       rtc_data.a_muz = 15;

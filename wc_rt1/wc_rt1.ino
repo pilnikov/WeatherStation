@@ -70,10 +70,10 @@ void setup()
     start_serv();
   }
 #endif
+  //  conf_data.boot_mode = 0;
 
   DBG_OUT_PORT.print(F("boot mode is..."));
   DBG_OUT_PORT.println(conf_data.boot_mode);
-  //conf_data.boot_mode = 0;
   //------------------------------------------------------  Начинаем инициализацию Hardware
   if (conf_data.boot_mode > 0)
   {
@@ -121,7 +121,7 @@ void setup()
     //------------------------------------------------------  Инициализируем GPIO
     pinMode(conf_data.gpio_btn, INPUT_PULLUP);
     attachInterrupt(conf_data.gpio_btn, isr1, CHANGE);
-    
+
     if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
@@ -130,11 +130,6 @@ void setup()
 
 
     DBG_OUT_PORT.println(F("GPIO inital"));
-
-    //------------------------------------------------------  Инициализируем RTC
-    if (ram_data.type_rtc > 0) rtc_init();
-    DBG_OUT_PORT.print(F("Type of rtc = "));
-    DBG_OUT_PORT.println(ram_data.type_rtc);
 
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
@@ -175,6 +170,11 @@ void setup()
     }
     DBG_OUT_PORT.print(F("Type chip driver of display = "));
     DBG_OUT_PORT.println(ram_data.type_vdrv);
+
+    //------------------------------------------------------  Инициализируем RTC
+    if (ram_data.type_rtc > 0) rtc_init();
+    DBG_OUT_PORT.print(F("Type of rtc = "));
+    DBG_OUT_PORT.println(ram_data.type_rtc);
 
     //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
 # if defined(__xtensa__)
@@ -233,7 +233,11 @@ void setup()
     rtc_data.a_muz = 15;
     play_snd = true;
     DBG_OUT_PORT.println(F("End of setup"));
-  } else    DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
+  }
+  else
+  {
+    DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
+  }
 }
 
 void loop()
@@ -246,7 +250,7 @@ void loop()
 #if defined(__xtensa__)
     Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #elif defined (__AVR__)
-    Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola); 
+    Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #endif
     play_snd = false;
 
@@ -259,7 +263,7 @@ void loop()
     //------------------------------------------------------  Верифицируем ночной режим
     if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (rtc_data.hour >= conf_data.nm_start && rtc_data.hour < conf_data.nm_stop);
     else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
-    
+
     //------------------------------------------------------  Нормализуем загрузку
     if (millis() > 5000)
     {
