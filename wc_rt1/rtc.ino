@@ -4,31 +4,49 @@
 // DS3231 SCL --> SCL GPIO 5 D1
 // DS3231 VCC --> 3.3v or 5v
 // DS3231 GND --> GND
-// SQW --->  GPIO 13 D7 (( Don't forget to pullup (4.7k to 10k to VCC)
+// SQW --->  GPIO 12 D6 (( Don't forget to pullup (4.7k to 10k to VCC)
+
+#if defined(ESP8266)
+void IRAM_ATTR isr0()
+{
+  wasAlarmed_int = true;
+}
+#elif defined(__AVR__)
+void ISR_ATTR isr0()
+{
+  wasAlarmed_int = true;
+}
+#elif defined(ARDUINO_ARCH_ESP32)
+void ARDUINO_ISR_ATTR isr0()
+{
+  wasAlarmed_int = true;
+}
+#endif
 
 void rtc_init()
 {
+
   switch (ram_data.type_rtc)
   {
     case 1:
       // set the interupt pin to input mode
       pinMode(conf_data.gpio_sqw, INPUT_PULLUP);
-
-      //--------RTC SETUP ------------
-      ds3231 = new RtcDS3231<TwoWire> (Wire);
-
-      ds3231 -> Begin();
-      ds3231 -> Enable32kHzPin(false);
-      ds3231 -> SetSquareWavePin(DS3231SquareWavePin_ModeAlarmBoth);
-      ds3231 -> LatchAlarmsTriggeredFlags();
       // setup external interupt
 #if defined(ARDUINO_ARCH_ESP32)
       attachInterrupt(conf_data.gpio_sqw, isr0, FALLING);
 #elif defined(ESP8266)
-      attachInterrupt(5, isr0, FALLING);
+      attachInterrupt(conf_data.gpio_sqw, isr0, FALLING);
 #else
       attachInterrupt(SQW, isr0, FALLING);
 #endif
+      //--------RTC SETUP ------------
+      ds3231 = new RtcDS3231<TwoWire> (Wire);
+
+      ds3231 -> Begin();
+
+      ds3231 -> Enable32kHzPin(false);
+      ds3231 -> SetSquareWavePin(DS3231SquareWavePin_ModeAlarmBoth);
+      ds3231 -> LatchAlarmsTriggeredFlags();
       break;
     case 2:
       //ThreeWire myTWire (conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs); // IO, SCLK, CE
@@ -223,21 +241,18 @@ void set_alarm() //Устанавливаем будильник
     rtc_data.a_muz = conf_data.alarms[rtc_data.n_cur_alm][3];
     rtc_data.alarm = true;
   }
-  if (debug_level == 13) DBG_OUT_PORT.printf("alarm is... %02u : %02u  melody # %02u\n", rtc_data.a_hour, rtc_data.a_min, rtc_data.a_muz);
+  if ((debug_level == 13) & rtc_data.alarm) DBG_OUT_PORT.printf("alarm is... %02u : %02u  melody # %02u\n", rtc_data.a_hour, rtc_data.a_min, rtc_data.a_muz);
 
-  if (ram_data.type_rtc == 1)
+  if ((ram_data.type_rtc == 1) & rtc_data.alarm)
   {
-    if (rtc_data.alarm)
-    {
-      // Alarm 1 set to trigger every day when
-      // the hours, minutes, and seconds match
-      DS3231AlarmOne alarm1(0, rtc_data.a_hour, rtc_data.a_min, 0, DS3231AlarmOneControl_HoursMinutesSecondsMatch);
-      ds3231 -> SetAlarmOne(alarm1);
-    }
-    // Alarm 2 set to trigger at the top of the hour
-    DS3231AlarmTwo alarm2(0, 0, 0, DS3231AlarmTwoControl_MinutesMatch);
+    // Alarm 1 set to trigger every day when
+    // the hours, minutes, and seconds match
+    DS3231AlarmOne alarm1(0, rtc_data.a_hour, rtc_data.a_min, 0, DS3231AlarmOneControl_HoursMinutesSecondsMatch);
+    //DS3231AlarmOne alarm1(0, 0, 0, 0, DS3231AlarmOneControl_OncePerSecond);
+    ds3231 -> SetAlarmOne(alarm1);
+    // Alarm 2 set to trigger at the top of the every hour
+    DS3231AlarmTwo  alarm2(0, 0, 0, DS3231AlarmTwoControl_MinutesMatch);
     ds3231 -> SetAlarmTwo(alarm2);
-
     // throw away any old alarm state before we ran
     ds3231 -> LatchAlarmsTriggeredFlags();
   }
@@ -270,7 +285,8 @@ bool Alarmed()
 
   if (al1) //Сработал будильник №1
   {
-    if (debug_level == 13) DBG_OUT_PORT.println(F("alarm one is run!"));
+    //if (debug_level == 13) DBG_OUT_PORT.println(F("alarm one is run!"));
+    DBG_OUT_PORT.println(F("alarm one is run!"));
 
     dmsg.alarm_msg(rtc_data.n_cur_alm, conf_data.type_disp, conf_data.rus_lng);  // Сообщение на индикатор
 
@@ -418,20 +434,3 @@ void GetTime()
   rtc_data.day = dt.Day();
   rtc_data.year = dt.Year(); //костыль
 }
-
-#if defined(ESP8266)
-void IRAM_ATTR isr0()
-{
-  wasAlarmed_int = true;
-}
-#elif defined(__AVR__)
-void ISR_ATTR isr0()
-{
-  wasAlarmed_int = true;
-}
-#elif defined(ARDUINO_ARCH_ESP32)
-void ARDUINO_ISR_ATTR isr0()
-{
-  wasAlarmed_int = true;
-}
-#endif
