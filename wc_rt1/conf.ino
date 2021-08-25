@@ -12,7 +12,7 @@ conf_data_t loadConfig(const char *filename)
 
   if (!file)
   {
-    DBG_OUT_PORT.println(F("Failed to open config file for reading"));
+    DBG_OUT_PORT.println(F("Failed to open configFile, using default configuration"));
     _data = defaultConfig();
   }
   else
@@ -26,8 +26,10 @@ conf_data_t loadConfig(const char *filename)
     DeserializationError error = deserializeJson(doc, file);
     if (error)
     {
-      DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+      DBG_OUT_PORT.print(F("deserializeJson() for configFile failed: "));
       DBG_OUT_PORT.println(error.c_str());
+      DBG_OUT_PORT.println(F("Using default configuration"));
+      _data = defaultConfig();
       return _data;
     }
 
@@ -172,7 +174,6 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.print(F("deserializeJson() failed: "));
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
-
       _data = defaultConfig();
     }
   }
