@@ -191,6 +191,13 @@ void setup()
 
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
+
+      //------------------------------------------------------ Получаем новости от NewsApi
+      if (conf_data.news_en) 
+      {
+        newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source); 
+        newsClient.updateNews();
+      }
     }
 # endif
 

@@ -35,87 +35,98 @@
   };
 
 ********************************************************** Config
-  typedef struct 
+  typedef struct
   {
   uint8_t   boot_mode = 0; // 0 - minimal; 1 - test; 2 - normal
 
-  bool      auto_br;
-  bool      auto_corr;
-  bool      use_pm;
-  bool      every_hour_beep;
-  bool      snd_pola;
-  bool      led_pola;
-  bool      rus_lng;
-  bool      use_tst1;
-  bool      use_tst2;
-  bool      use_tst3;
-  bool      use_tsh1;
-  bool      use_tsh2;
-  bool      use_tsh3;
-  bool      use_tsp;
-  bool      wifi_off;
-  bool      udp_mon;
+  bool
+  auto_br = false,
+  auto_corr = false,
+  use_pm = false,
+  every_hour_beep = false,
+  snd_pola = false,
+  led_pola = false,
+  rus_lng = false,
+  use_tst1 = false,
+  use_tst2 = false,
+  use_tst3 = false,
+  use_tsh1 = false,
+  use_tsh2 = false,
+  use_tsh3 = false,
+  use_tsp = false,
+  wifi_off = false,
+  udp_mon = false,
+  news_en = false;
 
-  unsigned long period;
-  unsigned long pp_city_id;
-  unsigned long ts_ch_id;
+  unsigned long
+  period = 10,
+  pp_city_id = 0,
+  ts_ch_id = 0;
 
-  uint16_t  br_level[4];
+  uint16_t
+  br_level[4] = {0, 0, 0, 0};
 
-  uint8_t   use_pp = 0;
-  uint8_t   man_br = 0;
-  uint8_t   nmd_br = 0;
-  uint8_t   nm_start = 0;
-  uint8_t   nm_stop = 0;
-  uint8_t   alarms[7][5];
-  uint8_t   type_font = 0;
-  uint8_t   type_vdrv = 0;
-  uint8_t   type_disp = 0;
-  uint8_t   type_snr1 = 0;
-  uint8_t   type_snr2 = 0;
-  uint8_t   type_snr3 = 0;
-  uint8_t   type_snrp = 0;
-  uint8_t   type_rtc = 0;
-  uint8_t   type_thermo = 0;
-  uint8_t   src_thermo = 0;
+  uint8_t
+  use_pp = 0,
+  man_br = 0,
+  nmd_br = 0,
+  nm_start = 0,
+  nm_stop = 0,
+  alarms[7][5],
+  type_font = 0,
+  type_vdrv = 0,
+  type_disp = 0,
+  type_snr1 = 0,
+  type_snr2 = 0,
+  type_snr3 = 0,
+  type_snrp = 0,
+  type_rtc = 0,
+  type_thermo = 0,
+  src_thermo = 0,
 
-  uint8_t  gpio_sda = 255;
-  uint8_t gpio_scl = 255;
-  uint8_t gpio_dio = 255;
-  uint8_t gpio_clk = 255;
-  uint8_t gpio_dcs = 255;
-  uint8_t gpio_dwr = 255;
-  uint8_t gpio_trm = 255;
-  uint8_t gpio_sqw = 255;
-  uint8_t gpio_snd = 255;
-  uint8_t gpio_led = 255;
-  uint8_t gpio_btn = 255;
-  uint8_t gpio_dht = 255;
-  uint8_t gpio_ana = 255;
-  uint8_t gpio_uar = 255;
-  uint8_t gpio_bz2 = 255;
+  gpio_sda = 255,
+  gpio_scl = 255,
+  gpio_dio = 255,
+  gpio_clk = 255,
+  gpio_dcs = 255,
+  gpio_dwr = 255,
+  gpio_trm = 255,
+  gpio_sqw = 255,
+  gpio_snd = 255,
+  gpio_led = 255,
+  gpio_btn = 255,
+  gpio_dht = 255,
+  gpio_ana = 255,
+  gpio_uar = 255,
+  gpio_bz2 = 255;
 
-  int8_t    time_zone;
-  int       lb_thermo;
-  int       hb_thermo;
+  int8_t
+  time_zone;
 
-  char      ch1_name[17];
-  char      ch2_name[17];
-  char      ch3_name[17];
-  char      sta_ssid[17];
-  char      sta_pass[17];
-  char      ap_ssid[17];
-  char      ap_pass[17];
-  char      AKey_r[17];
-  char      AKey_w[17];
-  char      esrv1_addr[17];
-  char      esrv2_addr[17];
-  char      radio_addr[17];
-  char      srudp_addr[17];
-  char      owm_key[33];
+  int
+  lb_thermo,
+  hb_thermo;
+
+  char
+  ch1_name[17],
+  ch2_name[17],
+  ch3_name[17],
+  sta_ssid[17],
+  sta_pass[17],
+  ap_ssid[17],
+  ap_pass[17],
+  AKey_r[17],
+  AKey_w[17],
+  esrv1_addr[17],
+  esrv2_addr[17],
+  radio_addr[17],
+  srudp_addr[17],
+  owm_key[33],
+  news_api_key[33], // Get your News API Key from https://newsapi.org
+  news_source[17];  // https://newsapi.org/sources to get full list of news sources available
   } conf_data_t;
-********************************************************** Ram config
-
+  
+********************************************************** Actual config
   struct ram_data_t
   {
   uint8_t   type_vdrv;      // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574
@@ -132,6 +143,7 @@
   uint16_t  lb;             // Текущая яркость
   bool      bh1750_present; // Наличие датчика освещенности BH1750
   };
+  
 ********************************************************* Rtc
   struct rtc_data_t
   {
@@ -153,7 +165,6 @@
   bool          wasAlarm  = false;      // Было срабатывание будильника
   };
 */
-
 
 #ifndef _wc_h
 #define _wc_h
@@ -413,6 +424,10 @@ SNR sens;
 FD f_dsp;
 HT h_dsp;
 MSG dmsg;
+
+// ---------------------------------------------------- News Client
+NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
+int newsIndex = 0;
 
 // ---------------------------------------------------- Variant of config
 #define _dacha

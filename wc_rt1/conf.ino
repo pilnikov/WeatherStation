@@ -56,6 +56,8 @@ conf_data_t loadConfig(const char *filename)
       memset(_data.ch3_name,   0, 17);
       memset(_data.AKey_r,     0, 17);
       memset(_data.AKey_w,     0, 17);
+      memset(_data.news_api_key, 0, 33);
+      memset(_data.news_source,   0, 17);
 
       //---Wifi.html----------------------------------------
       //---AP-----------------------------------------------
@@ -155,6 +157,12 @@ conf_data_t loadConfig(const char *filename)
       _data.src_thermo        = doc["src_trs"];
       _data.lb_thermo         = doc["lb_trs"];
       _data.hb_thermo         = doc["hb_trs"];
+
+      //---News.html---------------------------------------
+      //---Options for news----------------------------
+      _data.news_en            = doc["news_en"];
+      strcpy(_data.news_api_key, doc["news_api"]);
+      strcpy(_data.news_source,  doc["news_src"]);
 
       //---Alarm.html----------------------------------------
       //---Options for alarms--------------------------------
@@ -297,6 +305,14 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["lb_trs"]              = _data.lb_thermo;
   json["hb_trs"]              = _data.hb_thermo;
 
+
+  //---News.html---------------------------------------
+  //---Options for news----------------------------
+  json["news_en"]             = _data.news_en;
+  json["news_api"]            = _data.news_api_key;
+  json["news_src"]            = _data.news_source;
+
+
   //---Alarm.html----------------------------------------
   //---Options for alarms--------------------------------
   DynamicJsonDocument doc2(700);
@@ -372,6 +388,8 @@ conf_data_t defaultConfig()
   strcpy(_data.ch1_name,   "Внутри");
   strcpy(_data.ch2_name,   "Снаружи");
   strcpy(_data.ch3_name,   "В бане");
+  memset(_data.news_api_key, 0, 33);
+  strcpy(_data.news_source, "lenta");
 
 
   _data.auto_corr        = true;
@@ -434,6 +452,8 @@ conf_data_t defaultConfig()
   _data.br_level[3]      = 15;
 
   _data.type_font        = 0;
+
+  _data.news_en          = false;
 
   for (uint8_t i = 0; i <= 6; i++)
     for (uint8_t j = 0; j <= 4; j++) _data.alarms[i][j] = 0;

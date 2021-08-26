@@ -433,3 +433,171 @@ snr_data_t ES::get_es(String inStr)
 	}
 	return data;
 }
+
+#define arr_len( x )  ( sizeof( x ) / sizeof( *x ) )
+
+NewsApiClient::NewsApiClient(char* ApiKey, char* NewsSource) {
+  updateNewsClient(ApiKey, NewsSource);
+}
+
+void NewsApiClient::updateNewsClient(char* ApiKey, char* NewsSource) {
+  mySource = String(NewsSource);
+  myApiKey = String(ApiKey);
+}
+
+void NewsApiClient::updateNews() {
+  JsonStreamingParser parser;
+  parser.setListener(this);
+
+  WiFiClient client;
+
+  HTTPClient http;
+
+  String apiGetData = "http://" + String(servername) + "/v2/top-headlines?sources=" + mySource + "&apiKey=" + myApiKey;
+
+  DBG_OUT_PORT.println("Getting News Data");
+  DBG_OUT_PORT.println(apiGetData);
+  http.begin(client, apiGetData);
+  int httpCode = http.GET();
+
+  if (httpCode > 0) {  // checks for connection
+    DBG_OUT_PORT.printf("[HTTP] GET... code: %d\n", httpCode);
+    if (httpCode == HTTP_CODE_OK) {
+      // get lenght of document (is -1 when Server sends no Content-Length header)
+      int len = http.getSize();
+      // create buffer for read
+      char buff[128] = { 0 };
+      // get tcp stream
+      WiFiClient * stream = http.getStreamPtr();
+      // read all data from server
+      DBG_OUT_PORT.println("Start parsing...");
+      while (http.connected() && (len > 0 || len == -1)) {
+        // get available data size
+        size_t size = stream->available();
+        if (size) {
+          // read up to 128 byte
+          int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+          for (int i = 0; i < c; i++) {
+            parser.parse(buff[i]);
+          }
+
+          if (len > 0)
+            len -= c;
+        }
+        delay(1);
+      }
+    }
+    http.end();
+  } else {
+    DBG_OUT_PORT.println("connection for news data failed: " + String(apiGetData)); //error message if no client connect
+    DBG_OUT_PORT.println();
+    return;
+  }
+}
+
+String NewsApiClient::getTitle(int index) {
+  return news[index].title;
+}
+
+String NewsApiClient::getDescription(int index) {
+  return news[index].description;
+}
+
+String NewsApiClient::getUrl(int index) {
+  return news[index].url;
+}
+
+void NewsApiClient::updateNewsSource(char* source) {
+  mySource = String(source);
+}
+
+void NewsApiClient::whitespace(char c) {
+
+}
+
+void NewsApiClient::startDocument() {
+  counterTitle = 0;
+}
+
+void NewsApiClient::key(String key) {
+  currentKey = key;
+}
+
+void NewsApiClient::value(String value) {
+  if (counterTitle == 10) {
+    // we are full so return
+    return;
+  }
+  if (currentKey == "title") {
+    news[counterTitle].title = cleanText(value);
+  }
+  if (currentKey == "description") {
+    news[counterTitle].description = cleanText(value);
+  }
+  if (currentKey == "url") {
+    news[counterTitle].url = value;
+    counterTitle++;
+  }
+
+  DBG_OUT_PORT.println(currentKey + "=" + value);
+}
+
+void NewsApiClient::endArray() {
+}
+
+void NewsApiClient::endObject() {
+}
+void NewsApiClient::startArray() {
+}
+
+void NewsApiClient::startObject() {
+}
+
+void NewsApiClient::endDocument() {
+}
+
+String NewsApiClient::cleanText(String text) {
+  text.replace("’", "'");
+  text.replace("“", "\"");
+  text.replace("”", "\"");
+  text.replace("`", "'");
+  text.replace("‘", "'");
+  text.replace("„", "'");
+  text.replace("\\\"", "'");
+  text.replace("•", "-");
+  text.replace("é", "e");
+  text.replace("è", "e");
+  text.replace("ë", "e");
+  text.replace("ê", "e");
+  text.replace("à", "a");
+  text.replace("â", "a");
+  text.replace("ù", "u");
+  text.replace("ç", "c");
+  text.replace("î", "i");
+  text.replace("ï", "i");
+  text.replace("ô", "o");
+  text.replace("…", "...");
+  text.replace("–", "-");
+  text.replace("Â", "A");
+  text.replace("À", "A");
+  text.replace("æ", "ae");
+  text.replace("Æ", "AE");
+  text.replace("É", "E");
+  text.replace("È", "E");
+  text.replace("Ë", "E");
+  text.replace("Ô", "O");
+  text.replace("Ö", "Oe");
+  text.replace("ö", "oe");
+  text.replace("œ", "oe");
+  text.replace("Œ", "OE");
+  text.replace("Ù", "U");
+  text.replace("Û", "U");
+  text.replace("Ü", "Ue");
+  text.replace("ü", "ue");
+  text.replace("Ä", "Ae");
+  text.replace("ä", "ae");
+  text.replace("ß", "ss");
+  text.replace("»", "'");
+  text.replace("«", "'");
+  return text;
+}

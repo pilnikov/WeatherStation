@@ -20,12 +20,72 @@
 class ES
 {
   public :
-    snr_data_t get_ts(String);
-    snr_data_t get_es(String);
+    snr_data_t 
+	get_ts(String),
+    get_es(String);
     wf_data_t get_gm(String);
     String put_ts(char*, bool, bool, bool, bool, bool, bool, bool, snr_data_t);
 };
 
-extern ES extsrv;
+
+#pragma once
+#if defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#elif defined(ARDUINO_ARCH_ESP32)
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <HTTPClient.h>
+#endif
+#include <JsonListener.h>
+#include <JsonStreamingParser.h> // --> https://github.com/squix78/json-streaming-parser
+
+class NewsApiClient: public JsonListener {
+
+  private:
+    String 
+	mySource = "",
+    myApiKey = "",
+    
+	currentKey = "";
+    
+	int counterTitle = 0;
+
+    typedef struct {
+      String 
+	  title,
+      description,
+      url;
+    } newsfeed;
+
+    newsfeed news[10];
+    
+    const char* servername = "newsapi.org";  // remote server we will connect to
+  
+  public:
+    NewsApiClient(char* ApiKey, char* NewsSource);
+    void 
+	updateNewsClient(char* ApiKey, char* NewsSource),
+    updateNews(),
+    updateNewsSource(char* source);
+    
+    String 
+	getTitle(int index),
+    getDescription(int index),
+    getUrl(int index),
+    cleanText(String text);
+    
+    virtual void 
+	whitespace(char c),
+    startDocument(),
+    key(String key),
+    value(String value),
+
+    endArray(),
+    endObject(),
+    endDocument(),
+    startArray(),
+    startObject();
+};
 
 #endif  // Exts_h

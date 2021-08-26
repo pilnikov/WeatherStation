@@ -28,6 +28,7 @@ void web_setup()
   server.on("/jsnr", handlejSnr);
   server.on("/juart", handlejUart);
   server.on("/jtrm", handlejTrm);
+  server.on("/savenews", handleSaveNews);
   //server.on("/all",       handleAll  );
 
   //-------------------------------------------------------------- for LittleFS
@@ -62,7 +63,7 @@ void web_setup()
 void start_serv()
 {
   if (!web_cli & !web_ap) start_wifi();
-  
+
   if (web_cli || web_ap)
   {
     server.begin();
@@ -625,7 +626,6 @@ void handleSetPartrm()
 
   server.send(200, "text/html", "Ok!");
   serv_ms = millis();
-
 }
 
 //-------------------------------------------------------------- handlejAct
@@ -842,5 +842,24 @@ String getContentType(String filename)
   else if (filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
+
+void handleSaveNews()
+{
+  conf_data.news_en = server.hasArg("displaynews");
+
+  strcpy(conf_data.news_api_key, server.arg("newsApiKey").c_str());
+  strcpy(conf_data.news_source, server.arg("newssource").c_str());
+
+  saveConfig(conf_f, conf_data);
+
+  if (conf_data.news_en)
+  {
+    newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
+    newsClient.updateNews();
+  }
+  server.send(200, "text/html", "Ok!");
+  serv_ms = millis();
+}
+
 
 # endif
