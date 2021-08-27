@@ -70,14 +70,14 @@ void a595_init()
 {
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
 
-  //G1  R1 | 25 26
-  //GND B1 |  g  4
-  //G2  R2 | 12 13
-  //GND B2 |  g 33
-  //B   A  | 16  2
-  //D   C  | 23 18
-  //LAT CLK| 27 14
-  //GND OE |  g 32
+  //G1  R1 | 12 04
+  //GND B1 |  g 13
+  //G2  R2 | 15 14
+  //E   B2 | 25 21
+  //B   A  | 05 26
+  //D   C  | 19 18
+  //LAT CLK| 32 27
+  //GND OE |  g 33
 
 #if defined(__AVR_ATmega2560__)
   uint8_t A_PIN =  54, //A0 Пин A
@@ -98,11 +98,11 @@ void a595_init()
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
 #elif defined(ARDUINO_ARCH_ESP32)
-    uint8_t rgbPins[] = {26, 25, 4, 13, 12, 19},
-                        addrPins[] = {2, 5, 18, 23, 33},
-                                     clockPin   = 14, // Must be on same port as rgbPins
-                                     latchPin   = 27,
-                                     oePin      = 32,
+    uint8_t rgbPins[] = {4, 12, 13, 14, 15, 21},
+                        addrPins[] = {26, 5, 18, 19, 25},
+                                     clockPin   = 27, // Must be on same port as rgbPins
+                                     latchPin   = 32,
+                                     oePin      = 33,
                                      naddr_pin  = 3,
                                      wide       = 32;
     if (conf_data.type_disp != 23) wide = 64;

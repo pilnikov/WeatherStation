@@ -94,21 +94,21 @@ conf_data_t defaultConfig()
 
   _data.led_pola         = true;
 
-  _data.gpio_sda         = 22;
-  _data.gpio_scl         = 21;
-  _data.gpio_dio         = 23;
+  _data.gpio_sda         = 23;
+  _data.gpio_scl         = 22;
+  _data.gpio_dio         = 19;
   _data.gpio_clk         = 18;
   _data.gpio_dcs         =  5;
-  _data.gpio_dwr         =  2;
-  _data.gpio_trm         =  2;
-  _data.gpio_sqw         = 19;
-  _data.gpio_snd         = 15;
-  _data.gpio_led         =  2;
+  _data.gpio_dwr         = 26;
+  _data.gpio_trm         = 36;
+  _data.gpio_sqw         = 32;
+  _data.gpio_snd         =  2;
+  _data.gpio_led         = 16;
   _data.gpio_btn         =  0;
-  _data.gpio_dht         = 34;
+  _data.gpio_dht         = 39;
   _data.gpio_ana         = 35;
-  _data.gpio_uar         =  5;
-  _data.gpio_bz2         = 32;
+  _data.gpio_uar         = 36;
+  _data.gpio_bz2         = 36;
 #endif
 
   //--------------------------------Уровни для автояркости
@@ -261,15 +261,14 @@ void parser(String inStr)
 void m3216_init()
 {
 #if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
-
-  //G1  R1 | 25 26
-  //GND B1 |  g  4
-  //G2  R2 | 12 13
-  //GND B2 |  g 33
-  //B   A  |  5  2
-  //D   C  | 23 18
-  //LAT CLK| 27 14
-  //GND OE |  g 32
+  //G1  R1 | 12 04
+  //GND B1 |  g 13
+  //G2  R2 | 15 14
+  //E   B2 | 25 21
+  //B   A  | 05 26
+  //D   C  | 19 18
+  //LAT CLK| 32 27
+  //GND OE |  g 33
 
 #if defined(__AVR_ATmega2560__)
   uint8_t A_PIN =  54, //A0 Пин A
@@ -290,11 +289,11 @@ void m3216_init()
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
 #elif defined(ARDUINO_ARCH_ESP32)
-    uint8_t rgbPins[] = {26, 25, 4, 13, 12, 16},
-                        addrPins[] = {2, 5, 18, 23, 19},
-                                     clockPin   = 14, // Must be on same port as rgbPins
-                                     latchPin   = 27,
-                                     oePin      = 32,
+    uint8_t rgbPins[] = {4, 12, 13, 14, 15, 21},
+                        addrPins[] = {26, 5, 18, 19, 25},
+                                     clockPin   = 27, // Must be on same port as rgbPins
+                                     latchPin   = 32,
+                                     oePin      = 33,
                                      naddr_pin  = 3,
                                      wide       = 32;
     if (conf_data.type_disp != 23) wide = 64;
