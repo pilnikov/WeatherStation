@@ -198,7 +198,7 @@ void saveConfig(const char *filename, conf_data_t _data)
   if ( _data.type_snr2    < 0  || _data.type_snr2  >  11) _data.type_snr2  = 0;
   if ( _data.type_snr3    < 0  || _data.type_snr3  >  11) _data.type_snr3  = 0;
   if ( _data.type_snrp    < 0  || _data.type_snrp  >  11) _data.type_snrp  = 0;
-  if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strncpy( _data.ap_ssid, "Radio_Clock", 17);
+  if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();

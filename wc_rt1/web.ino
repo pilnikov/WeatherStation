@@ -636,8 +636,9 @@ void handlejAct()
 
   char tstr[25];
   memset (tstr, 0, 25);
+  strcpy(tstr, "Safe Mode");
   rtc_data_t rt = rtc_data;
-  cur_time_str(rt, tstr);
+  if (conf_data.boot_mode == 2) cur_time_str(rt, tstr);
 
   json["tstr"] = tstr;
   json["acth"] = rtc_data.a_hour;
