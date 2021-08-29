@@ -251,7 +251,7 @@ void loop()
 {
   if (conf_data.boot_mode > 0 || test_boot)
   {
-    if (test_boot) DBG_OUT_PORT.println(F("Safe mode!!!"));
+    if (test_boot) DBG_OUT_PORT.println(F("Test mode!!!"));
 
     // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__)

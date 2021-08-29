@@ -35,7 +35,6 @@
 			<p>Select News Source <select class='w3-option w3-padding' name='newssource' id='newssource'></select></p>
 			
 			<script>
-			
 			var s='%NEWSSOURCE%';
 			var tt;
 			var xmlhttp=new XMLHttpRequest();
@@ -71,6 +70,65 @@
 					document.getElementById('newssource').innerHTML=tt;
 				}
 			}
+			
+			function loadValues()
+			{
+				var xh = new XMLHttpRequest();
+				xh.onreadystatechange =  function()
+				{
+				  if (xh.readyState == 4 && xh.status == 200) 
+					{
+					  var res = JSON.parse(xh.responseText);
+					  document.getElementById('tzone').value = res.tzon;
+					}
+				  }
+				 xh.open("GET", "/jclock", true);
+				 xh.send(null);
+			  }
+		  
+			  function process()
+			  {
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jact", true);
+				xh.onreadystatechange = function()
+				{
+				  if (xh.readyState == 4 && xh.status == 200) 
+				  {
+					var res = JSON.parse(xh.responseText);
+					document.getElementById('cur_time').value = res.tstr;
+				  }
+				}
+				xh.send(null);
+				setTimeout('process()',500);
+			  }
+
+			  function set_parc()
+			  {
+				var acorr = 0, upm = 0, ehb = 0, sndpol = 0, ledpol = 0;
+
+				tzone   = document.getElementById('tzone').value;
+				if (document.getElementById('acorr').checked) acorr = 1;
+				if (document.getElementById('upm').checked) upm = 1;
+				nmstart = document.getElementById('nmstart').value;
+				nmstop  = document.getElementById('nmstop').value;
+				if (document.getElementById('ehb').checked) ehb = 1;
+				if (document.getElementById('sndpol').checked) sndpol = 1;
+				if (document.getElementById('ledpol').checked) ledpol = 1;
+				srtyp = document.getElementById('rtyp').value;
+
+				url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+'&dht='+dht+'&ana='+ana+'&uar='+uar+'&bz2='+bz2;
+
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = function()
+				{
+				  if (xh.readyState==4 && xh.status==200) loadValues();
+				}      
+				xh.send(null);
+			  }
+
+			  process();
+	
 			</script>
 			
 			<button class='w3-button w3-block w3-grey w3-section w3-padding' type='submit'>Save</button>

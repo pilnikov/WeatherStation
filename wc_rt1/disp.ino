@@ -162,18 +162,19 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 #if defined(__AVR_ATmega2560__)
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, c_br, true) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, c_br, true) : 0);
-
-          m3216 -> swapBuffers(true);
 #elif defined(ARDUINO_ARCH_ESP32)
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> color565(c_br, 0 , 0) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> color565(0, c_br, 0) : 0);
-
-          m3216 -> show();
 #endif
         }
       }
     }
   }
+#if defined(__AVR_ATmega2560__)
+  m3216 -> swapBuffers(true);
+#elif defined(ARDUINO_ARCH_ESP32)
+  m3216 -> show();
+#endif
 #endif
 }
 
