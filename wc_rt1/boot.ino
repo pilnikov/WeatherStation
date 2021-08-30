@@ -88,12 +88,12 @@ void runing_string_start() // ---------------------------- Запуск бегу
   memset(st2, 0, 20);
 
   pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
-  /*
-    DBG_OUT_PORT.print(F("num_st = "));
-    DBG_OUT_PORT.println(num_st);
-    DBG_OUT_PORT.print(F("st1 = "));
-    DBG_OUT_PORT.println(st1);
-  */
+
+  DBG_OUT_PORT.print(F("num_st = "));
+  DBG_OUT_PORT.println(num_st);
+  DBG_OUT_PORT.print(F("st1 = "));
+  DBG_OUT_PORT.println(st1);
+
 
   if (conf_data.rus_lng & (ram_data.type_vdrv == 12)) f_dsp.lcd_rus(st1);
   if (conf_data.rus_lng & (ram_data.type_vdrv != 12)) f_dsp.utf8rus(st1);

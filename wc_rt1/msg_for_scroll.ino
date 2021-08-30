@@ -173,6 +173,16 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 5:
+          if (cf.news_en)
+          {
+            String news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+            strcpy(out, news_s.c_str());
+            newsIndex ++;
+            if (newsIndex > 9) newsIndex = 0;
+            _repeat = false;
+          }
+          break;
+        case 6:
           local_ip.toCharArray(buf, local_ip.length() + 1);
           sprintf_P(out, PSTR(" Curr brigthness:%2d Your IP:%s"), c_br, buf);
           _repeat = false;
@@ -263,10 +273,8 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 5:
           if (cf.news_en)
           {
-            //String news_s = cf.news_source + ": " + newsClient.getTitle(newsIndex);
-            String news_s = newsClient.getTitle(newsIndex);
-            f_dsp.utf8rus(news_s);
-            sprintf(out, " %s: %s", cf.news_source, news_s);
+            String news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+            strcpy(out, news_s.c_str());
             newsIndex ++;
             if (newsIndex > 9) newsIndex = 0;
             _repeat = false;

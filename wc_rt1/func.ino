@@ -478,11 +478,12 @@ void keyb_read()
   }
   if (millis() - setting_ms > 20000) tmr_started = false;
   if (!tmr_started) setting_ms = millis();
-  if (tmr_started)
+/*  if (tmr_started)
   {
     DBG_OUT_PORT.print(F("Timer ..."));
     DBG_OUT_PORT.println(millis() - setting_ms);
   }
+*/
 }
 
 #if defined(ESP8266)
