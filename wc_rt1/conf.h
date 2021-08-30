@@ -427,7 +427,6 @@ MSG dmsg;
 
 // ---------------------------------------------------- News Client
 NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
-int newsIndex = 0;
 
 // ---------------------------------------------------- Variant of config
 #define _dacha

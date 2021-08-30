@@ -60,7 +60,7 @@ static LiquidCrystal_I2C * lcd;
 static Max72 * m7219;
 
 const uint8_t q_dig = 6;  // количество цифр на дисплее
-uint8_t  max_st = 5;      // макс кол-во прокручиваемых строк
+uint8_t  max_st = 6;      // макс кол-во прокручиваемых строк
 uint8_t  text_size = 1;   // размер текста
 
 static bool d_notequal[q_dig];

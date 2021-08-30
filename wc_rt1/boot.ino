@@ -48,7 +48,7 @@ void irq_set()
       break;
 
     case 3: // 55 sec
-      max_st = 5;
+      max_st = 6;
       if (end_run_st) runing_string_start(); //Запуск бегущей строки;
       break;
 
@@ -112,11 +112,20 @@ void firq1() // 1 hour
 
   if (!web_cli && !web_ap && !conf_data.wifi_off) start_wifi();
 
-  if (hour_cnt % 12 == 0) GetNtp();
-  if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-  if (hour_cnt % 6 == 0 && conf_data.use_pp == 2)
+  if (web_cli)
   {
-    wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+    if (hour_cnt % 12 == 0) GetNtp();
+
+    if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+    if (hour_cnt % 6 == 0 && conf_data.use_pp == 2)
+    {
+      wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+    }
+    if (conf_data.news_en)
+    {
+      newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
+      newsClient.updateNews();
+    }
   }
 #endif
   hour_cnt++;
@@ -126,7 +135,7 @@ void firq6() // 0.5 sec main cycle
 {
   //-------------Refresh current time in rtc_data------------------
   static unsigned long alarm_time;
-  
+
   GetTime();
 
   if (disp_on)

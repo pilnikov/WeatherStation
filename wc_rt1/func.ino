@@ -424,7 +424,7 @@ void keyb_read()
   {
     disp_mode++; // меняем содержимое экрана на 7ми сегментных индикаторах
     if (disp_mode > 12) disp_mode = 0;
-    max_st = 6;
+    max_st = 7;
     runing_string_start(); //Запуск бегущей строки;
   }
 

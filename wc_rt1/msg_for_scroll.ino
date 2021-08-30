@@ -89,6 +89,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
   ala_h = ala_h % 100;
   uint8_t ala_m = (ala_t - cur_t - (ala_h * 60)) % 100;
   bool _repeat = true;
+  static uint8_t newsIndex;
 
   do
   {
@@ -260,8 +261,20 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 5:
+          if (cf.news_en)
+          {
+            //String news_s = cf.news_source + ": " + newsClient.getTitle(newsIndex);
+            String news_s = newsClient.getTitle(newsIndex);
+            f_dsp.utf8rus(news_s);
+            sprintf(out, " %s: %s", cf.news_source, news_s);
+            newsIndex ++;
+            if (newsIndex > 9) newsIndex = 0;
+            _repeat = false;
+          }
+          break;
+        case 6:
           local_ip.toCharArray(buf, local_ip.length() + 1);
-          sprintf_P(out, PSTR(" Текущая яркость:%2d Ваш IP:%s"), c_br, buf);
+          sprintf_P(out, PSTR(" Текущая яркость: %2d Ваш IP: %s"), c_br, buf);
           _repeat = false;
           break;
         default:

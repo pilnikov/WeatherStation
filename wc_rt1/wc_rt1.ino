@@ -181,21 +181,21 @@ void setup()
     if (web_cli || web_ap)
     {
       //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
-      if (ram_data.type_rtc == 0 && web_cli) GetNtp();
+      if ((ram_data.type_rtc == 0) & web_cli) GetNtp();
 
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
-      if (conf_data.use_pp == 1 && web_cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+      if ((conf_data.use_pp == 1) & web_cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
 
       //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
-      if (conf_data.use_pp == 2 && web_cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+      if ((conf_data.use_pp == 2) & web_cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
 
       //------------------------------------------------------ Получаем новости от NewsApi
-      if (conf_data.news_en) 
+      if (conf_data.news_en & web_cli)
       {
-        newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source); 
+        newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
         newsClient.updateNews();
       }
     }
