@@ -31,103 +31,122 @@
 		<table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
 			<tr><td colspan='2' class='h'>Новостная лента</td></tr>
 		 
-			<tr><td>Использовать новостную ленту</td><td>&nbsp;--------&nbsp;<input type='checkbox' id='use_news' name='use_news' onclick='en_news();'/></td></tr>
+			<tr><td>Использовать новостную ленту</td><td>&nbsp;--------&nbsp;<input type='checkbox' id='unews' name='unews' onclick='en_news();'/></td></tr>
 			<tr><td>News API Key(get from <a href='https://newsapi.org/' target='_BLANK'>here</a>)</td><td><input type='text' maxlength='32' size='32' id='newsk' name='newsk' style='text-align:center;' /></td></tr>
-			<tr><td>News Source</td><td><select class='w3-option w3-padding' name='newssource' id='newssource'></select></td></tr>
+			<tr><td>News Source</td><td><select class='w3-option w3-padding' name='newssrc' id='newssrc'></select></td></tr>
 			<tr><td colspan='2' class='h'><input type='submit' value='Записать' onclick='set_parnews();' /></td></tr>
 		</table>
 			
 		<script>
-		var s='%NEWSSOURCE%';
-		var tt;
-		var xmlhttp=new XMLHttpRequest();
-			
-		xmlhttp.open('GET','https://raw.githubusercontent.com/Qrome/marquee-scroller/master/sources.json',!0);
-		xmlhttp.onreadystatechange = 
-		function()
-		{
-			if(xmlhttp.readyState==4)
+			function loadValues()
 			{
-				if(xmlhttp.status==200)
-				{
-					var obj=JSON.parse(xmlhttp.responseText);
-					obj.sources.forEach(t);
-				}
-			}
-		}
-		xmlhttp.send();
-			
-		function t(it)
-		{
-			if(it!=null)
-			{
-				if(s==it.id)
-				{
-					se=' selected';
-				}
-				else
-				{
-					se='';
-				}
-				tt+='<option'+se+'>'+it.id+'</option>';
-				document.getElementById('newssource').innerHTML=tt;
-			}
-		}
-			
-		function loadValues()
-		{
 				var xh = new XMLHttpRequest();
-				xh.onreadystatechange =  function()
+				xh.onreadystatechange =  
+				function()
 				{
 				  if (xh.readyState == 4 && xh.status == 200) 
 					{
 					  var res = JSON.parse(xh.responseText);
-					  document.getElementById('use_news').value = res.displaynews;
+					  document.getElementById('unews').checked = res.displaynews;
 					  document.getElementById('newsk').value = res.newsApiKey;
-					  document.getElementById('newssource').value = res.newssource;
 					}
-				  }
-				 xh.open("GET", "/jnews", true);
-				 xh.send(null);
+				}
+  			xh.open("GET", "/jnews", true);
+        xh.send(null);
 		}
-		  
-		function process()
-		{
-			var xh = new XMLHttpRequest();
-			xh.open("GET", "/jact", true);
-			xh.onreadystatechange = function()
+
+			function set_parnews()
 			{
-				if (xh.readyState == 4 && xh.status == 200) 
+				var sdisplaynews = 0;
+
+				if (document.getElementById('unews').checked) sdisplaynews = 1;
+				snewsApiKey = document.getElementById('newsk').value;
+				snewssource = document.getElementById('newssrc').value;
+
+				url = '/set_news?displaynews='+sdisplaynews+'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
+
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = 
+				function()
 				{
-					var res = JSON.parse(xh.responseText);
-					document.getElementById('cur_time').value = res.tstr;
+					if (xh.readyState==4 && xh.status==200) loadValues();
+				}      
+				xh.send(null);
+			}
+
+      function showHide(element_id, visible) 
+      {
+      //Если элемент с id-шником element_id существует
+        if (document.getElementById(element_id)) 
+        { 
+          //Записываем ссылку на элемент в переменную obj
+          var obj = document.getElementById(element_id); 
+          if (visible) obj.style.display = "inline-block"; //Показываем элемент
+          else obj.style.display = "none"; //Скрываем элемент
+        }
+        //Если элемент с id-шником element_id не найден, то выводим сообщение
+        else alert("Элемент с id: " + element_id + " не найден!"); 
+      }   
+			  
+      function en_news()
+      {
+      }
+      
+			var s='%NEWSSRC%';
+			var tt;
+			var xmlhttp=new XMLHttpRequest();
+			
+			xmlhttp.open('GET','https://raw.githubusercontent.com/Qrome/marquee-scroller/master/sources.json',!0);
+			xmlhttp.onreadystatechange = 
+				function()
+				{
+					if(xmlhttp.readyState==4)
+					{
+						if(xmlhttp.status==200)
+						{
+							var obj=JSON.parse(xmlhttp.responseText);
+							obj.sources.forEach(t);
+						}
+					}
+				}
+			xmlhttp.send();
+			
+			function t(it)
+			{
+				if(it!=null)
+				{
+					if(s==it.id)
+					{
+						se=' selected';
+					}
+					else
+					{
+						se='';
+					}
+					tt+='<option'+se+'>'+it.id+'</option>';
+					document.getElementById('newssrc').innerHTML=tt;
 				}
 			}
-			xh.send(null);
-			setTimeout('process()',500);
-		}
 
-		function set_parnews()
-		{
-			var sdisplaynews = 0;
 
-			if (document.getElementById('use_news').checked) sdisplaynews = 1;
-			snewsApiKey = document.getElementById('newsk').value;
-			snewssource = document.getElementById('newssource').value;
-
-			url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
-
-			var xh = new XMLHttpRequest();
-			xh.open('GET', url, true);
-			xh.onreadystatechange = function()
+			function process()
 			{
-				if (xh.readyState==4 && xh.status==200) loadValues();
-			}      
-			xh.send(null);
-		}
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jact", true);
+				xh.onreadystatechange = function()
+				{
+					if (xh.readyState == 4 && xh.status == 200) 
+					{
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('cur_time').value = res.tstr;
+					}
+				}
+				xh.send(null);
+				setTimeout('process()',500);
+			}
 
-		process();
-	
+			process();
 		</script>
 	</body>
 </html>

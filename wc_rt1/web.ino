@@ -472,8 +472,6 @@ void handlejParc()
   json["dht"] = conf_data.gpio_dht;
   json["ana"] = conf_data.gpio_ana;
   json["uar"] = conf_data.gpio_uar;
-  json["bz2"] = conf_data.gpio_bz2;
-
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -487,7 +485,7 @@ void handleSetParc()
 {
   //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+
   //'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+
-  //'&dht='+dht+'&ana='+ana+'&uar='+uar+'&bz2='+bz2;
+  //'&dht='+dht+'&ana='+ana+'&uar='+uar;
   conf_data.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
   conf_data.auto_corr = (server.arg("acorr") == "1");
   conf_data.use_pm = (server.arg("upm") == "1");
@@ -512,8 +510,6 @@ void handleSetParc()
   conf_data.gpio_dht = constrain(server.arg("dht").toInt(), 0, 255);
   conf_data.gpio_ana = constrain(server.arg("ana").toInt(), 0, 255);
   conf_data.gpio_uar = constrain(server.arg("uar").toInt(), 0, 255);
-  conf_data.gpio_bz2 = constrain(server.arg("bz2").toInt(), 0, 255);
-
 
   conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
@@ -847,7 +843,7 @@ String getContentType(String filename)
 
 void handleSetNews()
 {
- //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
+  //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
 
   conf_data.news_en = server.hasArg("displaynews");
 
@@ -868,27 +864,57 @@ void handleSetNews()
 //-------------------------------------------------------------- handler Get Parameter from sensor
 void handlejNews()
 {
-  DynamicJsonDocument jsonBuffer(512);
+  String st = "";
+  DynamicJsonDocument jsonBuffer(4096);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["displaynews"] = conf_data.news_en;
   json["newsApiKey"]  = conf_data.news_api_key;
   json["newssource"]  = conf_data.news_source;
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  uint8_t inx = 0;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string1"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string2"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string3"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string4"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string5"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string6"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string7"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string8"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string9"] = st;
+  inx++;
+  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
+  st += newsClient.getDescription(inx);
+  json["string10"] = st;
 
-  server.send(200, "text/json", st);
-  st = String();
-  if (conf_data.news_en)
-  {
-    for (int inx = 0; inx < 10; inx++)
-    {
-      st = "<div class='w3-cell-row'><a href='" + newsClient.getUrl(inx) + "' target='_BLANK'>" + newsClient.getTitle(inx) + "</a></div>";
-      st += newsClient.getDescription(inx) + "<br/><br/>";
-      server.sendContent(st);
-      st = String();
-    }
-  }
+  String st1 = String();
+  if (serializeJson(jsonBuffer, st1) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  server.send(200, "text/json", st1);
 }
 
 # endif
