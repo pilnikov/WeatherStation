@@ -17,6 +17,7 @@ void web_setup()
   server.on("/set_parc", handleSetParc);
   server.on("/set_alm", handleSetAlarm);
   server.on("/set_partrm", handleSetPartrm);
+  server.on("/set_news", handleSetNews);
   server.on("/jact", handlejAct);
   server.on("/jtime", handlejTime);
   server.on("/jwifi", handlejWiFi);
@@ -28,7 +29,7 @@ void web_setup()
   server.on("/jsnr", handlejSnr);
   server.on("/juart", handlejUart);
   server.on("/jtrm", handlejTrm);
-  server.on("/savenews", handleSaveNews);
+  server.on("/jnews", handlejNews);
   //server.on("/all",       handleAll  );
 
   //-------------------------------------------------------------- for LittleFS
@@ -844,8 +845,10 @@ String getContentType(String filename)
   return "text/plain";
 }
 
-void handleSaveNews()
+void handleSetNews()
 {
+ //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
+
   conf_data.news_en = server.hasArg("displaynews");
 
   strcpy(conf_data.news_api_key, server.arg("newsApiKey").c_str());
@@ -862,5 +865,30 @@ void handleSaveNews()
   serv_ms = millis();
 }
 
+//-------------------------------------------------------------- handler Get Parameter from sensor
+void handlejNews()
+{
+  DynamicJsonDocument jsonBuffer(512);
+  JsonObject json = jsonBuffer.to<JsonObject>();
+
+  json["displaynews"] = conf_data.news_en;
+  json["newsApiKey"]  = conf_data.news_api_key;
+  json["newssource"]  = conf_data.news_source;
+  String st = String();
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+
+  server.send(200, "text/json", st);
+  st = String();
+  if (conf_data.news_en)
+  {
+    for (int inx = 0; inx < 10; inx++)
+    {
+      st = "<div class='w3-cell-row'><a href='" + newsClient.getUrl(inx) + "' target='_BLANK'>" + newsClient.getTitle(inx) + "</a></div>";
+      st += newsClient.getDescription(inx) + "<br/><br/>";
+      server.sendContent(st);
+      st = String();
+    }
+  }
+}
 
 # endif
