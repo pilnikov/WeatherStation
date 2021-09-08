@@ -10,7 +10,11 @@ void m7219_init()
   char tstr[255];
 
   if (conf_data.type_disp < 10) m7219 = new Max72(conf_data.gpio_dcs, 1, 1);
-  else m7219 = new Max72(conf_data.gpio_dcs, 1, 4);
+  else
+  {
+    if (conf_data.type_disp == 20) m7219 = new Max72(conf_data.gpio_dcs, 4, 1);
+    if (conf_data.type_disp == 21) m7219 = new Max72(conf_data.gpio_dcs, 4, 2);
+  }
 
   m7219 -> begin();
   f_dsp.CLS(screen, sizeof screen);
@@ -53,7 +57,38 @@ void m7219_ramFormer(byte *ram_buff)
     }
   }
   m7219 -> setRam(buff, 32);
+  m7219 -> write();
 }
+
+void m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp)
+{
+  uint8_t qmatrix = vdisp * hdisp;
+  uint8_t mSize  = qmatrix << 3;
+
+  byte buff[mSize];
+
+  for (uint8_t x = 0; x < mSize; x += 8) // шаг 8 - кол во строк в одном модуле; mSize - всего байт (колонок) в наборе = hdisp х 8 x vdisp;
+  {
+    byte b[8];
+    memset(b, 0, 8);
+
+    for (uint8_t y = 0; y < 8; y++)
+    {
+      byte a = 0x1;
+      for (uint8_t z = 0; z < 8; z++)
+      {
+        b[z] |= ram_buff[x + y] & a ? 0x1 << (7 - y) : 0x0; // поворот каждой матрицы на 90 градусов против часовой стрелки
+        a <<= 1;
+        buff[x + z] = b[z] >> 1;// переставляем биты из 7 6 5 4 3 2 1 0
+        buff[x + z] |= b[z] & 0x1 ? 0x80 : 0x0; //    в 6 5 4 3 2 1 0 7
+      }
+    }
+  }
+  m7219 -> setRam(buff, mSize);
+  m7219 -> write();
+}
+
+
 
 void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 {

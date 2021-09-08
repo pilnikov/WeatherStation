@@ -274,8 +274,8 @@ void firq9() //0.030 sec running string is out switch to time view
       if (conf_data.type_disp == 20)
       {
         m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
-        m7219_ramFormer(screen);
-        m7219 -> write();
+        if (conf_data.type_disp == 20) m7219_ramFormer(screen);
+        if (conf_data.type_disp == 21) m7219_ramFormer2(screen, 4, 2);
       }
       break;
 

@@ -68,7 +68,6 @@ void Max72::begin(void) {
 
   // Set the brightness to a medium value
   setIntensity(7);
-
 }
 
 void Max72::shutdown(boolean b)
@@ -126,11 +125,5 @@ void Max72::setRam(byte *data, uint8_t size)
   // Set the bitmap buffer from the data.
   byte dataSize = size;
   if (dataSize > bitmapSize) dataSize = bitmapSize;
-
-  memset(bitmap, 0, bitmapSize);
-
-  for (byte i = 0; i < dataSize; i++)
-  {
-    bitmap[i] = data[i];
-  }
+  memmove(bitmap, data, dataSize);
 }

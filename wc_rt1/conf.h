@@ -125,7 +125,7 @@
   news_api_key[33], // Get your News API Key from https://newsapi.org
   news_source[17];  // https://newsapi.org/sources to get full list of news sources available
   } conf_data_t;
-  
+
 ********************************************************** Actual config
   struct ram_data_t
   {
@@ -143,7 +143,7 @@
   uint16_t  lb;             // Текущая яркость
   bool      bh1750_present; // Наличие датчика освещенности BH1750
   };
-  
+
 ********************************************************* Rtc
   struct rtc_data_t
   {
@@ -425,8 +425,10 @@ FD f_dsp;
 HT h_dsp;
 MSG dmsg;
 
+# if defined(__xtensa__)
 // ---------------------------------------------------- News Client
 NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
+# endif
 
 // ---------------------------------------------------- Variant of config
 #define _dacha

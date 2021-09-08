@@ -77,7 +77,7 @@ static bool d_notequal[q_dig];
 const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
 static unsigned char oldDigit[q_dig];                       // убегающая цифра
 static uint8_t  num_st = 1;
-uint8_t max_st = 4; //номер и макс кол-во прокручиваемых строк
+uint8_t max_st = 5; //номер и макс кол-во прокручиваемых строк
 uint8_t  text_size = 1;   // размер текста
 
 static char st1[254];

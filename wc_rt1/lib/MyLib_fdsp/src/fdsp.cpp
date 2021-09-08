@@ -334,7 +334,7 @@ void FD::printCharacter(unsigned char character, uint8_t x, byte *out, const byt
 {
   if (character >= 0 && character < 256) //characters must remain within ASCII printable characters defined in array
   {
-    memcpy_P (out + x,                     // цель
+    memcpy_P (out + x,                   // цель
             font + character * font_wdt, // источник
             font_wdt);                   // объем
   }

@@ -185,7 +185,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
       switch (num)
       {
         case 1:
-          sprintf_P(out, PSTR(" Сегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
+          sprintf_P(out, PSTR("Cегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
           _repeat = false;
           break;
         case 2:

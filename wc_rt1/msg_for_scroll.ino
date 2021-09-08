@@ -175,7 +175,11 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 5:
           if (cf.news_en)
           {
-            String news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+            String news_s = "News not support this platform";
+# if defined(__xtensa__)
+            news_s = "";
+            news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+# endif
             strcpy(out, news_s.c_str());
             newsIndex ++;
             if (newsIndex > 9) newsIndex = 0;
@@ -273,11 +277,16 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 5:
           if (cf.news_en)
           {
-            String news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+            String news_s = "Новости недоступны для этой платформы";
+# if defined(__xtensa__)
+            news_s = "";
+            news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+# endif
             strcpy(out, news_s.c_str());
             newsIndex ++;
             if (newsIndex > 9) newsIndex = 0;
             _repeat = false;
+
           }
           break;
         case 6:

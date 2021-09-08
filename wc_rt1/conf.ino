@@ -494,8 +494,8 @@ conf_data_t defaultConfig()
   _data.time_zone        = 5;
 
 #if defined _dacha
-  _data.type_vdrv        = 11;
-  _data.type_disp        = 11;
+  _data.type_vdrv        = 2;
+  _data.type_disp        = 21;
 
   _data.type_snr1        = 4;
   _data.type_snr2        = 6;
