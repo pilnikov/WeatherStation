@@ -97,7 +97,6 @@ conf_data_t loadConfig(const char *filename)
       _data.gpio_dht          = doc["dht"];
       _data.gpio_ana          = doc["ana"];
       _data.gpio_uar          = doc["uar"];
-      _data.gpio_bz2          = doc["bz2"];
 
       //---Display.html--------------------------------------
       //---Options for display-------------------------------
@@ -243,7 +242,6 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["dht"]                 = _data.gpio_dht;
   json["ana"]                 = _data.gpio_ana;
   json["uar"]                 = _data.gpio_uar;
-  json["bz2"]                 = _data.gpio_bz2;
 
   //---Display.html--------------------------------------
   //---Options for display-------------------------------
@@ -429,6 +427,7 @@ conf_data_t defaultConfig()
   _data.nmd_br           = 2;
   _data.auto_br          = false;
 
+#if defined(ESP8266)
   _data.gpio_sda         = 4;
   _data.gpio_scl         = 5;
   _data.gpio_dio         = 13;
@@ -443,8 +442,23 @@ conf_data_t defaultConfig()
   _data.gpio_dht         = 0;
   _data.gpio_ana         = 17;
   _data.gpio_uar         = 16;
-  _data.gpio_bz2         = 32;
 
+#elif defined(ARDUINO_ARCH_ESP32)
+  _data.gpio_sda         = 23;
+  _data.gpio_scl         = 22;
+  _data.gpio_dio         = 19;
+  _data.gpio_clk         = 18;
+  _data.gpio_dcs         = 5;
+  _data.gpio_dwr         = 26;
+  _data.gpio_trm         = 36;
+  _data.gpio_sqw         = 34;
+  _data.gpio_snd         = 2;
+  _data.gpio_led         = 16;
+  _data.gpio_btn         = 0;
+  _data.gpio_dht         = 39;
+  _data.gpio_ana         = 35;
+  _data.gpio_uar         = 36;
+#endif
 
   _data.br_level[0]      = 1;
   _data.br_level[1]      = 200;
@@ -538,7 +552,6 @@ conf_data_t defaultConfig()
   _data.gpio_dht         = 63; //A9
   _data.gpio_ana         = 58; //A4
   _data.gpio_uar         = 65; //A11
-  _data.gpio_bz2         = 64; //A10
 
 #if defined _dacha
   _data.br_level[0]      = 220;

@@ -98,7 +98,6 @@
   gpio_dht = 255,
   gpio_ana = 255,
   gpio_uar = 255,
-  gpio_bz2 = 255;
 
   int8_t
   time_zone;

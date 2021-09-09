@@ -25,10 +25,10 @@ void setup()
   //------------------------------------------------------  Читаем установки из EEPROM
 
 #if defined(__AVR_ATmega2560__)
-  conf_data = loadConfig(conf_f);
+  //conf_data = loadConfig(conf_f);
 
-  //conf_data = defaultConfig();
-  //saveConfig(conf_f, conf_data);
+  conf_data = defaultConfig();
+  saveConfig(conf_f, conf_data);
 
 #endif
 
