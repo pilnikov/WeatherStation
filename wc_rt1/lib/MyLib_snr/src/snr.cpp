@@ -366,7 +366,8 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 
 	for(uint8_t i = 0; i < 4; i++)
 	{	
-		uint8_t type_snr = 0;
+		uint8_t type_snr = 0; 
+		float t_data_h = 0, t_data_t = 99,  t_data_p = 700, e_data1_h = 0, e_data1_t = 99, e_data1_p = 700, e_data2_h = 0, e_data2_t = 99, e_data2_p =700;
 
 		switch (i)
 		{
@@ -374,20 +375,53 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 				type_snr = type_snr1;
 				data.h1 = 0; 
 				data.t1 = 99;
+
+				t_data_h = t_data.h1;
+				t_data_t = t_data.t1;
+
+				e_data1_h = e_data1.h1;
+				e_data1_t = e_data1.t1;
+
+				e_data2_h = e_data2.h1;
+				e_data2_t = e_data2.t1;
 				break;
 			case 1:
 				type_snr = type_snr2;
 				data.h2 = 0; 
 				data.t2 = 99;
+
+				t_data_h = t_data.h2;
+				t_data_t = t_data.t2;
+
+				e_data1_h = e_data1.h2;
+				e_data1_t = e_data1.t2;
+
+				e_data2_h = e_data2.h2;
+				e_data2_t = e_data2.t2;
 				break;
 			case 2:
 				type_snr = type_snr3;
 				data.h3 = 0; 
 				data.t3 = 99;
+
+				t_data_h = t_data.h3;
+				t_data_t = t_data.t3;
+
+				e_data1_h = e_data1.h3;
+				e_data1_t = e_data1.t3;
+
+				e_data2_h = e_data2.h3;
+				e_data2_t = e_data2.t3;
 				break;
 			case 3:
 				data.p = 700; 
 				type_snr = type_snrp;
+
+				t_data_p = t_data.p;
+
+				e_data1_p = e_data1.p;
+
+				e_data2_p = e_data2.p;
 				break;
 			default: 
 				break;
@@ -398,19 +432,19 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 		switch (type_snr)
 		{
 			case 1:
-				h = t_data.h1;
-				t = t_data.t1;
-				p = t_data.p;
+				h = t_data_h;
+				t = t_data_t;
+				p = t_data_p;
 				break;
 			case 2:
-				h = e_data1.h1;
-				t = e_data1.t1;
-				p = e_data1.p;
+				h = e_data1_h;
+				t = e_data1_t;
+				p = e_data1_p;
 				break;
 			case 3:
-				h = e_data2.h1;
-				t = e_data2.t1;
-				p = e_data2.p;
+				h = e_data2_h;
+				t = e_data2_t;
+				p = e_data2_p;
 				break;
 			case 4:
 				h = humi_read(type_snr);
