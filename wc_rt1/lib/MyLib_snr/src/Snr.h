@@ -62,21 +62,9 @@ private:
 
 	Adafruit_BME280 bme; // I2C
 
-	float am_read_h();
-	float am_read_t();
-	float si_read_h();
-	float si_read_t();
-	float bmp180_read_t();
-	float bmp180_read_p();
-	float bmp280_read_t();
-	float bmp280_read_p();
-	float bme280_read_h();
-	float bme280_read_t();
-	float bme280_read_p();
-	void  dht_init();
-	float dht_read_h();
-	float dht_read_t();
-	void  dispsnrDetails();
+	float humi_read(uint8_t);
+	float temp_read(uint8_t);
+	float pres_read(uint8_t);
 
 protected:
 
