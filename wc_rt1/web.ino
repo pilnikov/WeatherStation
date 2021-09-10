@@ -845,7 +845,7 @@ void handleSetNews()
 {
   //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
 
-  conf_data.news_en = server.hasArg("displaynews");
+  conf_data.news_en = (server.arg("displaynews") == "1");
 
   strcpy(conf_data.news_api_key, server.arg("newsApiKey").c_str());
   strcpy(conf_data.news_source, server.arg("newssource").c_str());
