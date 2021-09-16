@@ -53,7 +53,7 @@ ram_data_t SNR::init(ram_data_t in_data)
 					DBG_OUT_PORT.print(F("Resolution:   ")); DBG_OUT_PORT.print(sensor.resolution); DBG_OUT_PORT.println(F("%"));
 					DBG_OUT_PORT.println(F("------------------------------------"));
 				#endif
-				delayMS = 200;
+				delayMS = 2000;
 				//DBG_OUT_PORT.print  (F("Delay:   ")); DBG_OUT_PORT.print(delayMS); DBG_OUT_PORT.println(F(" ms"));
 				break;
 			case 6:

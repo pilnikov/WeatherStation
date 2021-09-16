@@ -436,18 +436,18 @@ void keyb_read()
     {
       serv_ms = millis();
       start_serv();  //Запускаем web морду
-      if ((conf_data.type_thermo == 0)  & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Включаем светодиод
+      if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Включаем светодиод
     }
     else
     {
       serv_ms = millis() + 60000L;
       stop_serv();  //Останавливаем web морду
-      if ((conf_data.type_thermo == 0)  & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
+      if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
     }
   }
 
 #endif
-  if ((millis() - setting_ms > 9000) & (conf_data.type_thermo == 0) & (ram_data.type_vdrv != 3) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
+  if ((millis() - setting_ms > 9000) & (conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
 
   if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000)) //держим от 9 до 15 сек
   {
