@@ -16,7 +16,7 @@
 #include <AM2320.h>
 #include <Adafruit_BME280.h>
 #include <DHT.h>
-#if defined(ESP8266) || defined(ESP32) ||  defined(__AVR__)
+#if defined(__xtensa__) ||  defined(__AVR__) || CONFIG_IDF_TARGET_ESP32C3
 #include <DHT_U.h>
 #endif
 
@@ -38,7 +38,7 @@ public:
 
 private:
 	//----------------------------------------------------------dht
-#if defined(ESP8266) || defined(ESP32) ||  defined(__AVR__)
+#if defined(__xtensa__) ||  defined(__AVR__) || CONFIG_IDF_TARGET_ESP32C3
 	DHT_Unified* dht;
 #endif
 

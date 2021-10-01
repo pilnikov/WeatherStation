@@ -81,7 +81,7 @@ void irq_set()
 void runing_string_start() // ---------------------------- Запуск бегущей строки
 {
   String local_ip = "192.168.0.0";
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   local_ip = myIP.toString();
 #endif
   memset(st1, 0, 254);
@@ -185,7 +185,7 @@ void firq6() // 0.5 sec main cycle
 
 void firq7() // 0.180 sec Communications with server
 {
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (web_cli || web_ap)
   {
     server.handleClient();

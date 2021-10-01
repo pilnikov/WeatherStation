@@ -1,4 +1,4 @@
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
@@ -683,10 +683,10 @@ bool handleFileRead(String path)
     return true;
   }
 #elif defined(ARDUINO_ARCH_ESP32)
-  if (LITTLEFS.exists(pathWithGz) || LITTLEFS.exists(path)) {
-    if (LITTLEFS.exists(pathWithGz))
+  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
+    if (LittleFS.exists(pathWithGz))
       path += ".gz";
-    File file = LITTLEFS.open(path, "r");
+    File file = LittleFS.open(path, "r");
     server.streamFile(file, contentType);
     file.close();
     return true;
@@ -706,7 +706,7 @@ void handleFileUpload()
 #if defined(ESP8266)
     fsUploadFile = LittleFS.open(filename, "w");
 #elif defined(ARDUINO_ARCH_ESP32)
-    fsUploadFile = LITTLEFS.open(filename, "w");
+    fsUploadFile = LittleFS.open(filename, "w");
 #endif
     filename = String();
   }
@@ -735,9 +735,9 @@ void handleFileDelete()
     return server.send(404, "text/plain", "FileNotFound");
   LittleFS.remove(path);
 #elif defined(ARDUINO_ARCH_ESP32)
-  if (!LITTLEFS.exists(path))
+  if (!LittleFS.exists(path))
     return server.send(404, "text/plain", "FileNotFound");
-  LITTLEFS.remove(path);
+  LittleFS.remove(path);
 #endif
   server.send(200, "text/plain", "");
   path = String();
@@ -757,9 +757,9 @@ void handleFileCreate()
     return server.send(500, "text/plain", "FILE EXISTS");
   File file = LittleFS.open(path, "w");
 #elif defined(ARDUINO_ARCH_ESP32)
-  if (LITTLEFS.exists(path))
+  if (LittleFS.exists(path))
     return server.send(500, "text/plain", "FILE EXISTS");
-  File file = LITTLEFS.open(path, "w");
+  File file = LittleFS.open(path, "w");
 #endif
 
   if (file)
@@ -799,9 +799,9 @@ void handleFileList()
   }
 #endif
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
 
-  File root = LITTLEFS.open(path);
+  File root = LittleFS.open(path);
   String output = "[";
   if (root.isDirectory()) {
     File file = root.openNextFile();

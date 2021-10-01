@@ -63,7 +63,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 void(* resetFunc) (void) = 0; //Programm reset
 #endif
 
-# if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 //------------------------------------------------------  Делаем запрос данных с Gismeteo
 String gs_rcv(unsigned long city_id)
 {
@@ -428,7 +428,7 @@ void keyb_read()
     runing_string_start(); //Запуск бегущей строки;
   }
 
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   bool serv_act = (web_cli || web_ap);
   if (btn_released & (millis() - setting_ms > 2000 && millis() - setting_ms < 9000)) // держим от 2 до 9 сек
   {
@@ -451,7 +451,7 @@ void keyb_read()
 
   if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000)) //держим от 9 до 15 сек
   {
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     stop_serv();
     DBG_OUT_PORT.println(F("Reboot ESPp..."));
     ESP.restart();                                                                      //Перезагружаемся
@@ -467,7 +467,7 @@ void keyb_read()
     conf_data = defaultConfig();
     saveConfig(conf_f, conf_data);
 
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     stop_serv();
     DBG_OUT_PORT.println(F("Reboot ESP..."));
     ESP.restart();
@@ -595,15 +595,11 @@ void Thermo(snr_data_t sn, conf_data_t cf)
 }
 
 //------------------------------------------------------  Внутренняя флэшка LittleFS
-# if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
 void printFile(const char* filename) {
   // Open file for reading
-#if defined(ESP8266)
   File file = LittleFS.open(filename, "r");
-#elif defined(ARDUINO_ARCH_ESP32)
-  File file = LITTLEFS.open(filename, "r");
-#endif
 
   if (!file)
   {
@@ -639,15 +635,14 @@ void fs_setup()
     }
   }
 #elif defined(ARDUINO_ARCH_ESP32)
-
-  if (!LITTLEFS.begin())
+  if (!LittleFS.begin())
   {
     DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    LITTLEFS.format();
+    LittleFS.format();
   }
   else
   {
-    File root = LITTLEFS.open("/");
+    File root = LittleFS.open("/");
 
     String output = "[";
     if (root.isDirectory()) {

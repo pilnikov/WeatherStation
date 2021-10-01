@@ -216,7 +216,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 //////////////////////////////////////////lcd//////////////////////////////////////////////////////////////////////
 void pcf8574_init()
 {
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   lcd = new LiquidCrystal_I2C(ram_data.lcd_addr, lcd_col, lcd_row);
   lcd -> init();
 #endif
@@ -511,7 +511,7 @@ int8_t getWifiQuality()
 {
   int32_t dbm = -200;
 
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   dbm = WiFi.RSSI();
 #endif
 

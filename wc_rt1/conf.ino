@@ -1,4 +1,4 @@
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
 conf_data_t loadConfig(const char *filename)
 {
@@ -7,7 +7,7 @@ conf_data_t loadConfig(const char *filename)
 #if defined(ESP8266)
   File file = LittleFS.open(filename, "r");
 #elif defined(ARDUINO_ARCH_ESP32)
-  File file = LITTLEFS.open(filename, "r");
+  File file = LittleFS.open(filename, "r");
 #endif
 
   if (!file)
@@ -349,8 +349,8 @@ void saveConfig(const char *filename, conf_data_t _data)
   LittleFS.remove(filename);
   File configFile = LittleFS.open(filename, "w"); //Open config file for writing
 #elif defined(ARDUINO_ARCH_ESP32)
-  LITTLEFS.remove(filename);
-  File configFile = LITTLEFS.open(filename, "w"); //Open config file for writing
+  LittleFS.remove(filename);
+  File configFile = LittleFS.open(filename, "w"); //Open config file for writing
 #endif
   if (!configFile)
   {

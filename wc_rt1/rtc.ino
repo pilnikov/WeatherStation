@@ -32,7 +32,7 @@ void rtc_init()
       // set the interupt pin to input mode
       pinMode(conf_data.gpio_sqw, INPUT_PULLUP);
       // setup external interupt
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
       attachInterrupt(conf_data.gpio_sqw, isr0, FALLING);
 #else
       attachInterrupt(SQW, isr0, FALLING);
@@ -351,12 +351,12 @@ bool Alarmed()
         }
         break;
       case 5:
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
         radio_snd("cli.start");
 #endif
         break;
       case 6:
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
         radio_snd("cli.stop");
 #endif
         break;

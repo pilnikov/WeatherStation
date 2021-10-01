@@ -147,7 +147,7 @@ float SNR::humi_read(uint8_t type_snr)
 				# ifdef _debug
 					DBG_OUT_PORT.print(F("DHT Humidity: "));
 				# endif //_debug 
-			#elif defined(__xtensa__) || defined(__AVR_ATmega2560__)
+			#elif defined(__xtensa__) || defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32C3
 				sensors_event_t event;
 
 				// Get humidity event.
@@ -222,7 +222,7 @@ float SNR::temp_read(uint8_t type_snr)
 				# ifdef _debug
 					DBG_OUT_PORT.print(F("DHT Temperature: "));
 				# endif //_debug 
-			#elif defined(__xtensa__) || defined(__AVR_ATmega2560__)
+			#elif defined(__xtensa__) || defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32C3
 				sensors_event_t event;
 
 				// Get temperature event.
@@ -351,7 +351,7 @@ float SNR::pres_read(uint8_t type_snr)
 
 void SNR::dht_preset(uint8_t pin, uint8_t type) // установка пинов
 {
-#if defined(__xtensa__) || defined(__AVR_ATmega2560__)
+#if defined(__xtensa__) || defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32C3
 	dht = new DHT_Unified(pin, type);
 #endif
 

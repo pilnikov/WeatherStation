@@ -15,7 +15,7 @@ void setup()
 
   //------------------------------------------------------  Инициализируем встроенную файловую систему LittleFS
 
-# if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   fs_setup();
   DBG_OUT_PORT.println(F("file system started"));
 #endif
@@ -32,7 +32,7 @@ void setup()
 
 #endif
 
-# if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   conf_data = loadConfig(conf_f);
 
   //conf_data = defaultConfig();
@@ -41,7 +41,7 @@ void setup()
   DBG_OUT_PORT.println(F("config loaded"));
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //--------------------------------------------------------  Запускаем WiFi
   start_wifi();
 
@@ -258,7 +258,7 @@ void loop()
     if (test_boot) DBG_OUT_PORT.println(F("Test mode!!!"));
 
     // ----------------------------------------------------- Проигрываем звуки
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #elif defined (__AVR__)
     Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
@@ -288,7 +288,7 @@ void loop()
   }
   else //-------------------------------------------------- Minimal boot
   {
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     if (web_cli || web_ap)
     {
       server.handleClient();

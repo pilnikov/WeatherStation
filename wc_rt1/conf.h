@@ -206,7 +206,7 @@
 #include "hw.h"
 #endif
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
 #include <pgmspace.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
@@ -215,7 +215,7 @@
 #include <WebServer.h>
 #include <HTTPUpdateServer.h>
 #include <ESP32SSDP.h>
-#include <LITTLEFS.h>
+#include <LittleFS.h>
 //#include <IRremote.h>
 
 #include <ArduinoOTA.h>
@@ -229,7 +229,7 @@
 #include <Wire.h>
 #include <SPI.h>
 
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include "Netwf.h"
 #include <FS.h>
 #include <WiFiUdp.h>
@@ -251,7 +251,7 @@
 #include "Fdsp.h"
 #include "BH1750.h"
 
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include "ntp.h"
 #include "Exts.h"
 
@@ -303,15 +303,15 @@ rtc_data_t rtc_data;
 #include "disp.h"
 #include "rtc.h"
 
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include "web.h"
 #endif
 
 // ----------------------------------- Force define func name
-void printFile(const char);
+void printFile(const char*);
 void fs_setup();
-conf_data_t loadConfig(const char);
-void saveConfig(const char, conf_data_t);
+conf_data_t loadConfig(const char*);
+void saveConfig(const char*, conf_data_t);
 conf_data_t defaultConfig();
 
 
@@ -354,7 +354,7 @@ void ARDUINO_ISR_ATTR isr1();
 
 
 // ----------------------------------- NTP
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 static NTPTime NTP_t;
 #endif
 
@@ -364,7 +364,7 @@ static ESP8266WebServer server(80);
 static ESP8266HTTPUpdateServer httpUpdater;
 #endif
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
 static WebServer server(80);
 HTTPUpdateServer httpUpdater;
 #endif
@@ -378,7 +378,7 @@ ESP8266HWInfo hwi;
 BH1750 lightMeter;
 
 // ---------------------------------------------------- Common
-# if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 const char ntp_server[] = "ru.pool.ntp.org";
 #endif
 
@@ -409,14 +409,14 @@ volatile bool btn_state_flag = false;
 // ---------------------------------------------------- Constructors
 Synt Buzz;               //Конструктор пищалки
 
-# if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 IPAddress IP_Addr, myIP;
 
 File fsUploadFile;
 
 ES e_srv;
 NF nsys;
-# endif
+#endif
 
 SF fsys;
 SNR sens;
@@ -424,10 +424,10 @@ FD f_dsp;
 HT h_dsp;
 MSG dmsg;
 
-# if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 // ---------------------------------------------------- News Client
 NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
-# endif
+#endif
 
 // ---------------------------------------------------- Variant of config
 #define _dacha
