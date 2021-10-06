@@ -70,7 +70,7 @@ void setup()
     start_serv();
   }
 #endif
-  //  conf_data.boot_mode = 0;
+  //conf_data.boot_mode = 0;
 
   DBG_OUT_PORT.print(F("boot mode is..."));
   DBG_OUT_PORT.println(conf_data.boot_mode);

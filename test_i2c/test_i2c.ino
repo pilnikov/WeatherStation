@@ -1,8 +1,11 @@
 #include <Wire.h>
 
-#if defined(__xtensa__)
+#if defined(ESP8266)
 static const int         SDA_PIN  PROGMEM =  5;  // (D2)
 static const int         SCL_PIN  PROGMEM =  4;  // (D1)
+#elif defined(ARDUINO_ARCH_ESP32)
+static const int         SDA_PIN  PROGMEM =  23;  // (D2)
+static const int         SCL_PIN  PROGMEM =  22;  // (D1)
 #endif
 
 
@@ -17,9 +20,7 @@ void setup()
   Wire.begin();
 #endif
 
-
-
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println(F("\nI2C Scanner"));
 }
 

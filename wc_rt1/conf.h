@@ -190,24 +190,20 @@
 #endif
 
 #if defined(ESP8266)
-#include <pgmspace.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266SSDP.h>
 //#include <ESPAsyncTCP.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
-#include <LittleFS.h>
-#include <ArduinoOTA.h>
 
 //#include "..\lib\MyLib_hw\src\hw.h"
 //#include "..\lib\MyLib_nf\src\Netwf.h"
 
-#include "hw.h"
+#include <hw.h>
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-#include <pgmspace.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiClient.h>
@@ -215,24 +211,25 @@
 #include <WebServer.h>
 #include <HTTPUpdateServer.h>
 #include <ESP32SSDP.h>
-#include <LittleFS.h>
 //#include <IRremote.h>
 
-#include <ArduinoOTA.h>
 
 //#include "..\lib\MyLib_nf\src\Netwf.h"
 #endif
 
 
 #define ARDUINOJSON_USE_LONG_LONG 1
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#include <pgmspace.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <SPI.h>
 
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include "Netwf.h"
+#include <Netwf.h>
 #include <FS.h>
 #include <WiFiUdp.h>
+#include <LittleFS.h>
+#include <ArduinoOTA.h>
 #endif
 /*
   #include "..\lib\MyLib_sf2\src\Sysf2.h"
@@ -244,16 +241,16 @@
   #include "..\lib\BH1750-master\BH1750.h"
 */
 
-#include "Sysf2.h"
-#include "Snd.h"
+#include <Sysf2.h>
+#include <Snd.h>
 #include "Songs.h"
-#include "Snr.h"
-#include "Fdsp.h"
-#include "BH1750.h"
+#include <Snr.h>
+#include <Fdsp.h>
+#include <BH1750.h>
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include "ntp.h"
-#include "Exts.h"
+#include <ntp.h>
+#include <Exts.h>
 
 #define DBG_OUT_PORT Serial
 

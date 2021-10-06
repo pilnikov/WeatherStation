@@ -345,13 +345,8 @@ void saveConfig(const char *filename, conf_data_t _data)
 
 
   // Delete existing file, otherwise the configuration is appended to the file
-#if defined(ESP8266)
   LittleFS.remove(filename);
   File configFile = LittleFS.open(filename, "w"); //Open config file for writing
-#elif defined(ARDUINO_ARCH_ESP32)
-  LittleFS.remove(filename);
-  File configFile = LittleFS.open(filename, "w"); //Open config file for writing
-#endif
   if (!configFile)
   {
     DBG_OUT_PORT.println(F("Failed to open config file for writing"));
