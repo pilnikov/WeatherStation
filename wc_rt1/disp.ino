@@ -7,8 +7,6 @@ const uint8_t lcd_col = 16;
 
 void m7219_init()
 {
-  char tstr[255];
-
   if (conf_data.type_disp < 10) m7219 = new Max72(conf_data.gpio_dcs, 1, 1);
   else
   {
@@ -21,6 +19,7 @@ void m7219_init()
 
   if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
   {
+    memset (tstr, 0, 25);
     strcpy(tstr, "7219");
     f_dsp.print_(tstr, 5, screen, 0, font14s, 2, 0);
     m7adopt(screen, 0, 4);
@@ -128,7 +127,6 @@ void a595_init()
 
   if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
   {
-    char tstr[255];
 #if defined(__AVR_ATmega2560__)
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 

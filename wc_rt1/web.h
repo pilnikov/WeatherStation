@@ -22,6 +22,11 @@ void handlejUart();
 void handlejTrm();
 void handleSetPartrm();
 
+
+void handlejActA();
+void handlejActB();
+void handlejActT();
+
 String getContentType(String filename);
 bool handleFileRead(String path);
 void handleFileUpload();
@@ -29,5 +34,4 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 
-void cur_time_str(rtc_data_t, char);
 # endif

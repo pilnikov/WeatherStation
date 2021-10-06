@@ -323,6 +323,7 @@ void start_wifi();
 void stop_wifi();
 
 void GetNtp();
+void cur_time_str(rtc_data_t, char);
 snr_data_t GetSnr(ram_data_t, conf_data_t);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_data_t, uint8_t);
 void send_uart();
@@ -380,6 +381,7 @@ const char ntp_server[] = "ru.pool.ntp.org";
 #endif
 
 const char *conf_f = "/config.json";  // config file name
+char tstr[25];
 
 bool               test_boot = false;
 

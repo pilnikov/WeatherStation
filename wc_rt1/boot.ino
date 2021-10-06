@@ -138,6 +138,13 @@ void firq6() // 0.5 sec main cycle
 
   GetTime();
 
+  //-------------Forming string version of current time ------------------
+  if (conf_data.boot_mode == 2)
+  {
+    memset (tstr, 0, 25);
+    rtc_data_t rt = rtc_data;
+    cur_time_str(rt, tstr);
+  }
   if (disp_on)
   {
     //-------------Brigthness------------------

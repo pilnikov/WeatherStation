@@ -16,11 +16,11 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
 
   const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
 
-  char tstr[10];
   uint8_t h = cf.use_pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;
   h = h % 100;
 
   bool _repeat = true;
+  memset (tstr, 0, 25);
 
   do
   {
@@ -293,7 +293,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
 
   //  DBG_OUT_PORT.print(F("test string"));
   //  DBG_OUT_PORT.println(tstr);
-  
+
   f_dsp.utf8rus(tstr);
   f_dsp.print_(tstr, strlen(tstr), in, _offset, font14s, 2, 0);
   return strlen(tstr);

@@ -128,17 +128,28 @@
       function process()
       {
         var xh = new XMLHttpRequest();
-        xh.open("GET", "/jact", true);
+        xh.open("GET", "/jactt", true);
         xh.onreadystatechange = function()
         {
           if (xh.readyState == 4 && xh.status == 200) 
           {
             var res = JSON.parse(xh.responseText);
             document.getElementById('cur_time').value = res.tstr;
-            document.getElementById('cur_foto').value = res.brig;
           }
         }
         xh.send(null);
+
+        var xh1 = new XMLHttpRequest();
+        xh1.open("GET", "/jactb", true);
+        xh1.onreadystatechange = function()
+        {
+          if (xh1.readyState == 4 && xh1.status == 200) 
+          {
+            var res1 = JSON.parse(xh1.responseText);
+           document.getElementById('cur_foto').value = res1.brig;
+          }
+        }
+        xh1.send(null);
         setTimeout('process()',500);
       }
       

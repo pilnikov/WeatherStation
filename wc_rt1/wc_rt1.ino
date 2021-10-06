@@ -69,7 +69,10 @@ void setup()
     web_setup();
     start_serv();
   }
+  if (conf_data.boot_mode != 2) strcpy(tstr, "Safe Mode");
 #endif
+
+
   //conf_data.boot_mode = 0;
 
   DBG_OUT_PORT.print(F("boot mode is..."));

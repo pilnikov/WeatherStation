@@ -18,7 +18,9 @@ void web_setup()
   server.on("/set_alm", handleSetAlarm);
   server.on("/set_partrm", handleSetPartrm);
   server.on("/set_news", handleSetNews);
-  server.on("/jact", handlejAct);
+  server.on("/jactt", handlejActT);
+  server.on("/jactb", handlejActB);
+  server.on("/jacta", handlejActA);
   server.on("/jtime", handlejTime);
   server.on("/jwifi", handlejWiFi);
   server.on("/jclock", handlejParc);
@@ -82,49 +84,19 @@ void stop_serv()
   stop_wifi();
 }
 
-//-------------------------------------------------------------- cur_time_str
-void cur_time_str(rtc_data_t rt, char in[])
-{
-  const char* sdnr_1 = PSTR("ВС");
-  const char* sdnr_2 = PSTR("ПН");
-  const char* sdnr_3 = PSTR("ВТ");
-  const char* sdnr_4 = PSTR("СР");
-  const char* sdnr_5 = PSTR("ЧТ");
-  const char* sdnr_6 = PSTR("ПТ");
-  const char* sdnr_7 = PSTR("СБ");
-
-  const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
-
-  const char* sdne_1 = PSTR("Sun");
-  const char* sdne_2 = PSTR("Mon");
-  const char* sdne_3 = PSTR("Tue");
-  const char* sdne_4 = PSTR("Wed");
-  const char* sdne_5 = PSTR("Thu");
-  const char* sdne_6 = PSTR("Fri");
-  const char* sdne_7 = PSTR("Sat");
-
-  const char* const sdne[] = {sdne_1, sdne_2, sdne_3, sdne_4, sdne_5, sdne_6, sdne_7};
-
-  if (conf_data.rus_lng) sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
-  else sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdne[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
-}
-
 //-------------------------------------------------------------- handlejTime
 void handlejTime()
 {
-  char tstr[25];
-  memset (tstr, 0, 25);
-  rtc_data_t rt = rtc_data;
-  cur_time_str(rt, tstr);
-
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
+
+  rtc_data_t rt = rtc_data;
+
   json["jhour"]  = rt.hour;
   json["jmin"]   = rt.min;
   json["jday"]   = rt.day;
   json["jmonth"] = rt.month;
   json["jyear"]  = rt.year;
-  json["tstr"]   = tstr;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -322,7 +294,7 @@ void handlejPars()
 //-------------------------------------------------------------- handler Get Parameter from sensor
 void handlejSnr()
 {
-  DynamicJsonDocument jsonBuffer(512);
+  DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["t1"] = snr_data.t1;
@@ -332,8 +304,7 @@ void handlejSnr()
   json["h2"] = snr_data.h2;
   json["h3"] = snr_data.h3;
   json["pres"] = snr_data.p;
-  json["brig"] = snr_data.f;
-
+ 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
@@ -625,28 +596,26 @@ void handleSetPartrm()
   serv_ms = millis();
 }
 
-//-------------------------------------------------------------- handlejAct
-void handlejAct()
+//-------------------------------------------------------------- handlejActT
+void handlejActT()
 {
-  DynamicJsonDocument jsonBuffer(512);
+  DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  char tstr[25];
-  memset (tstr, 0, 25);
-  strcpy(tstr, "Safe Mode");
-  rtc_data_t rt = rtc_data;
-  if (conf_data.boot_mode == 2) cur_time_str(rt, tstr);
+   json["tstr"] = tstr;
 
-  json["tstr"] = tstr;
-  json["acth"] = rtc_data.a_hour;
-  json["actm"] = rtc_data.a_min;
-  json["t1"] = snr_data.t1;
-  json["t2"] = snr_data.t2;
-  json["t3"] = snr_data.t3;
-  json["h1"] = snr_data.h1;
-  json["h2"] = snr_data.h2;
-  json["h3"] = snr_data.h3;
-  json["pres"] = snr_data.p;
+  String st = String();
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+
+  server.send(200, "text/json", st);
+  st = String();
+}
+
+//-------------------------------------------------------------- handlejActB
+void handlejActB()
+{
+  DynamicJsonDocument jsonBuffer(100);
+  JsonObject json = jsonBuffer.to<JsonObject>();
   json["brig"] = snr_data.f;
 
   String st = String();
@@ -655,6 +624,22 @@ void handlejAct()
   server.send(200, "text/json", st);
   st = String();
 }
+
+//-------------------------------------------------------------- handlejActA
+void handlejActA()
+{
+  DynamicJsonDocument jsonBuffer(100);
+  JsonObject json = jsonBuffer.to<JsonObject>();
+  json["acth"] = rtc_data.a_hour;
+  json["actm"] = rtc_data.a_min;
+
+  String st = String();
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+
+  server.send(200, "text/json", st);
+  st = String();
+}
+
 
 //-------------------------------------------------------------- handleExit
 void handleExit()

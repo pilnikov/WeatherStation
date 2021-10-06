@@ -141,18 +141,29 @@
       function process()
       {
         var xh = new XMLHttpRequest();
-        xh.open("GET", "/jact", true);
+        xh.open("GET", "/jactt", true);
         xh.onreadystatechange = function()
         {
           if (xh.readyState == 4 && xh.status == 200) 
           {
             var res = JSON.parse(xh.responseText);
             document.getElementById('cur_time').value = res.tstr;
-      		  document.getElementById('act_hour').value = res.acth;
-      	    document.getElementById('act_min' ).value = res.actm;
           }
         }
         xh.send(null);
+
+        var xh1 = new XMLHttpRequest();
+        xh1.open("GET", "/jacta", true);
+        xh1.onreadystatechange = function()
+        {
+          if (xh1.readyState == 4 && xh1.status == 200) 
+          {
+            var res1 = JSON.parse(xh1.responseText);
+      		document.getElementById('act_hour').value = res1.acth;
+      	    document.getElementById('act_min' ).value = res1.actm;
+          }
+        }
+        xh1.send(null);
 
         setTimeout('process()',500);
       }
