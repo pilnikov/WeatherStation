@@ -110,7 +110,11 @@ void firq1() // 1 hour
   if (hour_cnt > 23) hour_cnt = 0;
 # if defined(__xtensa__)
 
-  if (!web_cli && !web_ap && !conf_data.wifi_off) start_wifi();
+  if (!conf_data.wifi_off) 
+  {
+    stop_wifi();
+    start_wifi();
+  }
 
   if (web_cli)
   {

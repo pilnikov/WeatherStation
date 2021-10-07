@@ -498,6 +498,7 @@ void keyb_read()
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     stop_serv();
     DBG_OUT_PORT.println(F("Reboot ESP..."));
+    delay(200);
     ESP.restart();
 #elif defined(__AVR_ATmega2560__)
     DBG_OUT_PORT.println(F("Reboot Mega..."));
@@ -506,12 +507,12 @@ void keyb_read()
   }
   if (millis() - setting_ms > 20000) tmr_started = false;
   if (!tmr_started) setting_ms = millis();
-/*  if (tmr_started)
-  {
-    DBG_OUT_PORT.print(F("Timer ..."));
-    DBG_OUT_PORT.println(millis() - setting_ms);
-  }
-*/
+  /*  if (tmr_started)
+    {
+      DBG_OUT_PORT.print(F("Timer ..."));
+      DBG_OUT_PORT.println(millis() - setting_ms);
+    }
+  */
 }
 
 #if defined(ESP8266)

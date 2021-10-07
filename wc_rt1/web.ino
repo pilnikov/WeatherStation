@@ -304,7 +304,7 @@ void handlejSnr()
   json["h2"] = snr_data.h2;
   json["h3"] = snr_data.h3;
   json["pres"] = snr_data.p;
- 
+
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
@@ -335,8 +335,6 @@ void handleSetPars1()
   conf_data.use_pp  = server.arg("upp").toInt();
   conf_data.udp_mon = server.arg("udm") == "1";
 
-  conf_data.boot_mode = 1;
-  saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 
@@ -367,8 +365,6 @@ void handleSetPars2()
   strcpy(conf_data.ch2_name, server.arg("nc2").c_str());
   strcpy(conf_data.ch3_name, server.arg("nc3").c_str());
 
-  conf_data.boot_mode = 1;
-  saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 
@@ -410,7 +406,8 @@ void handleSetPars3()
   conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
+
+  handleExit();
 }
 
 //-------------------------------------------------------------- handlejParc
@@ -457,6 +454,7 @@ void handleSetParc()
   //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+
   //'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+
   //'&dht='+dht+'&ana='+ana+'&uar='+uar;
+
   conf_data.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
   conf_data.auto_corr = (server.arg("acorr") == "1");
   conf_data.use_pm = (server.arg("upm") == "1");
@@ -486,6 +484,7 @@ void handleSetParc()
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
+  handleExit();
 }
 
 //-------------------------------------------------------------- handlejAlarm
@@ -575,9 +574,6 @@ void handlejTrm()
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
-  conf_data.boot_mode = 1;
-  saveConfig(conf_f, conf_data);
-
   server.send(200, "text/json", st);
   st = String();
 }
@@ -602,7 +598,7 @@ void handlejActT()
   DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-   json["tstr"] = tstr;
+  json["tstr"] = tstr;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -688,11 +684,7 @@ void handleFileUpload()
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
     DBG_OUT_PORT.print(F("handleFileUpload Name: ")); DBG_OUT_PORT.println(filename);
-#if defined(ESP8266)
-    fsUploadFile = LittleFS.open(filename, "w");
-#elif defined(ARDUINO_ARCH_ESP32)
-    fsUploadFile = LittleFS.open(filename, "w");
-#endif
+    fsUploadFile = LittleFS.open(filename, FILE_WRITE);
     filename = String();
   }
   else if (upload.status == UPLOAD_FILE_WRITE) {
@@ -715,15 +707,9 @@ void handleFileDelete()
   DBG_OUT_PORT.println("handleFileDelete: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-#if defined(ESP8266)
   if (!LittleFS.exists(path))
     return server.send(404, "text/plain", "FileNotFound");
   LittleFS.remove(path);
-#elif defined(ARDUINO_ARCH_ESP32)
-  if (!LittleFS.exists(path))
-    return server.send(404, "text/plain", "FileNotFound");
-  LittleFS.remove(path);
-#endif
   server.send(200, "text/plain", "");
   path = String();
   serv_ms = millis();
@@ -737,16 +723,10 @@ void handleFileCreate()
   DBG_OUT_PORT.println("handleFileCreate: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-#if defined(ESP8266)
   if (LittleFS.exists(path))
     return server.send(500, "text/plain", "FILE EXISTS");
-  File file = LittleFS.open(path, "w");
-#elif defined(ARDUINO_ARCH_ESP32)
-  if (LittleFS.exists(path))
-    return server.send(500, "text/plain", "FILE EXISTS");
-  File file = LittleFS.open(path, "w");
-#endif
 
+  File file = LittleFS.open(path, "w");
   if (file)
     file.close();
   else
@@ -768,7 +748,6 @@ void handleFileList()
   DBG_OUT_PORT.println("handleFileList: " + path);
 
 #if defined(ESP8266)
-
   Dir dir = LittleFS.openDir(path);
   String output = "[";
   while (dir.next()) {
@@ -782,10 +761,7 @@ void handleFileList()
     output += "\"}";
     entry.close();
   }
-#endif
-
-#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-
+#elif defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
   File root = LittleFS.open(path);
   String output = "[";
   if (root.isDirectory()) {
