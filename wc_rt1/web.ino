@@ -294,7 +294,7 @@ void handlejPars()
 //-------------------------------------------------------------- handler Get Parameter from sensor
 void handlejSnr()
 {
-  DynamicJsonDocument jsonBuffer(100);
+  DynamicJsonDocument jsonBuffer(150);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["t1"] = snr_data.t1;
@@ -684,7 +684,7 @@ void handleFileUpload()
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
     DBG_OUT_PORT.print(F("handleFileUpload Name: ")); DBG_OUT_PORT.println(filename);
-    fsUploadFile = LittleFS.open(filename, FILE_WRITE);
+    fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
   }
   else if (upload.status == UPLOAD_FILE_WRITE) {

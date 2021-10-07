@@ -345,7 +345,7 @@ void saveConfig(const char *filename, conf_data_t _data)
 
   // Delete existing file, otherwise the configuration is appended to the file
   LittleFS.remove(filename);
-  File configFile = LittleFS.open(filename, FILE_WRITE); //Open config file for writing
+  File configFile = LittleFS.open(filename, "w"); //Open config file for writing
   if (!configFile)
   {
     DBG_OUT_PORT.println(F("Failed to open config file for writing"));
