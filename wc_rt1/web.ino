@@ -32,6 +32,7 @@ void web_setup()
   server.on("/juart", handlejUart);
   server.on("/jtrm", handlejTrm);
   server.on("/jnews", handlejNews);
+  server.on("/jnewst", handlejNewsT);
   //server.on("/all",       handleAll  );
 
   //-------------------------------------------------------------- for LittleFS
@@ -294,6 +295,9 @@ void handlejPars()
 //-------------------------------------------------------------- handler Get Parameter from sensor
 void handlejSnr()
 {
+  
+  snr_data = GetSnr(ram_data, conf_data);
+
   DynamicJsonDocument jsonBuffer(150);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -372,8 +376,6 @@ void handleSetPars2()
   ram_data.type_snr2 = conf_data.type_snr2;
   ram_data.type_snr2 = conf_data.type_snr2;
   ram_data.type_snrp = conf_data.type_snrp;
-
-  snr_data = GetSnr(ram_data, conf_data);
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor
@@ -826,12 +828,25 @@ void handleSetNews()
 void handlejNews()
 {
   String st = "";
-  DynamicJsonDocument jsonBuffer(4096);
+  DynamicJsonDocument jsonBuffer(200);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["displaynews"] = conf_data.news_en;
   json["newsApiKey"]  = conf_data.news_api_key;
   json["newssource"]  = conf_data.news_source;
+
+  String st1 = String();
+  if (serializeJson(jsonBuffer, st1) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  server.send(200, "text/json", st1);
+}
+
+//-------------------------------------------------------------- handler Get Parameter from sensor
+void handlejNewsT()
+{
+  String st = "";
+  DynamicJsonDocument jsonBuffer(4096);
+  JsonObject json = jsonBuffer.to<JsonObject>();
+
   uint8_t inx = 0;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);

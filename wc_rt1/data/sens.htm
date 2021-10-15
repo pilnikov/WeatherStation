@@ -265,25 +265,6 @@
           }
         }
         xh.send(null);
-        
-		var xh1 = new XMLHttpRequest();
-        xh1.open("GET", "/jsnr", true);
-        xh1.onreadystatechange = function()
-        {
-          if (xh1.readyState == 4 && xh1.status == 200) 
-          {
-            var res1 = JSON.parse(xh1.responseText);
-            document.getElementById('cur_t1').value = res1.t1;
-            document.getElementById('cur_t2').value = res1.t2;
-            document.getElementById('cur_t3').value = res1.t3;
-            document.getElementById('cur_h1').value = res1.h1;
-            document.getElementById('cur_h2').value = res1.h2;
-            document.getElementById('cur_h3').value = res1.h3;
-            document.getElementById('cur_p' ).value = res1.pres;
-          }
-        }
-        xh1.send(null);
-
         setTimeout('process()',500);
       }
 

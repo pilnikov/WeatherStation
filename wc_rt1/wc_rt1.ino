@@ -87,11 +87,9 @@ void setup()
       saveConfig(conf_f, conf_data);
       test_boot = true;
     }
-# if defined(__xtensa__)
+# if defined(__xtensa__)  || CONFIG_IDF_TARGET_ESP32C3
     Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
-# endif
-
-# if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM) || defined(__AVR_ATmega2560__)
+# elif defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM) || defined(__AVR_ATmega2560__)
     Wire.begin();
 # endif
 

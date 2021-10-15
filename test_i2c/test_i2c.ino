@@ -6,6 +6,9 @@ static const int         SCL_PIN  PROGMEM =  4;  // (D1)
 #elif defined(ARDUINO_ARCH_ESP32)
 static const int         SDA_PIN  PROGMEM =  23;  // (D2)
 static const int         SCL_PIN  PROGMEM =  22;  // (D1)
+#elif CONFIG_IDF_TARGET_ESP32C3
+static const int         SDA_PIN  PROGMEM =  5;  // (D2)
+static const int         SCL_PIN  PROGMEM =  6;  // (D1)
 #endif
 
 
@@ -14,7 +17,7 @@ int nDevices;  //Кол-во найденных устройств
 
 void setup()
 {
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   Wire.begin(SDA_PIN, SCL_PIN);
 #elif defined (__AVR__)
   Wire.begin();
