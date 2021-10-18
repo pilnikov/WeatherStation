@@ -51,6 +51,7 @@
       function loadValues()
       {
         var xh = new XMLHttpRequest();
+        xh.open("GET", "/jtime", true);
         xh.onreadystatechange = function()
         {
           if (xh.readyState == 4 &&  xh.status == 200) 
@@ -63,8 +64,7 @@
             document.getElementById('year').value = res.jyear;
           }
         }
-      xh.open("GET", "/jtime", true);
-      xh.send(null);
+		xh.send(null);
       }
 
 

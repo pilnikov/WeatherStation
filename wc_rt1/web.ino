@@ -29,6 +29,7 @@ void web_setup()
   server.on("/jts", handlejTS);
   server.on("/jalarm", handlejAlarm);
   server.on("/jsnr", handlejSnr);
+  server.on("/updS", handleuSnr);
   server.on("/juart", handlejUart);
   server.on("/jtrm", handlejTrm);
   server.on("/jnews", handlejNews);
@@ -296,8 +297,6 @@ void handlejPars()
 void handlejSnr()
 {
   
-  snr_data = GetSnr(ram_data, conf_data);
-
   DynamicJsonDocument jsonBuffer(150);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -314,6 +313,17 @@ void handlejSnr()
 
   server.send(200, "text/json", st);
   st = String();
+}
+
+//-------------------------------------------------------------- handler Get Parameter from sensor
+void handleuSnr()
+{
+  snr_data = GetSnr(ram_data, conf_data);
+  if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+  if (conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+
+  server.send(200, "text/html", "OK!");
+  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handler Set Parameter for sensor
@@ -342,8 +352,6 @@ void handleSetPars1()
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 
-  if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
-  if (conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 }
 
 //-------------------------------------------------------------- handler Set Parameter for sensor

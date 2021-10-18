@@ -182,7 +182,7 @@ void setup()
     DBG_OUT_PORT.println(ram_data.type_rtc);
 
     //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
-# if defined(__xtensa__)
+# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     if (web_cli || web_ap)
     {
       //------------------------------------------------------ Синхронизируем время с нтп если нету RTC

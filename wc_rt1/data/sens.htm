@@ -115,7 +115,7 @@
         <tr><td width='20%'>Номер Канала</td><td>&nbsp;1--------------2-------------3&nbsp;</td></tr>
         <tr><td width='20%'>Название</td><td>
         <input type='text' maxlength='8' size='3' id='name_ch1' name='name_ch1' style='text-align:center;' />
-    		<input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
+   		<input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
         <input type='text' maxlength='8' size='3' id='name_ch3' name='name_ch3' style='text-align:center;' /></td></tr>
         <tr><td width='20%'>Температура</td><td>
         <input type='text' maxlength='3' size='3' id='cur_t1' name='cur_t1' style='text-align:center;' readonly />
@@ -126,7 +126,9 @@
         <input type='text' maxlength='3' size='3' id='cur_h2' name='cur_h2' style='text-align:center;' readonly />
         <input type='text' maxlength='3' size='3' id='cur_h3' name='cur_h3' style='text-align:center;' readonly /></td></tr>
         <tr><td>Давление</td><td>&nbsp;--------------------------&nbsp;
-    		<input type='text' maxlength='3' size='3' id='cur_p'  name='cur_p'  style='text-align:center;' readonly /></td></tr>
+   		<input type='text' maxlength='3' size='3' id='cur_p'  name='cur_p'  style='text-align:center;' readonly /></td></tr>
+
+      <tr><td colspan='2' class='h'><button onclick='up_date();'>Обновить показания</button></td></tr>
 
       <tr><td colspan='4' class='h'>Параметры аккаунта ТS:</td></tr>
 
@@ -182,8 +184,7 @@
             document.getElementById('period').value   = res.peri;
 
             chk_pp();
-            
-    	    }
+    	  }
         }
         xh.send(null);
         loadTs();
@@ -232,11 +233,22 @@
             document.getElementById('cur_h2').value = res.h2;
             document.getElementById('cur_h3').value = res.h3;
             document.getElementById('cur_p' ).value = res.pres;
-    	    }
+    	  }
         }
         xh.send(null);
       }
-    
+
+      function up_date()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open('GET', '/updS', true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadSnr();
+        }      
+        xh.send(null);
+      }
+
 
       function showHide(element_id, visible) 
       {

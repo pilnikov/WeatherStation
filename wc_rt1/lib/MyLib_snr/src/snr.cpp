@@ -2,6 +2,7 @@
 
 ram_data_t SNR::init(ram_data_t in_data)
 {
+	
 	ram_data_t out_data = in_data;
 	for(uint8_t i = 0; i < 4; i++)
 	{	
@@ -57,7 +58,7 @@ ram_data_t SNR::init(ram_data_t in_data)
 				//DBG_OUT_PORT.print  (F("Delay:   ")); DBG_OUT_PORT.print(delayMS); DBG_OUT_PORT.println(F(" ms"));
 				break;
 			case 6:
-				if (!si.begin())
+				if (!si.begin(0x40, &Wire))
 				{
 					DBG_OUT_PORT.println(F("Couldn't find a valid Si7021 sensor, check wiring!"));
 					type_snr = 0;
