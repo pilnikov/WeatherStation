@@ -52,6 +52,8 @@ https://yadi.sk/i/os1wRLuz3Hg493
 
 https://yadi.sk/i/jCs5TbVB3aA5pw теперь только один мк, безо всяких мег
 
+https://youtu.be/F3vVPQLzyJk версия с новостями, там же есть ссылки на фото платы
+
 Куда чего подключать смотрим в Conf.h
 
 Файлы из папки Data необходимо залить на LittleFS плагином (лежат в  папке dop).
