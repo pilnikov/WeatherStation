@@ -94,48 +94,7 @@ void setup()
 # endif
 
     ram_data = fsys.i2c_scan(conf_data);
-    //------------------------------------------------------  Инициализируем датчики
-
-    if (ram_data.bh1750_present) lightMeter.begin();
-
-
-    if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
-    {
-      if (ram_data.type_snr1 == 4 || ram_data.type_snr2 == 4 || ram_data.type_snr3 == 4)
-      {
-        pinMode(conf_data.gpio_dht, INPUT_PULLUP);
-        sens.dht_preset(conf_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
-      }
-
-      ram_data_t sens_data = ram_data;
-
-      sens_data = sens.init(ram_data);
-      ram_data = sens_data;
-
-      DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
-      DBG_OUT_PORT.println(ram_data.type_snr1);
-      DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
-      DBG_OUT_PORT.println(ram_data.type_snr2);
-      DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
-      DBG_OUT_PORT.println(ram_data.type_snr3);
-      DBG_OUT_PORT.print("Snr type on pressure = ");
-      DBG_OUT_PORT.println(ram_data.type_snrp);
-      DBG_OUT_PORT.println(F("sensor inital"));
-    }
-
-    //------------------------------------------------------  Инициализируем GPIO
-    pinMode(conf_data.gpio_btn, INPUT_PULLUP);
-    attachInterrupt(conf_data.gpio_btn, isr1, CHANGE);
-
-    if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
-
-    pinMode(conf_data.gpio_snd, OUTPUT);
-
-
-    DBG_OUT_PORT.println(F("GPIO inital"));
-
+    
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
     memset(screen, 0, 64);
@@ -175,6 +134,46 @@ void setup()
     }
     DBG_OUT_PORT.print(F("Type chip driver of display = "));
     DBG_OUT_PORT.println(ram_data.type_vdrv);
+
+    //------------------------------------------------------  Инициализируем датчики
+    if (ram_data.bh1750_present) lightMeter.begin();
+  
+    if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
+    {
+      if (ram_data.type_snr1 == 4 || ram_data.type_snr2 == 4 || ram_data.type_snr3 == 4)
+      {
+        pinMode(conf_data.gpio_dht, INPUT_PULLUP);
+        sens.dht_preset(conf_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
+      }
+
+      ram_data_t sens_data = ram_data;
+
+      sens_data = sens.init(ram_data);
+      ram_data = sens_data;
+
+      DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
+      DBG_OUT_PORT.println(ram_data.type_snr1);
+      DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
+      DBG_OUT_PORT.println(ram_data.type_snr2);
+      DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
+      DBG_OUT_PORT.println(ram_data.type_snr3);
+      DBG_OUT_PORT.print("Snr type on pressure = ");
+      DBG_OUT_PORT.println(ram_data.type_snrp);
+      DBG_OUT_PORT.println(F("sensor inital"));
+    }
+
+    //------------------------------------------------------  Инициализируем GPIO
+    pinMode(conf_data.gpio_btn, INPUT_PULLUP);
+    attachInterrupt(conf_data.gpio_btn, isr1, CHANGE);
+
+    if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
+    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
+    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
+
+    pinMode(conf_data.gpio_snd, OUTPUT);
+
+
+    DBG_OUT_PORT.println(F("GPIO inital"));
 
     //------------------------------------------------------  Инициализируем RTC
     if (ram_data.type_rtc > 0) rtc_init();
