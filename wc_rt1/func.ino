@@ -22,7 +22,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
     rd.temp_rtc = round(t1.AsFloatDegC());
   }
 
-# if defined(__xtensa__)
+# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (web_cli)
   {
     if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1)
@@ -45,7 +45,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
     _snr_data = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, ts_data, es_data1, es_data2, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
-# if defined(__xtensa__)
+# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (web_cli)
   {
     if (cf.use_tst1 || cf.use_tst2 || cf.use_tst3 || cf.use_tsh1 || cf.use_tsh2 || cf.use_tsh3 || cf.use_tsp)
