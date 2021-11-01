@@ -4,15 +4,13 @@ conf_data_t loadConfig(const char *filename)
 {
   conf_data_t _data;
 
-#if defined(ESP8266)
   File file = LittleFS.open(filename, "r");
-#elif defined(ARDUINO_ARCH_ESP32)
-  File file = LittleFS.open(filename, "r");
-#endif
 
   if (!file)
   {
-    DBG_OUT_PORT.println(F("Failed to open configFile, using default configuration"));
+    DBG_OUT_PORT.print(F("Failed to open "));
+    DBG_OUT_PORT.print(filename);
+    DBG_OUT_PORT.println(F(", using default configuration"));
     _data = defaultConfig();
   }
   else
@@ -437,7 +435,7 @@ conf_data_t defaultConfig()
   _data.gpio_ana         = 17;
   _data.gpio_uar         = 16;
 
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32
   _data.gpio_sda         = 23;
   _data.gpio_scl         = 22;
   _data.gpio_dio         = 19;
@@ -452,6 +450,22 @@ conf_data_t defaultConfig()
   _data.gpio_dht         = 39;
   _data.gpio_ana         = 35;
   _data.gpio_uar         = 36;
+
+#elif CONFIG_IDF_TARGET_ESP32C3
+  _data.gpio_sda         = 5;
+  _data.gpio_scl         = 6;
+  _data.gpio_dio         = 7;
+  _data.gpio_clk         = 8;
+  _data.gpio_dcs         = 5;
+  _data.gpio_dwr         = 0;
+  _data.gpio_trm         = 10;
+  _data.gpio_sqw         = 1;
+  _data.gpio_snd         = 2;
+  _data.gpio_led         = 3;
+  _data.gpio_btn         = 9;
+  _data.gpio_dht         = 10;
+  _data.gpio_ana         = 10;
+  _data.gpio_uar         = 10;
 #endif
 
   _data.br_level[0]      = 1;

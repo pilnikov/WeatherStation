@@ -14,11 +14,10 @@
 #include "myTM1637.h"
 
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if CONFIG_IDF_TARGET_ESP32
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <Adafruit_Protomatter.h>
-#include "fonts.h"
 #endif
 
 
@@ -88,7 +87,7 @@ static HT1632C * m1632;
 //---------------------------------------------------------------------------Matrix
 #if defined(__AVR_ATmega2560__)
 static RGBmatrixPanel * m3216;
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32
 static Adafruit_Protomatter * m3216;
 #endif
 

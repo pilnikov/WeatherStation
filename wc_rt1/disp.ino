@@ -102,7 +102,7 @@ void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
 void a595_init()
 {
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
 
   //G1  R1 | 12 04
   //GND B1 |  g 13
@@ -130,7 +130,7 @@ void a595_init()
 #if defined(__AVR_ATmega2560__)
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32
     uint8_t rgbPins[] = {4, 12, 13, 14, 15, 21},
                         addrPins[] = {26, 5, 18, 19, 25},
                                      clockPin   = 27, // Must be on same port as rgbPins
@@ -163,7 +163,7 @@ void a595_init()
 #if defined(__AVR_ATmega2560__)
     m3216 -> begin();
 
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32
 
     ProtomatterStatus status = m3216 -> begin();
 
@@ -179,7 +179,7 @@ void a595_init()
 
 void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 {
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
   for (uint8_t x = 0; x < 32; x++)
   {
     uint8_t dt = 0b1;
@@ -195,7 +195,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 #if defined(__AVR_ATmega2560__)
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, c_br, true) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, c_br, true) : 0);
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> color565(c_br, 0 , 0) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> color565(0, c_br, 0) : 0);
 #endif
@@ -205,7 +205,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
   }
 #if defined(__AVR_ATmega2560__)
   m3216 -> swapBuffers(true);
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32
   m3216 -> show();
 #endif
 #endif

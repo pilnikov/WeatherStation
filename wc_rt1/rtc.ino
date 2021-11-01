@@ -16,7 +16,7 @@ void ISR_ATTR isr0()
 {
   wasAlarmed_int = true;
 }
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
 void ARDUINO_ISR_ATTR isr0()
 {
   wasAlarmed_int = true;
@@ -334,7 +334,7 @@ bool Alarmed()
           case 3:
             if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
             {
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
               m3216_ramFormer(screen, cur_br, text_size);
 #endif
             }

@@ -664,7 +664,6 @@ bool handleFileRead(String path)
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
-#if defined(ESP8266)
   if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
     if (LittleFS.exists(pathWithGz))
       path += ".gz";
@@ -673,16 +672,6 @@ bool handleFileRead(String path)
     file.close();
     return true;
   }
-#elif defined(ARDUINO_ARCH_ESP32)
-  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
-    if (LittleFS.exists(pathWithGz))
-      path += ".gz";
-    File file = LittleFS.open(path, "r");
-    server.streamFile(file, contentType);
-    file.close();
-    return true;
-  }
-#endif
   return false;
 }
 
@@ -771,7 +760,7 @@ void handleFileList()
     output += "\"}";
     entry.close();
   }
-#elif defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
   File root = LittleFS.open(path);
   String output = "[";
   if (root.isDirectory()) {

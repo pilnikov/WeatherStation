@@ -87,14 +87,18 @@ void setup()
       saveConfig(conf_f, conf_data);
       test_boot = true;
     }
-# if defined(__xtensa__)  || CONFIG_IDF_TARGET_ESP32C3
-    Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
-# elif defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM) || defined(__AVR_ATmega2560__)
-    Wire.begin();
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+    Wire.setPins(conf_data.gpio_sda, conf_data.gpio_scl);
 # endif
 
+# if defined(ESP8266)
+    Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
+# else
+    Wire.begin();
+# endif
+    //Wire.begin();
     ram_data = fsys.i2c_scan(conf_data);
-    
+
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
     memset(screen, 0, 64);
@@ -137,7 +141,7 @@ void setup()
 
     //------------------------------------------------------  Инициализируем датчики
     if (ram_data.bh1750_present) lightMeter.begin();
-  
+
     if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
     {
       if (ram_data.type_snr1 == 4 || ram_data.type_snr2 == 4 || ram_data.type_snr3 == 4)

@@ -293,7 +293,7 @@ void firq9() //0.030 sec running string is out switch to time view
     case 3:
       if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
       {
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
         m3216_ramFormer(screen, cur_br, text_size);
 #endif
       }

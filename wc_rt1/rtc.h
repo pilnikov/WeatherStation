@@ -16,7 +16,7 @@ void IRAM_ATTR isr0();
 #elif defined(__AVR__)
 void ISR_ATTR isr0();
 #define SQW 4 // Mega2560
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
 void ARDUINO_ISR_ATTR isr0();
 #endif
 
