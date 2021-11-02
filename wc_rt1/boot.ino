@@ -108,7 +108,7 @@ void runing_string_start() // ---------------------------- Запуск бегу
 void firq1() // 1 hour
 {
   if (hour_cnt > 23) hour_cnt = 0;
-# if defined(__xtensa__)
+# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
   if (!conf_data.wifi_off) 
   {
