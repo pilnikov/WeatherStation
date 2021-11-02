@@ -183,6 +183,9 @@ void handlejPard()
   json["ctyp"] = conf_data.type_vdrv;
   json["dtyp"] = conf_data.type_disp;
   json["rlng"] = conf_data.rus_lng;
+  json["tup"]  = conf_data.time_up;
+  json["colu"] = conf_data.color_up;
+  json["cold"] = conf_data.color_dwn;
   json["abrd"] = conf_data.auto_br;
   json["mbrd"] = conf_data.man_br;
   json["nbrd"] = conf_data.nmd_br;
@@ -215,13 +218,16 @@ void handleSetFont()
 //-------------------------------------------------------------- handler Set Parameter for display
 void handleSetPard()
 {
-  //url='/set_pard?dtyp='+dtyp+'&rdsp='+rdsp+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
+  //url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
   uint8_t vdrv_buf = conf_data.type_vdrv;
 
   conf_data.type_vdrv = server.arg("ctyp").toInt();
   conf_data.type_disp = server.arg("dtyp").toInt();
   conf_data.rus_lng = server.arg("rlng") == "1";
+  conf_data.time_up = server.arg("ttup") == "1";
+  conf_data.color_up = server.arg("mcou").toInt();
+  conf_data.color_dwn = server.arg("mcod").toInt();
   conf_data.auto_br = server.arg("abrd") == "1";
   uint16_t val = server.arg("mbrd").toInt();
   conf_data.man_br = constrain(val, 0, 254);;

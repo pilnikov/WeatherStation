@@ -110,7 +110,7 @@ void firq1() // 1 hour
   if (hour_cnt > 23) hour_cnt = 0;
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
-  if (!conf_data.wifi_off) 
+  if (!conf_data.wifi_off)
   {
     stop_wifi();
     start_wifi();
@@ -216,7 +216,13 @@ void firq7() // 0.180 sec Communications with server
     {
       if  (!nm_is_on & !end_run_st)
       {
-        end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
+        uint8_t x1 = 8, x2 = 15;
+        if (!conf_data.time_up)
+        {
+          x1 = 0;
+          x2 = 7;
+        }
+        end_run_st = f_dsp.scroll_String(x1, x2, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
         if (end_run_st) runing_string_start(); // перезапуск бегущей строки
       }
       ht1633_ramFormer2(screen, 0, 8);
@@ -240,7 +246,9 @@ void firq7() // 0.180 sec Communications with server
     {
       if  (!nm_is_on & !end_run_st)
       {
-        end_run_st = f_dsp.lcd_mov_str(16, cur_sym_pos[0], st1, st2);
+        uint8_t x1 = 16;
+        if (!conf_data.time_up) x1 = 0;
+        end_run_st = f_dsp.lcd_mov_str(x1, cur_sym_pos[0], st1, st2);
         if (end_run_st) runing_string_start(); // перезапуск бегущей строки
         else
         {
@@ -255,7 +263,7 @@ void firq7() // 0.180 sec Communications with server
 void firq8() // 0.060 sec
 {
   uint8_t pos = 0;
-  if (conf_data.type_disp > 20 && conf_data.type_disp < 29) pos = 32;
+  if ((conf_data.type_disp > 20) & (conf_data.type_disp < 29) & !conf_data.time_up) pos = 32;
 
   uint8_t font_wdt = 5;
   byte nbuf[64];
@@ -275,7 +283,13 @@ void firq9() //0.030 sec running string is out switch to time view
 {
   if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
   {
-    end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    uint8_t x1 = 32, x2 = 63;
+    if (!conf_data.time_up)
+    {
+      x1 = 0;
+      x2 = 31;
+    }
+    end_run_st = f_dsp.scroll_String(x1, x2, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
     if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
 
@@ -302,7 +316,7 @@ void firq9() //0.030 sec running string is out switch to time view
       if (conf_data.type_disp == 22)
       {
         //ORANGE = 3 GREEN = 1
-        ht1632_ramFormer(screen, 1, 3);
+        ht1632_ramFormer(screen, conf_data.color_up, conf_data.color_dwn);
         m1632 -> pwm(cur_br);
         m1632 -> sendFrame();
       }

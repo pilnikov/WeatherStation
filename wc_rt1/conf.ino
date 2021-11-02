@@ -101,6 +101,9 @@ conf_data_t loadConfig(const char *filename)
       _data.type_vdrv         = doc["vdrv_t"];
       _data.type_disp         = doc["disp_t"];
       _data.rus_lng           = doc["rus_lng"];
+      _data.time_up           = doc["t_up"];
+      _data.color_up          = doc["colu"];
+      _data.color_dwn         = doc["cold"];
       _data.type_font         = doc["type_font"];
 
       //---Brigthness----------------------------------------
@@ -246,6 +249,9 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["vdrv_t"]              = _data.type_vdrv;
   json["disp_t"]              = _data.type_disp;
   json["rus_lng"]             = _data.rus_lng;
+  json["t_up"]                = _data.time_up;
+  json["colu"]                = _data.color_up;
+  json["cold"]                = _data.color_dwn;
   json["type_font"]           = _data.type_font;
 
   //---Brigthness----------------------------------------
@@ -388,6 +394,7 @@ conf_data_t defaultConfig()
   _data.snd_pola         = false;
   _data.led_pola         = false;
   _data.rus_lng          = false;
+  _data.time_up          = false;
   _data.use_tst1         = false;
   _data.use_tst2         = false;
   _data.use_tst3         = false;
@@ -397,6 +404,8 @@ conf_data_t defaultConfig()
   _data.use_tsp          = false;
   _data.wifi_off         = false;
   _data.udp_mon          = false;
+  _data.color_up         = 0;
+  _data.color_dwn        = 0;
   _data.use_pp           = 0;
   _data.time_zone        = 5;
   _data.type_vdrv        = 0;
