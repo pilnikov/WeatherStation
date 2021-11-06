@@ -24,7 +24,7 @@ class ES
 	get_ts(String),
     get_es(String);
     wf_data_t get_gm(String);
-    String put_ts(char*, bool, bool, bool, bool, bool, bool, bool, snr_data_t);
+    String put_ts(char*, uint8_t, snr_data_t);
 };
 
 

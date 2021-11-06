@@ -24,20 +24,10 @@ void setup()
 
   //------------------------------------------------------  Читаем установки из EEPROM
 
-#if defined(__AVR_ATmega2560__)
   conf_data = loadConfig(conf_f);
 
   //conf_data = defaultConfig();
   //saveConfig(conf_f, conf_data);
-
-#endif
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  conf_data = loadConfig(conf_f);
-
-  //conf_data = defaultConfig();
-  //saveConfig(conf_f, conf_data);
-#endif
   DBG_OUT_PORT.println(F("config loaded"));
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
@@ -69,24 +59,18 @@ void setup()
     web_setup();
     start_serv();
   }
-  if (conf_data.boot_mode != 2) strcpy(tstr, "Safe Mode");
+  strcpy(tstr, "Safe Mode");
 #endif
 
+  //------------------------------------------------------  Инициализируем кнопку
+  pinMode(conf_data.gpio_btn, INPUT_PULLUP);
+  boot_mode = digitalRead(conf_data.gpio_btn);
+  DBG_OUT_PORT.print(F("boot_mode..."));
+  DBG_OUT_PORT.println(boot_mode);
 
-  //conf_data.boot_mode = 0;
-
-  DBG_OUT_PORT.print(F("boot mode is..."));
-  DBG_OUT_PORT.println(conf_data.boot_mode);
-  //------------------------------------------------------  Начинаем инициализацию Hardware
-  if (conf_data.boot_mode > 0)
+  if (boot_mode == 1)
   {
-    //----------------------------------------------------  Запускаем I2C и проверяем наличие клиентов
-    if  (conf_data.boot_mode == 1)
-    {
-      conf_data.boot_mode = 0;
-      saveConfig(conf_f, conf_data);
-      test_boot = true;
-    }
+    //------------------------------------------------------  Начинаем инициализацию Hardware
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
     Wire.setPins(conf_data.gpio_sda, conf_data.gpio_scl);
 # endif
@@ -96,13 +80,12 @@ void setup()
 # else
     Wire.begin();
 # endif
-    //Wire.begin();
+
     ram_data = fsys.i2c_scan(conf_data);
 
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
     memset(screen, 0, 64);
-    //    ram_data.type_vdrv = 0;
 
     switch (ram_data.type_vdrv)
     {
@@ -167,7 +150,6 @@ void setup()
     }
 
     //------------------------------------------------------  Инициализируем GPIO
-    pinMode(conf_data.gpio_btn, INPUT_PULLUP);
     attachInterrupt(conf_data.gpio_btn, isr1, CHANGE);
 
     if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
@@ -189,7 +171,7 @@ void setup()
     if (web_cli || web_ap)
     {
       //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
-      if ((ram_data.type_rtc == 0) & web_cli) GetNtp();
+      if ((ram_data.type_rtc == 0) & web_cli & conf_data.auto_corr) GetNtp();
 
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
       if ((conf_data.use_pp == 1) & web_cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
@@ -208,7 +190,6 @@ void setup()
       }
     }
 # endif
-
     //-------------------------------------------------------  Опрашиваем датчики
     snr_data = GetSnr(ram_data, conf_data);
 
@@ -248,19 +229,21 @@ void setup()
     rtc_data.a_muz = 15;
     play_snd = true;
     DBG_OUT_PORT.println(F("End of setup"));
+
+    //------------------------------------------------------ Засыпаем
+    if (conf_data.esm)
+    {
+      stop_wifi();
+      ESP.deepSleep(conf_data.period * 60e6); // deep-sleep. Засыпаем на period минут!
+    }
   }
-  else
-  {
-    DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
-  }
+  else DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
 }
 
 void loop()
 {
-  if (conf_data.boot_mode > 0 || test_boot)
+  if (boot_mode == 1)
   {
-    if (test_boot) DBG_OUT_PORT.println(F("Test mode!!!"));
-
     // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
@@ -278,17 +261,6 @@ void loop()
     //------------------------------------------------------  Верифицируем ночной режим
     if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (rtc_data.hour >= conf_data.nm_start && rtc_data.hour < conf_data.nm_stop);
     else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
-
-    //------------------------------------------------------  Нормализуем загрузку
-    if (millis() > 5000)
-    {
-      if (conf_data.boot_mode != 2)
-      {
-        conf_data.boot_mode = 2;
-        saveConfig(conf_f, conf_data);
-        test_boot = false;
-      }
-    }
   }
   else //-------------------------------------------------- Minimal boot
   {

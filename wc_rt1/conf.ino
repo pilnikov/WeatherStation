@@ -37,8 +37,6 @@ conf_data_t loadConfig(const char *filename)
     {
       DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
 
-      _data.boot_mode               = doc["bm"];
-
       // Get the root object in the document
       memset(_data.sta_ssid,   0, 17);
       memset(_data.sta_pass,   0, 17);
@@ -131,6 +129,8 @@ conf_data_t loadConfig(const char *filename)
       _data.type_snr3         = doc["snr3_t"];
       _data.type_snrp         = doc["snrp_t"];
       _data.period            = doc["period"]; // minutes
+      _data.use_es            = doc["ues"];
+      _data.esm               = doc["esm"];
 
       //---Sensor actual value-------------------------------
       strcpy(_data.ch1_name,   doc["ch1_name"]);
@@ -143,13 +143,7 @@ conf_data_t loadConfig(const char *filename)
       strcpy(_data.AKey_w,      doc["AKey_w"]);
 
       //---TS sender-----------------------------------------
-      _data.use_tst1          = doc["utst1"];
-      _data.use_tst2          = doc["utst2"];
-      _data.use_tst3          = doc["utst3"];
-      _data.use_tsh1          = doc["utsh1"];
-      _data.use_tsh2          = doc["utsh2"];
-      _data.use_tsh3          = doc["utsh3"];
-      _data.use_tsp           = doc["utsp"];
+      _data.use_ts            = doc["uts"];
 
       //---Thermo.html---------------------------------------
       //---Options for thermostat----------------------------
@@ -194,16 +188,14 @@ void saveConfig(const char *filename, conf_data_t _data)
 
   if ( _data.type_vdrv    < 0  || _data.type_vdrv  >  20) _data.type_vdrv  = 0;
   if ( _data.type_disp    < 0  || _data.type_disp  >  50) _data.type_disp  = 0;
-  if ( _data.type_snr1    < 0  || _data.type_snr1  >  11) _data.type_snr1  = 0;
-  if ( _data.type_snr2    < 0  || _data.type_snr2  >  11) _data.type_snr2  = 0;
-  if ( _data.type_snr3    < 0  || _data.type_snr3  >  11) _data.type_snr3  = 0;
-  if ( _data.type_snrp    < 0  || _data.type_snrp  >  11) _data.type_snrp  = 0;
+  if ( _data.type_snr1    < 0  || _data.type_snr1  >  12) _data.type_snr1  = 0;
+  if ( _data.type_snr2    < 0  || _data.type_snr2  >  12) _data.type_snr2  = 0;
+  if ( _data.type_snr3    < 0  || _data.type_snr3  >  12) _data.type_snr3  = 0;
+  if ( _data.type_snrp    < 0  || _data.type_snrp  >  12) _data.type_snrp  = 0;
   if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
-
-  json["bm"]                  = _data.boot_mode;
 
   //---Wifi.html----------------------------------------
   //---AP-----------------------------------------------
@@ -280,6 +272,8 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["snr3_t"]              = _data.type_snr3;
   json["snrp_t"]              = _data.type_snrp;
   json["period"]              = _data.period; // minutes
+  json["ues"]                 = _data.use_es;
+  json["esm"]                 = _data.esm;
 
   //---Sensor actual value-------------------------------
   json["ch1_name"]            = _data.ch1_name;
@@ -292,13 +286,7 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["AKey_w"]              = _data.AKey_w;
 
   //---TS sender-----------------------------------------
-  json["utst1"]               = _data.use_tst1;
-  json["utst2"]               = _data.use_tst2;
-  json["utst3"]               = _data.use_tst3;
-  json["utsh1"]               = _data.use_tsh1;
-  json["utsh2"]               = _data.use_tsh2;
-  json["utsh3"]               = _data.use_tsh3;
-  json["utsp"]                = _data.use_tsp;
+  json["uts"]                 = _data.use_ts;
 
   //---Thermo.html---------------------------------------
   //---Options for thermostat----------------------------
@@ -368,8 +356,6 @@ conf_data_t defaultConfig()
 
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-  _data.boot_mode        = 2;
-
   strcpy(_data.sta_ssid,  "MyWiFi");
   strcpy(_data.sta_pass,  "12345678");
   strcpy(_data.ap_ssid,   "Radio_Clock");
@@ -395,15 +381,10 @@ conf_data_t defaultConfig()
   _data.led_pola         = false;
   _data.rus_lng          = false;
   _data.time_up          = false;
-  _data.use_tst1         = false;
-  _data.use_tst2         = false;
-  _data.use_tst3         = false;
-  _data.use_tsh1         = false;
-  _data.use_tsh2         = false;
-  _data.use_tsh3         = false;
-  _data.use_tsp          = false;
   _data.wifi_off         = false;
   _data.udp_mon          = false;
+  _data.esm              = false;
+  _data.auto_br          = false;
   _data.color_up         = 0;
   _data.color_dwn        = 0;
   _data.use_pp           = 0;
@@ -414,6 +395,8 @@ conf_data_t defaultConfig()
   _data.type_snr2        = 0;
   _data.type_snr3        = 0;
   _data.type_snrp        = 0;
+  _data.use_es           = 0;
+  _data.use_ts           = 0;
   _data.type_rtc         = 0;
   _data.type_thermo      = 0;
   _data.src_thermo       = 0;
@@ -426,7 +409,6 @@ conf_data_t defaultConfig()
   _data.period           = 10;
   _data.man_br           = 7;
   _data.nmd_br           = 2;
-  _data.auto_br          = false;
 
 #if defined(ESP8266)
   _data.gpio_sda         = 4;
@@ -553,6 +535,7 @@ conf_data_t defaultConfig()
   _data.period           = 10;
   _data.man_br           = 14;
   _data.nmd_br           = 2;
+  _data.esm              = false;
   _data.auto_br          = true;
 
   _data.gpio_sda         = 20;

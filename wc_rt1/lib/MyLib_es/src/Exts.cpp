@@ -55,48 +55,48 @@ snr_data_t ES::get_ts(String inStr)
 }
 
 
-String ES::put_ts(char api[17], bool use_tst1, bool use_tst2, bool use_tst3, bool use_tsh1, bool use_tsh2, bool use_tsh3, bool use_tsp, snr_data_t in_data)
+String ES::put_ts(char api[17], uint8_t use_ts, snr_data_t in_data)
 {
 	//String postStr = "https://api.thingspeak.com/update?api_key=" + String(api);
 	String postStr = "/update?api_key=" + String(api);
 
-	if (use_tst1 && in_data.t1 < 99)
+	if ((use_ts & 0b00000001) & (in_data.t1 < 99))
 	{
 		postStr += "&field1=";
 		postStr += String(in_data.t1);
 	}
 
-	if (use_tst1 && in_data.t2 < 99)
+	if ((use_ts & 0b00000010) & (in_data.t2 < 99))
 	{
 		postStr += "&field2=";
 		postStr += String(in_data.t2);
 	}
 
-	if (use_tst3 && in_data.t3 < 99)
+	if ((use_ts & 0b00000100) & (in_data.t3 < 99))
 	{
 		postStr += "&field3=";
 		postStr += String(in_data.t3);
 	}
 
-	if (use_tsh1 && in_data.h1 > 0 && in_data.h1 < 100)
+	if ((use_ts & 0b00001000) & (in_data.h1 > 0) & (in_data.h1 < 100))
 	{
 		postStr += "&field4=";
 		postStr += String(in_data.h1);
 	}
 
-	if (use_tsh2 && in_data.h2 > 0 && in_data.h2 < 100)
+	if ((use_ts & 0b00010000) & (in_data.h2 > 0) & (in_data.h2 < 100))
 	{
 		postStr += "&field5=";
 		postStr += String(in_data.h2);
 	}
 
-	if (use_tsh3 && in_data.h3 > 0 && in_data.h3 < 100)
+	if ((use_ts & 0b00100000) & (in_data.h3 > 0) & (in_data.h3 < 100))
 	{
 		postStr += "&field6=";
 		postStr += String(in_data.h3);
 	}
 
-	if (use_tsp && in_data.p > 700 && in_data.p < 900)
+	if ((use_ts & 0b00100000) & (in_data.p > 700) & (in_data.p < 800))
 	{
 		postStr += "&field7=";
 		postStr += String(in_data.p);

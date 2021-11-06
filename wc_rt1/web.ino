@@ -14,6 +14,7 @@ void web_setup()
   server.on("/set_pars1", handleSetPars1);
   server.on("/set_pars2", handleSetPars2);
   server.on("/set_pars3", handleSetPars3);
+  server.on("/rcv_snr", handleRcvSnr);
   server.on("/set_parc", handleSetParc);
   server.on("/set_alm", handleSetAlarm);
   server.on("/set_partrm", handleSetPartrm);
@@ -29,7 +30,7 @@ void web_setup()
   server.on("/jts", handlejTS);
   server.on("/jalarm", handlejAlarm);
   server.on("/jsnr", handlejSnr);
-  server.on("/updS", handleuSnr);
+  server.on("/updS", handleUpdSnr);
   server.on("/juart", handlejUart);
   server.on("/jtrm", handlejTrm);
   server.on("/jnews", handlejNews);
@@ -238,7 +239,6 @@ void handleSetPard()
   conf_data.br_level[2] = server.arg("brd3").toInt();
   conf_data.br_level[3] = server.arg("brd4").toInt();
 
-  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -254,13 +254,7 @@ void handlejTS()
   json["tsid"] = conf_data.ts_ch_id;
   json["tsar"] = conf_data.AKey_r;
   json["tsaw"] = conf_data.AKey_w;
-  json["tsst1"] = conf_data.use_tst1;
-  json["tsst2"] = conf_data.use_tst2;
-  json["tsst3"] = conf_data.use_tst3;
-  json["tssh1"] = conf_data.use_tsh1;
-  json["tssh2"] = conf_data.use_tsh2;
-  json["tssh3"] = conf_data.use_tsh3;
-  json["tssp"] = conf_data.use_tsp;
+  json["tss"]  = conf_data.use_ts;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -291,6 +285,8 @@ void handlejPars()
   json["nc2"]   = conf_data.ch2_name;
   json["nc3"]   = conf_data.ch3_name;
   json["peri"]  = conf_data.period;
+  json["esm"]   = conf_data.esm;
+  json["ess"]   = conf_data.use_es;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -299,10 +295,55 @@ void handlejPars()
   st = String();
 }
 
-//-------------------------------------------------------------- handler Get Parameter from sensor
+//-------------------------------------------------------------- handler force set data for sensor from ext source e.g. ext sensor
+void handleRcvSnr()
+{
+  /*
+      url='/rcv_snr?
+       + '&est1='  + est1_t
+       + '&est2='  + est2_t
+       + '&est3='  + est3_t
+       + '&esh1='  + esh1_t
+       + '&esh2='  + esh2_t
+       + '&esh3='  + esh3_t
+       + '&esp='   + esp_t;
+  */
+  float t = 99, h = 0, p = 700;
+  if (server.arg("est1") != 0)
+  {
+    t = constrain(server.arg("est1").toInt(), -99, 99);
+    if ((t < 99) & (t > -99)) snr_data.t1 = t;
+  }
+  t = 99;
+  if (server.arg("est2") != 0)
+  {
+    t = constrain(server.arg("est2").toInt(), -99, 99);
+    if ((t < 99) & (t > -99)) snr_data.t2 = t;
+  }
+  t = 99;
+  if (server.arg("est3") != 0)
+  {
+    t = constrain(server.arg("est3").toInt(), -99, 99);
+    if ((t < 99) & (t > -99)) snr_data.t3 = t;
+  }
+  h = constrain(server.arg("esh1").toInt(), 0, 101);
+  if ((h < 101) & (h > 0)) snr_data.h1 = h;
+  h = 0;
+  h = constrain(server.arg("esh2").toInt(), 0, 101);
+  if ((h < 101) & (h > 0)) snr_data.h2 = h;
+  h = 0;
+  h = constrain(server.arg("esh3").toInt(), 0, 101);
+  if ((h < 101) & (h > 0)) snr_data.h3 = h;
+
+  p = constrain(server.arg("esp").toInt(), 700, 800);
+  if ((p < 800) & (p > 700)) snr_data.p = p;
+
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handler Get data from sensor
 void handlejSnr()
 {
-  
   DynamicJsonDocument jsonBuffer(150);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -321,10 +362,31 @@ void handlejSnr()
   st = String();
 }
 
-//-------------------------------------------------------------- handler Get Parameter from sensor
-void handleuSnr()
+//-------------------------------------------------------------- handler Update data from sensor
+void handleUpdSnr()
 {
+  snr_data_t sb = snr_data;
   snr_data = GetSnr(ram_data, conf_data);
+  if (ram_data.type_snr1 == 12)
+  {
+    snr_data.t1 = sb.t1;
+    snr_data.h1 = sb.h1;
+  }
+  if (ram_data.type_snr2 == 12)
+  {
+    snr_data.t2 = sb.t2;
+    snr_data.h2 = sb.h2;
+  }
+  if (ram_data.type_snr3 == 12)
+  {
+    snr_data.t3 = sb.t3;
+    snr_data.h3 = sb.h3;
+  }
+  if (ram_data.type_snrp == 12)
+  {
+    snr_data.p = sb.p;
+  }
+
   if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
   if (conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 
@@ -332,7 +394,7 @@ void handleuSnr()
   serv_ms = millis();
 }
 
-//-------------------------------------------------------------- handler Set Parameter for sensor
+//-------------------------------------------------------------- handler Set Parameter for sensor part one
 void handleSetPars1()
 {
   /*
@@ -356,11 +418,9 @@ void handleSetPars1()
   conf_data.udp_mon = server.arg("udm") == "1";
 
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
-
 }
 
-//-------------------------------------------------------------- handler Set Parameter for sensor
+//-------------------------------------------------------------- handler Set Parameter for sensor part two
 void handleSetPars2()
 {
   /*
@@ -369,7 +429,9 @@ void handleSetPars2()
   		 + '&snr3='   + snr3_t
   		 + '&snrp='   + snrp_t
   		 + '&period=' + period_t
-  		 + '&nc1='    + nc1_t
+       + '&ues='    + ues_t
+       + '&esm='    + esm_t
+       + '&nc1='    + nc1_t
   		 + '&nc2='    + nc2_t
   		 + '&nc3='    + nc3_t;
   */
@@ -379,12 +441,14 @@ void handleSetPars2()
   conf_data.type_snr3 = server.arg("snr3").toInt();
   conf_data.type_snrp = server.arg("snrp").toInt();
   conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
+  conf_data.use_es = server.arg("ues").toInt();
+  conf_data.esm = server.arg("esm") == "1";
+
   strcpy(conf_data.ch1_name, server.arg("nc1").c_str());
   strcpy(conf_data.ch2_name, server.arg("nc2").c_str());
   strcpy(conf_data.ch3_name, server.arg("nc3").c_str());
 
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 
   ram_data.type_snr1 = conf_data.type_snr1;
   ram_data.type_snr2 = conf_data.type_snr2;
@@ -392,34 +456,21 @@ void handleSetPars2()
   ram_data.type_snrp = conf_data.type_snrp;
 }
 
-//-------------------------------------------------------------- handle Set Parameter for sensor
+//-------------------------------------------------------------- handle Set Parameter for sensor part tree
 void handleSetPars3()
 {
   /*
   	  url='/set_pars3?tschan=' + tschan_t
   		 + '&tsapir=' + tsapir_t
   		 + '&tsapiw=' + tsapiw_t
-  		 + '&utst1='  + utst1_t
-  		 + '&utst2='  + utst2_t
-  		 + '&utst3='  + utst3_t
-  		 + '&utsh1='  + utsh1_t
-  		 + '&utsh2='  + utsh2_t
-  		 + '&utsh3='  + utsh3_t
-  		 + '&utsp='   + utsp_t;
+  		 + '&uts='    + uts_t;
   */
 
   conf_data.ts_ch_id = constrain(server.arg("tschan").toInt(), 0, 999999);
   strcpy(conf_data.AKey_r, server.arg("tsapir").c_str());
   strcpy(conf_data.AKey_w, server.arg("tsapiw").c_str());
-  conf_data.use_tst1 = server.arg("utst1") == "1";
-  conf_data.use_tst2 = server.arg("utst2") == "1";
-  conf_data.use_tst3 = server.arg("utst3") == "1";
-  conf_data.use_tsh1 = server.arg("utsh1") == "1";
-  conf_data.use_tsh2 = server.arg("utsh2") == "1";
-  conf_data.use_tsh3 = server.arg("utsh3") == "1";
-  conf_data.use_tsp  = server.arg("utsp") == "1";
+  conf_data.use_ts = server.arg("uts").toInt();
 
-  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
 
@@ -496,7 +547,6 @@ void handleSetParc()
   conf_data.gpio_ana = constrain(server.arg("ana").toInt(), 0, 255);
   conf_data.gpio_uar = constrain(server.arg("uar").toInt(), 0, 255);
 
-  conf_data.boot_mode = 1;
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();

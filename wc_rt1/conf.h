@@ -47,13 +47,6 @@
   snd_pola = false,
   led_pola = false,
   rus_lng = false,
-  use_tst1 = false,
-  use_tst2 = false,
-  use_tst3 = false,
-  use_tsh1 = false,
-  use_tsh2 = false,
-  use_tsh3 = false,
-  use_tsp = false,
   wifi_off = false,
   udp_mon = false,
   news_en = false;
@@ -68,6 +61,8 @@
 
   uint8_t
   use_pp = 0,
+  use_ts = 0,
+  use_es = 0,
   man_br = 0,
   nmd_br = 0,
   nm_start = 0,
@@ -191,6 +186,8 @@
 
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266HTTPClient.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266SSDP.h>
 //#include <ESPAsyncTCP.h>
@@ -338,6 +335,7 @@ String gs_rcv (unsigned long);
 String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
 String ts_snd (String);
+void put_to_es(char*, uint8_t, snr_data_t);
 
 #if defined(ESP8266)
 void IRAM_ATTR isr1();
@@ -383,7 +381,7 @@ const char ntp_server[] = "ru.pool.ntp.org";
 const char *conf_f = "/config.json";  // config file name
 char tstr[25];
 
-bool               test_boot = false;
+int                boot_mode = 1;
 
 bool               play_snd  = false;
 

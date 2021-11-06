@@ -18,8 +18,8 @@
       	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
       	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
       	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-  		  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
-	      <td align='center' class='h' width='10%'><a href='news.htm'>News</a></td>
+  	  	  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
+	        <td align='center' class='h' width='10%'><a href='news.htm'>News</a></td>
        	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
       	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
       	</tr>
@@ -32,8 +32,8 @@
       <tr><td colspan='2' class='h'>Опции</td></tr>
       <tr><td>city ID для GM и OWM</td><td><input type='text' size='6' id='cityID' name='cityID' style='text-align:center;' /></td></tr>
       <tr><td>OWM API Key          </td><td><input type='text' maxlength='32' size='32' id='owmk' name='owmk' style='text-align:center;' /></td></tr>
-      <tr><td>Адрес внешн. сервера1</td><td><input type='text' maxlength='17' size='10' id='esaddr1' name='esaddr1' style='text-align:center;' /></td></tr>
-      <tr><td>Адрес внешн. сервера2</td><td><input type='text' maxlength='17' size='10' id='esaddr2' name='esaddr2' style='text-align:center;' /></td></tr>
+      <tr><td>Адрес внешн. сервера 1</td><td><input type='text' maxlength='17' size='10' id='esaddr1' name='esaddr1' style='text-align:center;' /></td></tr>
+      <tr><td>Адрес внешн. сервера 2</td><td><input type='text' maxlength='17' size='10' id='esaddr2' name='esaddr2' style='text-align:center;' /></td></tr>
       <tr><td>Адрес радиоприемничка</td><td><input type='text' maxlength='17' size='10' id='rdaddr' name='rdaddr'  style='text-align:center;' /></td></tr>
       <tr><td>Адрес хоста для UDP консоли</td><td><input type='text' maxlength='17' size='10' id='udp' name='udp'  style='text-align:center;' /></td></tr>
       <tr><td>Использовать удаленную консоль</td><td>&nbsp;--------&nbsp;
@@ -52,8 +52,8 @@
         <td><select id='snr1' name='snr1'  onclick='sel_ts();'>
         <option value =  '0'>No_use</option>
         <option value =  '1'>TS</option>
-        <option value =  '2'>Ext srv1</option>
-        <option value =  '3'>Ext srv2</option>
+        <option value =  '2'>ESrv_1</option>
+        <option value =  '3'>ESrv_2</option>
         <option value =  '4'>DHT21</option>
         <option value =  '5'>DS3231</option>
         <option value =  '6'>SI7021</option>
@@ -62,14 +62,15 @@
         <option value =  '9'>BMP280</option>
         <option value = '10'>BME280</option>
         <option value = '11'>Из прогноза</option>
+        <option value = '12'>ExtSrc</option>
         </select></td></tr>
       
       <tr><td width='35%'>Канал 2</td>
         <td><select id='snr2' name='snr2' onclick='sel_ts();'>
         <option value =  '0'>No_use</option>
         <option value =  '1'>TS</option>
-        <option value =  '2'>Ext srv1</option>
-        <option value =  '3'>Ext srv2</option>
+        <option value =  '2'>ESrv_1</option>
+        <option value =  '3'>ESrv_2</option>
         <option value =  '4'>DHT21</option>
         <option value =  '5'>DS3231</option>
         <option value =  '6'>SI7021</option>
@@ -78,14 +79,15 @@
         <option value =  '9'>BMP280</option>
         <option value = '10'>BME280</option>
         <option value = '11'>Из прогноза</option>
+        <option value = '12'>ExtSrc</option>
         </select></td></tr>
 
       <tr><td width='35%'>Канал 3</td>
         <td><select id='snr3' name='snr3' onclick='sel_ts();'>
         <option value =  '0'>No_use</option>
         <option value =  '1'>TS</option>
-        <option value =  '2'>Ext srv1</option>
-        <option value =  '3'>Ext srv2</option>
+        <option value =  '2'>ESrv_1</option>
+        <option value =  '3'>ESrv_2</option>
         <option value =  '4'>DHT21</option>
         <option value =  '5'>DS3231</option>
         <option value =  '6'>SI7021</option>
@@ -94,28 +96,47 @@
         <option value =  '9'>BMP280</option>
         <option value = '10'>BME280</option>
         <option value = '11'>Из прогноза</option>
+        <option value = '12'>ExtSrc</option>
         </select></td></tr>
       
       <tr><td width='35%'>Давления</td>
         <td><select id='snrp' name='snrp' onclick='sel_ts();'>
         <option value =  '0'>No_use</option>
         <option value =  '1'>TS</option>
-        <option value =  '2'>Ext srv1</option>
-        <option value =  '3'>Ext srv2</option>
+        <option value =  '2'>ESrv_1</option>
+        <option value =  '3'>ESrv_2</option>
         <option value =  '8'>BMP180</option>
         <option value =  '9'>BMP280</option>
         <option value = '10'>BME280</option>
         <option value = '11'>Из прогноза</option>
+        <option value = '12'>ExtSrc</option>
        </select></td></tr>
 
       <tr><td>Период опроса (мин)</td><td><input type='text' size='2' id='period' name='period' style='text-align:center;'/></td></tr>
+      <tr><td>Энергосбережение</td><td>&nbsp;--------&nbsp;
+    	<input type='checkbox' id='esm' name='esm'/></td></tr>
+
+      <tr><td colspan='4' class='h'>Отправка показаний на ES1 с датчиков:</td></tr>
+
+        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1----2----3&nbsp;</td></tr>
+        <tr><td width='20%'>Температура</td><td>
+		    <input type='checkbox' id='uest1' name='uest1' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='uest2' name='uest2' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='uest3' name='uest3' onclick='sel_ts();'/></td></tr>
+        <tr><td width='20%'>Влажность</td><td>
+	    	<input type='checkbox' id='uesh1' name='uesh1' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='uesh2' name='uesh2' onclick='sel_ts();'/>
+	    	<input type='checkbox' id='uesh3' name='uesh3' onclick='sel_ts();'/></td></tr>
+        <tr><td>Давление</td><td>&nbsp;--------&nbsp;
+	    	<input type='checkbox' id='uesp' name='uesp' onclick='sel_ts();'/></td></tr>
+
 
       <tr><td colspan='4' class='h'>Текущие показания</td></tr>
 
         <tr><td width='20%'>Номер Канала</td><td>&nbsp;1--------------2-------------3&nbsp;</td></tr>
         <tr><td width='20%'>Название</td><td>
         <input type='text' maxlength='8' size='3' id='name_ch1' name='name_ch1' style='text-align:center;' />
-   		<input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
+   		  <input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
         <input type='text' maxlength='8' size='3' id='name_ch3' name='name_ch3' style='text-align:center;' /></td></tr>
         <tr><td width='20%'>Температура</td><td>
         <input type='text' maxlength='3' size='3' id='cur_t1' name='cur_t1' style='text-align:center;' readonly />
@@ -126,9 +147,10 @@
         <input type='text' maxlength='3' size='3' id='cur_h2' name='cur_h2' style='text-align:center;' readonly />
         <input type='text' maxlength='3' size='3' id='cur_h3' name='cur_h3' style='text-align:center;' readonly /></td></tr>
         <tr><td>Давление</td><td>&nbsp;--------------------------&nbsp;
-   		<input type='text' maxlength='3' size='3' id='cur_p'  name='cur_p'  style='text-align:center;' readonly /></td></tr>
+   	  	<input type='text' maxlength='3' size='3' id='cur_p'  name='cur_p'  style='text-align:center;' readonly /></td></tr>
 
-      <tr><td colspan='2' class='h'><button onclick='up_date();'>Обновить показания</button></td></tr>
+        <tr><td colspan='4'><button onclick='up_date();'>Обновить показания</button></td></tr>
+        <tr><td colspan='4' display='none'> _ </td></tr>
 
       <tr><td colspan='4' class='h'>Параметры аккаунта ТS:</td></tr>
 
@@ -182,6 +204,14 @@
             document.getElementById('name_ch2').value = res.nc2;
             document.getElementById('name_ch3').value = res.nc3;
             document.getElementById('period').value   = res.peri;
+            document.getElementById('esm').checked    = res.esm;
+            document.getElementById('uest1').checked = (res.ess & 0b00000001);
+            document.getElementById('uest2').checked = (res.ess & 0b00000010);
+            document.getElementById('uest3').checked = (res.ess & 0b00000100);
+            document.getElementById('uesh1').checked = (res.ess & 0b00001000);
+            document.getElementById('uesh2').checked = (res.ess & 0b00010000);
+            document.getElementById('uesh3').checked = (res.ess & 0b00100000);
+            document.getElementById('uesp').checked  = (res.ess & 0b01000000);
 
             chk_pp();
     	  }
@@ -202,13 +232,13 @@
             document.getElementById('tschan').value = res.tsid;
             document.getElementById('tsapir').value = res.tsar;
             document.getElementById('tsapiw').value = res.tsaw;
-            document.getElementById('utst1').checked = res.tsst1;
-            document.getElementById('utst2').checked = res.tsst2;
-            document.getElementById('utst3').checked = res.tsst3;
-            document.getElementById('utsh1').checked = res.tssh1;
-            document.getElementById('utsh2').checked = res.tssh2;
-            document.getElementById('utsh3').checked = res.tssh3;
-            document.getElementById('utsp').checked  = res.tssp;
+            document.getElementById('utst1').checked = (res.tss & 0b00000001);
+            document.getElementById('utst2').checked = (res.tss & 0b00000010);
+            document.getElementById('utst3').checked = (res.tss & 0b00000100);
+            document.getElementById('utsh1').checked = (res.tss & 0b00001000);
+            document.getElementById('utsh2').checked = (res.tss & 0b00010000);
+            document.getElementById('utsh3').checked = (res.tss & 0b00100000);
+            document.getElementById('utsp').checked  = (res.tss & 0b01000000);
           
             sel_ts();
           }   	  
@@ -314,11 +344,21 @@
       
       function set_pars2()
       {
+        var ues_t = 0, esm_t = 0;
+
         snr1_t   = document.getElementById('snr1').value;
         snr2_t   = document.getElementById('snr2').value;
         snr3_t   = document.getElementById('snr3').value;
         snrp_t   = document.getElementById('snrp').value;
- 	    period_t   = document.getElementById('period').value;
+      period_t   = document.getElementById('period').value;
+        if (document.getElementById('esm').checked) esm_t = 1;
+        if (document.getElementById('uest1').checked) ues_t |= 0b00000001;
+        if (document.getElementById('uest2').checked) ues_t |= 0b00000010;
+        if (document.getElementById('uest3').checked) ues_t |= 0b00000100;
+        if (document.getElementById('uesh1').checked) ues_t |= 0b00001000;
+        if (document.getElementById('uesh2').checked) ues_t |= 0b00010000;
+        if (document.getElementById('uesh3').checked) ues_t |= 0b00100000;
+        if (document.getElementById('uesp').checked)  ues_t |= 0b01000000;
          nc1_t   = document.getElementById('name_ch1').value;
          nc2_t   = document.getElementById('name_ch2').value;
          nc3_t   = document.getElementById('name_ch3').value;
@@ -328,6 +368,8 @@
 					 + '&snr3='   + snr3_t
 					 + '&snrp='   + snrp_t
 					 + '&period=' + period_t
+					 + '&ues='    + ues_t
+					 + '&esm='    + esm_t
 					 + '&nc1='    + nc1_t
 					 + '&nc2='    + nc2_t
 					 + '&nc3='    + nc3_t;
@@ -343,29 +385,23 @@
       
       function set_pars3()
       {
-        var utst1_t = 0, utst2_t = 0, utst3_t = 0, utsh1_t = 0, utsh2_t = 0, utsh3_t = 0, utsp_t = 0;
-
+        var uts_t = 0;
+        
         tschan_t = document.getElementById('tschan').value;
         tsapir_t = document.getElementById('tsapir').value;
         tsapiw_t = document.getElementById('tsapiw').value;
-        if (document.getElementById('utst1').checked) utst1_t = 1;
-        if (document.getElementById('utst2').checked) utst2_t = 1;
-        if (document.getElementById('utst3').checked) utst3_t = 1;
-        if (document.getElementById('utsh1').checked) utsh1_t = 1;
-        if (document.getElementById('utsh2').checked) utsh2_t = 1;
-        if (document.getElementById('utsh3').checked) utsh3_t = 1;
-        if (document.getElementById('utsp').checked)   utsp_t = 1;
+        if (document.getElementById('utst1').checked) uts_t |= 0b00000001;
+        if (document.getElementById('utst2').checked) uts_t |= 0b00000010;
+        if (document.getElementById('utst3').checked) uts_t |= 0b00000100;
+        if (document.getElementById('utsh1').checked) uts_t |= 0b00001000;
+        if (document.getElementById('utsh2').checked) uts_t |= 0b00010000;
+        if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
+        if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
 
         url='/set_pars3?tschan='+tschan_t
 					 +'&tsapir='+tsapir_t
 					 +'&tsapiw='+tsapiw_t
-					 +'&utst1=' +utst1_t
-					 +'&utst2=' +utst2_t
-					 +'&utst3=' +utst3_t
-					 +'&utsh1=' +utsh1_t
-					 +'&utsh2=' +utsh2_t
-					 +'&utsh3=' +utsh3_t
-					 +'&utsp='	+ utsp_t;
+					 +'&uts='	+ uts_t;
   
       var xh = new XMLHttpRequest();
           xh.open('GET', url, true);
@@ -378,18 +414,7 @@
 
       function sel_ts()
       {
-        var utst1_t = 0, utst2_t = 0, utst3_t = 0, utsh1_t = 0, utsh2_t = 0, utsh3_t = 0, utsp_t = 0, udm_t = 0;
-
-        if (document.getElementById('utst1').checked) utst1_t = 1;
-        if (document.getElementById('utst2').checked) utst2_t = 1;
-        if (document.getElementById('utst3').checked) utst3_t = 1;
-        if (document.getElementById('utsh1').checked) utsh1_t = 1;
-        if (document.getElementById('utsh2').checked) utsh2_t = 1;
-        if (document.getElementById('utsh3').checked) utsh3_t = 1;
-        if (document.getElementById('utsp').checked)  utsp_t = 1;
-         
-         if (utst1_t == 1 || utst2_t == 1 || utst3_t == 1 || utsh1_t == 1 || utsh2_t == 1 || utsh3_t == 1 || utsp_t == 1) showHide('tsapiw',  true);
-         else showHide('tsapiw',  false);
+        var uts_t = 0, ues_t = 0, udm_t = 0;
 
         snr1_t   = document.getElementById('snr1').value;
         snr2_t   = document.getElementById('snr2').value;
@@ -397,78 +422,101 @@
         snrp_t   = document.getElementById('snrp').value;
 
 /////////////////////////////////// For TS
-         if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1) showHide('tsapir',  true);
-         else showHide('tsapir',  false);
 
-         if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1 || utst1_t == 1 || utst2_t == 1 || utst3_t == 1 || utsh1_t == 1 || utsh2_t == 1 || utsh3_t == 1 || utsp_t == 1) showHide('tschan',  true);
-         else showHide('tschan',  false);
+        if (document.getElementById('utst1').checked) uts_t |= 0b00000001;
+        if (document.getElementById('utst2').checked) uts_t |= 0b00000010;
+        if (document.getElementById('utst3').checked) uts_t |= 0b00000100;
+        if (document.getElementById('utsh1').checked) uts_t |= 0b00001000;
+        if (document.getElementById('utsh2').checked) uts_t |= 0b00010000;
+        if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
+        if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
+         
+        if (uts_t > 0) showHide('tsapiw',  true);
+        else showHide('tsapiw',  false);
+
+        if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1) showHide('tsapir',  true);
+        else showHide('tsapir',  false);
+
+        if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1 || uts_t > 0) showHide('tschan',  true);
+        else showHide('tschan',  false);
 
 /////////////////////////////////// For ES
-         if (snr1_t == 2 || snr2_t == 2 || snr3_t == 2 || snrp_t == 2) showHide('esaddr1',  true);
-         else showHide('esaddr1',  false);
 
-         if (snr1_t == 3 || snr2_t == 3 || snr3_t == 3 || snrp_t == 3) showHide('esaddr2',  true);
-         else showHide('esaddr2',  false);
+        if (document.getElementById('uest1').checked) ues_t |= 0b00000001;
+        if (document.getElementById('uest2').checked) ues_t |= 0b00000010;
+        if (document.getElementById('uest3').checked) ues_t |= 0b00000100;
+        if (document.getElementById('uesh1').checked) ues_t |= 0b00001000;
+        if (document.getElementById('uesh2').checked) ues_t |= 0b00010000;
+        if (document.getElementById('uesh3').checked) ues_t |= 0b00100000;
+        if (document.getElementById('uesp').checked)  ues_t |= 0b01000000;
+
+
+
+        if (snr1_t == 2 || snr2_t == 2 || snr3_t == 2 || snrp_t == 2 || ues_t > 0) showHide('esaddr1',  true);
+        else showHide('esaddr1',  false);
+
+        if (snr1_t == 3 || snr2_t == 3 || snr3_t == 3 || snrp_t == 3) showHide('esaddr2',  true);
+        else showHide('esaddr2',  false);
 
 
 /////////////////////////////////// For UDP
-         if (document.getElementById('udm').checked)  udm_t = 1;
-         if (udm_t == 1) showHide('udp',  true);
-         else showHide('udp',  false);
+        if (document.getElementById('udm').checked)  udm_t = 1;
+        if (udm_t == 1) showHide('udp',  true);
+        else showHide('udp',  false);
  
 
 /////////////////////////////////// For NotUse
-         if (snr1_t > 0) 
-         {
-           showHide('cur_t1',  true);
-           showHide('cur_h1',  true);
-		       showHide('name_ch1',true);
-         }
-         else 
-         {
-           showHide('cur_t1',  false);
-           showHide('cur_h1',  false);
-		       showHide('name_ch1',false);
-         }
-
-         if (snr2_t > 0) 
-         {
-           showHide('cur_t2',  true);
-           showHide('cur_h2',  true);
-		       showHide('name_ch2',true);
-         }
-         else 
-         {
-           showHide('cur_t2',  false);
-           showHide('cur_h2',  false);
-		       showHide('name_ch2',false);
-         }
-
-         if (snr3_t > 0) 
-         {
-           showHide('cur_t3',  true);
-           showHide('cur_h3',  true);
-		       showHide('name_ch3',true);
-         }
-         else 
-         {
-           showHide('cur_t3',  false);
-           showHide('cur_h3',  false);
- 		       showHide('name_ch3',false);
+        if (snr1_t > 0) 
+        {
+          showHide('cur_t1',  true);
+          showHide('cur_h1',  true);
+		      showHide('name_ch1',true);
+        }
+        else 
+        {
+          showHide('cur_t1',  false);
+          showHide('cur_h1',  false);
+		      showHide('name_ch1',false);
         }
 
-         if (snrp_t > 0) 
-         {
-           showHide('cur_p',  true);
-           showHide('cur_p',  true);
-         }
-         else 
-         {
-           showHide('cur_p',  false);
-           showHide('cur_p',  false);
-         }
+        if (snr2_t > 0) 
+        {
+          showHide('cur_t2',  true);
+          showHide('cur_h2',  true);
+		      showHide('name_ch2',true);
+        }
+        else 
+        {
+          showHide('cur_t2',  false);
+          showHide('cur_h2',  false);
+		      showHide('name_ch2',false);
+        }
+
+        if (snr3_t > 0) 
+        {
+          showHide('cur_t3',  true);
+          showHide('cur_h3',  true);
+		      showHide('name_ch3',true);
+        }
+        else 
+        {
+          showHide('cur_t3',  false);
+          showHide('cur_h3',  false);
+ 		      showHide('name_ch3',false);
+        }
+
+        if (snrp_t > 0) 
+        {
+          showHide('cur_p',  true);
+          showHide('cur_p',  true);
+        }
+        else 
+        {
+          showHide('cur_p',  false);
+          showHide('cur_p',  false);
+        }
       }
-      
+
       function chk_pp()
       {
          usepp_t  = document.getElementById('usepp').value;

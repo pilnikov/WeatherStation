@@ -1,18 +1,18 @@
 //------------------------------------------------------  Получаем данные с датчиков
 snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 {
-  snr_data_t ts_data;
-  snr_data_t es_data1;
-  snr_data_t es_data2;
-  snr_data_t _snr_data;
+  snr_data_t td;
+  snr_data_t ed1;
+  snr_data_t ed2;
+  snr_data_t sd;
 
-  _snr_data.t1 = 99;
-  _snr_data.t2 = 99;
-  _snr_data.t3 = 99;
-  _snr_data.h1 = 0;
-  _snr_data.h2 = 0;
-  _snr_data.h3 = 0;
-  _snr_data.p = 700;
+  sd.t1 = 99;
+  sd.t2 = 99;
+  sd.t3 = 99;
+  sd.h1 = 0;
+  sd.h2 = 0;
+  sd.h3 = 0;
+  sd.p = 700;
 
   rd.temp_rtc = 99;
 
@@ -29,34 +29,36 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
     {
       dmsg.callback(cf.type_disp, 2, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
       String ts_str = ts_rcv(cf.ts_ch_id, cf.AKey_r);  // Получаем строчку данных от TS
-      ts_data = e_srv.get_ts(ts_str); // Парсим строчку от TS
+      td = e_srv.get_ts(ts_str); // Парсим строчку от TS
       dmsg.callback(cf.type_disp, 2, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
-    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) es_data1 = e_srv.get_es(es_rcv(cf.esrv1_addr)); // Получаем данные от внешнего сервера1
-    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) es_data2 = e_srv.get_es(es_rcv(cf.esrv2_addr)); // Получаем данные от внешнего сервера2
+    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv.get_es(es_rcv(cf.esrv1_addr)); // Получаем данные от внешнего сервера1
+    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv.get_es(es_rcv(cf.esrv2_addr)); // Получаем данные от внешнего сервера2
 
     if (cf.use_pp == 2) {
       wf_data_cur = getOWM_current(cf.pp_city_id, cf.owm_key);// Получаем данные от OWM
     }
   }
 #endif
-  if (rd.type_snr1 > 0 || rd.type_snr2 > 0 || rd.type_snr3 > 0)
+  if ((rd.type_snr1 > 0 && rd.type_snr1 < 12) || (rd.type_snr2 > 0 && rd.type_snr2 < 12) || (rd.type_snr3 > 0 && rd.type_snr3 < 12) || (rd.type_snrp > 0 && rd.type_snrp < 12))
   {
-    _snr_data = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, ts_data, es_data1, es_data2, wf_data_cur); // Заполняем матрицу данных с датчиков
+    sd = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, td, ed1, ed2, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (web_cli)
   {
-    if (cf.use_tst1 || cf.use_tst2 || cf.use_tst3 || cf.use_tsh1 || cf.use_tsh2 || cf.use_tsh3 || cf.use_tsp)
+    if (cf.use_ts > 0)
     {
       dmsg.callback(cf.type_disp, 1, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
-      ts_snd(e_srv.put_ts(cf.AKey_w, cf.use_tst1, cf.use_tst2, cf.use_tst3, cf.use_tsh1, cf.use_tsh2, cf.use_tsh3, cf.use_tsp, _snr_data)); // Отправляем инфу на TS
+      ts_snd(e_srv.put_ts(cf.AKey_w, cf.use_ts, sd)); // Отправляем инфу на TS
       dmsg.callback(cf.type_disp, 1, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
+
+    if (cf.use_es > 0)put_to_es(cf.esrv1_addr, cf.use_es, sd); //отправляем показания датчиков на внешний сервер 1
   }
 #endif
-  return _snr_data;
+  return sd;
 }
 
 #if defined(__AVR_ATmega2560__)
@@ -277,7 +279,7 @@ String tvoday(String line) {
   return line;
 }
 
-//------------------------------------------------------  Делаем запрос данных с внешнего сервера
+//------------------------------------------------------  Делаем запрос показаний датчиков с внешнего сервера
 String es_rcv(char es_addr[17])
 {
   if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from ext server"));
@@ -292,6 +294,85 @@ String es_rcv(char es_addr[17])
   }
   if (debug_level == 10) DBG_OUT_PORT.println(out);
   return out;
+}
+
+//------------------------------------------------------  Отправляем показания датчиков на внешний сервер
+void put_to_es(char es_addr[17], uint8_t use_es, snr_data_t sd)
+{
+  // uint8_t dl = debug_level;
+  // debug_level = 10;
+  DBG_OUT_PORT.print(F("\nTrue put data to ext server -> "));
+
+  if (web_cli)
+  {
+    String postStr = "http://";
+    postStr += String(es_addr);
+    postStr += "/rcv_snr?";
+    if ((use_es & 0b00000001) && sd.t1 < 99)
+    {
+      postStr += "&est1=";
+      postStr += String(sd.t1);
+    }
+
+    if ((use_es & 0b00000010) && sd.t2 < 99)
+    {
+      postStr += "&est2=";
+      postStr += String(sd.t2);
+    }
+
+    if ((use_es & 0b00000100) && sd.t3 < 99)
+    {
+      postStr += "&est3=";
+      postStr += String(sd.t3);
+    }
+
+    if ((use_es & 0b00001000) && sd.h1 > 0 && sd.h1 < 100)
+    {
+
+      postStr += "&esh1=";
+      postStr += String(sd.h1);
+    }
+
+    if ((use_es & 0b00010000) && sd.h2 > 0 && sd.h2 < 100)
+    {
+      postStr += "&esh2=";
+      postStr += String(sd.h2);
+    }
+
+    if ((use_es & 0b00100000) && sd.h3 > 0 && sd.h3 < 100)
+    {
+      postStr += "&esh3=";
+      postStr += String(sd.h3);
+    }
+
+    if ((use_es & 0b00100000) && sd.p > 700 && sd.p < 800)
+    {
+      postStr += "&esp=";
+      postStr += String(sd.p);
+    }
+    postStr += "\r\n";
+
+    DBG_OUT_PORT.println(postStr);
+
+    HTTPClient http;
+    bool beg;
+#if defined(ESP8266)
+    WiFiClient client;
+    beg = http.begin(client, postStr); //HTTP
+#else
+    beg = http.begin(postStr); //HTTP
+#endif
+    if (beg)
+    {
+      int httpCode = http.GET();
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
+      {
+        postStr = http.getString();
+        DBG_OUT_PORT.println(postStr);
+      }
+      http.end();
+    }
+  }
 }
 
 //------------------------------------------------------  Делаем запрос данных с ThingSpeak

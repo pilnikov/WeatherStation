@@ -253,7 +253,8 @@ void lcd_time(rtc_data_t rt)
     sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
     if (conf_data.rus_lng) sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
   }
-  lcd -> setCursor(0, 1);
+  if (!conf_data.time_up) lcd -> setCursor(0, 0);
+  else lcd -> setCursor(0, 1);
   lcd -> print(msg);
 }
 

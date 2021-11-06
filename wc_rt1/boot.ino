@@ -44,7 +44,7 @@ void irq_set()
       break;
 
     case 2: // conf_data.period * 1 minute
-      snr_data = GetSnr(ram_data, conf_data);
+      firq2();
       break;
 
     case 3: // 55 sec
@@ -118,7 +118,7 @@ void firq1() // 1 hour
 
   if (web_cli)
   {
-    if (hour_cnt % 12 == 0) GetNtp();
+    if ((hour_cnt % 12 == 0) & conf_data.auto_corr) GetNtp();
 
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 2)
@@ -135,6 +135,31 @@ void firq1() // 1 hour
   hour_cnt++;
 }
 
+void firq2()
+{
+  snr_data_t sb = snr_data;
+  snr_data = GetSnr(ram_data, conf_data);
+  if (ram_data.type_snr1 == 12)
+  {
+    snr_data.t1 = sb.t1;
+    snr_data.h1 = sb.h1;
+  }
+  if (ram_data.type_snr2 == 12)
+  {
+    snr_data.t2 = sb.t2;
+    snr_data.h2 = sb.h2;
+  }
+  if (ram_data.type_snr3 == 12)
+  {
+    snr_data.t3 = sb.t3;
+    snr_data.h3 = sb.h3;
+  }
+  if (ram_data.type_snrp == 12)
+  {
+    snr_data.p = sb.p;
+  }
+}
+
 void firq6() // 0.5 sec main cycle
 {
   //-------------Refresh current time in rtc_data------------------
@@ -143,12 +168,10 @@ void firq6() // 0.5 sec main cycle
   GetTime();
 
   //-------------Forming string version of current time ------------------
-  if (conf_data.boot_mode == 2)
-  {
-    memset (tstr, 0, 25);
-    rtc_data_t rt = rtc_data;
-    cur_time_str(rt, tstr);
-  }
+  memset (tstr, 0, 25);
+  rtc_data_t rt = rtc_data;
+  cur_time_str(rt, tstr);
+
   if (disp_on)
   {
     //-------------Brigthness------------------
@@ -246,7 +269,7 @@ void firq7() // 0.180 sec Communications with server
     {
       if  (!nm_is_on & !end_run_st)
       {
-        uint8_t x1 = 16;
+        uint8_t x1 = 1;
         if (!conf_data.time_up) x1 = 0;
         end_run_st = f_dsp.lcd_mov_str(x1, cur_sym_pos[0], st1, st2);
         if (end_run_st) runing_string_start(); // перезапуск бегущей строки

@@ -49,9 +49,6 @@ typedef struct
 //********************************************************** Config
 typedef struct 
 {
-  uint8_t   
-  boot_mode = 0; // 0 - minimal; 1 - test; 2 - normal
-
   bool
   auto_br = false,
   auto_corr = false,
@@ -61,15 +58,9 @@ typedef struct
   led_pola = false,
   rus_lng = false,
   time_up = false,
-  use_tst1 = false,
-  use_tst2 = false,
-  use_tst3 = false,
-  use_tsh1 = false,
-  use_tsh2 = false,
-  use_tsh3 = false,
-  use_tsp = false,
   wifi_off = false,
   udp_mon = false,
+  esm = false,
   news_en = false;
 
   unsigned long 
@@ -82,6 +73,8 @@ typedef struct
 
   uint8_t
   use_pp = 0,
+  use_ts = 0,
+  use_es = 0,
   man_br = 0,
   nmd_br = 0,
   nm_start = 0,

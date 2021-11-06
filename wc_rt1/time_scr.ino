@@ -33,18 +33,18 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 11:
       // 14SEGx8D
-      seg7_mode(mod, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
-      if (blinkColon) f_dsp.printDot(3, screen);
+      seg7_mode(mod, 4, screen, x1/4, conf_data, snr_data, rtc_data, cur_br);
+      if (blinkColon) f_dsp.printDot(x1/4 + 3, screen);
       break;
     case 12:
       // 16SEGx4D
       break;
     case 13:
       // 16SEGx8D
-      seg7_mode(mod, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      seg7_mode(mod, 4, screen, x1/4, conf_data, snr_data, rtc_data, cur_br);
       if (disp_mode == 10) disp_mode = 1;
       if (!nm_is_on) seg7_mode(disp_mode, 4, screen, 8, conf_data, snr_data, rtc_data, cur_br);
-      if (blinkColon) f_dsp.printDot(3, screen);
+      if (blinkColon) f_dsp.printDot(x1/4 + 3, screen);
       break;
     case 19:
       // 2LINEx16D

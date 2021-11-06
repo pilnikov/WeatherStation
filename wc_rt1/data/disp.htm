@@ -101,15 +101,15 @@
             document.getElementById('dtyp').value = res.dtyp;
             document.getElementById('ruslng').checked = res.rlng;
             document.getElementById('tup').checked = res.tup;
-            document.getElementById('colu').checked = res.colu;
-            document.getElementById('cold').checked = res.cold;
-    	    document.getElementById('abrd').checked = res.abrd;
-    	    document.getElementById('mbrd').value = res.mbrd;
-    	    document.getElementById('nbrd').value = res.nbrd;
-    	    document.getElementById('brd1').value = res.brlevel[0];
-    	    document.getElementById('brd2').value = res.brlevel[1];
-    	    document.getElementById('brd3').value = res.brlevel[2];
-    	    document.getElementById('brd4').value = res.brlevel[3];
+            document.getElementById('colu').value = res.colu;
+            document.getElementById('cold').value = res.cold;
+    	      document.getElementById('abrd').checked = res.abrd;
+    	      document.getElementById('mbrd').value = res.mbrd;
+    	      document.getElementById('nbrd').value = res.nbrd;
+    	      document.getElementById('brd1').value = res.brlevel[0];
+    	      document.getElementById('brd2').value = res.brlevel[1];
+    	      document.getElementById('brd3').value = res.brlevel[2];
+    	      document.getElementById('brd4').value = res.brlevel[3];
 	        
             show_abr();
           }
@@ -239,6 +239,11 @@
            showHide('brd4',  false);
          }
 
+         dtyp = document.getElementById('dtyp').value;
+     
+         if (dtyp < 4) showHide('ruslng',  false);
+         else  showHide('ruslng',  true);
+         
          if (dtyp > 21 && dtyp < 30) 
          {
            showHide('colu',  true);
@@ -249,12 +254,6 @@
            showHide('colu',  false);
            showHide('cold',  false);
          }
-
-
-         dtyp = document.getElementById('dtyp').value;
-     
-         if (dtyp < 4) showHide('ruslng',  false);
-         else  showHide('ruslng',  true);
       }
 
       process();
