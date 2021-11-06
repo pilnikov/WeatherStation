@@ -350,7 +350,7 @@ void put_to_es(char es_addr[17], uint8_t use_es, snr_data_t sd)
       postStr += "&esp=";
       postStr += String(sd.p);
     }
-    postStr += "\r\n";
+    //postStr += "\r\n";
 
     DBG_OUT_PORT.println(postStr);
 
@@ -370,6 +370,9 @@ void put_to_es(char es_addr[17], uint8_t use_es, snr_data_t sd)
         postStr = http.getString();
         DBG_OUT_PORT.println(postStr);
       }
+#if defined(ESP8266)
+      delay(3000);
+#endif
       http.end();
     }
   }
