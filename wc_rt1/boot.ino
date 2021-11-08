@@ -37,7 +37,7 @@ void irq_set()
   switch (irq)
   {
     case 0: // once per every hour
-      firq1();
+      firq0();
       break;
 
     case 1: // once per every 3 minute
@@ -58,19 +58,19 @@ void irq_set()
       break;
 
     case 5: // 0.5 sec
-      firq6();
+      firq5();
       break;
 
     case 6:
-      firq7();
+      firq6();
       break;
 
     case 7:
-      if (m32_8time_act) firq8();
+      if (m32_8time_act) firq7();
       break;
 
     case 8:
-      if (disp_on) firq9();
+      if (disp_on) firq8();
       break;
 
     default: // no IRQ
@@ -105,7 +105,7 @@ void runing_string_start() // ---------------------------- Запуск бегу
   if (conf_data.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
 }
 
-void firq1() // 1 hour
+void firq0() // 1 hour
 {
   if (hour_cnt > 23) hour_cnt = 0;
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -160,7 +160,7 @@ void firq2()
   }
 }
 
-void firq6() // 0.5 sec main cycle
+void firq5() // 0.5 sec main cycle
 {
   //-------------Refresh current time in rtc_data------------------
   static unsigned long alarm_time;
@@ -171,7 +171,6 @@ void firq6() // 0.5 sec main cycle
   memset (tstr, 0, 25);
   rtc_data_t rt = rtc_data;
   cur_time_str(rt, tstr);
-
   if (disp_on)
   {
     //-------------Brigthness------------------
@@ -187,13 +186,11 @@ void firq6() // 0.5 sec main cycle
       snr_data.f = cur_br;
     }
     //-----------------------------------------
-
     // run slowely time displays here
     m32_8time_act = false;
     if (!((conf_data.type_disp == 20) & !end_run_st & !nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
   }
   else cur_br = 0;
-
   if (!rtc_data.wasAlarm) //Проверка будильников
   {
     if (Alarmed())
@@ -217,7 +214,8 @@ void firq6() // 0.5 sec main cycle
 #endif
 }
 
-void firq7() // 0.180 sec Communications with server
+
+void firq6() // 0.180 sec Communications with server
 {
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (web_cli || web_ap)
@@ -283,10 +281,10 @@ void firq7() // 0.180 sec Communications with server
   }
 }
 
-void firq8() // 0.060 sec
+void firq7() // 0.060 sec
 {
   uint8_t pos = 0;
-  if ((conf_data.type_disp > 20) & (conf_data.type_disp < 29) & !conf_data.time_up) pos = 32;
+  if (conf_data.type_disp > 20 && conf_data.type_disp < 29 && !conf_data.time_up) pos = 32;
 
   uint8_t font_wdt = 5;
   byte nbuf[64];
@@ -302,9 +300,9 @@ void firq8() // 0.060 sec
   }
 }
 
-void firq9() //0.030 sec running string is out switch to time view
+void firq8() //0.030 sec running string is out switch to time view
 {
-  if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
+  if (conf_data.type_disp > 19 && conf_data.type_disp < 29 && !nm_is_on && !end_run_st)
   {
     uint8_t x1 = 32, x2 = 63;
     if (!conf_data.time_up)
