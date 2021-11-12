@@ -4,7 +4,7 @@
 #ifdef __AVR__
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-#elif defined(__xtensa__)
+#elif defined(__xtensa__)  || CONFIG_IDF_TARGET_ESP32C3
 #include <pgmspace.h>
 #endif
 

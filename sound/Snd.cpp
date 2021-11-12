@@ -23,7 +23,7 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   uint16_t freq;
   uint8_t octave;
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
   ledcSetup(1, 4000, 16);
   ledcAttachPin(out, 1);
 #endif
@@ -46,7 +46,7 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
     digitalWrite(out, pola ? HIGH : LOW);
   }
 }
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 bool Synt::play(const void* _ptr, uint8_t out, bool set_up, bool pola)
 #elif defined (__AVR__)
 bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
@@ -74,7 +74,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 
     p = _ptr;
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
     ledcSetup(1, 4000, 16);
     ledcAttachPin(out, 1);
 #endif

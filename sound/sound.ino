@@ -9,8 +9,8 @@
 #endif
 
 bool snd_pola = false;
-#if defined(__xtensa__)
-static const int         BUZ_PIN  PROGMEM =  15;  // Канал PWM (буззер)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+static const int         BUZ_PIN  PROGMEM =  3;  // Канал PWM (буззер)
 #elif  defined (__AVR__)
 static const int         BUZ_PIN  PROGMEM =  A7;  // Канал PWM (буззер)
 #endif
@@ -22,6 +22,7 @@ Synt Buzz;
 void setup() {
   // put your setup code here, to run once:
   DBG_OUT_PORT.begin(115200);
+   pinMode(BUZ_PIN, OUTPUT);
   //gimn();
 }
 
@@ -35,7 +36,7 @@ void loop() {
     DBG_OUT_PORT.println(s_num);
   }
 
-#if defined(__xtensa__)
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //inital sound card
   is_played = Buzz.play(pgm_read_ptr(&songs[s_num]), BUZ_PIN, play_snd, snd_pola);
 #elif defined (__AVR__)

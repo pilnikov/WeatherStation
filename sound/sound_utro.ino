@@ -1,8 +1,6 @@
-void setup() {
-pinMode(A7, OUTPUT);
-}
 
-void loop() {
+void utro() {
+#if !defined(ARDUINO_ARCH_ESP32)
 tone(A7, 700, 300);
 delay(600);
 tone(A7, 700, 300);
@@ -73,4 +71,5 @@ tone(A7, 520, 150);
 delay(300);
 tone(A7, 460, 1350);
 delay(5000);
+#endif
 }  
