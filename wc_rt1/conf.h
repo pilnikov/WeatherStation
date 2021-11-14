@@ -200,7 +200,7 @@
 #include <hw.h>
 #endif
 
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiClient.h>
@@ -343,7 +343,7 @@ void IRAM_ATTR isr2();
 #elif defined(__AVR__)
 void ISR_ATTR isr1();
 void ISR_ATTR isr2();
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void ARDUINO_ISR_ATTR isr1();
 #endif
 
@@ -360,7 +360,7 @@ static ESP8266WebServer server(80);
 static ESP8266HTTPUpdateServer httpUpdater;
 #endif
 
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 static WebServer server(80);
 HTTPUpdateServer httpUpdater;
 #endif

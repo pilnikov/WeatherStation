@@ -611,7 +611,7 @@ void ISR_ATTR isr1() //Отпускаем кнопку
   btn_state_flag = true;
 }
 
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3 
 void ARDUINO_ISR_ATTR isr1() //Отпускаем кнопку
 {
   btn_state_flag = true;
@@ -747,7 +747,7 @@ void fs_setup()
       DBG_OUT_PORT.printf(" FS File: %s, size: %s\n", fileName.c_str(), fsys.formatBytes(fileSize).c_str());
     }
   }
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
   if (!LittleFS.begin())
   {
     DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");

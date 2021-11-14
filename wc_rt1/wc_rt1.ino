@@ -71,7 +71,7 @@ void setup()
   if (boot_mode == 1)
   {
     //------------------------------------------------------  Начинаем инициализацию Hardware
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
     Wire.setPins(conf_data.gpio_sda, conf_data.gpio_scl);
 # endif
 

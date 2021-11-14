@@ -19,9 +19,10 @@ void m7219_init()
 
   if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
   {
-    memset (tstr, 0, 25);
-    strcpy(tstr, "7219");
-    f_dsp.print_(tstr, 5, screen, 0, font14s, 2, 0);
+    char Tstr[25];
+    memset (Tstr, 0, 25);
+    strcpy(Tstr, "7219");
+    f_dsp.print_(Tstr, 5, screen, 0, font14s, 2, 0);
     m7adopt(screen, 0, 4);
   }
 

@@ -816,7 +816,7 @@ void handleFileList()
     output += "\"}";
     entry.close();
   }
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32C3
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
   File root = LittleFS.open(path);
   String output = "[";
   if (root.isDirectory()) {
