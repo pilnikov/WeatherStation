@@ -72,7 +72,7 @@ int HT1632C::init()
   framebuffer = (uint8_t*)malloc(num_chips * chip_size); //4 * 32 = 128
   if (!framebuffer) return 3;
 
-  SPI.begin();
+//  SPI.begin();
 # if defined(__xtensa__)
   SPI.setFrequency(frequency);
 #endif

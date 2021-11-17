@@ -46,10 +46,10 @@ Max72::Max72(byte csPin, byte hDisplays, byte vDisplays)
 }
 void Max72::begin(void) {
 
-  SPI.begin();
+  //SPI.begin();
   //SPI.setBitOrder(MSBFIRST);
   //SPI.setDataMode(SPI_MODE0);
-  pinMode(SPI_CS, OUTPUT);
+  //pinMode(SPI_CS, OUTPUT);
 
   // Clear the screen
   fillScreen(0);

@@ -98,6 +98,7 @@ void setup()
         tm1637_init();
         break;
       case 2:
+        SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
         m7219_init();
         break;
       case 3:
@@ -107,9 +108,11 @@ void setup()
         ht1621_init();
         break;
       case 5:
+        SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
         ht1632_init();
         break;
       case 6:
+        SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
         ili9341_init();
         break;
       case 11:
