@@ -33,7 +33,7 @@ void setup()
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //--------------------------------------------------------  Запускаем WiFi
-  start_wifi();
+  myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
 
   if (web_cli || web_ap)
   {
@@ -98,7 +98,14 @@ void setup()
         tm1637_init();
         break;
       case 2:
+#if defined(ESP8266)
+        SPI.pins(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
+        SPI.begin();
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
         SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
+#else
+        SPI.begin();
+#endif
         m7219_init();
         break;
       case 3:
@@ -108,11 +115,25 @@ void setup()
         ht1621_init();
         break;
       case 5:
+#if defined(ESP8266)
+        SPI.pins(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
+        SPI.begin();
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
         SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
+#else
+        SPI.begin();
+#endif
         ht1632_init();
         break;
       case 6:
+#if defined(ESP8266)
+        SPI.pins(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
+        SPI.begin();
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
         SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
+#else
+        SPI.begin();
+#endif
         ili9341_init();
         break;
       case 11:
@@ -236,8 +257,10 @@ void setup()
     //------------------------------------------------------ Засыпаем
     if (conf_data.esm)
     {
-      stop_wifi();
-      ESP.deepSleep(conf_data.period * 60e6); // deep-sleep. Засыпаем на period минут!
+      WiFi.shutdown(state);
+      ESP.rtcUserMemoryWrite(RTC_USER_DATA_SLOT_WIFI_STATE, reinterpret_cast<uint32_t *>(&state), sizeof(state));
+      DBG_OUT_PORT.flush();
+      ESP.deepSleep(conf_data.period * 60e6, RF_DISABLED); // deep-sleep. Засыпаем на period минут!
     }
   }
   else DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));

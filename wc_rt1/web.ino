@@ -68,7 +68,7 @@ void web_setup()
 //-------------------------------------------------------------- Start_serv
 void start_serv()
 {
-  if (!web_cli & !web_ap) start_wifi();
+  if (!web_cli & !web_ap) myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
 
   if (web_cli || web_ap)
   {

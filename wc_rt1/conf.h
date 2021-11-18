@@ -198,6 +198,14 @@
 //#include "..\lib\MyLib_nf\src\Netwf.h"
 
 #include <hw.h>
+
+#include <include/WiFiState.h> // WiFiState structure details
+
+WiFiState state;
+#ifndef RTC_USER_DATA_SLOT_WIFI_STATE
+#define RTC_USER_DATA_SLOT_WIFI_STATE 33u
+#endif
+
 #endif
 
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
@@ -316,7 +324,7 @@ void stop_client();
 
 bool ap_init();
 
-void start_wifi();
+IPAddress start_wifi(const char*, const char*, const char*, const char*);
 void stop_wifi();
 
 void GetNtp();
@@ -407,7 +415,8 @@ volatile bool btn_state_flag = false;
 Synt Buzz;               //Конструктор пищалки
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-IPAddress IP_Addr, myIP;
+
+IPAddress myIP;
 
 File fsUploadFile;
 

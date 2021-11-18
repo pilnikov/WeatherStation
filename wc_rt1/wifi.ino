@@ -3,83 +3,85 @@
 //-------------------------------------------------------------- Stop_wifi
 void stop_wifi()
 {
+  if (WiFi.getPersistent() == true) WiFi.persistent(false);   //disable saving wifi config into SDK flash area
   if (web_cli)     //Останавливаем клиента
   {
-    DBG_OUT_PORT.println(F( "Client stopped"));
+    DBG_OUT_PORT.println(F( "Trying to stop Сlient"));
+    web_cli  = false;
+    WiFi.disconnect(true);
   }
   if (web_ap)     //Останавливаем АР
   {
-    DBG_OUT_PORT.println(F( "AP stopped"));
+    DBG_OUT_PORT.println(F( "Trying to stop AP"));
+    WiFi.softAPdisconnect(false); //setting ssid/pass to null
+    web_ap   = false;
   }
-  web_ap   = false;
-  web_cli  = false;
   WiFi.mode(WIFI_OFF);
-  WiFi.disconnect();
-  DBG_OUT_PORT.print(F("WiFi stopped...."));
+  DBG_OUT_PORT.println(F("WiFi stopped...."));
 }
 
 //-------------------------------------------------------------- Start_wifi
-void start_wifi()
+IPAddress start_wifi(const char* ssid, const char* ssipass, const char* apid, const char* appass)
 {
-  DBG_OUT_PORT.print(F("Connecting to "));
-  DBG_OUT_PORT.println(conf_data.sta_ssid);
+  IPAddress my_IP;
 
-  WiFi.persistent(false);
+  DBG_OUT_PORT.print(F("Trying to connect a "));
+  DBG_OUT_PORT.println(ssid);
 
-  WiFi.disconnect();
+  if (WiFi.getPersistent() == true) WiFi.persistent(false);   //disable saving wifi config into SDK flash area
+  if (WiFi.getAutoConnect() != true) WiFi.setAutoConnect(true);  //on power-on automatically connects to last used hwAP
+  WiFi.setAutoReconnect(true);                                   //automatically reconnects to hwAP in case it is disconnected
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);
 
-  WiFi.mode(WIFI_STA);
+  // May be necessary after deepSleep. Otherwise you may get "error: pll_cal exceeds 2ms!!!" when trying to connect
+  delay(1);
 
-  WiFi.begin(conf_data.sta_ssid, conf_data.sta_pass);
+  // ---
+  // Here you can do whatever you need to do that doesn't need a WiFi connection.
+  // ---
 
-  uint8_t tru = 0;
+  ESP.rtcUserMemoryRead(RTC_USER_DATA_SLOT_WIFI_STATE, reinterpret_cast<uint32_t *>(&state), sizeof(state));
+  unsigned long start = millis();
 
-  while ((WiFi.status() != WL_CONNECTED) & (tru < 20))
+  if (!WiFi.resumeFromShutdown(state) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
   {
-    delay(500);
-    DBG_OUT_PORT.print(F("."));
-    tru ++;
+    DBG_OUT_PORT.println(F("Cannot resume WiFi connection, connecting via begin..."));
+
+    if (!WiFi.mode(WIFI_STA) || !WiFi.begin(ssid, ssipass) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
+    {
+      DBG_OUT_PORT.print(F("Cannot connect to "));
+      DBG_OUT_PORT.println(ssid);
+
+      DBG_OUT_PORT.print(F("Trying to start access point "));
+      DBG_OUT_PORT.println(apid);
+
+      WiFi.mode(WIFI_AP);
+
+      WiFi.softAP(apid, appass);
+
+      my_IP = WiFi.softAPIP();
+
+      web_ap = true;
+
+      DBG_OUT_PORT.print(F("AP IP address: "));
+      DBG_OUT_PORT.println(my_IP);
+      return my_IP;
+    }
   }
 
-  if (tru < 18)
-  {
-    web_cli = true;
+  DBG_OUT_PORT.print(ssid);
+  DBG_OUT_PORT.println(F(" is connected!"));
 
-    DBG_OUT_PORT.println(F("\nWiFi connected"));
+  unsigned long duration = millis() - start;
+  DBG_OUT_PORT.printf("Duration: %f\n", duration * 0.001);
 
-    myIP = WiFi.localIP();
+  web_cli = true;
 
-    DBG_OUT_PORT.print(F("Client IP address: "));
-  }
-  else
-  {
-    web_ap = true;
+  my_IP = WiFi.localIP();
 
-    DBG_OUT_PORT.print(F("Configuring access point..."));
-    WiFi.mode(WIFI_AP);
-
-    WiFi.softAP(conf_data.ap_ssid, conf_data.ap_pass);
-
-    myIP = WiFi.softAPIP();
-
-    DBG_OUT_PORT.print(F("AP IP address: "));
-  }
-
-  DBG_OUT_PORT.println(myIP);
-
-  char ibuf[17];
-  memset(ibuf, 0, 17);
-
-  String my_ip = "192.168.0.0";
-  my_ip = myIP.toString();
-
-  my_ip.toCharArray(ibuf, my_ip.length() + 1);
-  sprintf_P(st1, PSTR("Your IP:%s"), ibuf);
-
-  if (conf_data.rus_lng)
-  {
-    sprintf_P(st1, PSTR("Ваш IP:%s"), ibuf);
-    f_dsp.utf8rus(st1);
-  }
+  DBG_OUT_PORT.print(F("Client IP address: "));
+  DBG_OUT_PORT.println(my_IP);
+  return my_IP;
 }
 #endif

@@ -112,8 +112,8 @@ void firq0() // 1 hour
 
   if (!conf_data.wifi_off)
   {
-    stop_wifi();
-    start_wifi();
+    //stop_wifi();
+    //myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
   }
 
   if (web_cli)
