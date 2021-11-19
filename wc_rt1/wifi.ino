@@ -3,19 +3,17 @@
 //-------------------------------------------------------------- Stop_wifi
 void stop_wifi()
 {
-  if (WiFi.getPersistent() == true) WiFi.persistent(false);   //disable saving wifi config into SDK flash area
   if (web_cli)     //Останавливаем клиента
   {
-    DBG_OUT_PORT.println(F( "Trying to stop Сlient"));
+    DBG_OUT_PORT.println(F( "True stop the Client"));
     web_cli  = false;
-    WiFi.disconnect(true);
   }
   if (web_ap)     //Останавливаем АР
   {
-    DBG_OUT_PORT.println(F( "Trying to stop AP"));
-    WiFi.softAPdisconnect(false); //setting ssid/pass to null
+    DBG_OUT_PORT.println(F( "True stop the AP"));
     web_ap   = false;
   }
+  WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
   DBG_OUT_PORT.println(F("WiFi stopped...."));
 }
@@ -28,7 +26,6 @@ IPAddress start_wifi(const char* ssid, const char* ssipass, const char* apid, co
   DBG_OUT_PORT.print(F("Trying to connect a "));
   DBG_OUT_PORT.println(ssid);
 
-  if (WiFi.getPersistent() == true) WiFi.persistent(false);   //disable saving wifi config into SDK flash area
   if (WiFi.getAutoConnect() != true) WiFi.setAutoConnect(true);  //on power-on automatically connects to last used hwAP
   WiFi.setAutoReconnect(true);                                   //automatically reconnects to hwAP in case it is disconnected
   WiFi.disconnect(true);
@@ -41,12 +38,26 @@ IPAddress start_wifi(const char* ssid, const char* ssipass, const char* apid, co
   // Here you can do whatever you need to do that doesn't need a WiFi connection.
   // ---
 
+#if defined(ESP8266)
   ESP.rtcUserMemoryRead(RTC_USER_DATA_SLOT_WIFI_STATE, reinterpret_cast<uint32_t *>(&state), sizeof(state));
-  unsigned long start = millis();
+#endif
 
-  if (!WiFi.resumeFromShutdown(state) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
+  unsigned long start = millis();
+  bool _resume = false;
+
+#if defined(ESP8266)
+  _resume = (!WiFi.resumeFromShutdown(state) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED));
+#else
+  _resume = (WiFi.waitForConnectResult(10000) != WL_CONNECTED);
+#endif
+  if (_resume)
   {
     DBG_OUT_PORT.println(F("Cannot resume WiFi connection, connecting via begin..."));
+#if defined(ESP8266)
+    if (WiFi.getPersistent() == true) WiFi.persistent(false);   //disable saving wifi config into SDK flash area
+#else
+    WiFi.persistent(false);
+#endif
 
     if (!WiFi.mode(WIFI_STA) || !WiFi.begin(ssid, ssipass) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
     {

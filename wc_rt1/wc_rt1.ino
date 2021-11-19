@@ -257,10 +257,16 @@ void setup()
     //------------------------------------------------------ Засыпаем
     if (conf_data.esm)
     {
+#if defined(ESP8266)
       WiFi.shutdown(state);
       ESP.rtcUserMemoryWrite(RTC_USER_DATA_SLOT_WIFI_STATE, reinterpret_cast<uint32_t *>(&state), sizeof(state));
+#endif
       DBG_OUT_PORT.flush();
+#if defined(ESP8266)
       ESP.deepSleep(conf_data.period * 60e6, RF_DISABLED); // deep-sleep. Засыпаем на period минут!
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3 
+      ESP.deepSleep(conf_data.period * 60e6); // deep-sleep. Засыпаем на period минут!
+#endif
     }
   }
   else DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
