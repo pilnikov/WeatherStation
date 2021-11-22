@@ -218,6 +218,8 @@ WiFiState state;
 #include <ESP32SSDP.h>
 //#include <IRremote.h>
 
+#include <esp_int_wdt.h>
+#include <esp_task_wdt.h>
 
 //#include "..\lib\MyLib_nf\src\Netwf.h"
 #endif

@@ -611,7 +611,7 @@ void ISR_ATTR isr1() //Отпускаем кнопку
   btn_state_flag = true;
 }
 
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3 
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void ARDUINO_ISR_ATTR isr1() //Отпускаем кнопку
 {
   btn_state_flag = true;
@@ -728,7 +728,6 @@ void printFile(const char* filename) {
   file.close();
 }
 
-
 void fs_setup()
 {
 #if defined(ESP8266)
@@ -774,4 +773,11 @@ void fs_setup()
   }
 # endif
 }
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+void hard_restart() {
+  esp_task_wdt_init(1, true);
+  esp_task_wdt_add(NULL);
+  while (true);
+}
+#endif
 #endif

@@ -82,11 +82,12 @@ void start_serv()
 void stop_serv()
 {
   server.stop();
-  DBG_OUT_PORT.println(F("Serwer stopped...."));
+  DBG_OUT_PORT.println(F("Server stopped...."));
   ArduinoOTA.end();
   DBG_OUT_PORT.println(F("OTA stopped...."));
   MDNS.end();
   DBG_OUT_PORT.println(F("MDNS stopped...."));
+  DBG_OUT_PORT.println(F("SSDP stopped...."));
   stop_wifi();
 }
 
@@ -711,7 +712,6 @@ void handleExit()
 {
   stop_serv();
   if (debug_level == 14)  DBG_OUT_PORT.println(F("Reboot esp..."));
-  delay(2000);
   ESP.restart();
 }
 

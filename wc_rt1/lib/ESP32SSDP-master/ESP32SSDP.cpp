@@ -105,10 +105,6 @@ static const char _ssdp_schema_template[] PROGMEM =
   "</root>\r\n"
   "\r\n";
 
-struct SSDPTimer {
-  ETSTimer timer;
-};
-
 SSDPClass::SSDPClass() :
 _server(0),
 _timer(new SSDPTimer),
@@ -134,9 +130,9 @@ _notify_time(0)
 }
 
 SSDPClass::~SSDPClass(){
+  ets_timer_disarm(tm);
   delete _timer;
 }
-
 
 bool SSDPClass::begin(){
   _pending = false;
@@ -430,9 +426,13 @@ void SSDPClass::_onTimerStatic(SSDPClass* self) {
 }
 
 void SSDPClass::_startTimer() {
-  ETSTimer* tm = &(_timer->timer);
-  const int interval = 1000;
+
   ets_timer_disarm(tm);
+  delay(10);
+  delete _timer;
+
+  SSDPTimer* _timer;
+  const int interval = 1000;
   ets_timer_setfn(tm, reinterpret_cast<ETSTimerFunc*>(&SSDPClass::_onTimerStatic), reinterpret_cast<void*>(this));
   ets_timer_arm(tm, interval, 1 /* repeat */);
 }
