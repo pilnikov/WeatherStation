@@ -103,32 +103,28 @@ void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
 void a595_init()
 {
-#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
-
-  //G1  R1 | 12 04
-  //GND B1 |  g 13
-  //G2  R2 | 15 14
-  //E   B2 | 25 21
-  //B   A  | 05 26
-  //D   C  | 19 18
-  //LAT CLK| 32 27
-  //GND OE |  g 33
-
-#if defined(__AVR_ATmega2560__)
-  uint8_t A_PIN =  54, //A0 Пин A
-          B_PIN =  55, //A1 Пин B
-          C_PIN =  56, //A2 Пин C
-          D_PIN =  57, //A3 Пин D
-
-          CLK_PIN =  11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
-          LAT_PIN =  10,  // Пин LAT
-          OE_PIN =   9;   // Пин OE
-#endif
-
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 
   if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
   {
 #if defined(__AVR_ATmega2560__)
+    //G1  R1 | 12 04
+    //GND B1 |  g 13
+    //G2  R2 | 15 14
+    //E   B2 | 25 21
+    //B   A  | 05 26
+    //D   C  | 19 18
+    //LAT CLK| 32 27
+    //GND OE |  g 33
+
+    uint8_t A_PIN =  54, //A0 Пин A
+            B_PIN =  55, //A1 Пин B
+            C_PIN =  56, //A2 Пин C
+            D_PIN =  57, //A3 Пин D
+
+            CLK_PIN =  11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+            LAT_PIN =  10,  // Пин LAT
+            OE_PIN =   9;   // Пин OE
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
 #elif CONFIG_IDF_TARGET_ESP32
@@ -159,12 +155,42 @@ void a595_init()
       naddr_pin, addrPins, // # of address pins (height is inferred), array of pins
       clockPin, latchPin, oePin, // Other matrix control pins
       true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
+
+#elif CONFIG_IDF_TARGET_ESP32S2
+    uint8_t rgbPins[] = {36, 13, 14, 10, 11, 12},
+                        addrPins[] = {8, 39, 40, 41, 7},
+                                     clockPin   = 9, // Must be on same port as rgbPins
+                                     latchPin   = 5,
+                                     oePin      = 6,
+                                     naddr_pin  = 3,
+                                     wide       = 32;
+    if (conf_data.type_disp != 23) wide = 64;
+    if (conf_data.type_disp == 24)
+    {
+      naddr_pin = 4;
+      text_size = 2;
+    }
+    if (conf_data.type_disp == 25)
+    {
+      naddr_pin = 5;
+      text_size = 4;
+    }
+
+
+    m3216 = new Adafruit_Protomatter(
+      wide,        // Matrix width in pixels
+      6,           // Bit depth -- 6 here provides maximum color options
+      1, rgbPins,  // # of matrix chains, array of 6 RGB pins for each
+      naddr_pin, addrPins, // # of address pins (height is inferred), array of pins
+      clockPin, latchPin, oePin, // Other matrix control pins
+      true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!#endif
+
 #endif
 
 #if defined(__AVR_ATmega2560__)
     m3216 -> begin();
 
-#elif CONFIG_IDF_TARGET_ESP32
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 
     ProtomatterStatus status = m3216 -> begin();
 
@@ -180,7 +206,7 @@ void a595_init()
 
 void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 {
-#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
   for (uint8_t x = 0; x < 32; x++)
   {
     uint8_t dt = 0b1;
@@ -196,7 +222,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 #if defined(__AVR_ATmega2560__)
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, c_br, true) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, c_br, true) : 0);
-#elif CONFIG_IDF_TARGET_ESP32
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> color565(c_br, 0 , 0) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> color565(0, c_br, 0) : 0);
 #endif
@@ -206,7 +232,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
   }
 #if defined(__AVR_ATmega2560__)
   m3216 -> swapBuffers(true);
-#elif CONFIG_IDF_TARGET_ESP32
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
   m3216 -> show();
 #endif
 #endif

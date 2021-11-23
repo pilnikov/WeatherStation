@@ -13280,21 +13280,21 @@ Based on the following sources:
 <label x="43.18" y="-35.56" size="1.27" layer="95" font="vector" xref="yes"/>
 </segment>
 </net>
-<net name="IO38" class="0">
+<net name="1IO38" class="0">
 <segment>
 <wire x1="40.64" y1="50.8" x2="43.18" y2="50.8" width="0.1524" layer="91"/>
 <label x="43.18" y="50.8" size="1.27" layer="95" font="vector" xref="yes"/>
 <pinref part="IC201" gate="G$1" pin="I38"/>
 </segment>
 </net>
-<net name="IO26" class="0">
+<net name="1IO26" class="0">
 <segment>
 <pinref part="IC201" gate="G$1" pin="I26"/>
 <wire x1="27.94" y1="27.94" x2="27.94" y2="25.4" width="0.1524" layer="91"/>
 <label x="27.94" y="25.4" size="1.27" layer="95" font="vector" rot="R270" xref="yes"/>
 </segment>
 </net>
-<net name="IO42" class="0">
+<net name="1IO42" class="0">
 <segment>
 <pinref part="IC201" gate="G$1" pin="I42"/>
 <wire x1="40.64" y1="60.96" x2="43.18" y2="60.96" width="0.1524" layer="91"/>
@@ -13307,33 +13307,36 @@ Based on the following sources:
 <label x="-2.54" y="68.58" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="IC201" gate="G$1" pin="I01"/>
 </segment>
+<segment>
+<wire x1="83.82" y1="60.96" x2="78.74" y2="60.96" width="0.1524" layer="91"/>
+<label x="78.74" y="60.96" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
+<pinref part="J208" gate="G$1" pin="9"/>
+</segment>
 </net>
-<net name="IO18" class="0">
+<net name="1IO18" class="0">
 <segment>
 <pinref part="IC201" gate="G$1" pin="I18"/>
 <wire x1="17.78" y1="27.94" x2="17.78" y2="25.4" width="0.1524" layer="91"/>
 <label x="17.78" y="25.4" size="1.27" layer="95" font="vector" rot="R270" xref="yes"/>
 </segment>
 </net>
-<net name="IO17" class="0">
+<net name="1IO17" class="0">
 <segment>
 <pinref part="IC201" gate="G$1" pin="I17"/>
 <wire x1="15.24" y1="27.94" x2="15.24" y2="25.4" width="0.1524" layer="91"/>
 <label x="15.24" y="25.4" size="1.27" layer="95" font="vector" rot="R270" xref="yes"/>
 </segment>
 </net>
-<net name="IO15" class="0">
+<net name="1IO15" class="0">
 <segment>
 <pinref part="IC201" gate="G$1" pin="I15"/>
 <wire x1="10.16" y1="27.94" x2="10.16" y2="25.4" width="0.1524" layer="91"/>
 <label x="10.16" y="25.4" size="1.27" layer="95" font="vector" rot="R270" xref="yes"/>
 </segment>
-</net>
-<net name="IO16" class="0">
 <segment>
-<pinref part="IC201" gate="G$1" pin="I16"/>
-<wire x1="12.7" y1="27.94" x2="12.7" y2="25.4" width="0.1524" layer="91"/>
-<label x="12.7" y="25.4" size="1.27" layer="95" font="vector" rot="R270" xref="yes"/>
+<wire x1="93.98" y1="63.5" x2="99.06" y2="63.5" width="0.1524" layer="91"/>
+<label x="99.06" y="63.5" size="1.27" layer="95" font="vector" xref="yes"/>
+<pinref part="J208" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="1IO0" class="0">
@@ -13342,8 +13345,18 @@ Based on the following sources:
 <label x="-2.54" y="71.12" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="IC201" gate="G$1" pin="I00"/>
 </segment>
+<segment>
+<label x="-43.18" y="48.26" size="1.27" layer="95" font="vector" xref="yes"/>
+<pinref part="J202" gate="G$1" pin="6"/>
+<wire x1="-48.26" y1="48.26" x2="-43.18" y2="48.26" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<label x="99.06" y="71.12" size="1.27" layer="95" font="vector" xref="yes"/>
+<pinref part="J208" gate="G$1" pin="2"/>
+<wire x1="93.98" y1="71.12" x2="99.06" y2="71.12" width="0.1524" layer="91"/>
+</segment>
 </net>
-<net name="IO21" class="0">
+<net name="1IO21" class="0">
 <segment>
 <pinref part="IC201" gate="G$1" pin="I21"/>
 <wire x1="25.4" y1="27.94" x2="25.4" y2="25.4" width="0.1524" layer="91"/>
@@ -13668,39 +13681,24 @@ Based on the following sources:
 </net>
 <net name="1IO35" class="0">
 <segment>
-<label x="99.06" y="71.12" size="1.27" layer="95" font="vector" xref="yes"/>
-<pinref part="J208" gate="G$1" pin="2"/>
-<wire x1="93.98" y1="71.12" x2="99.06" y2="71.12" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <wire x1="40.64" y1="43.18" x2="43.18" y2="43.18" width="0.1524" layer="91"/>
 <label x="43.18" y="43.18" size="1.27" layer="95" font="vector" xref="yes"/>
 <pinref part="IC201" gate="G$1" pin="I35"/>
 </segment>
-<segment>
-<label x="-43.18" y="48.26" size="1.27" layer="95" font="vector" xref="yes"/>
-<pinref part="J202" gate="G$1" pin="6"/>
-<wire x1="-48.26" y1="48.26" x2="-43.18" y2="48.26" width="0.1524" layer="91"/>
-</segment>
 </net>
 <net name="1IO2" class="0">
-<segment>
-<wire x1="93.98" y1="63.5" x2="99.06" y2="63.5" width="0.1524" layer="91"/>
-<label x="99.06" y="63.5" size="1.27" layer="95" font="vector" xref="yes"/>
-<pinref part="J208" gate="G$1" pin="8"/>
-</segment>
 <segment>
 <wire x1="0" y1="66.04" x2="-2.54" y2="66.04" width="0.1524" layer="91"/>
 <label x="-2.54" y="66.04" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="IC201" gate="G$1" pin="I02"/>
 </segment>
-</net>
-<net name="1IO46" class="0">
 <segment>
 <wire x1="93.98" y1="60.96" x2="99.06" y2="60.96" width="0.1524" layer="91"/>
 <label x="99.06" y="60.96" size="1.27" layer="95" font="vector" xref="yes"/>
 <pinref part="J208" gate="G$1" pin="10"/>
 </segment>
+</net>
+<net name="1IO46" class="0">
 <segment>
 <wire x1="40.64" y1="71.12" x2="43.18" y2="71.12" width="0.1524" layer="91"/>
 <label x="43.18" y="71.12" size="1.27" layer="95" font="vector" xref="yes"/>
@@ -13877,11 +13875,6 @@ Based on the following sources:
 </net>
 <net name="1IO45" class="0">
 <segment>
-<wire x1="83.82" y1="60.96" x2="78.74" y2="60.96" width="0.1524" layer="91"/>
-<label x="78.74" y="60.96" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
-<pinref part="J208" gate="G$1" pin="9"/>
-</segment>
-<segment>
 <wire x1="40.64" y1="68.58" x2="43.18" y2="68.58" width="0.1524" layer="91"/>
 <label x="43.18" y="68.58" size="1.27" layer="95" font="vector" xref="yes"/>
 <pinref part="IC201" gate="G$1" pin="I45"/>
@@ -14056,7 +14049,7 @@ Based on the following sources:
 <junction x="-33.02" y="63.5"/>
 </segment>
 </net>
-<net name="I33" class="0">
+<net name="1IO33" class="0">
 <segment>
 <pinref part="IC201" gate="G$1" pin="I33"/>
 <wire x1="40.64" y1="38.1" x2="43.18" y2="38.1" width="0.1524" layer="91"/>
@@ -14396,6 +14389,13 @@ Based on the following sources:
 <wire x1="76.2" y1="-43.18" x2="76.2" y2="-40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
+<net name="1IO16" class="0">
+<segment>
+<pinref part="IC201" gate="G$1" pin="I16"/>
+<wire x1="12.7" y1="27.94" x2="12.7" y2="25.4" width="0.1524" layer="91"/>
+<label x="12.7" y="25.4" size="1.27" layer="95" font="vector" rot="R270" xref="yes"/>
+</segment>
+</net>
 </nets>
 </sheet>
 <sheet>
@@ -14696,21 +14696,10 @@ Based on the following sources:
 <approved hash="104,2,66.04,-76.2,J206,VBUS,+5V_2,,,"/>
 <approved hash="104,3,60.96,91.44,U301,VDD,+3V3_S,,,"/>
 <approved hash="106,2,109.22,0,+5V_3,,,,,"/>
-<approved hash="106,2,0,71.12,1IO0,,,,,"/>
-<approved hash="106,2,0,68.58,1IO1,,,,,"/>
 <approved hash="106,2,40.64,-109.22,4IO4,,,,,"/>
 <approved hash="106,2,40.64,-106.68,4IO5,,,,,"/>
 <approved hash="106,2,7.62,-116.84,4IO13,,,,,"/>
 <approved hash="106,2,7.62,-109.22,4IO16,,,,,"/>
-<approved hash="106,2,40.64,38.1,I33,,,,,"/>
-<approved hash="106,2,10.16,27.94,IO15,,,,,"/>
-<approved hash="106,2,12.7,27.94,IO16,,,,,"/>
-<approved hash="106,2,15.24,27.94,IO17,,,,,"/>
-<approved hash="106,2,17.78,27.94,IO18,,,,,"/>
-<approved hash="106,2,25.4,27.94,IO21,,,,,"/>
-<approved hash="106,2,27.94,27.94,IO26,,,,,"/>
-<approved hash="106,2,40.64,50.8,IO38,,,,,"/>
-<approved hash="106,2,40.64,60.96,IO42,,,,,"/>
 <approved hash="113,1,212.048,47.1212,J103,,,,,"/>
 </errors>
 </schematic>
