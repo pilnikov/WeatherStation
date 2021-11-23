@@ -87,7 +87,6 @@ void stop_serv()
   DBG_OUT_PORT.println(F("OTA stopped...."));
   MDNS.end();
   DBG_OUT_PORT.println(F("MDNS stopped...."));
-  DBG_OUT_PORT.println(F("SSDP stopped...."));
   stop_wifi();
 }
 
