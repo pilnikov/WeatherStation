@@ -83,7 +83,11 @@ void stop_serv()
 {
   server.stop();
   DBG_OUT_PORT.println(F("Server stopped...."));
+#if defined(ESP8266)
+  ;
+#else
   ArduinoOTA.end();
+#endif
   DBG_OUT_PORT.println(F("OTA stopped...."));
   MDNS.end();
   DBG_OUT_PORT.println(F("MDNS stopped...."));
