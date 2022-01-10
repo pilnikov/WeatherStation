@@ -246,7 +246,7 @@ void firq6() // 0.180 sec Communications with server
         end_run_st = f_dsp.scroll_String(x1, x2, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
         if (end_run_st) runing_string_start(); // перезапуск бегущей строки
       }
-      ht1633_ramFormer2(screen, 0, 8);
+      ht1633_ramFormer2(screen, 0, 7);
     }
     if (conf_data.type_disp == 31)
     {

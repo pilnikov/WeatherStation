@@ -29,7 +29,7 @@ class SF
   public:
     void i2c_scan_do();
 	void i2c_parse();
-    String formatBytes(unsigned long);
+    String formatBytes(uint32_t);
     ram_data_t i2c_scan(conf_data_t);
 	
   private:

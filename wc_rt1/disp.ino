@@ -157,11 +157,11 @@ void a595_init()
       true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
 
 #elif CONFIG_IDF_TARGET_ESP32S2
-    uint8_t rgbPins[] = {36, 13, 14, 10, 11, 12},
-                        addrPins[] = {8, 39, 40, 41, 7},
-                                     clockPin   = 9, // Must be on same port as rgbPins
-                                     latchPin   = 5,
-                                     oePin      = 6,
+    uint8_t rgbPins[] = {16, 15, 14, 13, 11, 12},
+                        addrPins[] = {34, 33, 36, 35, 16},
+                                     clockPin   = 10, // Must be on same port as rgbPins
+                                     latchPin   = 9,
+                                     oePin      = 21,
                                      naddr_pin  = 3,
                                      wide       = 32;
     if (conf_data.type_disp != 23) wide = 64;
@@ -426,23 +426,12 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 {
   uint16_t _row = 0;
-  if  (x1 < 0 || x2 > 8) return;
+  if  (x1 < 0 || x2 > 7) return;
 
-  for (uint8_t i = x1, y = x1; i < x2; i++, y++)
+  for (uint8_t i = x1, y = x1; i <= x2; i++, y++)
   {
-    _row = 0;
-
-    if (in[y] & 0x80) // запись точки
-    {
-      _row  = (in[y - 2] << 8) | 0x8000;
-      _row |= (in[y - 1] & 0xFF);
-      ht1633->setRow(i - 1, _row);
-      y += 2;
-    }
-
     _row = in[y] << 8;
     y++;
-    if (in[y] & 0x80) _row |= 0x8000; // если во входящем буфере была точка - запишем ее
     _row |= (in[y] & 0xFF);
     ht1633->setRow(i, _row);
   }

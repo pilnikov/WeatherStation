@@ -40,7 +40,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
     }
   }
 #endif
-  if ((rd.type_snr1 > 0 && rd.type_snr1 < 12) || (rd.type_snr2 > 0 && rd.type_snr2 < 12) || (rd.type_snr3 > 0 && rd.type_snr3 < 12) || (rd.type_snrp > 0 && rd.type_snrp < 12))
+  if ((rd.type_snr1 > 0 && rd.type_snr1 < 14) || (rd.type_snr2 > 0 && rd.type_snr2 < 14) || (rd.type_snr3 > 0 && rd.type_snr3 < 14) || (rd.type_snrp > 0 && rd.type_snrp < 14))
   {
     sd = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, td, ed1, ed2, wf_data_cur); // Заполняем матрицу данных с датчиков
   }

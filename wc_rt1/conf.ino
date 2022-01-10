@@ -188,9 +188,9 @@ void saveConfig(const char *filename, conf_data_t _data)
 
   if ( _data.type_vdrv    < 0  || _data.type_vdrv  >  20) _data.type_vdrv  = 0;
   if ( _data.type_disp    < 0  || _data.type_disp  >  50) _data.type_disp  = 0;
-  if ( _data.type_snr1    < 0  || _data.type_snr1  >  12) _data.type_snr1  = 0;
-  if ( _data.type_snr2    < 0  || _data.type_snr2  >  12) _data.type_snr2  = 0;
-  if ( _data.type_snr3    < 0  || _data.type_snr3  >  12) _data.type_snr3  = 0;
+  if ( _data.type_snr1    < 0  || _data.type_snr1  >  13) _data.type_snr1  = 0;
+  if ( _data.type_snr2    < 0  || _data.type_snr2  >  13) _data.type_snr2  = 0;
+  if ( _data.type_snr3    < 0  || _data.type_snr3  >  13) _data.type_snr3  = 0;
   if ( _data.type_snrp    < 0  || _data.type_snrp  >  12) _data.type_snrp  = 0;
   if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
 

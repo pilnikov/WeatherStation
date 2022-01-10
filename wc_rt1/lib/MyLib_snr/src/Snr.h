@@ -22,6 +22,13 @@
 
 #include <Udt.h>
 
+#include "OneWireNg_CurrentPlatform.h"
+#include "drivers/DSTherm.h"
+#include "utils/Placeholder.h"
+
+#define PARASITE_POWER  false
+
+
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
@@ -65,6 +72,14 @@ private:
 	float humi_read(uint8_t);
 	float temp_read(uint8_t);
 	float pres_read(uint8_t);
+    void  ds_init(uint8_t);
+    int   ds_read();
+
+	Placeholder<OneWireNg_CurrentPlatform> _ow;
+
+	bool printId(const OneWireNg::Id& id);
+
+	int printScratchpad(const DSTherm::Scratchpad& scrpd);
 
 protected:
 

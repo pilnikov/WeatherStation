@@ -268,33 +268,51 @@ bool FD::time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dp
 }
 
 //-------------------------------------------------------------- Отображение бегущей строки
-bool FD::scroll_String(int8_t x1, int8_t x2, char* in, uint8_t &icp, uint8_t &cbp, byte *out, const byte *font, uint8_t font_wdt, uint8_t spacer_wdt, uint8_t qbs)
+bool FD::scroll_String(int8_t x1, /*start_pos*/
+                   int8_t x2, /*  end_pos*/
+                   char* in,  /*in string*/
+                   uint8_t &icp,/*pointer to character in the input string*/
+                   uint8_t &fbp,/*pointer to byte in font*/
+                   byte *out, /*out string*/
+                   const byte *font, /*font*/
+                   uint8_t font_wdt, /*font width in bytes*/
+                   uint8_t spacer_wdt, /*spacer width in bytes*/
+                   uint8_t qbs)/*shift step in bytes*/
 {
-  unsigned char character = 0; // дергаем входящую сроку по символам
+  unsigned char character = 0; 
+  bool _dot = false;
+  
+  memmove (out + x1,/* цель */out + x1 + qbs,/* источник */x2 - x1 + 1 - qbs /* объем */); // двигаем символы влево
 
-  memmove (out + x1,/* цель */out + x1 + qbs,/* источник */x2 - x1 - qbs + 1/* объем */);
-
-  if (icp < strlen(in) + x2 - x1)
+  if (icp < strlen(in) + x2 - x1 - qbs)
   {
     if (icp < strlen(in))
     {
-      character = in[icp]; // достаем очередной символ
+      if ((qbs == 2) & (icp < strlen(in) - 1))
+	  {
+		character = in[icp + 1];
+		_dot = (character == '.');
+	  }
+	  
+	  character = in[icp]; //Потрошим строку. Переходим к очередному символу входящей строки.
 
-      if (cbp < font_wdt) // Потрошим строку Переходим к очередному символу входящей строки
+      if (fbp < font_wdt)
       {
-        memcpy_P (out + x2 - qbs + 1,/* цель */font + character * font_wdt + cbp, /* источник */ qbs /* объем */);
-        cbp += qbs;
+        memcpy_P (out + x2 + 1 - qbs,/* цель */font + character * font_wdt + fbp, /* источник */ qbs /* объем */); // Вставляем в крайнюю левую позицию часть, или весь символ
+        if (_dot) out[x2 - 1] += 0x80;
+		fbp += qbs;
       }
-      else if (spacer_wdt > 0)
+      else if (spacer_wdt > 0) // Символ "закончился" и разделитель не пустой
       {
         memset (out + x2 - spacer_wdt + 1, 0, spacer_wdt); // вставляем пустой столбик-разделитель
-        cbp += spacer_wdt;
+        fbp += spacer_wdt;
       }
 
-      if (cbp >= font_wdt + spacer_wdt) // Символ "закончился"
+      if (fbp >= font_wdt + spacer_wdt) //
       {
         icp++;     // переходим к следующему символу в строке
-        cbp = 0;   // Пока сидим внутри строки сбрасываем указатель на байт в шрифте
+		if (_dot) icp++;  // пропускаем точку
+        fbp = 0;   // Пока сидим внутри строки сбрасываем указатель на байт в шрифте
       }
     }
     else
@@ -305,13 +323,13 @@ bool FD::scroll_String(int8_t x1, int8_t x2, char* in, uint8_t &icp, uint8_t &cb
   }
   else
   {
-    cbp = 0; //сбрасываем указатель на байт в шрифте
+    fbp = 0; //сбрасываем указатель на байт в шрифте
     icp = 0; //cбрасываем указатель на байт во входной строке
     return true; //end of scrolling
   }
-  //DBG_OUT_PORT.println(F("scroll string");
   return false;
 }
+
 
 void FD::CLS(byte *out, size_t size) // Clean screen buffer
 {

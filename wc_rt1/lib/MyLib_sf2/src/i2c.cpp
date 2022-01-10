@@ -17,7 +17,7 @@ void SF::i2c_scan_do()
       //DBG_OUT_PORT.println(addr[nDevices]);
       nDevices++;
     }
-    else if (error == 4) DBG_OUT_PORT.println("Unknow error at address 0x");
+    //else if (error == 4) DBG_OUT_PORT.println("Unknow error at address 0x");
   }
   if (nDevices == 0) DBG_OUT_PORT.println("I2C devices not found\n");
   else 
@@ -161,18 +161,23 @@ ram_data_t SF::i2c_scan(conf_data_t c_data)
     r_data.type_snr3 = 0;
     DBG_OUT_PORT.println("SI7021 as a sensor on CH#2 is not found -> deselected");
   }
-  /*
-    if (!am2320_present && r_data.type_snr1 == 7)
-    {
-      r_data.type_snr1 = 0;
-      DBG_OUT_PORT.println("AM2320 as a sensor on CH#1 is not found -> deselected");
-    }
-    if (!am2320_present && r_data.type_snr2 == 7)
-    {
-      r_data.type_snr2 = 0;
-      DBG_OUT_PORT.println("AM2320 as a sensor on CH#2 is not found -> deselected");
-    }
-  */
+/*
+  if (!am2320_present && r_data.type_snr1 == 7)
+  {
+    r_data.type_snr1 = 0;
+    DBG_OUT_PORT.println("AM2320 as a sensor on CH#1 is not found -> deselected");
+  }
+  if (!am2320_present && r_data.type_snr2 == 7)
+  {
+    r_data.type_snr2 = 0;
+    DBG_OUT_PORT.println("AM2320 as a sensor on CH#2 is not found -> deselected");
+  }
+  if (!am2320_present && r_data.type_snr3 == 7)
+  {
+    r_data.type_snr3 = 0;
+    DBG_OUT_PORT.println("AM2320 as a sensor on CH#3 is not found -> deselected");
+  }
+ */ 
   if (!bmp180_present && r_data.type_snr1 == 8)
   {
     r_data.type_snr1 = 0;

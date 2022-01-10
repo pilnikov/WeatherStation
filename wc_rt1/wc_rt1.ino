@@ -157,6 +157,9 @@ void setup()
         sens.dht_preset(conf_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
       }
 
+      if (ram_data.type_snr1 == 13 || ram_data.type_snr2 == 13 || ram_data.type_snr3 == 13)
+        ram_data.gpio_dht = conf_data.gpio_dht; //Тут устанавливается GPIO для DS18B20
+
       ram_data_t sens_data = ram_data;
 
       sens_data = sens.init(ram_data);

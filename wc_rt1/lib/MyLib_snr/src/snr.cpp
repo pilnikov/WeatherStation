@@ -108,6 +108,9 @@ ram_data_t SNR::init(ram_data_t in_data)
 					type_snr = 0;
 				}
 				break;
+			case 13:
+				SNR::ds_init(in_data.gpio_dht);
+				break;
 			default:
 				break;
 		}
@@ -297,6 +300,12 @@ float SNR::temp_read(uint8_t type_snr)
 				DBG_OUT_PORT.print(F("BME280 Temperature: "));
 			#endif //_debug 
 			break;
+		case 13:
+			ret = SNR::ds_read();
+			#ifdef _debug
+				DBG_OUT_PORT.print(F("DS18B20 Temperature: "));
+			#endif //_debug 
+			break;
 		default:
 			break;
 	}
@@ -360,6 +369,79 @@ void SNR::dht_preset(uint8_t pin, uint8_t type) // установка пинов
 	dht = new DHT(pin, type);
 #endif
 }
+
+void SNR::ds_init(uint8_t pin)
+{
+	#ifdef PWR_CTRL_PIN
+	# ifndef CONFIG_PWR_CTRL_ENABLED
+	#  error "CONFIG_PWR_CTRL_ENABLED needs to be enabled"
+	# endif
+		new (&_ow) OneWireNg_CurrentPlatform(pin, PWR_CTRL_PIN, false);
+	#else
+		new (&_ow) OneWireNg_CurrentPlatform(pin, false);
+	#endif
+
+	DSTherm drv(_ow);
+
+	#if (CONFIG_MAX_SRCH_FILTERS > 0)
+		static_assert(CONFIG_MAX_SRCH_FILTERS >= DSTherm::SUPPORTED_SLAVES_NUM,
+		"CONFIG_MAX_SRCH_FILTERS too small");
+
+		drv.filterSupportedSlaves();
+	#endif
+
+	#ifdef COMMON_RES
+		drv.writeScratchpadAll(0, 0, COMMON_RES);
+		drv.copyScratchpadAll(PARASITE_POWER);
+	#endif
+}
+
+int SNR::ds_read()
+{
+	int ret = 99;
+	DSTherm drv(_ow);
+	Placeholder<DSTherm::Scratchpad> _scrpd;
+
+	/* convert temperature on all sensors connected... */
+	drv.convertTempAll(DSTherm::SCAN_BUS, PARASITE_POWER);
+	
+	/* ...and read them one-by-one */
+ 	ret = SNR::printScratchpad(_scrpd);
+	DBG_OUT_PORT.print(F(" DS READ TEMP 3!!! "));
+	DBG_OUT_PORT.println(ret);
+	return ret;
+}			
+
+/* returns false if not supported */
+bool SNR::printId(const OneWireNg::Id& id)
+{
+    const char *name = DSTherm::getFamilyName(id);
+
+    DBG_OUT_PORT.print(id[0], HEX);
+    for (size_t i = 1; i < sizeof(OneWireNg::Id); i++) {
+        DBG_OUT_PORT.print(':');
+        DBG_OUT_PORT.print(id[i], HEX);
+    }
+    if (name) {
+        DBG_OUT_PORT.print(" -> ");
+        DBG_OUT_PORT.print(name);
+    }
+    DBG_OUT_PORT.println();
+
+    return (name != NULL);
+}
+
+int SNR::printScratchpad(const DSTherm::Scratchpad& scrpd)
+{
+    int ret = 99;
+	const uint8_t *scrpd_raw = scrpd.getRaw();
+    long temp = scrpd.getTemp();
+	DBG_OUT_PORT.print(F("ds temp is.."));
+	DBG_OUT_PORT.println(temp);
+    ret = temp / 1000;
+	return ret;
+}
+
 
 snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3, uint8_t type_snrp, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data1, snr_data_t e_data2, wf_data_t w_data)
 {
@@ -479,6 +561,9 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 				h = w_data.hum_min;
 				t = w_data.temp_min;
 				p = w_data.press_min;
+				break;
+			case 13:
+				t = temp_read(type_snr);
 				break;
 			default:
 				break;

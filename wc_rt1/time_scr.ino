@@ -34,7 +34,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
     case 11:
       // 14SEGx8D
       seg7_mode(mod, 4, screen, x1/4, conf_data, snr_data, rtc_data, cur_br);
-      if (blinkColon) f_dsp.printDot(x1/4 + 3, screen);
+      if (blinkColon) f_dsp.printDot(x1/4 + 2, screen);
       break;
     case 12:
       // 16SEGx4D
@@ -44,7 +44,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       seg7_mode(mod, 4, screen, x1/4, conf_data, snr_data, rtc_data, cur_br);
       if (disp_mode == 10) disp_mode = 1;
       if (!nm_is_on) seg7_mode(disp_mode, 4, screen, 8, conf_data, snr_data, rtc_data, cur_br);
-      if (blinkColon) f_dsp.printDot(x1/4 + 3, screen);
+      if (blinkColon) f_dsp.printDot(x1/4 + 2, screen);
       break;
     case 19:
       // 2LINEx16D
@@ -130,8 +130,8 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       //HT16K33
       if (conf_data.type_disp != 31 && conf_data.type_disp != 11)
       {
-        if (conf_data.type_disp == 13) ht1633_ramFormer2(screen, 0, 8);
-        else ht1633_ramFormer2(screen, 0, 4);
+        if (conf_data.type_disp == 13) ht1633_ramFormer2(screen, 0, 7);
+        else ht1633_ramFormer2(screen, 0, 3);
         ht1633->setBrightness(cur_br);
         ht1633->write();
       }

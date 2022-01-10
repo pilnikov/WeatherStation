@@ -1,6 +1,6 @@
 #include "Sysf2.h"
 
-String SF::formatBytes(unsigned long bytes) 
+String SF::formatBytes(uint32_t bytes) 
 {
   if (bytes < 1024) {
     return String(bytes) + "B";
