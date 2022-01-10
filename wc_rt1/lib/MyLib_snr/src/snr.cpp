@@ -372,74 +372,60 @@ void SNR::dht_preset(uint8_t pin, uint8_t type) // установка пинов
 
 void SNR::ds_init(uint8_t pin)
 {
-	#ifdef PWR_CTRL_PIN
-	# ifndef CONFIG_PWR_CTRL_ENABLED
-	#  error "CONFIG_PWR_CTRL_ENABLED needs to be enabled"
-	# endif
-		new (&_ow) OneWireNg_CurrentPlatform(pin, PWR_CTRL_PIN, false);
-	#else
-		new (&_ow) OneWireNg_CurrentPlatform(pin, false);
-	#endif
+#ifdef PWR_CTRL_PIN
+# ifndef CONFIG_PWR_CTRL_ENABLED
+#  error "CONFIG_PWR_CTRL_ENABLED needs to be enabled"
+# endif
+  new (&_ow) OneWireNg_CurrentPlatform(pin, PWR_CTRL_PIN, false);
+#else
+  new (&_ow) OneWireNg_CurrentPlatform(pin, false);
+#endif
 
-	DSTherm drv(_ow);
+  DSTherm drv(_ow);
 
-	#if (CONFIG_MAX_SRCH_FILTERS > 0)
-		static_assert(CONFIG_MAX_SRCH_FILTERS >= DSTherm::SUPPORTED_SLAVES_NUM,
-		"CONFIG_MAX_SRCH_FILTERS too small");
+#if (CONFIG_MAX_SRCH_FILTERS > 0)
+  static_assert(CONFIG_MAX_SRCH_FILTERS >= DSTherm::SUPPORTED_SLAVES_NUM,
+                "CONFIG_MAX_SRCH_FILTERS too small");
 
-		drv.filterSupportedSlaves();
-	#endif
+  drv.filterSupportedSlaves();
+#endif
 
-	#ifdef COMMON_RES
-		drv.writeScratchpadAll(0, 0, COMMON_RES);
-		drv.copyScratchpadAll(PARASITE_POWER);
-	#endif
+#ifdef COMMON_RES
+  drv.writeScratchpadAll(0, 0, COMMON_RES);
+  drv.copyScratchpadAll(PARASITE_POWER);
+#endif
 }
 
 int SNR::ds_read()
 {
-	int ret = 99;
-	DSTherm drv(_ow);
-	Placeholder<DSTherm::Scratchpad> _scrpd;
-
-	/* convert temperature on all sensors connected... */
-	drv.convertTempAll(DSTherm::SCAN_BUS, PARASITE_POWER);
-	
-	/* ...and read them one-by-one */
- 	ret = SNR::printScratchpad(_scrpd);
-	DBG_OUT_PORT.print(F(" DS READ TEMP 3!!! "));
-	DBG_OUT_PORT.println(ret);
-	return ret;
-}			
-
-/* returns false if not supported */
-bool SNR::printId(const OneWireNg::Id& id)
-{
-    const char *name = DSTherm::getFamilyName(id);
-
-    DBG_OUT_PORT.print(id[0], HEX);
-    for (size_t i = 1; i < sizeof(OneWireNg::Id); i++) {
-        DBG_OUT_PORT.print(':');
-        DBG_OUT_PORT.print(id[i], HEX);
+  int ret = 99;
+  DSTherm drv(_ow);
+  Placeholder<DSTherm::Scratchpad> _scrpd;
+  drv.convertTempAll(DSTherm::SCAN_BUS, PARASITE_POWER);
+  for (const auto& id : (OneWireNg&)_ow) {
+    if (SNR::printId(id)) {
+      if (drv.readScratchpad(id, &_scrpd) == OneWireNg::EC_SUCCESS)
+        ret = printScratchpad(_scrpd);
+      else
+        DBG_OUT_PORT.println(F("  Invalid CRC!"));
     }
-    if (name) {
-        DBG_OUT_PORT.print(" -> ");
-        DBG_OUT_PORT.print(name);
-    }
-    DBG_OUT_PORT.println();
-
-    return (name != NULL);
+  }
+  return ret;
 }
 
-int SNR::printScratchpad(const DSTherm::Scratchpad& scrpd)
+/* returns false if not supported */
+bool SNR::printId(const OneWireNg::Id & id)
 {
-    int ret = 99;
-	const uint8_t *scrpd_raw = scrpd.getRaw();
-    long temp = scrpd.getTemp();
-	DBG_OUT_PORT.print(F("ds temp is.."));
-	DBG_OUT_PORT.println(temp);
-    ret = temp / 1000;
-	return ret;
+  const char *name = DSTherm::getFamilyName(id);
+  return (name != NULL);
+}
+
+int SNR::printScratchpad(const DSTherm::Scratchpad & scrpd)
+{
+  const uint8_t *scrpd_raw = scrpd.getRaw();
+  long temp = scrpd.getTemp();
+  int ret = temp / 1000;
+  return ret;
 }
 
 
