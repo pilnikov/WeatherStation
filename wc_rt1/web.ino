@@ -35,8 +35,7 @@ void web_setup()
   server.on("/jtrm", handlejTrm);
   server.on("/jnews", handlejNews);
   server.on("/jnewst", handlejNewsT);
-  //server.on("/all",       handleAll  );
-
+  
   //-------------------------------------------------------------- for LittleFS
   //list directory
   server.on("/list", HTTP_GET, handleFileList);

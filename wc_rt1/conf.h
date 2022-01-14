@@ -160,8 +160,8 @@
   };
 */
 
-#ifndef _wc_h
-#define _wc_h
+#ifndef conf_h
+#define conf_h
 
 #define FW_Ver 1.0 //16.05.17 added udp debug console
 
@@ -441,4 +441,4 @@ NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
 #define _dacha
 //#define _work
 
-#endif /* _wc_h */
+#endif /*conf_h*/

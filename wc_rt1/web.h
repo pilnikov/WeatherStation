@@ -5,8 +5,6 @@ void web_setup();
 void start_serv();
 void  stop_serv();
 
-void handleRoot();
-void handleXML();
 void handleNTP();
 void handlejTime();
 void handleSetTime();
