@@ -1,14 +1,14 @@
 #include <Wire.h>
 
 #if defined(ESP8266)
-static const int         SDA_PIN   =  5;  // (D2)
-static const int         SCL_PIN   =  4;  // (D1)
+static const int         SDA_PIN   =  4;  
+static const int         SCL_PIN   =  5;  
 #elif CONFIG_IDF_TARGET_ESP32C3
-static const int         SDA_PIN   =  5;  // (D2)
-static const int         SCL_PIN   =  6;  // (D1)
+static const int         SDA_PIN   =  5;  
+static const int         SCL_PIN   =  6;  
 #elif CONFIG_IDF_TARGET_ESP32
-static const int         SDA_PIN   =  23;  // (D2)
-static const int         SCL_PIN   =  22;  // (D1)
+static const int         SDA_PIN   =  23;  
+static const int         SCL_PIN   =  22;  
 #endif
 
 

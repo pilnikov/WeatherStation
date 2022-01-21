@@ -422,7 +422,6 @@ bool SNR::printId(const OneWireNg::Id & id)
 
 int SNR::printScratchpad(const DSTherm::Scratchpad & scrpd)
 {
-  const uint8_t *scrpd_raw = scrpd.getRaw();
   long temp = scrpd.getTemp();
   int ret = temp / 1000;
   return ret;

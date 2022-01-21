@@ -12,6 +12,7 @@ conf_data_t loadConfig(const char *filename)
     DBG_OUT_PORT.print(filename);
     DBG_OUT_PORT.println(F(", using default configuration"));
     _data = defaultConfig();
+    saveConfig(conf_f, _data);
   }
   else
   {
@@ -28,6 +29,7 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F("Using default configuration"));
       _data = defaultConfig();
+      saveConfig(conf_f, _data);
       return _data;
     }
 
@@ -177,6 +179,7 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
       _data = defaultConfig();
+      saveConfig(conf_f, _data);
     }
   }
   return _data;

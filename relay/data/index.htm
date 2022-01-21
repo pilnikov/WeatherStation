@@ -1,0 +1,181 @@
+<html>
+  <head>
+    <title>Wifi Clock Settings Wifi</title>
+    <meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
+    <style>
+       body,td{font-family:tahoma,arial,helvetica,sans-serif;}
+       table.t td.h{background-color:#C9C9C0;font-size:12px;font-weight:bold;text-align:center;}
+       table.t td  {background-color:#E2E2DB;font-size:12px;text-align:center;}
+    </style>
+  </head>
+  
+  <body onload='loadValues();'>
+
+      <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+
+      <tr><td colspan='2' class='h'>Точка доступа</td></tr>
+
+         <tr><td width='35%'>SSID</td><td><input type='text' size='10' id='aps' name='aps'   style='text-align:center;' /></td></tr>
+         <tr><td>Password</td><td><input type='password' size='10' id='app' name='app'  style='text-align:center;' /></td></tr>
+
+       <tr><td colspan='8' class='h'>Клиент</td></tr>
+
+         <tr><td>SSID</td><td><input type='text' size='10' id='stas' name='stas' style='text-align:center;' /></td></tr>
+         <tr><td>Password</td><td><input type='password' size='10' id='stap' name='stap'   style='text-align:center;' /></td></tr>
+
+       <tr><td colspan='9' class='h'>GPIO</td></tr>
+ 
+         <tr><td width='30%'>Pin1</td><td><input type='text' size='3' id='pin1' name='pin1' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>Pin2</td><td><input type='text' size='3' id='pin2' name='pin2' style='text-align:center;'/></td></tr>
+
+         <tr><td width='30%'>On1  code</td><td><input type='text' size='2' id='on1_code'  name='on1_code'  style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>Off1 code</td><td><input type='text' size='2' id='off1_code' name='off1_code' style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>On2  code</td><td><input type='text' size='2' id='on2_code'  name='on2_code'  style='text-align:center;'/></td></tr>
+         <tr><td width='30%'>Off2 code</td><td><input type='text' size='2' id='off2_code' name='off2_code' style='text-align:center;'/></td></tr>
+
+         <tr><td colspan='2' class='h'><button onclick='set_q1();'>Включить выход1</button></td></tr>
+         <tr><td colspan='2' class='h'><button onclick='reset_q1();'>Отключить выход1</button></td></tr>
+  
+         <tr><td colspan='2' class='h'><button onclick='set_q2();'>Включить выход2</button></td></tr>
+         <tr><td colspan='2' class='h'><button onclick='reset_q2();'>Отключить выход2</button></td></tr>
+
+         <tr><td>Выход1</td><td><input type='checkbox' id='out1' name='out1' readonly/>
+         <tr><td>Выход2</td><td><input type='checkbox' id='out2' name='out2' readonly/>
+
+        <tr><td colspan='8' class='h'>Яркость</td></tr>
+        
+          <tr><td>Верхний предел</td><td><input type='text' maxlength='3' size='1' id='lim_h' name='lim_h' style='text-align:center;'/></td></tr>
+          <tr><td> Нижний предел</td><td><input type='text' maxlength='3' size='1' id='lim_l' name='lim_l' style='text-align:center;'/></td></tr>
+    
+          <tr><td>Текущее значение   </td><td><input type='text' size='2' id='cur_br' name='cur_br' style='text-align:center;' readonly/></td></tr>
+
+       <tr><td colspan='8' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td></tr>
+   
+       <tr><td colspan='8' class='e'>&nbsp;</td></tr>
+       <tr><td colspan='8' class='h'><a href='update'>Обновление прошивки</a></td></tr>
+  
+  </table>
+  
+    <script>
+   
+      function loadValues()
+      {
+        var xh1 = new XMLHttpRequest();
+        xh1.onreadystatechange =  function()
+        {
+          if (xh1.readyState == 4 && xh1.status == 200) 
+            {
+              var res = JSON.parse(xh1.responseText);
+              document.getElementById('aps' ).value = res.apid;
+        	    document.getElementById('app' ).value = res.appas;
+        	    document.getElementById('stas').value = res.staid;
+        	    document.getElementById('stap').value = res.stapas;
+        	    document.getElementById('pin1').value = res.pin1_name;
+        	    document.getElementById('pin2').value = res.pin2_name;
+        	    document.getElementById('on1_code').value = res.on1_code;
+        	    document.getElementById('off1_code').value = res.off1_code;
+        	    document.getElementById('on2_code').value = res.on2_code;
+        	    document.getElementById('off2_code').value = res.off2_code;
+        	    document.getElementById('lim_l').value = res.lim_l;
+        	    document.getElementById('lim_h').value = res.lim_h;
+              document.getElementById('out1').checked  = res.pin1_state;
+              document.getElementById('out2').checked  = res.pin2_state;
+        	  }
+          }
+         xh1.open("GET", "/jwifi", true);
+         xh1.send(null);
+      }
+
+      function set_q1()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open('GET', '/set_q1', true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadValues();
+        }      
+        xh.send(null);
+      }
+
+      function reset_q1()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open('GET', '/reset_q1', true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadValues();
+        }      
+        xh.send(null);
+      }
+
+      function set_q2()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open('GET', '/set_q2', true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadValues();
+        }      
+        xh.send(null);
+      }
+
+      function reset_q2()
+      {
+        var xh = new XMLHttpRequest();
+        xh.open('GET', '/reset_q2', true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadValues();
+        }      
+        xh.send(null);
+      }
+
+	  function set_wifi()
+      {
+        var as  = document.getElementById('aps').value;
+      	var ap  = document.getElementById('app').value;
+      	var ss  = document.getElementById('stas').value;
+      	var sp  = document.getElementById('stap').value;
+
+        var p1  = document.getElementById('pin1').value;
+        var p2  = document.getElementById('pin2').value;
+        var on1 = document.getElementById('on1_code').value;
+        var of1 = document.getElementById('off1_code').value;
+        var on2 = document.getElementById('on2_code').value;
+        var of2 = document.getElementById('off2_code').value;
+        var ll  = document.getElementById('lim_l').value;
+        var lh  = document.getElementById('lim_h').value;
+
+      	url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+'&p1='+p1
+      	+'&p2='+p2+'&on1='+on1+'&of1='+of1+'&on2='+on2+'&of2='+of2+'&ll='+ll+'&lh='+lh;
+
+        var xh = new XMLHttpRequest();
+        xh.open('GET', url, true);
+        xh.onreadystatechange = function()
+        {
+          if (xh.readyState==4 && xh.status==200) loadValues();
+        }      
+        xh.send(null);
+      }
+      
+      function process()
+      {
+        var xh1 = new XMLHttpRequest();
+        xh1.open("GET", "/jwifi", true);
+        xh1.onreadystatechange = function()
+        {
+          if (xh1.readyState == 4 && xh1.status == 200) 
+          {
+            var res = JSON.parse(xh1.responseText);
+            document.getElementById('cur_br').value = res.ana_code;
+          }
+        }
+        xh1.send(null);
+        setTimeout('process()',500);
+      }
+
+      process();
+        
+    </script>
+  </body>
+</html>
