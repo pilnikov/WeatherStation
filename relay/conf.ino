@@ -124,10 +124,8 @@ conf_data_t defaultConfig()
 
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-  //strcpy(_data.sta_ssid,  "MyWiFi");
-  //strcpy(_data.sta_pass,  "12345678");
-  strcpy(_data.sta_ssid,  "Home");
-  strcpy(_data.sta_pass,  "44332221111");
+  strcpy(_data.sta_ssid,  "MyWiFi");
+  strcpy(_data.sta_pass,  "12345678");
   strcpy(_data.ap_ssid,   "Relay");
   strcpy(_data.ap_pass ,  "12345678");
 
@@ -135,7 +133,7 @@ conf_data_t defaultConfig()
   _data.str1_off = 20;
   _data.str2_on = 30;
   _data.str2_off = 40;
-  _data.pin1 = 11;
+  _data.pin1 = 13;
   _data.pin2 = 12;
   _data.lim_l = 128;
   _data.lim_h = 128;

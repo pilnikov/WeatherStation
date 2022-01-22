@@ -69,7 +69,7 @@ void stop_serv()
 //-------------------------------------------------------------- handleSET_1
 void handleSET_1()
 {
-  digitalWrite(conf_data.pin1, HIGH);    // turn the RELAY on by making the voltage HIGH
+  pin1_t = true;    // turn the RELAY on by making the voltage HIGH
   pin1_on_force = true;
   DBG_OUT_PORT.println(conf_data.str1_on);
   server.send(200, "text/html", "OK!");
@@ -79,7 +79,7 @@ void handleSET_1()
 //-------------------------------------------------------------- handleRESET_1
 void handleRESET_1()
 {
-  digitalWrite(conf_data.pin1, LOW);    // turn the RELAY off by making the voltage LOW
+  pin1_t = false;    // turn the RELAY off by making the voltage LOW
   pin1_on_force = false;
   DBG_OUT_PORT.println(conf_data.str1_off);
   server.send(200, "text/html", "OK!");
@@ -89,7 +89,7 @@ void handleRESET_1()
 //-------------------------------------------------------------- handleSET_2
 void handleSET_2()
 {
-  digitalWrite(conf_data.pin2, HIGH);    // turn the RELAY on by making the voltage HIGH
+  pin2_t = true ;    // turn the RELAY on by making the voltage HIGH
   pin2_on_force = true;
   DBG_OUT_PORT.println(conf_data.str2_on);
   server.send(200, "text/html", "OK!");
@@ -99,7 +99,7 @@ void handleSET_2()
 //-------------------------------------------------------------- handleRESET_2
 void handleRESET_2()
 {
-  digitalWrite(conf_data.pin2, LOW);    // turn the RELAY off by making the voltage LOW
+  pin2_t = false;    // turn the RELAY off by making the voltage LOW
   pin2_on_force = false;
   DBG_OUT_PORT.println(conf_data.str2_off);
   server.send(200, "text/html", "OK!");
@@ -120,8 +120,8 @@ void handlejWiFi()
   json["pin1_name"] = conf_data.pin1;
   json["pin2_name"] = conf_data.pin2;
 
-  json["pin1_state"] = digitalRead(conf_data.pin1);
-  json["pin2_state"] = digitalRead(conf_data.pin2);
+  json["pin1_state"] = pin1_t;
+  json["pin2_state"] = pin2_t;
 
   json["on1_code"] = conf_data.str1_on;
   json["off1_code"] = conf_data.str1_off;

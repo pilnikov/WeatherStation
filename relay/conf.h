@@ -40,7 +40,6 @@ WiFiState state;
 #include <Wire.h>
 #include <SPI.h>
 
-#include <Netwf.h>
 #include <FS.h>
 #include <WiFiUdp.h>
 #include <LittleFS.h>
@@ -105,6 +104,8 @@ const char *conf_f = "/config.json";  // config file name
 
 bool                web_ap   = false;
 bool                web_cli  = false;
+bool           pin1_t        = false;
+bool           pin2_t        = false;
 bool           pin1_on_force = false;
 bool           pin2_on_force = false;
 unsigned long   serv_ms = 60000;
@@ -118,7 +119,5 @@ static unsigned long setting_ms = millis();
 IPAddress myIP;
 
 File fsUploadFile;
-
-NF nsys;
 
 #endif /* conf_h */

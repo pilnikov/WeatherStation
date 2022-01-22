@@ -168,7 +168,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 4:
           if ((ala_t > cur_t) & (ala_h < 24))
           {
-            sprintf_P(out, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
+            sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
             _repeat = false;
           }
           break;

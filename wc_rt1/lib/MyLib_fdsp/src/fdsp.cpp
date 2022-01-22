@@ -9,7 +9,7 @@
 #endif
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-byte utf_recode[64] PROGMEM =
+static const byte utf_recode[64] =
 { 0x41, 0xa0, 0x42, 0xa1, 0xe0, 0x45, 0xa3, 0xa4, 0xa5, 0xa6, 0x4b, 0xa7, 0x4d, 0x48, 0x4f,
   0xa8, 0x50, 0x43, 0x54, 0xa9, 0xaa, 0x58, 0xe1, 0xab, 0xac, 0xe2, 0xad, 0xae, 0x62, 0xaf, 0xb0, 0xb1,
   0x61, 0xb2, 0xb3, 0xb4, 0xe3, 0x65, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0x6f,
@@ -119,7 +119,6 @@ void FD::lcd_rus(char *source)
   while (i < k) 
   {
     n = source[i];
-
     if (n == 0xD0 || n == 0xD1)   // Cyrillic symbol detected
 	{
       switch (n) 
@@ -131,19 +130,39 @@ void FD::lcd_rus(char *source)
         case 0xD0: 
             i++;
 			n = source[i];
-            if (n == 0x81) _m = 0xA2; // Ё
-			else if (n >= 0x90 && n <= 0xBF) _m = utf_recode[n - 0x90]; // от А до п
+            if (n == 0x81)
+			{
+				_m = 0xA2; // Ё
+			}
+			else 
+			{
+				if (n >= 0x90 && n <= 0xBF)
+				{
+					_m = utf_recode[n - 0x90]; // от А до п
+				}
+			}
    		break;
         case 0xD1: 
 			i++;
             n = source[i];
-            if (n == 0x91) _m = 0xB5; // ё
-            else if (n >= 0x80 && n <= 0x8F) _m = utf_recode[n - 0x50]; // от р до я
+            if (n == 0x91)
+			{
+				_m = 0xB5; // ё
+			}
+            else 
+			{
+				if (n >= 0x80 && n <= 0x8F)
+				{
+					_m = utf_recode[n - 0x50]; // от р до я
+				}
+			}
 		break;
       }
     }
-    else _m = (char)n;
-    
+    else
+	{
+		_m = (char)n;
+	}    
 	target[j] = _m;
     i++; j++;
   }
