@@ -142,15 +142,15 @@
    		  <input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
         <input type='text' maxlength='8' size='3' id='name_ch3' name='name_ch3' style='text-align:center;' /></td></tr>
         <tr><td width='20%'>Температура</td><td>
-        <input type='text' maxlength='3' size='3' id='cur_t1' name='cur_t1' style='text-align:center;' readonly />
-        <input type='text' maxlength='3' size='3' id='cur_t2' name='cur_t2' style='text-align:center;' readonly />
-        <input type='text' maxlength='3' size='3' id='cur_t3' name='cur_t3' style='text-align:center;' readonly /></td></tr>
+        <output id='cur_t1' name='cur_t1'></output>&nbsp;--------&nbsp;
+        <output id='cur_t2' name='cur_t2'></output>&nbsp;--------&nbsp;
+        <output id='cur_t3' name='cur_t3'></output></td></tr>
         <tr><td width='20%'>Влажность</td><td>
-        <input type='text' maxlength='3' size='3' id='cur_h1' name='cur_h1' style='text-align:center;' readonly />
-        <input type='text' maxlength='3' size='3' id='cur_h2' name='cur_h2' style='text-align:center;' readonly />
-        <input type='text' maxlength='3' size='3' id='cur_h3' name='cur_h3' style='text-align:center;' readonly /></td></tr>
+        <output id='cur_h1' name='cur_h1'></output>&nbsp;--------&nbsp;
+        <output id='cur_h2' name='cur_h2'></output>&nbsp;--------&nbsp;
+        <output id='cur_h3' name='cur_h3'></output></td></tr>
         <tr><td>Давление</td><td>&nbsp;--------------------------&nbsp;
-   	  	<input type='text' maxlength='3' size='3' id='cur_p'  name='cur_p'  style='text-align:center;' readonly /></td></tr>
+   	  	<output type='text' id='cur_p'  name='cur_p'></output></td></tr>
 
         <tr><td colspan='4'><button onclick='up_date();'>Обновить показания</button></td></tr>
         <tr><td colspan='4' display='none'> _ </td></tr>

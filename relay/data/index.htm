@@ -39,16 +39,16 @@
          <tr><td colspan='2' class='h'><button onclick='set_q2();'>Включить выход2</button></td></tr>
          <tr><td colspan='2' class='h'><button onclick='reset_q2();'>Отключить выход2</button></td></tr>
 
-         <tr><td>Автомат1</td><td><input type='checkbox' id='pin1a' name='pin1a'/></td></tr>
-         <tr><td>Автомат2</td><td><input type='checkbox' id='pin2a' name='pin2a'/></td></tr>
+         <tr><td>Автомат1</td><td><input type='radio' id='pin1a' name='pin1a'/></td></tr>
+         <tr><td>Автомат2</td><td><input type='radio' id='pin2a' name='pin2a'/></td></tr>
 
-         <tr><td>Выход1</td><td><input type='checkbox' id='out1' name='out1' readonly/></td></tr>
-         <tr><td>Выход2</td><td><input type='checkbox' id='out2' name='out2' readonly/></td></tr>
+         <tr><td>Выход1</td><td><output type='radio' id='out1' name='out1' readonly/></td></tr>
+         <tr><td>Выход2</td><td><output type='radio' id='out2' name='out2' readonly/></td></tr>
 
         <tr><td colspan='8' class='h'>Яркость</td></tr>
         
-          <tr><td>Верхний предел</td><td><input type='text' maxlength='3' size='1' id='lim_h' name='lim_h' style='text-align:center;'/></td></tr>
-          <tr><td> Нижний предел</td><td><input type='text' maxlength='3' size='1' id='lim_l' name='lim_l' style='text-align:center;'/></td></tr>
+          <tr><td>Верхний предел</td><td><input type='range' id='lim_h' name='lim_h' value='128'/></td></tr>
+          <tr><td> Нижний предел</td><td><input type='range' id='lim_l' name='lim_l' value='128'/></td></tr>
     
           <tr><td>Текущее значение   </td><td><input type='text' size='2' id='cur_br' name='cur_br' style='text-align:center;' readonly/></td></tr>
 
@@ -58,7 +58,12 @@
        <tr><td colspan='8' class='h'><a href='update'>Обновление прошивки</a></td></tr>
   
   </table>
-  
+ 
+<form oninput="result.value=parseInt(b.value)">
+  <input type="range" id="b" name="b" value="50" /> =
+  <output name="result" for="b">10</output>
+</form>
+ 
     <script>
    
       function loadValues()

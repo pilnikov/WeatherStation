@@ -71,18 +71,19 @@
   
         <tr><td colspan='8' class='h'>Яркость</td></tr>
         
-        <tr><td>Ручная уставка яркости дисплея</td><td><input type='text' maxlength='3' size='1' id='mbrd' name='mbrd' style='text-align:center;'/></td></tr>
-        <tr><td>Уставка яркости дисплея в ночном режиме</td><td><input type='text' maxlength='3' size='1' id='nbrd' name='nbrd' style='text-align:center;'/></td></tr>
+        <tr><td>Ручная уставка яркости дисплея         </td><td><input type='range' min=0 max=255 id='mbrd' name='mbrd'/> = <output id='rmbrd' name='rmbrd'></output></td></tr>
+        <tr><td>Уставка яркости дисплея в ночном режиме</td><td><input type='range' min=0 max=255 id='nbrd' name='nbrd'/> = <output id='rnbrd' name='rnbrd'></output></td></tr>
         <tr><td>Авто яркость</td><td><input type='checkbox' id='abrd' name='abrd' onclick='show_abr();'/></td></tr>
   
-        <tr><td>Текущее значение   </td><td><input type='text' size='2' id='cur_foto' style='text-align:center;' readonly/></td></tr>
+        <tr><td>Текущее значение   </td><td><output id='cur_foto'></output></td></tr>
         
         <tr><td colspan='8' class='h'>Уровни для автояркости</td></tr>
 
-        <tr><td>Мин освещенность    </td><td><input type='text' maxlength='3' size='2' id='brd1' name='brd1' style='text-align:center;'/></td></tr>
-        <tr><td>Мах освещенность 	</td><td><input type='text' maxlength='3' size='2' id='brd2' name='brd2' style='text-align:center;'/></td></tr>
-        <tr><td>Мин яркость дисплея </td><td><input type='text' maxlength='3' size='2' id='brd3' name='brd3' style='text-align:center;'/></td></tr>
-        <tr><td>Мах яркость дисплея </td><td><input type='text' maxlength='3' size='2' id='brd4' name='brd4' style='text-align:center;'/></td></tr>
+        <tr><td>Мин освещенность    </td><td><input type='range' min=0 max=255 id='brd1' name='brd1'/> = <output id='rbrd1' name='rbrd1'></output></td></tr>
+        <tr><td>Мах освещенность 	  </td><td><input type='range' min=0 max=255 id='brd2' name='brd2'/> = <output id='rbrd2' name='rbrd2'></output></td></tr>
+
+        <tr><td>Мин яркость дисплея </td><td><input type='range' min=0 max=255 id='brd3' name='brd3'/> = <output id='rbrd3' name='rbrd3'></output></td></tr>
+        <tr><td>Мах яркость дисплея </td><td><input type='range' min=0 max=255 id='brd4' name='brd4'/> = <output id='rbrd4' name='rbrd4'></output></td></tr>
 
         <tr><td colspan='8' class='h'><input type='submit' value='Записать' onclick='set_pard();'/></td></tr>
     </table>
@@ -152,10 +153,29 @@
           if (xh1.readyState == 4 && xh1.status == 200) 
           {
             var res1 = JSON.parse(xh1.responseText);
-           document.getElementById('cur_foto').value = res1.brig;
+            document.getElementById('cur_foto').value = res1.brig;
           }
         }
         xh1.send(null);
+        
+        var d1 = document.getElementById('mbrd').value;
+        document.getElementById('rmbrd').value = d1;
+
+        d1 = document.getElementById('nbrd').value;
+        document.getElementById('rnbrd').value = d1;
+
+        d1 = document.getElementById('brd1').value;
+        document.getElementById('rbrd1').value = d1;
+      
+        d1 = document.getElementById('brd2').value;
+        document.getElementById('rbrd2').value = d1;
+
+        d1 = document.getElementById('brd3').value;
+        document.getElementById('rbrd3').value = d1;
+
+        d1 = document.getElementById('brd4').value;
+        document.getElementById('rbrd4').value = d1;
+
         setTimeout('process()',500);
       }
       
@@ -223,7 +243,15 @@
            showHide('nbrd',  false);
            showHide('cur_foto',  false);
          }
-
+      
+         if (ctyp != 3) 
+         {
+  	       document.getElementById('mbrd').max = 15;
+  	       document.getElementById('nbrd').max = 15;
+  	       document.getElementById('brd3').max = 15;
+  	       document.getElementById('brd4').max = 15;
+         }
+ 
          if (abrd == 1 && ctyp != 12) 
          {
            showHide('brd1',  true);
