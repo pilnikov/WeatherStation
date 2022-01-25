@@ -58,6 +58,9 @@ static WebServer server(80);
 static HTTPUpdateServer httpUpdater;
 #endif
 
+#include <Wire.h>
+#include <BH1750.h>
+
 // ----------------------------------- Typedef
 typedef struct
 {
@@ -86,7 +89,7 @@ conf_data_t loadConfig(const char*);
 void saveConfig(const char*, conf_data_t);
 conf_data_t defaultConfig();
 
-
+uint8_t selector (uint8_t);
 bool sta_init();
 bool sta_check();
 bool start_client();
@@ -102,15 +105,17 @@ void wifi_conn(byte, byte, byte);
 
 const char *conf_f = "/config.json";  // config file name
 
+BH1750 lightMeter;
+
 bool                web_ap   = false;
 bool                web_cli  = false;
 bool           pin1_t        = false;
 bool           pin2_t        = false;
-bool           pin1_on_force = false;
-bool           pin2_on_force = false;
+bool           pin1_a        = true;
+bool           pin2_a        = true;
 unsigned long   serv_ms = 60000;
 
-uint16_t ft = 7;
+uint8_t ft = 0;
 
 uint8_t         debug_level  = 0; // 0 - отключен
 

@@ -70,7 +70,7 @@ void stop_serv()
 void handleSET_1()
 {
   pin1_t = true;    // turn the RELAY on by making the voltage HIGH
-  pin1_on_force = true;
+  pin1_a = false;
   DBG_OUT_PORT.println(conf_data.str1_on);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -80,7 +80,7 @@ void handleSET_1()
 void handleRESET_1()
 {
   pin1_t = false;    // turn the RELAY off by making the voltage LOW
-  pin1_on_force = false;
+  pin1_a = false;
   DBG_OUT_PORT.println(conf_data.str1_off);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -90,7 +90,7 @@ void handleRESET_1()
 void handleSET_2()
 {
   pin2_t = true ;    // turn the RELAY on by making the voltage HIGH
-  pin2_on_force = true;
+  pin2_a = false;
   DBG_OUT_PORT.println(conf_data.str2_on);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -100,7 +100,7 @@ void handleSET_2()
 void handleRESET_2()
 {
   pin2_t = false;    // turn the RELAY off by making the voltage LOW
-  pin2_on_force = false;
+  pin2_a = false;
   DBG_OUT_PORT.println(conf_data.str2_off);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -119,6 +119,9 @@ void handlejWiFi()
 
   json["pin1_name"] = conf_data.pin1;
   json["pin2_name"] = conf_data.pin2;
+
+  json["pin1_auto"] = pin1_a;
+  json["pin2_auto"] = pin2_a;
 
   json["pin1_state"] = pin1_t;
   json["pin2_state"] = pin2_t;
@@ -143,16 +146,21 @@ void handlejWiFi()
 //-------------------------------------------------------------- handleSetWiFi
 void handleSetWiFi()
 {
-  //url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+'&p1='+p1
-  //    +'&p2='+p2+'&on1='+on1+'&of1='+of1+'&on2='+on2+'&of2='+of2+'&ll='+ll+'&lh='+lh;
+  //url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+
+  //'&p1='+p1+'&p2='+p2'+&p1a='+p1a+'&p2a='+p2a+'&on1='+on1+'&of1='+of1+'&on2='+on2+'&of2='+of2+'&ll='+ll+'&lh='+lh;
 
   strcpy(conf_data.ap_ssid, server.arg("as").c_str());
   strcpy(conf_data.ap_pass, server.arg("ap").c_str());
   strcpy(conf_data.sta_ssid, server.arg("ss").c_str());
   strcpy(conf_data.sta_pass, server.arg("sp").c_str());
 
-  conf_data.pin1 = constrain(server.arg("p1").toInt(), 0, 255);
-  conf_data.pin2 = constrain(server.arg("p2").toInt(), 0, 255);
+  uint8_t __pin = constrain(server.arg("p1").toInt(), 0, 255);
+  conf_data.pin1 = selector(__pin);
+  __pin = constrain(server.arg("p2").toInt(), 0, 255);
+  conf_data.pin2 = selector(__pin);
+
+  pin1_a = server.arg("p1a") == "1";
+  pin2_a = server.arg("p2a") == "1";
 
   conf_data.str1_on  = constrain(server.arg("on1").toInt(), 0, 255);
   conf_data.str1_off = constrain(server.arg("of1").toInt(), 0, 255);
@@ -166,6 +174,18 @@ void handleSetWiFi()
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
+}
+
+uint8_t selector (uint8_t _pin)
+{
+  const uint8_t gpio[8] = {0, 2, 4, 5, 12, 13, 14, 15};
+  bool valid = false;
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    if (_pin == gpio[i]) valid = true;
+  }
+  if (!valid) _pin = 255;
+  return _pin;
 }
 
 //-------------------------------------------------------------- handleExit

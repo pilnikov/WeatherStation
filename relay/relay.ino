@@ -52,6 +52,17 @@ void setup()
     web_setup();
     start_serv();
   }
+#if CONFIG_IDF_TARGET_ESP32
+  Wire.setPins(21, 22);
+#elif CONFIG_IDF_TARGET_ESP32S2
+  Wire.setPins(1, 2);
+#elif CONFIG_IDF_TARGET_ESP32C3
+  Wire.setPins(5, 6);
+#elif defined(ESP8266)
+  Wire.begin(4, 5);
+# endif
+
+  lightMeter.begin();
 }
 
 void loop()
@@ -59,16 +70,20 @@ void loop()
   //------------------------------------------------------ Распределяем системные ресурсы
   server.handleClient();
   ArduinoOTA.handle();
+  uint16_t lm = lightMeter.readLightLevel();
+ 
+  //DBG_OUT_PORT.print(F("Lux.."));
+  //DBG_OUT_PORT.println(lm);
+ 
+  if  (lm < 512) ft = lm / 2;
 
-  ft = analogRead(A0);
+  if ((ft > conf_data.lim_h) & pin1_a &  pin1_t) pin1_t = false;
+  if ((ft < conf_data.lim_l) & pin1_a & !pin1_t) pin1_t = true;
+  if ((ft > conf_data.lim_h) & pin2_a &  pin2_t) pin2_t = false;
+  if ((ft < conf_data.lim_l) & pin2_a & !pin2_t) pin2_t = true;
 
-  if ((ft > conf_data.lim_h) & !pin1_t) pin1_t = true;
-  if ((ft < conf_data.lim_l) &  pin1_t) pin1_t = false;
-  if ((ft > conf_data.lim_h) & !pin2_t) pin2_t = true;
-  if ((ft < conf_data.lim_l) &  pin2_t) pin2_t = false;
+  digitalWrite(conf_data.pin1, pin1_t);
+  digitalWrite(conf_data.pin2, pin2_t);
 
-  digitalWrite(conf_data.pin1, pin1_t);   
-  digitalWrite(conf_data.pin2, pin2_t);   
-
-  delay (20);
+  delay (100);
 }
