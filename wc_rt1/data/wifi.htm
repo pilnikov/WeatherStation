@@ -1,49 +1,152 @@
 <html>
   <head>
-    <title>Wifi Clock Settings Wifi</title>
-    <meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
+    <meta http-equiv = 'content-type' content = 'text/html' charset = 'utf-8' />
+    <title>Wifi Clock. Settings Wifi</title>
     <style>
-       body,td{font-family:tahoma,arial,helvetica,sans-serif;}
-       table.t td.h{background-color:#C9C9C0;font-size:12px;font-weight:bold;text-align:center;}
-       table.t td  {background-color:#E2E2DB;font-size:12px;text-align:center;}
+      body, td
+      {
+        font-family:tahoma,arial,helvetica,sans-serif;
+        border: 0px solid #333;
+        padding: 5px;
+        text-align:center;
+      }
+      table.t td.h
+      {
+        background-color:#C9C9C0;
+        font-size:12px;
+        font-weight:bold;
+        text-align:center;
+      }
+      table.t td
+      {
+        background-color:#E2E2DB;
+        font-size:12px;
+        text-align:center;
+      }
+      input
+      {
+        text-align:center;
+      }
+      .menu
+      {
+        list-style-type: none;
+      }
+      .menu > li 
+      {
+        float: left;
+        margin-right: 50px;
+      }
+      .menu > li > a 
+      {
+        color: blue;
+        padding: 4px;
+      }
+      .menu > li:hover > a {
+        color: black;
+        text-decoration: none;
+        border-radius: 5px 5px 0 0;
+        box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+      }
+  /* Этот стиль должен убирать серую полосу */
+      .menu > li:hover > a:before 
+      {
+        content:'';
+        position: absolute;
+        bottom: -5px; left: 0;
+        width: 100%;
+        height: 7px;
+        background: white;
+        z-index: 5;
+        cursor: pointer;
+      }
+      .menu-inner
+      {
+        display: none;
+      }
+      .menu > li:hover > .menu-inner
+      {
+        display: block;
+        background-color: white; /* обязательно, зарисовываем тень */
+        position: absolute;
+        left: 0;
+        top: 22px; /* подняли блок немного вверх */
+        box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+        width: 120px;
+        padding: 3px;
+      }
+  /* Стили для ниспадающего меню */
+      .menu-inner > li
+      {
+        padding: 4px 0;
+      }
+      .menu-inner > li:hover
+      {
+        background-color: blue;
+      }
+      .menu-inner > li:hover > a
+      {
+        color: white;
+        padding: 2px;
+        text-decoration: none;
+      }
     </style>
   </head>
   
   <body onload='loadValues();'>
-    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-      	<tr>
-      	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
-      	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
-      	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
-      	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
-      	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
-      	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-  		  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
-	      <td align='center' class='h' width='10%'><a href='news.htm'>News</a></td>
-       	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
-      	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
-      	</tr>
-        <tr><td colspan='10' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
-      </table>
 
-      <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-
-      <tr><td colspan='2' class='h'>Точка доступа</td></tr>
-
-       <tr><td width='35%'>SSID</td><td><input type='text' size='10' id='aps' name='aps'   style='text-align:center;' /></td></tr>
-       <tr><td>Password</td><td><input type='password' size='10' id='app' name='app'  style='text-align:center;' /></td></tr>
-
-       <tr><td colspan='8' class='h'>Клиент</td></tr>
-
-       <tr><td>SSID</td><td><input type='text' size='10' id='stas' name='stas' style='text-align:center;' /></td></tr>
-       <tr><td>Password</td><td><input type='password' size='10' id='stap' name='stap'   style='text-align:center;' /></td></tr>
-
-       <tr><td>Отключать WiFi</td><td><input type='checkbox' id='wof' name='wof'/>
-
-       <tr><td colspan='8' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td></tr>
-   
-       <tr><td colspan='8' class='e'>&nbsp;</td></tr>
-       <tr><td colspan='8' class='h'><a href='update'>Обновление прошивки</a></td></tr>
+    <ul class="menu" align="center">
+	    <li>
+		    <a href="#">Menu</a>
+		    <ul class="menu-inner">
+	        <li><a href='time.htm'>Time</a></li>
+          <li><a href='wifi.htm'>WiFi</a></li>
+          <li><a href='clock.htm'>Clock</a></li>
+          <li><a href='disp.htm'>Display</a></li>
+          <li><a href='sens.htm'>Sensor</a></li>
+          <li><a href='alarm.htm'>Alarm</a></li>
+          <li><a href='thermo.htm'>Thermo</a></li>
+          <li><a href='news.htm'>News</a></li>
+    		</ul>
+    		</li>
+    	<li>
+    		<a href='/update'>Update</a>
+      </li>
+    	<li>
+    		<a href='/edit'>Edit</a>
+      </li>
+    	<li>
+    		<a href='/exit'>Restart</a>
+      </li>
+    </ul>
+    
+    <table class='t' align="center">
+      <tr>
+        <td colspan='2' class='h'>Точка доступа</td>
+      </tr>
+      <tr>
+        <td>SSID</td><td><input type='text' size='10' id='aps' name='aps'/></td>
+      </tr>
+      <tr>
+        <td>Password</td><td><input type='password' size='10' id='app' name='app'/></td>
+      </tr>
+      <tr>
+        <td colspan='2' class='h'>Клиент</td>
+      </tr>
+      <tr>
+        <td>SSID</td><td><input type='text' size='10' id='stas' name='stas'/></td>
+      </tr>
+      <tr>
+        <td>Password</td><td><input type='password' size='10' id='stap' name='stap'/></td>
+      </tr>
+      <tr>
+        <td>Отключать WiFi</td><td><input type='checkbox' id='wof' name='wof'/></td>
+      </tr>  
+      <tr>
+        <td colspan='2' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td>
+      </tr>
+      <tr>
+        <td colspan='2' class='h'><a href='update'>Обновление прошивки</a></td>
+      </tr>
     </table>
   
     <script>
@@ -51,39 +154,22 @@
       function loadValues()
       {
         var xh = new XMLHttpRequest();
+        xh.open("GET", "/jwifi", true);
         xh.onreadystatechange =  function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-            {
-              var res = JSON.parse(xh.responseText);
-              document.getElementById('aps' ).value = res.apid;
-        	    document.getElementById('app' ).value = res.appas;
-        	    document.getElementById('stas').value = res.staid;
-        	    document.getElementById('stap').value = res.stapas;
-                document.getElementById('wof').checked  = res.wof;
-        	  }
-          }
-         xh.open("GET", "/jwifi", true);
-         xh.send(null);
-      }
-
-
-      function process()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jactt", true);
-        xh.onreadystatechange = function()
         {
           if (xh.readyState == 4 && xh.status == 200) 
           {
             var res = JSON.parse(xh.responseText);
-            document.getElementById('cur_time').value = res.tstr;
+            document.getElementById('aps' ).value = res.apid;
+            document.getElementById('app' ).value = res.appas;
+            document.getElementById('stas').value = res.staid;
+            document.getElementById('stap').value = res.stapas;
+            document.getElementById('wof').checked  = res.wof;
           }
         }
-        xh.send(null);
-        setTimeout('process()',500);
+         xh.send(null);
       }
-    
+
       function set_wifi()
       {
         var wof_t = 0;
@@ -106,8 +192,6 @@
         xh.send(null);
       }
 
-      process();
-    
     </script>
   </body>
 </html>
