@@ -107,17 +107,18 @@ const char *conf_f = "/config.json";  // config file name
 
 BH1750 lightMeter;
 
-bool                web_ap   = false;
-bool                web_cli  = false;
-bool           pin1_t        = false;
-bool           pin2_t        = false;
-bool           pin1_a        = true;
-bool           pin2_a        = true;
-unsigned long   serv_ms = 60000;
+bool web_ap   = false;
+bool web_cli  = false;
+bool pin1_t   = false;
+bool pin2_t   = false;
+bool pin1_a   = true;
+bool pin2_a   = true;
+
+bool bumpless = false;
 
 uint8_t ft = 0;
 
-uint8_t         debug_level  = 0; // 0 - отключен
+uint8_t debug_level  = 0; // 0 - отключен
 
 static unsigned long setting_ms = millis();
 

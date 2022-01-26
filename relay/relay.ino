@@ -71,10 +71,10 @@ void loop()
   server.handleClient();
   ArduinoOTA.handle();
   uint16_t lm = lightMeter.readLightLevel();
- 
+
   //DBG_OUT_PORT.print(F("Lux.."));
   //DBG_OUT_PORT.println(lm);
- 
+
   if  (lm < 512) ft = lm / 2;
 
   if ((ft > conf_data.lim_h) & pin1_a &  pin1_t) pin1_t = false;
@@ -84,6 +84,8 @@ void loop()
 
   digitalWrite(conf_data.pin1, pin1_t);
   digitalWrite(conf_data.pin2, pin2_t);
+
+  if (bumpless & (millis() > (setting_ms + 200))) bumpless = false;
 
   delay (100);
 }

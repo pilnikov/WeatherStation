@@ -1,10 +1,10 @@
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
-  server.on("/set_q1", handleSET_1);
-  server.on("/reset_q1", handleRESET_1);
-  server.on("/set_q2", handleSET_2);
-  server.on("/reset_q2", handleRESET_2);
+  server.on("/q1_set",  handleSET_1);
+  server.on("/q1_auto", handleAuto_1);
+  server.on("/q2_set",  handleSET_2);
+  server.on("/q2_auto", handleAuto_2);
   server.on("/set_wifi", handleSetWiFi);
   server.on("/jwifi", handlejWiFi);
   server.on("/exit", handleExit);
@@ -69,43 +69,76 @@ void stop_serv()
 //-------------------------------------------------------------- handleSET_1
 void handleSET_1()
 {
-  pin1_t = true;    // turn the RELAY on by making the voltage HIGH
-  pin1_a = false;
-  DBG_OUT_PORT.println(conf_data.str1_on);
+  if (!pin1_t & !bumpless)
+  {
+    pin1_t = true;    // turn ON the pin1
+    bumpless = true;
+    DBG_OUT_PORT.println(conf_data.str1_on);
+  }
+  if (pin1_t & !bumpless)
+  {
+    pin1_t = false;    // turn OFF the pin1
+    bumpless = true;
+    DBG_OUT_PORT.println(conf_data.str1_off);
+  }
+  pin1_a = false;  // turn OFF the AUTO MODE for pin1
+  setting_ms = millis();
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
-//-------------------------------------------------------------- handleRESET_1
-void handleRESET_1()
+//-------------------------------------------------------------- handleAuto_1
+void handleAuto_1()
 {
-  pin1_t = false;    // turn the RELAY off by making the voltage LOW
-  pin1_a = false;
-  DBG_OUT_PORT.println(conf_data.str1_off);
+  if (!pin1_a & !bumpless)
+  {
+    pin1_a = true;    // turn ON the AUTO MODE for pin1
+    bumpless = true;
+  }
+  if (pin1_a & !bumpless)
+  {
+    pin1_a = false;    // turn OFF the AUTO MODE for pin1
+    bumpless = true;
+  }
+  setting_ms = millis();
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSET_2
 void handleSET_2()
 {
-  pin2_t = true ;    // turn the RELAY on by making the voltage HIGH
-  pin2_a = false;
-  DBG_OUT_PORT.println(conf_data.str2_on);
+  if (!pin2_t & !bumpless)
+  {
+    pin2_t = true;    // turn ON the pin2
+    bumpless = true;
+    DBG_OUT_PORT.println(conf_data.str2_on);
+  }
+  if (pin2_t & !bumpless)
+  {
+    pin2_t = false;    // turn OFF the pin2
+    bumpless = true;
+    DBG_OUT_PORT.println(conf_data.str2_off);
+  }
+  pin2_a = false;  // turn OFF the AUTO MODE for pin2
+  setting_ms = millis();
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
-//-------------------------------------------------------------- handleRESET_2
-void handleRESET_2()
+//-------------------------------------------------------------- handleAuto_2
+void handleAuto_2()
 {
-  pin2_t = false;    // turn the RELAY off by making the voltage LOW
-  pin2_a = false;
-  DBG_OUT_PORT.println(conf_data.str2_off);
+  if (!pin2_a & !bumpless)
+  {
+    pin2_a = true;    // turn ON the AUTO MODE for pin2
+    bumpless = true;
+  }
+  if (pin2_a & !bumpless)
+  {
+    pin2_a = false;    // turn OFF the AUTO MODE for pin2
+    bumpless = true;
+  }
+  setting_ms = millis();
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
-
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
@@ -120,12 +153,6 @@ void handlejWiFi()
   json["pin1_name"] = conf_data.pin1;
   json["pin2_name"] = conf_data.pin2;
 
-  json["pin1_auto"] = pin1_a;
-  json["pin2_auto"] = pin2_a;
-
-  json["pin1_state"] = pin1_t;
-  json["pin2_state"] = pin2_t;
-
   json["on1_code"] = conf_data.str1_on;
   json["off1_code"] = conf_data.str1_off;
   json["on2_code"] = conf_data.str2_on;
@@ -133,6 +160,12 @@ void handlejWiFi()
 
   json["lim_l"] = conf_data.lim_l;
   json["lim_h"] = conf_data.lim_h;
+
+  json["out1_auto"] = pin1_a;
+  json["out2_auto"] = pin2_a;
+
+  json["out1_state"] = pin1_t;
+  json["out2_state"] = pin2_t;
 
   json["ana_code"] = ft;
 
@@ -147,7 +180,7 @@ void handlejWiFi()
 void handleSetWiFi()
 {
   //url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+
-  //'&p1='+p1+'&p2='+p2'+&p1a='+p1a+'&p2a='+p2a+'&on1='+on1+'&of1='+of1+'&on2='+on2+'&of2='+of2+'&ll='+ll+'&lh='+lh;
+  //'&p1='+p1+'&p2='+p2'+'&on1='+on1+'&of1='+of1+'&on2='+on2+'&of2='+of2+'&ll='+ll+'&lh='+lh;
 
   strcpy(conf_data.ap_ssid, server.arg("as").c_str());
   strcpy(conf_data.ap_pass, server.arg("ap").c_str());
@@ -158,9 +191,6 @@ void handleSetWiFi()
   conf_data.pin1 = selector(__pin);
   __pin = constrain(server.arg("p2").toInt(), 0, 255);
   conf_data.pin2 = selector(__pin);
-
-  pin1_a = server.arg("p1a") == "1";
-  pin2_a = server.arg("p2a") == "1";
 
   conf_data.str1_on  = constrain(server.arg("on1").toInt(), 0, 255);
   conf_data.str1_off = constrain(server.arg("of1").toInt(), 0, 255);
@@ -173,14 +203,13 @@ void handleSetWiFi()
 
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 uint8_t selector (uint8_t _pin)
 {
-  const uint8_t gpio[8] = {0, 2, 4, 5, 12, 13, 14, 15};
+  const uint8_t gpio[6] = {0, 2, 12, 13, 14, 15};
   bool valid = false;
-  for (uint8_t i = 0; i < 8; i++)
+  for (uint8_t i = 0; i < 6; i++)
   {
     if (_pin == gpio[i]) valid = true;
   }
@@ -199,7 +228,6 @@ void handleExit()
 //-------------------------------------------------------------- for FS
 bool handleFileRead(String path)
 {
-  serv_ms = millis();
   DBG_OUT_PORT.println("handleFileRead: " + path);
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
@@ -236,7 +264,6 @@ void handleFileUpload()
       fsUploadFile.close();
     DBG_OUT_PORT.printf("handleFileUpload Size: %u\n", upload.totalSize);
   }
-  serv_ms = millis();
 }
 
 void handleFileDelete()
@@ -251,7 +278,6 @@ void handleFileDelete()
   LittleFS.remove(path);
   server.send(200, "text/plain", "");
   path = String();
-  serv_ms = millis();
 }
 
 void handleFileCreate()
@@ -272,14 +298,12 @@ void handleFileCreate()
     return server.send(500, "text/plain", "CREATE FAILED");
   server.send(200, "text/plain", "");
   path = String();
-  serv_ms = millis();
 }
 
 void handleFileList()
 {
   if (!server.hasArg("dir")) {
     server.send(500, "text/plain", "BAD ARGS");
-    serv_ms = millis();
     return;
   }
 
@@ -319,8 +343,6 @@ void handleFileList()
   path = String();
   output += "]";
   server.send(200, "text/json", output);
-
-  serv_ms = millis();
 }
 
 
