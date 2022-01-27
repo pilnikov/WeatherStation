@@ -1,291 +1,389 @@
 <html>
-  <head>
-    <title>Wifi Clock Settings Disp</title>
-    <meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-    <style>
-       body,td{font-family:tahoma,arial,helvetica,sans-serif;}
-       table.t td.h{background-color:#C9C9C0;font-size:12px;font-weight:bold;text-align:center;}
-       table.t td  {background-color:#E2E2DB;font-size:12px;text-align:center;}
-    </style>
-  </head>
+	<head>
+		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
+		<title>Wifi Clock. Alarm</title>
+		<style>
+			body, td
+			{
+				font-family:tahoma,arial,helvetica,sans-serif;
+				border: 0px solid #333;
+				padding: 5px;
+				text-align:center;
+			}
+			table.t td.h
+			{
+				background-color:#C9C9C0;
+				font-size:12px;
+				font-weight:bold;
+				text-align:center;
+			}
+			table.t td
+			{
+				background-color:#E2E2DB;
+				font-size:12px;
+				text-align:center;
+			}
+			input
+			{
+				text-align:center;
+			}
+			.menu
+			{
+				list-style-type: none;
+				padding: 1px;
+			}
+			.menu > li 
+			{
+				float: left;
+				margin-right: 10px;
+			}
+			.menu > li > a 
+			{
+				color: blue;
+				padding: 2px;
+			}
+			.menu > li:hover > a 
+			{
+				color: black;
+				text-decoration: none;
+				border-radius: 5px 5px 0 0;
+				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+			}
+			/* Этот стиль должен убирать серую полосу */
+			.menu > li:hover > a:before 
+			{
+				content:'';
+				position: absolute;
+				bottom: -5px; left: 0;
+				width: 100%;
+				height: 7px;
+				background: white;
+				z-index: 5;
+				cursor: pointer;
+			}
+			.menu-inner
+			{
+				display: none;
+			}
+			.menu > li:hover > .menu-inner
+			{
+				display: block;
+				background-color: white; /* обязательно, зарисовываем тень */
+				position: absolute;
+				left: 0;
+				top: 22px; /* подняли блок немного вверх */
+				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+				width: 120px;
+				padding: 3px;
+			}
+			/* Стили для ниспадающего меню */
+			.menu-inner > li
+			{
+				padding: 2px 0;
+			}
+			.menu-inner > li:hover
+			{
+				background-color: blue;
+			}
+			.menu-inner > li:hover > a
+			{
+				color: white;
+				padding: 2px;
+				text-decoration: none;
+			}
+		</style>
+	</head>
   
-  <body onload='loadValues();'>
-    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-      	<tr>
-      	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
-      	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
-      	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
-      	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
-      	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
-      	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-  		  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
-	      <td align='center' class='h' width='10%'><a href='news.htm'>News</a></td>
-       	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
-      	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
-      	</tr>
-        <tr><td colspan='10' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
-      </table>
+	<body onload='loadValues();'>
 
-      <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+		<ul class="menu">
+			<li><a href="#">Menu</a>
+				<ul class="menu-inner">
+					<li><a href='time.htm'>Time</a></li>
+					<li><a href='wifi.htm'>WiFi</a></li>
+					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='disp.htm'>Display</a></li>
+					<li><a href='sens.htm'>Sensor</a></li>
+					<li><a href='alarm.htm'>Alarm</a></li>
+					<li><a href='thermo.htm'>Thermo</a></li>
+					<li><a href='news.htm'>News</a></li>
+				</ul>
+			</li>
+			<li><a href='/update'>Update</a></li>
+			<li><a href='/edit'>Edit</a></li>
+			<li><a href='/exit'>Restart</a></li>
+			<li style='float: none; visibility: hidden;'>.</li>
+		 </ul>
+		
+		<table class='t' align="left">
+			<tr>
+				<td colspan='2' class='h'>Опции для дисплея</td>
+			</tr>
+			<tr>
+				<td>Тип MC драйвера</td><td><select align='center' id='ctyp' name='ctyp' onclick='show_abr();'>
+												<option value ='0'> НЕТ    </option>
+												<option value ='1'> TM1637 </option>
+												<option value ='2'> MAX7219</option>
+												<option value ='3'> 595HC  </option>
+												<option value ='4'> HT1621 </option>
+												<option value ='5'> HT1632 </option>
+												<option value ='6'> ILI9341</option>
+												<option value ='11'>HT16K33</option>
+												<option value ='12'>PCF8574</option>
+											</select>
+										</td>
+			</tr>
+			<tr>
+				<td>Тип дисплея</td><td><select align='center' id='dtyp' name='dtyp' onclick='show_abr();'>
+											<option value ='0'> БЕЗ ДИСПЛЕЯ	</option>
+											<option value ='1'> 7SEGx4D		</option> 
+											<option value ='2'> 7SEGx6D		</option>
+											<option value ='3'> 7SEGx8D		</option>
+											<option value ='10'>14SEGx4D	</option>
+											<option value ='11'>14SEGx8D	</option>
+											<option value ='12'>16SEGx4D	</option>
+											<option value ='13'>16SEGx8D	</option>
+											<option value ='19'>2LINEx16D	</option>
+											<option value ='20'>M32x8MONO	</option>
+											<option value ='21'>M32x16MONO	</option>
+											<option value ='22'>M32x16BICOL	</option>
+											<option value ='23'>M32x16COLOR	</option>
+											<option value ='24'>M64x32COLOR </option>
+											<option value ='25'>M64x64COLOR </option>
+											<option value ='29'>320x240COLOR</option>
+											<option value ='30'>CUSTOM_1	</option>
+											<option value ='31'>CUSTOM_2	</option>
+											<option value ='50'>UART        </option>
+										</select>
+									</td>
+			</tr>
+			<tr>
+				<td>Русский язык</td><td><input type='checkbox' id='ruslng' name='ruslng'/></td>
+			</tr>
+			<tr>
+				<td>Время сверху</td><td><input type='checkbox' id='tup' 	name='tup'	 /></td>
+			</tr>
+			<tr>
+				<td>Цвет верх	</td><td><input type='text' maxlength='3' size='3' id='colu' name='colu'/></td>
+			</tr>
+			<tr>
+				<td>Цвет  низ 	</td><td><input type='text' maxlength='3' size='3' id='cold' name='cold'/></td>
+			</tr>
+			<tr>
+				<td colspan='2' class='h'>Яркость</td>
+			</tr>
+			<tr>
+				<td>Ручная уставка яркости дисплея         </td><td><input type='range' min=0 max=255 id='mbrd' name='mbrd'/> = <output id='rmbrd' name='rmbrd'></output></td>
+			</tr>
+			<tr>
+				<td>Уставка яркости дисплея в ночном режиме</td><td><input type='range' min=0 max=255 id='nbrd' name='nbrd'/> = <output id='rnbrd' name='rnbrd'></output></td>
+			</tr>
+			<tr>
+				<td>Авто яркость</td><td><input type='checkbox' id='abrd' name='abrd' onclick='show_abr();'/></td>
+			</tr>
+			<tr>
+				<td>Текущее значение   </td><td><output id='cur_foto'></output></td>
+			</tr>
+			<tr>
+				<td colspan='2' class='h'>Уровни для автояркости</td>
+			</tr>
+			<tr>
+				<td>Мин освещенность    </td><td><input type='range' min=0 max=255 id='brd1' name='brd1'/> = <output id='rbrd1' name='rbrd1'></output></td>
+			</tr>
+			<tr>
+			<td>Мах освещенность 	  	</td><td><input type='range' min=0 max=255 id='brd2' name='brd2'/> = <output id='rbrd2' name='rbrd2'></output></td>
+			</tr>
+			<tr>
+				<td>Мин яркость дисплея </td><td><input type='range' min=0 max=255 id='brd3' name='brd3'/> = <output id='rbrd3' name='rbrd3'></output></td>
+			</tr>
+			<tr>
+				<td>Мах яркость дисплея </td><td><input type='range' min=0 max=255 id='brd4' name='brd4'/> = <output id='rbrd4' name='rbrd4'></output></td>
+			</tr>
+			<tr>
+				<td colspan='2' class='h'><input type='submit' value='Записать' onclick='set_pard();'/></td>
+			</tr>
+		</table>
 
-      <tr><td colspan='2' class='h'>Опции для дисплея</td></tr>
+		<script>
+			function loadValues()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jdisp", true);
+				xh.onreadystatechange = function()
+				{
+					if (xh.readyState == 4 && xh.status == 200) 
+					{
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('ctyp').value = res.ctyp;
+						document.getElementById('dtyp').value = res.dtyp;
+						document.getElementById('ruslng').checked = res.rlng;
+						document.getElementById('tup').checked = res.tup;
+						document.getElementById('colu').value = res.colu;
+						document.getElementById('cold').value = res.cold;
+						document.getElementById('abrd').checked = res.abrd;
+						document.getElementById('mbrd').value = res.mbrd;
+						document.getElementById('nbrd').value = res.nbrd;
+						document.getElementById('brd1').value = res.brlevel[0];
+						document.getElementById('brd2').value = res.brlevel[1];
+						document.getElementById('brd3').value = res.brlevel[2];
+						document.getElementById('brd4').value = res.brlevel[3];
+						
+						show_abr();
+					}
+				}
+				xh.send(null);
+			}
 
-        <tr><td width = '35%'>Тип MC драйвера</td><td><select align='center' id='ctyp' name='ctyp' onclick='show_abr();' style='text-align:center;'>
-        <option value ='0'>НЕТ</option>
-        <option value ='1'>TM1637</option>
-        <option value ='2'>MAX7219</option>
-        <option value ='3'>595HC</option>
-        <option value ='4'>HT1621</option>
-        <option value ='5'>HT1632</option>
-        <option value ='6'>ILI9341</option>
-        <option value ='11'>HT16K33</option>
-        <option value ='12'>PCF8574</option>
-        </select></td></tr>
+			function showHide(element_id, visible) 
+			{
+				if (document.getElementById(element_id)) //Если элемент с id-шником element_id существует 
+				{ 
+					var obj = document.getElementById(element_id); //Записываем ссылку на элемент в переменную obj
+					if (visible) obj.style.display = "inline-block"; //Показываем элемент
+					else obj.style.display = "none"; //Скрываем элемент
+				}
+				else alert("Элемент с id: " + element_id + " не найден!"); //Если элемент с id-шником element_id не найден, то выводим сообщение
+			}   
 
-        <tr><td width = '35%'>Тип дисплея</td><td><select align='center' id='dtyp' name='dtyp' onclick='show_abr();' style='text-align:center;'>
-        <option value ='0'>БЕЗ ДИСПЛЕЯ</option>
-        <option value ='1'>7SEGx4D</option> 
-        <option value ='2'>7SEGx6D</option>
-        <option value ='3'>7SEGx8D</option>
-        <option value ='10'>14SEGx4D</option>
-        <option value ='11'>14SEGx8D</option>
-        <option value ='12'>16SEGx4D</option>
-        <option value ='13'>16SEGx8D</option>
-        <option value ='19'>2LINEx16D</option>
-        <option value ='20'>M32x8MONO</option>
-        <option value ='21'>M32x16MONO</option>
-        <option value ='22'>M32x16BICOL</option>
-        <option value ='23'>M32x16COLOR</option>
-        <option value ='24'>M64x32COLOR</option>
-        <option value ='25'>M64x64COLOR</option>
-        <option value ='29'>320x240COLOR</option>
-        <option value ='30'>CUSTOM_1</option>
-        <option value ='31'>CUSTOM_2</option>
-        <option value ='50'>UART</option>
-        </select></td></tr>
+			function process()
+			{
+				var xh1 = new XMLHttpRequest();
+				xh1.open("GET", "/jactb", true);
+				xh1.onreadystatechange = function()
+				{
+					if (xh1.readyState == 4 && xh1.status == 200) 
+					{
+						var res1 = JSON.parse(xh1.responseText);
+						document.getElementById('cur_foto').value = res1.brig;
+
+						var d1 = document.getElementById('mbrd').value;
+						document.getElementById('rmbrd').value = d1;
+
+						d1 = document.getElementById('nbrd').value;
+						document.getElementById('rnbrd').value = d1;
+
+						d1 = document.getElementById('brd1').value;
+						document.getElementById('rbrd1').value = d1;
+					  
+						d1 = document.getElementById('brd2').value;
+						document.getElementById('rbrd2').value = d1;
+
+						d1 = document.getElementById('brd3').value;
+						document.getElementById('rbrd3').value = d1;
+
+						d1 = document.getElementById('brd4').value;
+						document.getElementById('rbrd4').value = d1;
+					}
+				}
+				xh1.send(null);
+				setTimeout('process()',500);
+			}
       
-        <tr><td>Русский язык</td><td><input type='checkbox' id='ruslng' name='ruslng'/></td></tr>
-        <tr><td>Время сверху</td><td><input type='checkbox' id='tup' name='tup'/></td></tr>
-        <tr><td>Цвет верх	</td><td><input type='text' maxlength='3' size='3' id='colu' name='colu' style='text-align:center;'/></td></tr>
-        <tr><td>Цвет  низ 	</td><td><input type='text' maxlength='3' size='3' id='cold' name='cold' style='text-align:center;'/></td></tr>
-  
-        <tr><td colspan='8' class='h'>Яркость</td></tr>
-        
-        <tr><td>Ручная уставка яркости дисплея         </td><td><input type='range' min=0 max=255 id='mbrd' name='mbrd'/> = <output id='rmbrd' name='rmbrd'></output></td></tr>
-        <tr><td>Уставка яркости дисплея в ночном режиме</td><td><input type='range' min=0 max=255 id='nbrd' name='nbrd'/> = <output id='rnbrd' name='rnbrd'></output></td></tr>
-        <tr><td>Авто яркость</td><td><input type='checkbox' id='abrd' name='abrd' onclick='show_abr();'/></td></tr>
-  
-        <tr><td>Текущее значение   </td><td><output id='cur_foto'></output></td></tr>
-        
-        <tr><td colspan='8' class='h'>Уровни для автояркости</td></tr>
+			function set_pard()
+			{
+				var rlng = 0, abrd = 0, ttup = 0;
 
-        <tr><td>Мин освещенность    </td><td><input type='range' min=0 max=255 id='brd1' name='brd1'/> = <output id='rbrd1' name='rbrd1'></output></td></tr>
-        <tr><td>Мах освещенность 	  </td><td><input type='range' min=0 max=255 id='brd2' name='brd2'/> = <output id='rbrd2' name='rbrd2'></output></td></tr>
+				ctyp = document.getElementById('ctyp').value;
+				dtyp = document.getElementById('dtyp').value;
+				if (document.getElementById('ruslng').checked) rlng = 1;
+				if (document.getElementById('tup').checked) ttup = 1;
+				if (document.getElementById('abrd').checked) abrd = 1;
+				mcou = document.getElementById('colu').value;
+				mcod = document.getElementById('cold').value;
+				mbrd = document.getElementById('mbrd').value;
+				nbrd = document.getElementById('nbrd').value;
+				brd1 = document.getElementById('brd1').value;
+				brd2 = document.getElementById('brd2').value;
+				brd3 = document.getElementById('brd3').value;
+				brd4 = document.getElementById('brd4').value;
 
-        <tr><td>Мин яркость дисплея </td><td><input type='range' min=0 max=255 id='brd3' name='brd3'/> = <output id='rbrd3' name='rbrd3'></output></td></tr>
-        <tr><td>Мах яркость дисплея </td><td><input type='range' min=0 max=255 id='brd4' name='brd4'/> = <output id='rbrd4' name='rbrd4'></output></td></tr>
+				url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
-        <tr><td colspan='8' class='h'><input type='submit' value='Записать' onclick='set_pard();'/></td></tr>
-    </table>
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = function()
+				{
+				  if (xh.readyState==4 && xh.status==200) loadValues();
+				}      
+				xh.send(null);
+			}
+			  
+			function change_font()
+			{
+				tfnt=document.getElementById('tfnt').value;
+				url='/set_font?tfnt='+tfnt;
 
-    <script>
-      function loadValues()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jdisp", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('ctyp').value = res.ctyp;
-            document.getElementById('dtyp').value = res.dtyp;
-            document.getElementById('ruslng').checked = res.rlng;
-            document.getElementById('tup').checked = res.tup;
-            document.getElementById('colu').value = res.colu;
-            document.getElementById('cold').value = res.cold;
-    	    document.getElementById('abrd').checked = res.abrd;
-    	    document.getElementById('mbrd').value = res.mbrd;
-    	    document.getElementById('nbrd').value = res.nbrd;
-    	    document.getElementById('brd1').value = res.brlevel[0];
-    	    document.getElementById('brd2').value = res.brlevel[1];
-    	    document.getElementById('brd3').value = res.brlevel[2];
-    	    document.getElementById('brd4').value = res.brlevel[3];
-	        
-            show_abr();
-          }
-        }
-        xh.send(null);
-      }
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = function()
+				{
+				  if (xh.readyState==4 && xh.status==200) loadValues();
+				}      
+				xh.send(null);
+			}
 
-      function showHide(element_id, visible) 
-      {
-      //Если элемент с id-шником element_id существует
-        if (document.getElementById(element_id)) 
-        { 
-          //Записываем ссылку на элемент в переменную obj
-          var obj = document.getElementById(element_id); 
-          if (visible) obj.style.display = "inline-block"; //Показываем элемент
-          else obj.style.display = "none"; //Скрываем элемент
-        }
-        //Если элемент с id-шником element_id не найден, то выводим сообщение
-        else alert("Элемент с id: " + element_id + " не найден!"); 
-      }   
+			function show_abr()
+			{
+				var abrd = 0;
 
-      function process()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jactt", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('cur_time').value = res.tstr;
-          }
-        }
-        xh.send(null);
+				if (document.getElementById('abrd').checked) abrd = 1;
+				ctyp = document.getElementById('ctyp').value;
 
-        var xh1 = new XMLHttpRequest();
-        xh1.open("GET", "/jactb", true);
-        xh1.onreadystatechange = function()
-        {
-          if (xh1.readyState == 4 && xh1.status == 200) 
-          {
-            var res1 = JSON.parse(xh1.responseText);
-            document.getElementById('cur_foto').value = res1.brig;
-          }
-        }
-        xh1.send(null);
-        
-        var d1 = document.getElementById('mbrd').value;
-        document.getElementById('rmbrd').value = d1;
+				if (ctyp != 12) 
+				{
+					showHide('abrd',  true);
+					showHide('mbrd',  true);
+					showHide('nbrd',  true);
+					showHide('cur_foto',  true);
+				}
+				else 
+				{
+					showHide('abrd',  false);
+					showHide('mbrd',  false);
+					showHide('nbrd',  false);
+					showHide('cur_foto',  false);
+				}
+			  
+				if (ctyp != 3) 
+				{
+					document.getElementById('mbrd').max = 15;
+					document.getElementById('nbrd').max = 15;
+					document.getElementById('brd3').max = 15;
+					document.getElementById('brd4').max = 15;
+				}
+		 
+				if (abrd == 1 && ctyp != 12) 
+				{
+					showHide('brd1',  true);
+					showHide('brd2',  true);
+					showHide('brd3',  true);
+					showHide('brd4',  true);
+				}
+				else 
+				{
+					showHide('brd1',  false);
+					showHide('brd2',  false);
+					showHide('brd3',  false);
+					showHide('brd4',  false);
+				}
 
-        d1 = document.getElementById('nbrd').value;
-        document.getElementById('rnbrd').value = d1;
-
-        d1 = document.getElementById('brd1').value;
-        document.getElementById('rbrd1').value = d1;
-      
-        d1 = document.getElementById('brd2').value;
-        document.getElementById('rbrd2').value = d1;
-
-        d1 = document.getElementById('brd3').value;
-        document.getElementById('rbrd3').value = d1;
-
-        d1 = document.getElementById('brd4').value;
-        document.getElementById('rbrd4').value = d1;
-
-        setTimeout('process()',500);
-      }
-      
-      function set_pard()
-      {
-        var rlng = 0, abrd = 0, ttup = 0;
-
-        ctyp = document.getElementById('ctyp').value;
-        dtyp = document.getElementById('dtyp').value;
-        if (document.getElementById('ruslng').checked) rlng = 1;
-        if (document.getElementById('tup').checked) ttup = 1;
-        if (document.getElementById('abrd').checked) abrd = 1;
-        mcou = document.getElementById('colu').value;
-        mcod = document.getElementById('cold').value;
-        mbrd = document.getElementById('mbrd').value;
-        nbrd = document.getElementById('nbrd').value;
-        brd1 = document.getElementById('brd1').value;
-        brd2 = document.getElementById('brd2').value;
-        brd3 = document.getElementById('brd3').value;
-        brd4 = document.getElementById('brd4').value;
-
-        url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
-
-        var xh = new XMLHttpRequest();
-        xh.open('GET', url, true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState==4 && xh.status==200) loadValues();
-        }      
-        xh.send(null);
-      }
-      
-      function change_font()
-      {
-        tfnt=document.getElementById('tfnt').value;
-        url='/set_font?tfnt='+tfnt;
-
-        var xh = new XMLHttpRequest();
-        xh.open('GET', url, true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState==4 && xh.status==200) loadValues();
-        }      
-        xh.send(null);
-      }
-      
-      function show_abr()
-      {
-         var abrd = 0;
-
-         if (document.getElementById('abrd').checked) abrd = 1;
-         ctyp = document.getElementById('ctyp').value;
-
-         if (ctyp != 12) 
-         {
-           showHide('abrd',  true);
-           showHide('mbrd',  true);
-           showHide('nbrd',  true);
-           showHide('cur_foto',  true);
-         }
-         else 
-         {
-           showHide('abrd',  false);
-           showHide('mbrd',  false);
-           showHide('nbrd',  false);
-           showHide('cur_foto',  false);
-         }
-      
-         if (ctyp != 3) 
-         {
-  	       document.getElementById('mbrd').max = 15;
-  	       document.getElementById('nbrd').max = 15;
-  	       document.getElementById('brd3').max = 15;
-  	       document.getElementById('brd4').max = 15;
-         }
- 
-         if (abrd == 1 && ctyp != 12) 
-         {
-           showHide('brd1',  true);
-           showHide('brd2',  true);
-           showHide('brd3',  true);
-           showHide('brd4',  true);
-         }
-         else 
-         {
-           showHide('brd1',  false);
-           showHide('brd2',  false);
-           showHide('brd3',  false);
-           showHide('brd4',  false);
-         }
-
-         dtyp = document.getElementById('dtyp').value;
-     
-         if (dtyp < 4) showHide('ruslng',  false);
-         else  showHide('ruslng',  true);
-         
-         if (dtyp > 21 && dtyp < 30) 
-         {
-           showHide('colu',  true);
-           showHide('cold',  true);
-         }
-         else 
-         {
-           showHide('colu',  false);
-           showHide('cold',  false);
-         }
-      }
-
-      process();
-        
-    </script>
-  </body>
+				dtyp = document.getElementById('dtyp').value;
+			 
+				if (dtyp < 4) showHide('ruslng',  false);
+				else  showHide('ruslng',  true);
+				 
+				if (dtyp > 21 && dtyp < 30) 
+				{
+					showHide('colu',  true);
+					showHide('cold',  true);
+				}
+				else 
+				{
+					showHide('colu',  false);
+					showHide('cold',  false);
+				}
+			}
+			process();
+		</script>
+	</body>
 </html>

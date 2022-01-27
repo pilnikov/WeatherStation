@@ -1,151 +1,224 @@
 <html>
-  <head>
-    <title>Wifi Clock Settings Thermo</title>
-    <meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-    <style>
-       body,td{font-family:tahoma,arial,helvetica,sans-serif;}
-       table.t td.h{background-color:#C9C9C0;font-size:12px;font-weight:bold;text-align:center;}
-       table.t td  {background-color:#E2E2DB;font-size:12px;text-align:center;}
-    </style>
-  </head>
+	<head>
+		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
+		<title>Wifi Clock. Thermo</title>
+		<style>
+			body, td
+			{
+				font-family:tahoma,arial,helvetica,sans-serif;
+				border: 0px solid #333;
+				padding: 5px;
+				text-align:center;
+			}
+			table.t td.h
+			{
+				background-color:#C9C9C0;
+				font-size:12px;
+				font-weight:bold;
+				text-align:center;
+			}
+			table.t td
+			{
+				background-color:#E2E2DB;
+				font-size:12px;
+				text-align:center;
+			}
+			input
+			{
+				text-align:center;
+			}
+			.menu
+			{
+				list-style-type: none;
+				padding: 1px;
+			}
+			.menu > li 
+			{
+				float: left;
+				margin-right: 10px;
+			}
+			.menu > li > a 
+			{
+				color: blue;
+				padding: 2px;
+			}
+			.menu > li:hover > a 
+			{
+				color: black;
+				text-decoration: none;
+				border-radius: 5px 5px 0 0;
+				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+			}
+			/* Этот стиль должен убирать серую полосу */
+			.menu > li:hover > a:before 
+			{
+				content:'';
+				position: absolute;
+				bottom: -5px; left: 0;
+				width: 100%;
+				height: 7px;
+				background: white;
+				z-index: 5;
+				cursor: pointer;
+			}
+			.menu-inner
+			{
+				display: none;
+			}
+			.menu > li:hover > .menu-inner
+			{
+				display: block;
+				background-color: white; /* обязательно, зарисовываем тень */
+				position: absolute;
+				left: 0;
+				top: 22px; /* подняли блок немного вверх */
+				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+				width: 120px;
+				padding: 3px;
+			}
+			/* Стили для ниспадающего меню */
+			.menu-inner > li
+			{
+				padding: 2px 0;
+			}
+			.menu-inner > li:hover
+			{
+				background-color: blue;
+			}
+			.menu-inner > li:hover > a
+			{
+				color: white;
+				padding: 2px;
+				text-decoration: none;
+			}
+		</style>
+	</head>
   
-  <body onload='loadValues();'>
-    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-      	<tr>
-      	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
-      	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
-      	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
-      	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
-      	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
-      	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-  		  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
-	      <td align='center' class='h' width='10%'><a href='news.htm'>News</a></td>
-       	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
-      	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
-      	</tr>
-        <tr><td colspan='10' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
-      </table>
+	<body onload='loadValues();'>
 
-      <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+		<ul class="menu">
+			<li><a href="#">Menu</a>
+				<ul class="menu-inner">
+					<li><a href='time.htm'>Time</a></li>
+					<li><a href='wifi.htm'>WiFi</a></li>
+					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='disp.htm'>Display</a></li>
+					<li><a href='sens.htm'>Sensor</a></li>
+					<li><a href='alarm.htm'>Alarm</a></li>
+					<li><a href='thermo.htm'>Thermo</a></li>
+					<li><a href='news.htm'>News</a></li>
+				</ul>
+			</li>
+			<li><a href='/update'>Update</a></li>
+			<li><a href='/edit'>Edit</a></li>
+			<li><a href='/exit'>Restart</a></li>
+			<li style='float: none; visibility: hidden;'>.</li>
+		 </ul>
+		
+		<table class='t' align="left">
+			<tr>
+				<td colspan='2' class='h'>Термостат</td>
+			</tr>
+			<tr>
+				<td>Тип Термостата</td>
+				<td><select id='ittrm' name='nttrm' onclick='chk_trs();'>
+						<option value = '0'> Не использовать</option>
+						<option value = '1'> На включение   </option>
+						<option value = '2'> На отключение  </option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Источник</td>
+				<td><select id='itsrc' name='ntsrc'>
+						<option value = '0'> Канал 1 </option>
+						<option value = '1'> Канал 2 </option>
+						<option value = '2'> Канал 3 </option>
+					</select>
+				</td>
+			</tr>
 
-      <tr><td colspan='2' class='h'>Термостат</td></tr>
- 
-         <tr><td width='30%'>Тип Термостата</td>
-         <td><select id='ittrm' name='nttrm' onclick='chk_trs();' >
-            <option value = '0'> Не использовать</option>
-            <option value = '1'> На включение </option>
-            <option value = '2'> На отключение </option>
-         </select></td></tr>
-
-         <tr><td width='30%'>Источник</td>
-         <td><select id='itsrc' name='ntsrc'>
-            <option value = '0'> Канал 1 </option>
-            <option value = '1'> Канал 2 </option>
-            <option value = '2'> Канал 3 </option>
-         </select></td></tr>
-
-         <tr><td width='30%'>Диапазон температур</td>
-         <td>&nbsp;с&nbsp;
-         <input type='number' maxlength='3' size='1' min="-50" max="50" id='idsta' name='ndsta' style='text-align:center;'/>
-         &nbsp;до&nbsp;
-         <input type='number' maxlength='3' size='1' min="-50" max="50" id='idstp' name='ndstp' style='text-align:center;'/>
-         </td>
-         </tr>
+			<tr>
+				<td width='30%'>Диапазон температур</td><td>&nbsp;с&nbsp;
+					<input type='number' maxlength='3' size='1' min="-50" max="50" id='idsta' name='ndsta'/>
+					&nbsp;до&nbsp;
+					<input type='number' maxlength='3' size='1' min="-50" max="50" id='idstp' name='ndstp'/>
+				</td>
+			</tr>
 
          <tr><td colspan='9' class='h'><input type='submit' value='Записать' onclick='set_partrm();' /></td></tr>
-    </table>
+		</table>
   
-    <script>
-   
-      function loadValues()
-      {
-        var xh = new XMLHttpRequest();
-        xh.onreadystatechange =  function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-            {
-              var res = JSON.parse(xh.responseText);
-              document.getElementById('ittrm').value = res.ttrm;
-      	      document.getElementById('itsrc').value = res.tsrc;
-	            document.getElementById('idsta').value = res.dsta;
-	            document.getElementById('idstp').value = res.dstp;
-              
-              chk_trs();
-          	}
-          }
-         xh.open("GET", "/jtrm", true);
-         xh.send(null);
-      }
+		<script>
+			function loadValues()
+			{
+				var xh = new XMLHttpRequest();
+				xh.onreadystatechange =  function()
+				{
+				  if (xh.readyState == 4 && xh.status == 200) 
+					{
+					  var res = JSON.parse(xh.responseText);
+					  document.getElementById('ittrm').value = res.ttrm;
+					  document.getElementById('itsrc').value = res.tsrc;
+						document.getElementById('idsta').value = res.dsta;
+						document.getElementById('idstp').value = res.dstp;
+					  
+					  chk_trs();
+					}
+				  }
+				 xh.open("GET", "/jtrm", true);
+				 xh.send(null);
+			}
 
-      function chk_trs()
-      {
-         
-        ttrm_t   = document.getElementById('ittrm').value;
-         if (ttrm_t == 0) {
-           showHide('itsrc',  false);
-           showHide('idsta',  false);
-           showHide('idstp',  false);
-         }
-         else {
-           showHide('itsrc',  true);
-           showHide('idsta',  true);
-           showHide('idstp',  true);
-         }
-      }  
-      
-      function showHide(element_id, visible) 
-      {
-      //Если элемент с id-шником element_id существует
-        if (document.getElementById(element_id)) 
-        { 
-          //Записываем ссылку на элемент в переменную obj
-          var obj = document.getElementById(element_id); 
-          if (visible) obj.style.display = "inline-block"; //Показываем элемент
-          else obj.style.display = "none"; //Скрываем элемент
-        }
-        //Если элемент с id-шником element_id не найден, то выводим сообщение
-        else alert("Элемент с id: " + element_id + " не найден!"); 
-      }   
+			function chk_trs()
+			{
+				 
+				ttrm_t   = document.getElementById('ittrm').value;
+				if (ttrm_t == 0) 
+				{
+					showHide('itsrc',  false);
+					showHide('idsta',  false);
+					showHide('idstp',  false);
+				}
+				else 
+				{
+					showHide('itsrc',  true);
+					showHide('idsta',  true);
+					showHide('idstp',  true);
+				}
+			}
+		  
+			function showHide(element_id, visible) 
+			{
+				if (document.getElementById(element_id)) //Если элемент с id-шником element_id существует
+				{
+					var obj = document.getElementById(element_id); //Записываем ссылку на элемент в переменную obj
+					if (visible) obj.style.display = "inline-block"; //Показываем элемент
+					else obj.style.display = "none"; //Скрываем элемент
+				}
+				else alert("Элемент с id: " + element_id + " не найден!"); //Если элемент с id-шником element_id не найден, то выводим сообщение
+			}   
 
-      function process()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jactt", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('cur_time').value = res.tstr;
-          }
-        }
-        xh.send(null);
-        setTimeout('process()',500);
-      }
+			function set_partrm()
+			{
+				ttrm_t = document.getElementById('ittrm').value;
+				tsrc_t = document.getElementById('itsrc').value;
+				dsta_t = document.getElementById('idsta').value;
+				dstp_t = document.getElementById('idstp').value;
 
-      function set_partrm()
-      {
-        ttrm_t = document.getElementById('ittrm').value;
-        tsrc_t = document.getElementById('itsrc').value;
-        dsta_t = document.getElementById('idsta').value;
-        dstp_t = document.getElementById('idstp').value;
+				url = '/set_partrm?ttrm=' + ttrm_t
+										  + '&tsrc=' + tsrc_t
+										  + '&dsta=' + dsta_t
+										  + '&dstp=' + dstp_t;
 
-        url = '/set_partrm?ttrm=' + ttrm_t
-				       + '&tsrc=' + tsrc_t
-					   + '&dsta=' + dsta_t
-					   + '&dstp=' + dstp_t;
-
-        var xh = new XMLHttpRequest();
-        xh.open('GET', url, true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState==4 && xh.status==200) loadValues();
-        }      
-        xh.send(null);
-      }
-
-      process();
-      
-    </script>
-  </body>
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = function()
+				{
+					if (xh.readyState==4 && xh.status==200) loadValues();
+				}      
+				xh.send(null);
+			}
+		</script>
+	</body>
 </html>

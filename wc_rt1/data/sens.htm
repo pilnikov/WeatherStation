@@ -1,538 +1,626 @@
 <html>
-  <head>
-    <title>Wifi Clock Settings Sens</title>
-    <meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-    <style>
-       body,td{font-family:tahoma,arial,helvetica,sans-serif;}
-       table.t td.h{background-color:#C9C9C0;font-size:12px;font-weight:bold;text-align:center;}
-       table.t td  {background-color:#E2E2DB;font-size:12px;text-align:center;}
-    </style>
-  </head>
+	<head>
+		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
+		<title>Wifi Clock. Sensor</title>
+		<style>
+			body, td
+			{
+				font-family:tahoma,arial,helvetica,sans-serif;
+				border: 0px solid #333;
+				padding: 5px;
+				text-align:center;
+			}
+			table.t td.h
+			{
+				background-color:#C9C9C0;
+				font-size:12px;
+				font-weight:bold;
+				text-align:center;
+			}
+			table.t td
+			{
+				background-color:#E2E2DB;
+				font-size:12px;
+				text-align:center;
+			}
+			input
+			{
+				text-align:center;
+			}
+			.menu
+			{
+				list-style-type: none;
+				padding: 1px;
+			}
+			.menu > li 
+			{
+				float: left;
+				margin-right: 10px;
+			}
+			.menu > li > a 
+			{
+				color: blue;
+				padding: 2px;
+			}
+			.menu > li:hover > a 
+			{
+				color: black;
+				text-decoration: none;
+				border-radius: 5px 5px 0 0;
+				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+			}
+			/* Этот стиль должен убирать серую полосу */
+			.menu > li:hover > a:before 
+			{
+				content:'';
+				position: absolute;
+				bottom: -5px; left: 0;
+				width: 100%;
+				height: 7px;
+				background: white;
+				z-index: 5;
+				cursor: pointer;
+			}
+			.menu-inner
+			{
+				display: none;
+			}
+			.menu > li:hover > .menu-inner
+			{
+				display: block;
+				background-color: white; /* обязательно, зарисовываем тень */
+				position: absolute;
+				left: 0;
+				top: 22px; /* подняли блок немного вверх */
+				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
+				width: 120px;
+				padding: 3px;
+			}
+			/* Стили для ниспадающего меню */
+			.menu-inner > li
+			{
+				padding: 2px 0;
+			}
+			.menu-inner > li:hover
+			{
+				background-color: blue;
+			}
+			.menu-inner > li:hover > a
+			{
+				color: white;
+				padding: 2px;
+				text-decoration: none;
+			}
+		</style>
+	</head>
   
-  <body onload='loadValues();'>
-    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
-      	<tr>
-      	  <td align='center' class='h' width='10%'><a href='time.htm'>Time</a></td>
-      	  <td align='center' class='h' width='10%'><a href='wifi.htm'>WiFi</a></td>
-      	  <td align='center' class='h' width='10%'><a href='clock.htm'>Clock</a></td>
-      	  <td align='center' class='h' width='10%'><a href='disp.htm'>Display</a></td>
-      	  <td align='center' class='h' width='10%'><a href='sens.htm'>Sensor</a></td>
-      	  <td align='center' class='h' width='10%'><a href='alarm.htm'>Alarm</a></td>
-  	  	  <td align='center' class='h' width='10%'><a href='thermo.htm'>Thermo</a></td>
-	        <td align='center' class='h' width='10%'><a href='news.htm'>News</a></td>
-       	  <td align='center' class='h' width='10%'><a href='/edit'>Edit</a></td>
-      	  <td align='center' class='h' width='10%'><a href='/exit'>Restart</a></td>
-      	</tr>
-        <tr><td colspan='10' height='20' align='center'><input type='text' id='cur_time' style='text-align:center;' readonly /></td></tr>
-      </table>
+	<body onload='loadValues();'>
 
-    <table cellspacing='0' cellpadding='2' border='0' class='t' width='30%'>
+		<ul class="menu">
+			<li><a href="#">Menu</a>
+				<ul class="menu-inner">
+					<li><a href='time.htm'>Time</a></li>
+					<li><a href='wifi.htm'>WiFi</a></li>
+					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='disp.htm'>Display</a></li>
+					<li><a href='sens.htm'>Sensor</a></li>
+					<li><a href='alarm.htm'>Alarm</a></li>
+					<li><a href='thermo.htm'>Thermo</a></li>
+					<li><a href='news.htm'>News</a></li>
+				</ul>
+			</li>
+			<li><a href='/update'>Update</a></li>
+			<li><a href='/edit'>Edit</a></li>
+			<li><a href='/exit'>Restart</a></li>
+			<li style='float: none; visibility: hidden;'>.</li>
+		 </ul>
 
-
-      <tr><td colspan='2' class='h'>Опции</td></tr>
-      <tr><td>city ID для GM и OWM</td><td><input type='text' size='6' id='cityID' name='cityID' style='text-align:center;' /></td></tr>
-      <tr><td>OWM API Key          </td><td><input type='text' maxlength='32' size='32' id='owmk' name='owmk' style='text-align:center;' /></td></tr>
-      <tr><td>Адрес внешн. сервера 1</td><td><input type='text' maxlength='17' size='10' id='esaddr1' name='esaddr1' style='text-align:center;' /></td></tr>
-      <tr><td>Адрес внешн. сервера 2</td><td><input type='text' maxlength='17' size='10' id='esaddr2' name='esaddr2' style='text-align:center;' /></td></tr>
-      <tr><td>Адрес радиоприемничка</td><td><input type='text' maxlength='17' size='10' id='rdaddr' name='rdaddr'  style='text-align:center;' /></td></tr>
-      <tr><td>Адрес хоста для UDP консоли</td><td><input type='text' maxlength='17' size='10' id='udp' name='udp'  style='text-align:center;' /></td></tr>
-      <tr><td>Использовать удаленную консоль</td><td>&nbsp;--------&nbsp;
-    	<input type='checkbox' id='udm' name='udm' onclick='sel_ts();'/></td></tr>
-      
-      <tr><td width='35%'>Прогноз погоды</td>
-      <td><select id='usepp' name='usepp' onclick='chk_pp();'>
-      <option value = '0'>No_use</option>
-      <option value = '1'>GM</option>
-      <option value = '2'>OWM</option>
-      </select></td></tr>
-
-      <tr><td colspan='2' class='h'>Типы датчиков</td></tr>
-      
-      <tr><td width='35%'>Канал 1</td>
-        <td><select id='snr1' name='snr1'  onclick='sel_ts();'>
-        <option value =  '0'>No_use</option>
-        <option value =  '1'>TS</option>
-        <option value =  '2'>ESrv_1</option>
-        <option value =  '3'>ESrv_2</option>
-        <option value =  '4'>DHT21</option>
-        <option value =  '5'>DS3231</option>
-        <option value =  '6'>SI7021</option>
-        <option value =  '7'>AM2320</option>
-        <option value =  '8'>BMP180</option>
-        <option value =  '9'>BMP280</option>
-        <option value = '10'>BME280</option>
-        <option value = '11'>Из прогноза</option>
-        <option value = '12'>ExtSrc</option>
-        <option value = '13'>DS18B20</option>
-        </select></td></tr>
-      
-      <tr><td width='35%'>Канал 2</td>
-        <td><select id='snr2' name='snr2' onclick='sel_ts();'>
-        <option value =  '0'>No_use</option>
-        <option value =  '1'>TS</option>
-        <option value =  '2'>ESrv_1</option>
-        <option value =  '3'>ESrv_2</option>
-        <option value =  '4'>DHT21</option>
-        <option value =  '5'>DS3231</option>
-        <option value =  '6'>SI7021</option>
-        <option value =  '7'>AM2320</option>
-        <option value =  '8'>BMP180</option>
-        <option value =  '9'>BMP280</option>
-        <option value = '10'>BME280</option>
-        <option value = '11'>Из прогноза</option>
-        <option value = '12'>ExtSrc</option>
-        <option value = '13'>DS18B20</option>
-        </select></td></tr>
-
-      <tr><td width='35%'>Канал 3</td>
-        <td><select id='snr3' name='snr3' onclick='sel_ts();'>
-        <option value =  '0'>No_use</option>
-        <option value =  '1'>TS</option>
-        <option value =  '2'>ESrv_1</option>
-        <option value =  '3'>ESrv_2</option>
-        <option value =  '4'>DHT21</option>
-        <option value =  '5'>DS3231</option>
-        <option value =  '6'>SI7021</option>
-        <option value =  '7'>AM2320</option>
-        <option value =  '8'>BMP180</option>
-        <option value =  '9'>BMP280</option>
-        <option value = '10'>BME280</option>
-        <option value = '11'>Из прогноза</option>
-        <option value = '12'>ExtSrc</option>
-        <option value = '13'>DS18B20</option>
-        </select></td></tr>
-      
-      <tr><td width='35%'>Давления</td>
-        <td><select id='snrp' name='snrp' onclick='sel_ts();'>
-        <option value =  '0'>No_use</option>
-        <option value =  '1'>TS</option>
-        <option value =  '2'>ESrv_1</option>
-        <option value =  '3'>ESrv_2</option>
-        <option value =  '8'>BMP180</option>
-        <option value =  '9'>BMP280</option>
-        <option value = '10'>BME280</option>
-        <option value = '11'>Из прогноза</option>
-        <option value = '12'>ExtSrc</option>
-       </select></td></tr>
-
-      <tr><td>Период опроса (мин)</td><td><input type='text' size='2' id='period' name='period' style='text-align:center;'/></td></tr>
-      <tr><td>Энергосбережение</td><td>&nbsp;--------&nbsp;
-    	<input type='checkbox' id='esm' name='esm'/></td></tr>
-
-      <tr><td colspan='4' class='h'>Отправка показаний на ES1 с датчиков:</td></tr>
-
-        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1----2----3&nbsp;</td></tr>
-        <tr><td width='20%'>Температура</td><td>
-		    <input type='checkbox' id='uest1' name='uest1' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='uest2' name='uest2' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='uest3' name='uest3' onclick='sel_ts();'/></td></tr>
-        <tr><td width='20%'>Влажность</td><td>
-	    	<input type='checkbox' id='uesh1' name='uesh1' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='uesh2' name='uesh2' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='uesh3' name='uesh3' onclick='sel_ts();'/></td></tr>
-        <tr><td>Давление</td><td>&nbsp;--------&nbsp;
-	    	<input type='checkbox' id='uesp' name='uesp' onclick='sel_ts();'/></td></tr>
-
-
-      <tr><td colspan='4' class='h'>Текущие показания</td></tr>
-
-        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1--------------2-------------3&nbsp;</td></tr>
-        <tr><td width='20%'>Название</td><td>
-        <input type='text' maxlength='8' size='3' id='name_ch1' name='name_ch1' style='text-align:center;' />
-   		  <input type='text' maxlength='8' size='3' id='name_ch2' name='name_ch2' style='text-align:center;' />
-        <input type='text' maxlength='8' size='3' id='name_ch3' name='name_ch3' style='text-align:center;' /></td></tr>
-        <tr><td width='20%'>Температура</td><td>
-        <output id='cur_t1' name='cur_t1'></output>&nbsp;--------&nbsp;
-        <output id='cur_t2' name='cur_t2'></output>&nbsp;--------&nbsp;
-        <output id='cur_t3' name='cur_t3'></output></td></tr>
-        <tr><td width='20%'>Влажность</td><td>
-        <output id='cur_h1' name='cur_h1'></output>&nbsp;--------&nbsp;
-        <output id='cur_h2' name='cur_h2'></output>&nbsp;--------&nbsp;
-        <output id='cur_h3' name='cur_h3'></output></td></tr>
-        <tr><td>Давление</td><td>&nbsp;--------------------------&nbsp;
-   	  	<output type='text' id='cur_p'  name='cur_p'></output></td></tr>
-
-        <tr><td colspan='4'><button onclick='up_date();'>Обновить показания</button></td></tr>
-        <tr><td colspan='4' display='none'> _ </td></tr>
-
-      <tr><td colspan='4' class='h'>Параметры аккаунта ТS:</td></tr>
-
-        <tr><td>Channel ID</td><td><input type='text' size='6' id='tschan' name='tschan' style='text-align:center;' /></td></tr>
-        <tr><td>API key R</td><td><input type='text' size='17' id='tsapir' name='tsapir' style='text-align:center;' /></td></tr>
-        <tr><td>API key W</td><td><input type='text' size='17' id='tsapiw' name='tsapiw' style='text-align:center;' /></td></tr>
-    
-      <tr><td colspan='4' class='h'>Отправка показаний на ТS с датчиков:</td></tr>
-
-        <tr><td width='20%'>Номер Канала</td><td>&nbsp;1----2----3&nbsp;</td></tr>
-        <tr><td width='20%'>Температура</td><td>
-		    <input type='checkbox' id='utst1' name='utst1' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='utst2' name='utst2' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='utst3' name='utst3' onclick='sel_ts();'/></td></tr>
-        <tr><td width='20%'>Влажность</td><td>
-	    	<input type='checkbox' id='utsh1' name='utsh1' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='utsh2' name='utsh2' onclick='sel_ts();'/>
-	    	<input type='checkbox' id='utsh3' name='utsh3' onclick='sel_ts();'/></td></tr>
-        <tr><td>Давление</td><td>&nbsp;--------&nbsp;
-	    	<input type='checkbox' id='utsp' name='utsp' onclick='sel_ts();'/></td></tr>
- 
+		<table class='t' align="left">
+			<tr>
+				<td colspan='5' class='h'>Опции</td></tr>
+			<tr>
+				<td>City ID для GM и OWM		  </td><td colspan='4'><input type='text' size='6' id='cityID' name='cityID'/></td>
+			</tr>
+			<tr>
+				<td>OWM API Key         		  </td><td colspan='4'><input type='text' maxlength='32' id='owmk' name='owmk'/></td>
+			</tr>
+			<tr>
+				<td>Прогноз погоды				  </td><td colspan='4'><select id='usepp' name='usepp' onclick='chk_pp();'>
+					<option value = '0'>No_use</option>
+					<option value = '1'>GM    </option>
+					<option value = '2'>OWM   </option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Адрес ES1					  </td><td colspan='4'><input type='text' maxlength='17' id='esaddr1' name='esaddr1'/></td>
+			</tr>
+			<tr>
+				<td>Адрес ES2        			  </td><td colspan='4'><input type='text' maxlength='17' id='esaddr2' name='esaddr2'/></td>
+			</tr>
+			<tr>
+				<td>Адрес радиоприемничка         </td><td colspan='4'><input type='text' maxlength='17' id='rdaddr' name='rdaddr' /></td>
+			</tr>
+			<tr>
+				<td>Адрес хоста для UDP консоли   </td><td colspan='4'><input type='text' maxlength='17' id='udp' name='udp' /></td>
+			</tr>
+			<tr>
+				<td>Использовать UDP консоль      </td><td colspan='4'><input type='checkbox' id='udm' name='udm' onclick='sel_ts();'/></td>
+			</tr>
+			<tr>
+				<td class='h'>Канал</td>
+				<td class='h'><input type='text' maxlength='8' id='name_ch1' name='name_ch1'/></td>
+				<td class='h'><input type='text' maxlength='8' id='name_ch2' name='name_ch2'/></td>
+				<td class='h'><input type='text' maxlength='8' id='name_ch3' name='name_ch3'/></td>
+				<td class='h'>Давление</td>
+			</tr>
+			<tr>
+				<td>Тип сеснора</td>
+				<td><select id='snr1' name='snr1'  onclick='sel_ts();'>
+					<option value =  '0'>No_use</option>
+					<option value =  '1'>TS</option>
+					<option value =  '2'>ESrv_1</option>
+					<option value =  '3'>ESrv_2</option>
+					<option value =  '4'>DHT21</option>
+					<option value =  '5'>DS3231</option>
+					<option value =  '6'>SI7021</option>
+					<option value =  '7'>AM2320</option>
+					<option value =  '8'>BMP180</option>
+					<option value =  '9'>BMP280</option>
+					<option value = '10'>BME280</option>
+					<option value = '11'>Из прогноза</option>
+					<option value = '12'>ExtSrc</option>
+					<option value = '13'>DS18B20</option>
+				</select>
+				</td>
+				<td><select id='snr2' name='snr2' onclick='sel_ts();'>
+					<option value =  '0'>No_use</option>
+					<option value =  '1'>TS</option>
+					<option value =  '2'>ESrv_1</option>
+					<option value =  '3'>ESrv_2</option>
+					<option value =  '4'>DHT21</option>
+					<option value =  '5'>DS3231</option>
+					<option value =  '6'>SI7021</option>
+					<option value =  '7'>AM2320</option>
+					<option value =  '8'>BMP180</option>
+					<option value =  '9'>BMP280</option>
+					<option value = '10'>BME280</option>
+					<option value = '11'>Из прогноза</option>
+					<option value = '12'>ExtSrc</option>
+					<option value = '13'>DS18B20</option>
+				</select>
+				</td>
+				<td><select id='snr3' name='snr3' onclick='sel_ts();'>
+					<option value =  '0'>No_use</option>
+					<option value =  '1'>TS</option>
+					<option value =  '2'>ESrv_1</option>
+					<option value =  '3'>ESrv_2</option>
+					<option value =  '4'>DHT21</option>
+					<option value =  '5'>DS3231</option>
+					<option value =  '6'>SI7021</option>
+					<option value =  '7'>AM2320</option>
+					<option value =  '8'>BMP180</option>
+					<option value =  '9'>BMP280</option>
+					<option value = '10'>BME280</option>
+					<option value = '11'>Из прогноза</option>
+					<option value = '12'>ExtSrc</option>
+					<option value = '13'>DS18B20</option>
+				</select>
+				</td>
+				<td><select id='snrp' name='snrp' onclick='sel_ts();'>
+					<option value =  '0'>No_use</option>
+					<option value =  '1'>TS</option>
+					<option value =  '2'>ESrv_1</option>
+					<option value =  '3'>ESrv_2</option>
+					<option value =  '8'>BMP180</option>
+					<option value =  '9'>BMP280</option>
+					<option value = '10'>BME280</option>
+					<option value = '11'>Из прогноза</option>
+					<option value = '12'>ExtSrc</option>
+				</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Период опроса (минут)</td><td colspan='4'><input type='text' maxlength='2' id='period' name='period'/></td>
+			</tr>
+			<tr>
+				<td>Энергосбережение     </td><td colspan='4'><input type='checkbox' id='esm' name='esm'/></td>
+			</tr>
+			<tr>
+				<td colspan='5' class='h'>Текущие показания</td>
+			</tr>
+			<tr>
+				<td>Температура</td>
+				<td><output id='cur_t1' name='cur_t1'></output></td>
+				<td><output id='cur_t2' name='cur_t2'></output></td>
+				<td><output id='cur_t3' name='cur_t3'></output></td>
+				<td><output id='cur_p'  name='cur_p' ></output></td>
+			</tr>	
+			<tr>
+				<td>Влажность</td>
+				<td><output id='cur_h1' name='cur_h1'></output></td>
+				<td><output id='cur_h2' name='cur_h2'></output></td>
+				<td><output id='cur_h3' name='cur_h3'></output></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan='5'><button onclick='up_date();'>Обновить показания</button></td>
+			</tr>
+			<tr>
+				<td colspan='5' class='h'>Отправка показаний на ES1</td>
+			</tr>
+			<tr>
+				<td>Температура</td>
+				<td><input type='checkbox' id='uest1' name='uest1' onclick='sel_ts();'/></td>
+				<td><input type='checkbox' id='uest2' name='uest2' onclick='sel_ts();'/></td>
+				<td><input type='checkbox' id='uest3' name='uest3' onclick='sel_ts();'/></td>
+				<td><input type='checkbox' id='uesp'  name='uesp'  onclick='sel_ts();'/></td>
+			</tr>
+			<tr>
+				<td>Влажность</td>
+				<td><input type='checkbox' id='uesh1' name='uesh1' onclick='sel_ts();'/>
+				<td><input type='checkbox' id='uesh2' name='uesh2' onclick='sel_ts();'/>
+				<td><input type='checkbox' id='uesh3' name='uesh3' onclick='sel_ts();'/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan='5' class='h'>Параметры аккаунта ТS:</td>
+			</tr>
+			<tr>
+				<td>Channel ID</td><td colspan='4'><input type='text' maxlength='6' id='tschan' name='tschan'/></td>
+			</tr>
+			<tr>
+				<td>API key R</td><td colspan='4'><input type='text' maxlength='17' id='tsapir' name='tsapir'/></td>
+			</tr>
+			<tr>
+				<td>API key W</td><td colspan='4'><input type='text' maxlength='17' id='tsapiw' name='tsapiw'/></td>
+			</tr>
+			<tr>
+				<td colspan='5' class='h'>Отправка показаний на ТS</td>
+			</tr>
+			<tr>
+				<td>Температура</td>
+				<td><input type='checkbox' id='utst1' name='utst1' onclick='sel_ts();'/></td>
+				<td><input type='checkbox' id='utst2' name='utst2' onclick='sel_ts();'/></td>
+				<td><input type='checkbox' id='utst3' name='utst3' onclick='sel_ts();'/></td>
+				<td><input type='checkbox' id='utsp'  name='utsp'  onclick='sel_ts();'/></td>
+			</tr>
+			<tr>
+				<td>Влажность</td>
+				<td><input type='checkbox' id='utsh1' name='utsh1' onclick='sel_ts();'/>
+				<td><input type='checkbox' id='utsh2' name='utsh2' onclick='sel_ts();'/>
+				<td><input type='checkbox' id='utsh3' name='utsh3' onclick='sel_ts();'/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan='5' class='h'><input type='submit' value='Записать' onclick='set_pars1();'/></td>
+			</tr>
+		</table>
   
-      <tr><td colspan='4' class='h'><input type='submit' value='Записать' onclick='set_pars1();' /></td></tr>
-  
-    </table>
-  
-    <script>
+		<script>
 
-      function loadValues()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jsens", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('cityID').value   = res.cyid;
-            document.getElementById('owmk').value     = res.owmk;
-            document.getElementById('esaddr1').value  = res.srve1;
-            document.getElementById('esaddr2').value  = res.srve2;
-            document.getElementById('rdaddr').value   = res.srvr;
-            document.getElementById('udp').value      = res.udp;
-            document.getElementById('udm').checked    = res.udm;
-            document.getElementById('usepp').value    = res.prgp;
-            document.getElementById('snr1').value     = res.s1;
-            document.getElementById('snr2').value     = res.s2;
-            document.getElementById('snr3').value     = res.s3;
-            document.getElementById('snrp').value     = res.sp;
-            document.getElementById('name_ch1').value = res.nc1;
-            document.getElementById('name_ch2').value = res.nc2;
-            document.getElementById('name_ch3').value = res.nc3;
-            document.getElementById('period').value   = res.peri;
-            document.getElementById('esm').checked    = res.esm;
-            document.getElementById('uest1').checked = (res.ess & 0b00000001);
-            document.getElementById('uest2').checked = (res.ess & 0b00000010);
-            document.getElementById('uest3').checked = (res.ess & 0b00000100);
-            document.getElementById('uesh1').checked = (res.ess & 0b00001000);
-            document.getElementById('uesh2').checked = (res.ess & 0b00010000);
-            document.getElementById('uesh3').checked = (res.ess & 0b00100000);
-            document.getElementById('uesp').checked  = (res.ess & 0b01000000);
+			function loadValues()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jsens", true);
+				xh.onreadystatechange = function()
+				{
+					if (xh.readyState == 4 && xh.status == 200) 
+					{
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('cityID').value   = res.cyid;
+						document.getElementById('owmk').value     = res.owmk;
+						document.getElementById('esaddr1').value  = res.srve1;
+						document.getElementById('esaddr2').value  = res.srve2;
+						document.getElementById('rdaddr').value   = res.srvr;
+						document.getElementById('udp').value      = res.udp;
+						document.getElementById('udm').checked    = res.udm;
+						document.getElementById('usepp').value    = res.prgp;
+						document.getElementById('snr1').value     = res.s1;
+						document.getElementById('snr2').value     = res.s2;
+						document.getElementById('snr3').value     = res.s3;
+						document.getElementById('snrp').value     = res.sp;
+						document.getElementById('name_ch1').value = res.nc1;
+						document.getElementById('name_ch2').value = res.nc2;
+						document.getElementById('name_ch3').value = res.nc3;
+						document.getElementById('period').value   = res.peri;
+						document.getElementById('esm').checked    = res.esm;
+						document.getElementById('uest1').checked = (res.ess & 0b00000001);
+						document.getElementById('uest2').checked = (res.ess & 0b00000010);
+						document.getElementById('uest3').checked = (res.ess & 0b00000100);
+						document.getElementById('uesh1').checked = (res.ess & 0b00001000);
+						document.getElementById('uesh2').checked = (res.ess & 0b00010000);
+						document.getElementById('uesh3').checked = (res.ess & 0b00100000);
+						document.getElementById('uesp').checked  = (res.ess & 0b01000000);
 
-            chk_pp();
-    	  }
-        }
-        xh.send(null);
-        loadTs();
-      }
-      
-      function loadTs()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jts", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 &&  xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('tschan').value = res.tsid;
-            document.getElementById('tsapir').value = res.tsar;
-            document.getElementById('tsapiw').value = res.tsaw;
-            document.getElementById('utst1').checked = (res.tss & 0b00000001);
-            document.getElementById('utst2').checked = (res.tss & 0b00000010);
-            document.getElementById('utst3').checked = (res.tss & 0b00000100);
-            document.getElementById('utsh1').checked = (res.tss & 0b00001000);
-            document.getElementById('utsh2').checked = (res.tss & 0b00010000);
-            document.getElementById('utsh3').checked = (res.tss & 0b00100000);
-            document.getElementById('utsp').checked  = (res.tss & 0b01000000);
-          
-            sel_ts();
-          }   	  
-        }
-        xh.send(null);
-        loadSnr();
-      }
-      
-      function loadSnr()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jsnr", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 &&  xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('cur_t1').value = res.t1;
-            document.getElementById('cur_t2').value = res.t2;
-            document.getElementById('cur_t3').value = res.t3;
-            document.getElementById('cur_h1').value = res.h1;
-            document.getElementById('cur_h2').value = res.h2;
-            document.getElementById('cur_h3').value = res.h3;
-            document.getElementById('cur_p' ).value = res.pres;
-    	  }
-        }
-        xh.send(null);
-      }
+						chk_pp();				  
+					}
+				}
+				xh.send(null);
+				loadTs();
+			}
+			  
+			function loadTs()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jts", true);
+				xh.onreadystatechange = function()
+				{
+					if (xh.readyState == 4 &&  xh.status == 200) 
+					{
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('tschan').value = res.tsid;
+						document.getElementById('tsapir').value = res.tsar;
+						document.getElementById('tsapiw').value = res.tsaw;
+						document.getElementById('utst1').checked = (res.tss & 0b00000001);
+						document.getElementById('utst2').checked = (res.tss & 0b00000010);
+						document.getElementById('utst3').checked = (res.tss & 0b00000100);
+						document.getElementById('utsh1').checked = (res.tss & 0b00001000);
+						document.getElementById('utsh2').checked = (res.tss & 0b00010000);
+						document.getElementById('utsh3').checked = (res.tss & 0b00100000);
+						document.getElementById('utsp').checked  = (res.tss & 0b01000000);
 
-      function up_date()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open('GET', '/updS', true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState==4 && xh.status==200) loadSnr();
-        }      
-        xh.send(null);
-      }
+						sel_ts();
+					}   	  
+				}
+				xh.send(null);
+				loadSnr();
+			}			
 
+			function loadSnr()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jsnr", true);
+				xh.onreadystatechange = function()
+				{
+					if (xh.readyState == 4 &&  xh.status == 200) 
+					{
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('cur_t1').value = res.t1;
+						document.getElementById('cur_t2').value = res.t2;
+						document.getElementById('cur_t3').value = res.t3;
+						document.getElementById('cur_h1').value = res.h1;
+						document.getElementById('cur_h2').value = res.h2;
+						document.getElementById('cur_h3').value = res.h3;
+						document.getElementById('cur_p' ).value = res.pres;
+					}
+				}
+				xh.send(null);
+			}
 
-      function showHide(element_id, visible) 
-      {
-      //Если элемент с id-шником element_id существует
-        if (document.getElementById(element_id)) 
-        { 
-          //Записываем ссылку на элемент в переменную obj
-          var obj = document.getElementById(element_id); 
-          if (visible) obj.style.display = "inline-block"; //Показываем элемент
-          else obj.style.display = "none"; //Скрываем элемент
-        }
-        //Если элемент с id-шником element_id не найден, то выводим сообщение
-        else alert("Элемент с id: " + element_id + " не найден!"); 
-      }   
+			function up_date()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open('GET', '/updS', true);
+				xh.onreadystatechange = function()
+				{
+				  if (xh.readyState==4 && xh.status==200) loadSnr();
+				}      
+				xh.send(null);
+			}
 
-      function process()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jactt", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('cur_time').value = res.tstr;
-          }
-        }
-        xh.send(null);
-        setTimeout('process()',500);
-      }
+			function showHide(element_id, visible) 
+			{
+				if (document.getElementById(element_id)) //Если элемент с id-шником element_id существует 
+				{ 
+					var obj = document.getElementById(element_id); //Записываем ссылку на элемент в переменную obj
+					if (visible) obj.style.display = "inline-block"; //Показываем элемент
+					else obj.style.display = "none"; //Скрываем элемент
+				}
+				else alert("Элемент с id: " + element_id + " не найден!"); //Если элемент с id-шником element_id не найден, то выводим сообщение
+			}   
 
-      
-      function set_pars1()
-      {
-   
-        var udm_t = 0;     
-        var cid_t  = document.getElementById('cityID').value;
-        var owmk_t = document.getElementById('owmk').value;
-        var esa1_t = document.getElementById('esaddr1').value;
-        var esa2_t = document.getElementById('esaddr2').value;
-        var rda_t  = document.getElementById('rdaddr').value;
-        var udp_t  = document.getElementById('udp').value;
-        if (document.getElementById('udm').checked) udm_t = 1;
-        var upp_t  = document.getElementById('usepp').value;
- 
-        url='/set_pars1?cid='+cid_t
-					 + '&owmk='+owmk_t
-					 + '&esa1='+esa1_t
-					 + '&esa2='+esa2_t
-					 + '&rda=' +rda_t
-					 + '&udp=' +udp_t
-					 + '&udm=' +udm_t
-					 + '&upp=' +upp_t;
+			function set_pars1()
+			{
+				var udm_t = 0;     
+				var cid_t  = document.getElementById('cityID').value;
+				var owmk_t = document.getElementById('owmk').value;
+				var esa1_t = document.getElementById('esaddr1').value;
+				var esa2_t = document.getElementById('esaddr2').value;
+				var rda_t  = document.getElementById('rdaddr').value;
+				var udp_t  = document.getElementById('udp').value;
+				if (document.getElementById('udm').checked) udm_t = 1;
+				var upp_t  = document.getElementById('usepp').value;
+		 
+				url='/set_pars1?cid='+cid_t
+							 + '&owmk='+owmk_t
+							 + '&esa1='+esa1_t
+							 + '&esa2='+esa2_t
+							 + '&rda=' +rda_t
+							 + '&udp=' +udp_t
+							 + '&udm=' +udm_t
+							 + '&upp=' +upp_t;
 
-      var xh = new XMLHttpRequest();
-          xh.open('GET', url, true);
-  		    xh.onreadystatechange = function()
-  		    {
-  		      if (xh.readyState==4 && xh.status==200) set_pars2();
-  		    }
-          xh.send(null);
-      }
-      
-      function set_pars2()
-      {
-        var ues_t = 0, esm_t = 0;
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = 
+				function()
+				{
+					if (xh.readyState==4 && xh.status==200) set_pars2();
+				}
+				xh.send(null);
+			}
+			  
+			function set_pars2()
+			{
+				var ues_t = 0, esm_t = 0;
 
-        snr1_t   = document.getElementById('snr1').value;
-        snr2_t   = document.getElementById('snr2').value;
-        snr3_t   = document.getElementById('snr3').value;
-        snrp_t   = document.getElementById('snrp').value;
-      period_t   = document.getElementById('period').value;
-        if (document.getElementById('esm').checked) esm_t = 1;
-        if (document.getElementById('uest1').checked) ues_t |= 0b00000001;
-        if (document.getElementById('uest2').checked) ues_t |= 0b00000010;
-        if (document.getElementById('uest3').checked) ues_t |= 0b00000100;
-        if (document.getElementById('uesh1').checked) ues_t |= 0b00001000;
-        if (document.getElementById('uesh2').checked) ues_t |= 0b00010000;
-        if (document.getElementById('uesh3').checked) ues_t |= 0b00100000;
-        if (document.getElementById('uesp').checked)  ues_t |= 0b01000000;
-         nc1_t   = document.getElementById('name_ch1').value;
-         nc2_t   = document.getElementById('name_ch2').value;
-         nc3_t   = document.getElementById('name_ch3').value;
-      
-        url='/set_pars2?snr1='    + snr1_t
-					 + '&snr2='   + snr2_t
-					 + '&snr3='   + snr3_t
-					 + '&snrp='   + snrp_t
-					 + '&period=' + period_t
-					 + '&ues='    + ues_t
-					 + '&esm='    + esm_t
-					 + '&nc1='    + nc1_t
-					 + '&nc2='    + nc2_t
-					 + '&nc3='    + nc3_t;
+				snr1_t = document.getElementById('snr1').value;
+				snr2_t = document.getElementById('snr2').value;
+				snr3_t = document.getElementById('snr3').value;
+				snrp_t = document.getElementById('snrp').value;
+				period_t = document.getElementById('period').value;
+				if (document.getElementById('esm').checked) esm_t = 1;
+				if (document.getElementById('uest1').checked) ues_t |= 0b00000001;
+				if (document.getElementById('uest2').checked) ues_t |= 0b00000010;
+				if (document.getElementById('uest3').checked) ues_t |= 0b00000100;
+				if (document.getElementById('uesh1').checked) ues_t |= 0b00001000;
+				if (document.getElementById('uesh2').checked) ues_t |= 0b00010000;
+				if (document.getElementById('uesh3').checked) ues_t |= 0b00100000;
+				if (document.getElementById('uesp').checked)  ues_t |= 0b01000000;
+				nc1_t = document.getElementById('name_ch1').value;
+				nc2_t = document.getElementById('name_ch2').value;
+				nc3_t = document.getElementById('name_ch3').value;
+			  
+				url='/set_pars2?snr1='    + snr1_t
+							 + '&snr2='   + snr2_t
+							 + '&snr3='   + snr3_t
+							 + '&snrp='   + snrp_t
+							 + '&period=' + period_t
+							 + '&ues='    + ues_t
+							 + '&esm='    + esm_t
+							 + '&nc1='    + nc1_t
+							 + '&nc2='    + nc2_t
+							 + '&nc3='    + nc3_t;
 
-      var xh = new XMLHttpRequest();
-          xh.open('GET', url, true);
-  		    xh.onreadystatechange = function()
-  		    {
-  		      if (xh.readyState==4 && xh.status==200) set_pars3();
-  		    }
-          xh.send(null);
-      }
-      
-      function set_pars3()
-      {
-        var uts_t = 0;
-        
-        tschan_t = document.getElementById('tschan').value;
-        tsapir_t = document.getElementById('tsapir').value;
-        tsapiw_t = document.getElementById('tsapiw').value;
-        if (document.getElementById('utst1').checked) uts_t |= 0b00000001;
-        if (document.getElementById('utst2').checked) uts_t |= 0b00000010;
-        if (document.getElementById('utst3').checked) uts_t |= 0b00000100;
-        if (document.getElementById('utsh1').checked) uts_t |= 0b00001000;
-        if (document.getElementById('utsh2').checked) uts_t |= 0b00010000;
-        if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
-        if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = function()
+					{
+					  if (xh.readyState==4 && xh.status==200) set_pars3();
+					}
+				xh.send(null);
+			}
+			  
+			function set_pars3()
+			{
+				var uts_t = 0;
 
-        url='/set_pars3?tschan='+tschan_t
-					 +'&tsapir='+tsapir_t
-					 +'&tsapiw='+tsapiw_t
-					 +'&uts='	+ uts_t;
-  
-      var xh = new XMLHttpRequest();
-          xh.open('GET', url, true);
-  		    xh.onreadystatechange = function()
-          {
-            if (xh.readyState==4 && xh.status==200) loadValues();
-          }      
-          xh.send(null);
-      }
+				tschan_t = document.getElementById('tschan').value;
+				tsapir_t = document.getElementById('tsapir').value;
+				tsapiw_t = document.getElementById('tsapiw').value;
+				if (document.getElementById('utst1').checked) uts_t |= 0b00000001;
+				if (document.getElementById('utst2').checked) uts_t |= 0b00000010;
+				if (document.getElementById('utst3').checked) uts_t |= 0b00000100;
+				if (document.getElementById('utsh1').checked) uts_t |= 0b00001000;
+				if (document.getElementById('utsh2').checked) uts_t |= 0b00010000;
+				if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
+				if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
 
-      function sel_ts()
-      {
-        var uts_t = 0, ues_t = 0, udm_t = 0;
+				url='/set_pars3?tschan='+tschan_t
+							 +'&tsapir='+tsapir_t
+							 +'&tsapiw='+tsapiw_t
+							 +'&uts='	+ uts_t;
 
-        snr1_t   = document.getElementById('snr1').value;
-        snr2_t   = document.getElementById('snr2').value;
-        snr3_t   = document.getElementById('snr3').value;
-        snrp_t   = document.getElementById('snrp').value;
+				var xh = new XMLHttpRequest();
+				xh.open('GET', url, true);
+				xh.onreadystatechange = function()
+				{
+					if (xh.readyState==4 && xh.status==200) loadValues();
+				}      
+				xh.send(null);
+			}
+
+			function sel_ts()
+			{
+				var uts_t = 0, ues_t = 0, udm_t = 0;
+
+				snr1_t = document.getElementById('snr1').value;
+				snr2_t = document.getElementById('snr2').value;
+				snr3_t = document.getElementById('snr3').value;
+				snrp_t = document.getElementById('snrp').value;
 
 /////////////////////////////////// For TS
+				if (document.getElementById('utst1').checked) uts_t |= 0b00000001;
+				if (document.getElementById('utst2').checked) uts_t |= 0b00000010;
+				if (document.getElementById('utst3').checked) uts_t |= 0b00000100;
+				if (document.getElementById('utsh1').checked) uts_t |= 0b00001000;
+				if (document.getElementById('utsh2').checked) uts_t |= 0b00010000;
+				if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
+				if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
+				 
+				if (uts_t > 0) showHide('tsapiw',  true);
+				else showHide('tsapiw',  false);
 
-        if (document.getElementById('utst1').checked) uts_t |= 0b00000001;
-        if (document.getElementById('utst2').checked) uts_t |= 0b00000010;
-        if (document.getElementById('utst3').checked) uts_t |= 0b00000100;
-        if (document.getElementById('utsh1').checked) uts_t |= 0b00001000;
-        if (document.getElementById('utsh2').checked) uts_t |= 0b00010000;
-        if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
-        if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
-         
-        if (uts_t > 0) showHide('tsapiw',  true);
-        else showHide('tsapiw',  false);
+				if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1) showHide('tsapir',  true);
+				else showHide('tsapir',  false);
 
-        if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1) showHide('tsapir',  true);
-        else showHide('tsapir',  false);
-
-        if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1 || uts_t > 0) showHide('tschan',  true);
-        else showHide('tschan',  false);
+				if (snr1_t == 1 || snr2_t == 1 || snr3_t == 1 || snrp_t == 1 || uts_t > 0) showHide('tschan',  true);
+				else showHide('tschan',  false);
 
 /////////////////////////////////// For ES
+				if (document.getElementById('uest1').checked) ues_t |= 0b00000001;
+				if (document.getElementById('uest2').checked) ues_t |= 0b00000010;
+				if (document.getElementById('uest3').checked) ues_t |= 0b00000100;
+				if (document.getElementById('uesh1').checked) ues_t |= 0b00001000;
+				if (document.getElementById('uesh2').checked) ues_t |= 0b00010000;
+				if (document.getElementById('uesh3').checked) ues_t |= 0b00100000;
+				if (document.getElementById('uesp').checked)  ues_t |= 0b01000000;
 
-        if (document.getElementById('uest1').checked) ues_t |= 0b00000001;
-        if (document.getElementById('uest2').checked) ues_t |= 0b00000010;
-        if (document.getElementById('uest3').checked) ues_t |= 0b00000100;
-        if (document.getElementById('uesh1').checked) ues_t |= 0b00001000;
-        if (document.getElementById('uesh2').checked) ues_t |= 0b00010000;
-        if (document.getElementById('uesh3').checked) ues_t |= 0b00100000;
-        if (document.getElementById('uesp').checked)  ues_t |= 0b01000000;
+				if (snr1_t == 2 || snr2_t == 2 || snr3_t == 2 || snrp_t == 2 || ues_t > 0) showHide('esaddr1',  true);
+				else showHide('esaddr1',  false);
 
-
-
-        if (snr1_t == 2 || snr2_t == 2 || snr3_t == 2 || snrp_t == 2 || ues_t > 0) showHide('esaddr1',  true);
-        else showHide('esaddr1',  false);
-
-        if (snr1_t == 3 || snr2_t == 3 || snr3_t == 3 || snrp_t == 3) showHide('esaddr2',  true);
-        else showHide('esaddr2',  false);
-
+				if (snr1_t == 3 || snr2_t == 3 || snr3_t == 3 || snrp_t == 3) showHide('esaddr2',  true);
+				else showHide('esaddr2',  false);
 
 /////////////////////////////////// For UDP
-        if (document.getElementById('udm').checked)  udm_t = 1;
-        if (udm_t == 1) showHide('udp',  true);
-        else showHide('udp',  false);
- 
+				if (document.getElementById('udm').checked)  udm_t = 1;
+				if (udm_t == 1) showHide('udp',  true);
+				else showHide('udp',  false);
 
 /////////////////////////////////// For NotUse
-        if (snr1_t > 0) 
-        {
-          showHide('cur_t1',  true);
-          showHide('cur_h1',  true);
-		      showHide('name_ch1',true);
-        }
-        else 
-        {
-          showHide('cur_t1',  false);
-          showHide('cur_h1',  false);
-		      showHide('name_ch1',false);
-        }
+				if (snr1_t > 0) 
+				{
+					showHide('cur_t1',  true);
+					showHide('cur_h1',  true);
+					showHide('name_ch1',true);
+				}
+				else 
+				{
+					showHide('cur_t1',  false);
+					showHide('cur_h1',  false);
+					showHide('name_ch1',false);
+				}
 
-        if (snr2_t > 0) 
-        {
-          showHide('cur_t2',  true);
-          showHide('cur_h2',  true);
-		      showHide('name_ch2',true);
-        }
-        else 
-        {
-          showHide('cur_t2',  false);
-          showHide('cur_h2',  false);
-		      showHide('name_ch2',false);
-        }
+				if (snr2_t > 0) 
+				{
+					showHide('cur_t2',  true);
+					showHide('cur_h2',  true);
+					showHide('name_ch2',true);
+				}
+				else 
+				{
+					showHide('cur_t2',  false);
+					showHide('cur_h2',  false);
+					showHide('name_ch2',false);
+				}
 
-        if (snr3_t > 0) 
-        {
-          showHide('cur_t3',  true);
-          showHide('cur_h3',  true);
-		      showHide('name_ch3',true);
-        }
-        else 
-        {
-          showHide('cur_t3',  false);
-          showHide('cur_h3',  false);
- 		      showHide('name_ch3',false);
-        }
+				if (snr3_t > 0) 
+				{
+					showHide('cur_t3',  true);
+					showHide('cur_h3',  true);
+					showHide('name_ch3',true);
+				}
+				else 
+				{
+					showHide('cur_t3',  false);
+					showHide('cur_h3',  false);
+					showHide('name_ch3',false);
+				}
 
-        if (snrp_t > 0) 
-        {
-          showHide('cur_p',  true);
-          showHide('cur_p',  true);
-        }
-        else 
-        {
-          showHide('cur_p',  false);
-          showHide('cur_p',  false);
-        }
-      }
+				if (snrp_t > 0) 
+				{
+					showHide('cur_p',  true);
+					showHide('cur_p',  true);
+				}
+				else 
+				{
+					showHide('cur_p',  false);
+					showHide('cur_p',  false);
+				}
+			}
 
-      function chk_pp()
-      {
-         usepp_t  = document.getElementById('usepp').value;
-         
-         if (usepp_t > 0 ) showHide('cityID',  true);
-         else showHide('cityID',  false);
+			function chk_pp()
+			{
+				usepp_t  = document.getElementById('usepp').value;
 
-         if (usepp_t == 2 ) showHide('owmk',  true);
-         else showHide('owmk',  false);
-      }
-      
-      process();
-      
-    </script>
-  </body>
+				if (usepp_t > 0 ) showHide('cityID',  true);
+				else showHide('cityID',  false);
+
+				if (usepp_t == 2 ) showHide('owmk',  true);
+				else showHide('owmk',  false);
+			}
+			  
+		</script>
+	</body>
 </html>
