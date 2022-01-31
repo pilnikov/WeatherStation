@@ -212,29 +212,12 @@ void firq5() // 0.5 sec main cycle
 #if defined(ESP8266)
   if (conf_data.type_disp == 50 && !digitalRead(conf_data.gpio_uar)) send_uart();
 #endif
-  if (ram_data.type_vdrv == 12)
-  {
-    if (conf_data.type_disp == 19)
-    {
-      if  (!nm_is_on & !end_run_st)
-      {
-        uint8_t x1 = 0;
-        if (conf_data.time_up) x1 = 1;
-        end_run_st = f_dsp.lcd_mov_str(16, cur_sym_pos[0], st1, st2);
-        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
-        else
-        {
-          lcd -> setCursor(0, x1);
-          lcd -> print(st2);
-        }
-      }
-    }
-  }
 }
-
 
 void firq6() // 0.180 sec Communications with server
 {
+  static bool divider;
+
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (web_cli || web_ap)
   {
@@ -278,7 +261,25 @@ void firq6() // 0.180 sec Communications with server
     ht1633->setBrightness(cur_br);
     ht1633->write();
   }
-
+  if (ram_data.type_vdrv == 12)
+  {
+    if (conf_data.type_disp == 19)
+    {
+      if  (!nm_is_on & !end_run_st & divider)
+      {
+        uint8_t x1 = 0;
+        if (conf_data.time_up) x1 = 1;
+        end_run_st = f_dsp.lcd_mov_str(16, cur_sym_pos[0], st1, st2);
+        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
+        else
+        {
+          lcd -> setCursor(0, x1);
+          lcd -> print(st2);
+        }
+      }
+    }
+  }
+  divider = !divider;
 }
 
 void firq7() // 0.060 sec

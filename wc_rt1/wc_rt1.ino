@@ -34,7 +34,6 @@ void setup()
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //--------------------------------------------------------  Запускаем WiFi
   myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
-
   if (web_cli || web_ap)
   {
     //------------------------------------------------------  Переопределяем консоль
@@ -267,7 +266,7 @@ void setup()
       DBG_OUT_PORT.flush();
 #if defined(ESP8266)
       ESP.deepSleep(conf_data.period * 60e6, RF_DISABLED); // deep-sleep. Засыпаем на period минут!
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3 
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
       ESP.deepSleep(conf_data.period * 60e6); // deep-sleep. Засыпаем на period минут!
 #endif
     }

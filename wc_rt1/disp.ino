@@ -269,20 +269,23 @@ void lcd_time(rtc_data_t rt)
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
-  bool _alarmed = rt.a_hour < 24 && rt.a_min < 59;
+/*  bool _alarmed = rt.a_hour < 24 && rt.a_min < 59;
 
   uint8_t _h = rt.hour % 100, _m = rt.min % 100, _s = rt.sec % 100, ah = rt.a_hour % 100, am = rt.a_min % 100;
-  char msg[20];
+  char msg[16];
   memset (msg, 0, 16);
-  sprintf_P(msg, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
+
+  sprintf_P(msg, PSTR(" %2d:%02d:%02d  -:-  "), _h, _m, _s);
   if (_alarmed)
   {
-    sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
-    if (conf_data.rus_lng) sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
+    sprintf_P(msg, PSTR(" %2d:%02d:%02d %2u:%02d"), _h, _m, _s, ah, am);
+    if (conf_data.rus_lng) sprintf_P(msg, PSTR(" %2d:%02d:%02d %2d:%02d\355"), _h, _m, _s, ah, am);
   }
+
   if (conf_data.time_up) lcd -> setCursor(0, 0);
   else lcd -> setCursor(0, 1);
   lcd -> print(msg);
+ */
 }
 
 

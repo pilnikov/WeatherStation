@@ -40,10 +40,10 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
 
       // Get the root object in the document
-      memset(_data.sta_ssid,   0, 17);
-      memset(_data.sta_pass,   0, 17);
-      memset(_data.ap_ssid,    0, 17);
-      memset(_data.ap_pass ,   0, 17);
+      memset(_data.sta_ssid,   0, 20);
+      memset(_data.sta_pass,   0, 20);
+      memset(_data.ap_ssid,    0, 20);
+      memset(_data.ap_pass ,   0, 20);
       memset(_data.owm_key,    0, 33);
       memset(_data.esrv1_addr, 0, 17);
       memset(_data.esrv2_addr, 0, 17);

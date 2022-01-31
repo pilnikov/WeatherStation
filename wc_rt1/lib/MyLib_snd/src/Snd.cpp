@@ -24,7 +24,7 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   uint8_t octave;
 
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-  ledcSetup(1, 4000, 16);
+  ledcSetup(1, 6000, 15);
   ledcAttachPin(out, 1);
 #endif
 
@@ -75,7 +75,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
     p = _ptr;
 
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-    ledcSetup(1, 4000, 16);
+    ledcSetup(1, 6000, 15);
     ledcAttachPin(out, 1);
 #endif
 

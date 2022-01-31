@@ -173,7 +173,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 5:
-          if (cf.news_en)
+          if (cf.news_en & web_cli)
           {
             String news_s = "News not support this platform";
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -275,7 +275,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 5:
-          if (cf.news_en)
+          if (cf.news_en & web_cli)
           {
             String news_s = "Новости недоступны для этой платформы";
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
