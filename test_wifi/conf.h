@@ -78,6 +78,7 @@ IPAddress myIP;
 NF nsys;
 WF wifi;
 
-wifi_data_t wifi_data;
+wifi_cfg_data_t wifi_data;
+wifi_cur_data_t wifi_data_cur;
 
 #endif /*conf_h*/

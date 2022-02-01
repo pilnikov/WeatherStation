@@ -22,10 +22,10 @@ void setup()
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
   //--------------------------------------------------------  Запускаем WiFi
-  wifi_data = wifi.begin(wifi_data);
-  myIP = wifi_data.cur_addr;
+  wifi_data_cur = wifi.begin(wifi_data);
+  myIP = wifi_data_cur.addr;
 
-  if (wifi_data.cli || wifi_data.ap)
+  if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
     //------------------------------------------------------  Запускаем сервер, ОТА, MDNS
     nsys.OTA_init(wifi_data.ap_ssid, wifi_data.ap_pass);
@@ -47,7 +47,7 @@ void setup()
 
 void loop()
 {
-  if (wifi_data.cli || wifi_data.ap)
+  if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
     server.handleClient();
     ArduinoOTA.handle();

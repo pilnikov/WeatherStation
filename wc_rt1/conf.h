@@ -288,7 +288,8 @@ wf_data_t wf_data;
 conf_data_t conf_data;
 ram_data_t ram_data;
 rtc_data_t rtc_data;
-wifi_data_t wifi_data;
+wifi_cfg_data_t wifi_data;
+wifi_cur_data_t wifi_data_cur;
 
 // ----------------------------------- Internal header files
 #include "disp.h"

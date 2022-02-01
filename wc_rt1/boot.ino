@@ -116,7 +116,7 @@ void firq0() // 1 hour
     //myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
   }
 
-  if (wifi_data.cli)
+  if (wifi_data_cur.cli)
   {
     if ((hour_cnt % 12 == 0) & conf_data.auto_corr) GetNtp();
 
@@ -219,7 +219,7 @@ void firq6() // 0.180 sec Communications with server
   static bool divider;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  if (wifi_data.cli || wifi_data.ap)
+  if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
     server.handleClient();
     if (debug_level == 2)

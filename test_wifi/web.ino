@@ -38,13 +38,13 @@ void web_setup()
 //-------------------------------------------------------------- Start_serv
 void start_serv()
 {
-  if (!wifi_data.cli & !wifi_data.ap)
+  if (!wifi_data_cur.cli & !wifi_data_cur.ap)
   {
-    wifi_data = wifi.begin(wifi_data);
-    myIP = wifi_data.cur_addr;
+    wifi_data_cur = wifi.begin(wifi_data);
+    myIP = wifi_data_cur.addr;
   }
 
-  if (wifi_data.cli || wifi_data.ap)
+  if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
     server.begin();
 
@@ -65,7 +65,7 @@ void stop_serv()
   DBG_OUT_PORT.println(F("OTA stopped...."));
   MDNS.end();
   DBG_OUT_PORT.println(F("MDNS stopped...."));
-  wifi.end(wifi_data);
+  wifi.end(wifi_data_cur);
 }
 
 
@@ -203,7 +203,6 @@ bool handleFileRead(String path)
 
 void handleFileUpload()
 {
-  File fsUploadFile;
   if (server.uri() != "/edit") return;
   HTTPUpload& upload = server.upload();
   if (upload.status == UPLOAD_FILE_START) {

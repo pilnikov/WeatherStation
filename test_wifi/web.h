@@ -5,6 +5,8 @@ void  stop_serv();
 
 void handlejWiFi();
 void handleSetWiFi();
+void handleSetIp1();
+void handleSetIp2();
 
 bool handleFileRead(String path);
 void handleFileUpload();
@@ -19,7 +21,9 @@ void printFile(const char*);
 void fs_setup();
 
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-void hard_restart(); 
+void hard_restart();
 # endif
 
 String formatBytes(uint32_t);
+
+File fsUploadFile;

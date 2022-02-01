@@ -32,9 +32,9 @@ void setup()
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //--------------------------------------------------------  Запускаем WiFi
-  wifi_data = wifi.begin(wifi_data);
-  myIP = wifi_data.cur_addr;
-  if (wifi_data.cli || wifi_data.ap)
+  wifi_data_cur = wifi.begin(wifi_data);
+  myIP = wifi_data_cur.addr;
+  if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
     //------------------------------------------------------  Переопределяем консоль
     if (conf_data.udp_mon)
@@ -202,22 +202,22 @@ void setup()
 
     //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    if (wifi_data.cli || wifi_data.ap)
+    if (wifi_data_cur.cli || wifi_data_cur.ap)
     {
       //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
-      if ((ram_data.type_rtc == 0) & wifi_data.cli & conf_data.auto_corr) GetNtp();
+      if ((ram_data.type_rtc == 0) & wifi_data_cur.cli & conf_data.auto_corr) GetNtp();
 
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
-      if ((conf_data.use_pp == 1) & wifi_data.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+      if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
 
       //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
-      if ((conf_data.use_pp == 2) & wifi_data.cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+      if ((conf_data.use_pp == 2) & wifi_data_cur.cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
 
       //------------------------------------------------------ Получаем новости от NewsApi
-      if (conf_data.news_en & wifi_data.cli)
+      if (conf_data.news_en & wifi_data_cur.cli)
       {
         newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
         newsClient.updateNews();
@@ -306,7 +306,7 @@ void loop()
   else //-------------------------------------------------- Minimal boot
   {
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    if (wifi_data.cli || wifi_data.ap)
+    if (wifi_data_cur.cli || wifi_data_cur.ap)
     {
       server.handleClient();
       ArduinoOTA.handle();
