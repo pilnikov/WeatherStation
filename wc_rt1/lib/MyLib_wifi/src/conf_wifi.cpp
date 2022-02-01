@@ -1,7 +1,9 @@
+#include "my_wifi.h"
 
-conf_data_t loadConfig(const char *filename)
+
+wifi_data_t WF::loadConfig(const char *filename)
 {
-  conf_data_t _data;
+  wifi_data_t _data;
 
   File file = LittleFS.open(filename, "r");
 
@@ -11,27 +13,28 @@ conf_data_t loadConfig(const char *filename)
     DBG_OUT_PORT.print(filename);
     DBG_OUT_PORT.println(F(", using default configuration"));
     _data = defaultConfig();
-    saveConfig(conf_f, _data);
+    saveConfig(filename, _data);
   }
   else
   {
     // Allocate the document on the stack.
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/assistant to compute the capacity.
-    DynamicJsonDocument doc(3100);
+    DynamicJsonDocument doc(1000);
 
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, file);
     if (error)
     {
-      DBG_OUT_PORT.print(F("deserializeJson() for configFile failed: "));
+      DBG_OUT_PORT.print(F("deserializeJson() for"));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.print(F("failed: "));
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F("Using default configuration"));
       _data = defaultConfig();
-      saveConfig(conf_f, _data);
+      saveConfig(filename, _data);
       return _data;
     }
-
     file.close();
 
     if (!error)
@@ -101,20 +104,21 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.print(F("deserializeJson() failed: "));
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
+
       _data = defaultConfig();
-      saveConfig(conf_f, _data);
+      saveConfig(filename, _data);
     }
   }
   return _data;
 }
 
-void saveConfig(const char *filename, conf_data_t _data)
+void WF::saveConfig(const char * filename, wifi_data_t _data)
 {
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving wifi_data to config.json"));
 
   if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
 
-  DynamicJsonDocument doc(3000);
+  DynamicJsonDocument doc(1000);
   JsonObject json = doc.to<JsonObject>();
 
   json["apid"]    = _data.ap_ssid;
@@ -134,7 +138,7 @@ void saveConfig(const char *filename, conf_data_t _data)
   {
     json["ipst1"]   = _data.sta_ip1;
     json["mast1"]   = _data.sta_ma1;
-    json["gwst1"]   = _data.sta_ma1;
+    json["gwst1"]   = _data.sta_gw1;
     json["dns1st1"] = _data.sta_dns11;
     json["dns2st1"] = _data.sta_dns21;
   }
@@ -142,12 +146,11 @@ void saveConfig(const char *filename, conf_data_t _data)
   {
     json["ipst2"]   = _data.sta_ip2;
     json["mast2"]   = _data.sta_ma2;
-    json["gwst2"]   = _data.sta_ma2;
+    json["gwst2"]   = _data.sta_gw2;
     json["dns1st2"] = _data.sta_dns12;
     json["dns2st2"] = _data.sta_dns22;
   }
   json["wof"]       = _data.wifi_off;
-
 
   // Delete existing file, otherwise the configuration is appended to the file
   LittleFS.remove(filename);
@@ -162,13 +165,13 @@ void saveConfig(const char *filename, conf_data_t _data)
   configFile.close();
 }
 
-conf_data_t defaultConfig()
+wifi_data_t WF::defaultConfig()
 {
-  conf_data_t _data;
+  wifi_data_t _data;
 
   // ---------------------------------------------------- WiFi Default
 
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital wifi_data with config.json"));
 
   memset(_data.ap_ssid,   0, 20);
   memset(_data.ap_pass,   0, 20);

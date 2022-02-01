@@ -110,13 +110,13 @@ void firq0() // 1 hour
   if (hour_cnt > 23) hour_cnt = 0;
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
-  if (!conf_data.wifi_off)
+  if (!wifi_data.wifi_off)
   {
     //stop_wifi();
     //myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
   }
 
-  if (web_cli)
+  if (wifi_data.cli)
   {
     if ((hour_cnt % 12 == 0) & conf_data.auto_corr) GetNtp();
 
@@ -219,7 +219,7 @@ void firq6() // 0.180 sec Communications with server
   static bool divider;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  if (web_cli || web_ap)
+  if (wifi_data.cli || wifi_data.ap)
   {
     server.handleClient();
     if (debug_level == 2)
@@ -228,7 +228,7 @@ void firq6() // 0.180 sec Communications with server
       DBG_OUT_PORT.printf("Serv sec %u\n", a);
     }
     ArduinoOTA.handle();
-    if (((millis() - serv_ms) > 300000L) & conf_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
+    if (((millis() - serv_ms) > 300000L) & wifi_data.wifi_off) stop_serv(); // Истек таймер неактивности - останавливаем вебморду
   }
 # endif
 

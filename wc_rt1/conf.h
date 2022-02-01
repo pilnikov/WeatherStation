@@ -185,43 +185,24 @@
 #endif
 
 #if defined(ESP8266)
-#include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266SSDP.h>
-//#include <ESPAsyncTCP.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
-
-//#include "..\lib\MyLib_hw\src\hw.h"
-//#include "..\lib\MyLib_nf\src\Netwf.h"
-
 #include <hw.h>
 
-#include <include/WiFiState.h> // WiFiState structure details
-
-WiFiState state;
-#ifndef RTC_USER_DATA_SLOT_WIFI_STATE
-#define RTC_USER_DATA_SLOT_WIFI_STATE 33u
-#endif
-
-#endif
-
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-#include <WiFi.h>
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 #include <ESPmDNS.h>
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include <WebServer.h>
 #include <HTTPUpdateServer.h>
 #include <ESP32SSDP.h>
-//#include <IRremote.h>
 
 #include <esp_int_wdt.h>
 #include <esp_task_wdt.h>
-
-//#include "..\lib\MyLib_nf\src\Netwf.h"
 #endif
 
 
@@ -232,6 +213,7 @@ WiFiState state;
 #include <Wire.h>
 #include <SPI.h>
 
+#include <my_wifi.h>
 #include <Netwf.h>
 #include <FS.h>
 #include <WiFiUdp.h>
@@ -259,16 +241,21 @@ WiFiState state;
 #include <ntp.h>
 #include <Exts.h>
 
-#define DBG_OUT_PORT Serial
-
 // ------------------------------------------------------ ConsoleUDP
 #include <udp_cons.h>
 udp_cons print_console_udp;
 #endif
 
+
+#ifndef DBG_OUT_PORT
+#define DBG_OUT_PORT Serial
+#endif
+
+#ifndef debug_level
+#define debug_level 0
+#endif
+
 // ------------------------------------------------------ GPIO
-
-
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
 
 /*
@@ -295,13 +282,13 @@ udp_cons print_console_udp;
 #endif
 
 // ----------------------------------- Typedef
-
 snr_data_t snr_data;
 wf_data_t wf_data_cur;
 wf_data_t wf_data;
 conf_data_t conf_data;
 ram_data_t ram_data;
 rtc_data_t rtc_data;
+wifi_data_t wifi_data;
 
 // ----------------------------------- Internal header files
 #include "disp.h"
@@ -318,17 +305,6 @@ conf_data_t loadConfig(const char*);
 void saveConfig(const char*, conf_data_t);
 conf_data_t defaultConfig();
 
-
-bool sta_init();
-bool sta_check();
-bool start_client();
-void stop_client();
-
-bool ap_init();
-
-IPAddress start_wifi(const char*, const char*, const char*, const char*);
-void stop_wifi();
-
 void GetNtp();
 void cur_time_str(rtc_data_t, char);
 snr_data_t GetSnr(ram_data_t, conf_data_t);
@@ -340,7 +316,6 @@ String remove_sb(String);
 String tvoday(String);
 void Thermo(snr_data_t, conf_data_t);
 
-void wifi_conn(byte, byte, byte);
 String gs_rcv (unsigned long);
 String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
@@ -357,8 +332,6 @@ void ISR_ATTR isr2();
 void ARDUINO_ISR_ATTR isr1();
 #endif
 
-
-
 // ----------------------------------- NTP
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 static NTPTime NTP_t;
@@ -368,9 +341,7 @@ static NTPTime NTP_t;
 #if defined(ESP8266)
 static ESP8266WebServer server(80);
 static ESP8266HTTPUpdateServer httpUpdater;
-#endif
-
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 static WebServer server(80);
 HTTPUpdateServer httpUpdater;
 #endif
@@ -395,9 +366,6 @@ int                boot_mode = 1;
 
 bool               play_snd  = false;
 
-bool                web_ap   = false;
-bool                web_cli  = false;
-
 bool                disp_on  = true;
 bool               nm_is_on  = false;
 
@@ -406,8 +374,6 @@ unsigned long   serv_ms = 60000;
 uint8_t            hour_cnt  = 0;
 uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
-
-uint8_t         debug_level  = 0; // 0 - отключен
 
 static unsigned long setting_ms = millis();
 static bool tmr_started = false, btn_released = false;
@@ -420,10 +386,11 @@ Synt Buzz;               //Конструктор пищалки
 
 IPAddress myIP;
 
-File fsUploadFile;
-
 ES e_srv;
 NF nsys;
+WF wifi;
+// ---------------------------------------------------- News Client
+NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
 #endif
 
 SF fsys;
@@ -431,11 +398,6 @@ SNR sens;
 FD f_dsp;
 HT h_dsp;
 MSG dmsg;
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-// ---------------------------------------------------- News Client
-NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
-#endif
 
 // ---------------------------------------------------- Variant of config
 #define _dacha

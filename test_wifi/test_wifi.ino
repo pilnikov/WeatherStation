@@ -14,24 +14,25 @@ void setup()
 
   //------------------------------------------------------  Читаем установки из EEPROM
 
-  conf_data = loadConfig(conf_f);
+  wifi_data = wifi.loadConfig(conf_f);
 
-  //conf_data = defaultConfig();
-  //saveConfig(conf_f, conf_data);
+  //wifi_data = defaultConfig();
+  //wifi.saveConfig(conf_f, wifi_data);
   DBG_OUT_PORT.println(F("config loaded"));
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
   //--------------------------------------------------------  Запускаем WiFi
-  myIP = start_wifi(conf_data.sta_ssid1, conf_data.sta_pass1, conf_data.ap_ssid, conf_data.ap_pass);
+  wifi_data = wifi.begin(wifi_data);
+  myIP = wifi_data.cur_addr;
 
-  if (conf_data.cli || conf_data.ap)
+  if (wifi_data.cli || wifi_data.ap)
   {
     //------------------------------------------------------  Запускаем сервер, ОТА, MDNS
-    nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
+    nsys.OTA_init(wifi_data.ap_ssid, wifi_data.ap_pass);
 
-    MDNS.begin(conf_data.ap_ssid);
+    MDNS.begin(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F("Open http://"));
-    DBG_OUT_PORT.print(conf_data.ap_ssid);
+    DBG_OUT_PORT.print(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
 
     web_setup();
@@ -41,12 +42,12 @@ void setup()
     nsys.ssdp_init();
 
   }
-  DBG_OUT_PORT.println(F("Safe mode!!! End of setup"));
+  DBG_OUT_PORT.println(F("End of setup"));
 }
 
 void loop()
 {
-  if (conf_data.cli || conf_data.ap)
+  if (wifi_data.cli || wifi_data.ap)
   {
     server.handleClient();
     ArduinoOTA.handle();

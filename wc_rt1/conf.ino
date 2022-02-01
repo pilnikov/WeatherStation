@@ -12,7 +12,7 @@ conf_data_t loadConfig(const char *filename)
     DBG_OUT_PORT.print(filename);
     DBG_OUT_PORT.println(F(", using default configuration"));
     _data = defaultConfig();
-    saveConfig(conf_f, _data);
+    saveConfig(filename, _data);
   }
   else
   {
@@ -29,7 +29,7 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F("Using default configuration"));
       _data = defaultConfig();
-      saveConfig(conf_f, _data);
+      saveConfig(filename, _data);
       return _data;
     }
 
@@ -40,10 +40,6 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
 
       // Get the root object in the document
-      memset(_data.sta_ssid,   0, 20);
-      memset(_data.sta_pass,   0, 20);
-      memset(_data.ap_ssid,    0, 20);
-      memset(_data.ap_pass ,   0, 20);
       memset(_data.owm_key,    0, 33);
       memset(_data.esrv1_addr, 0, 17);
       memset(_data.esrv2_addr, 0, 17);
@@ -56,17 +52,6 @@ conf_data_t loadConfig(const char *filename)
       memset(_data.AKey_w,     0, 17);
       memset(_data.news_api_key, 0, 33);
       memset(_data.news_source,   0, 17);
-
-      //---Wifi.html----------------------------------------
-      //---AP-----------------------------------------------
-      strcpy(_data.ap_ssid,    doc["ap_ssid"]);
-      strcpy(_data.ap_pass,    doc["ap_pass"]);
-
-      //---STA----------------------------------------------
-      strcpy(_data.sta_ssid,   doc["sta_ssid"]);
-      strcpy(_data.sta_pass,   doc["sta_pass"]);
-
-      _data.wifi_off          = doc["wifi_off"];
 
       //---Clock.html----------------------------------------
       //---Options for clock---------------------------------
@@ -179,7 +164,7 @@ conf_data_t loadConfig(const char *filename)
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
       _data = defaultConfig();
-      saveConfig(conf_f, _data);
+      saveConfig(filename, _data);
     }
   }
   return _data;
@@ -195,21 +180,9 @@ void saveConfig(const char *filename, conf_data_t _data)
   if ( _data.type_snr2    < 0  || _data.type_snr2  >  13) _data.type_snr2  = 0;
   if ( _data.type_snr3    < 0  || _data.type_snr3  >  13) _data.type_snr3  = 0;
   if ( _data.type_snrp    < 0  || _data.type_snrp  >  12) _data.type_snrp  = 0;
-  if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
-
-  //---Wifi.html----------------------------------------
-  //---AP-----------------------------------------------
-  json["ap_ssid"]             = _data.ap_ssid;
-  json["ap_pass"]             = _data.ap_pass;
-
-  //---STA----------------------------------------------
-  json["sta_ssid"]            = _data.sta_ssid;
-  json["sta_pass"]            = _data.sta_pass;
-
-  json["wifi_off"]            = _data.wifi_off;
 
   //---Clock.html----------------------------------------
   //---Options for clock---------------------------------
@@ -359,10 +332,6 @@ conf_data_t defaultConfig()
 
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
 
-  strcpy(_data.sta_ssid,  "MyWiFi");
-  strcpy(_data.sta_pass,  "12345678");
-  strcpy(_data.ap_ssid,   "Radio_Clock");
-  strcpy(_data.ap_pass ,  "12345678");
   memset(_data.AKey_r,    0, 17);
   memset(_data.AKey_w,    0, 17);
   strcpy(_data.esrv1_addr, "192.168.1.100");
@@ -384,7 +353,6 @@ conf_data_t defaultConfig()
   _data.led_pola         = false;
   _data.rus_lng          = false;
   _data.time_up          = false;
-  _data.wifi_off         = false;
   _data.udp_mon          = false;
   _data.esm              = false;
   _data.auto_br          = false;

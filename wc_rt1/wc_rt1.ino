@@ -14,7 +14,6 @@ void setup()
 #endif
 
   //------------------------------------------------------  Инициализируем встроенную файловую систему LittleFS
-
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   fs_setup();
   DBG_OUT_PORT.println(F("file system started"));
@@ -23,18 +22,19 @@ void setup()
   //------------------------------------------------------  Загружаем конфигурацию
 
   //------------------------------------------------------  Читаем установки из EEPROM
+  conf_f = "/conf_wifi.json";
+  wifi_data = wifi.loadConfig(conf_f);
 
-  conf_data = loadConfig(conf_f);
-
-  //conf_data = defaultConfig();
-  //saveConfig(conf_f, conf_data);
-  DBG_OUT_PORT.println(F("config loaded"));
+  //wifi_data = defaultConfig();
+  //wifi.saveConfig(conf_f, wifi_data);
+  DBG_OUT_PORT.println(F("WiFi config loaded"));
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //--------------------------------------------------------  Запускаем WiFi
-  myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
-  if (web_cli || web_ap)
+  wifi_data = wifi.begin(wifi_data);
+  myIP = wifi_data.cur_addr;
+  if (wifi_data.cli || wifi_data.ap)
   {
     //------------------------------------------------------  Переопределяем консоль
     if (conf_data.udp_mon)
@@ -48,11 +48,11 @@ void setup()
     }
 
     //------------------------------------------------------  Запускаем сервер, ОТА, MDNS
-    nsys.OTA_init(conf_data.ap_ssid, conf_data.ap_pass);
+    nsys.OTA_init(wifi_data.ap_ssid, wifi_data.ap_pass);
 
-    MDNS.begin(conf_data.ap_ssid);
+    MDNS.begin(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F("Open http://"));
-    DBG_OUT_PORT.print(conf_data.ap_ssid);
+    DBG_OUT_PORT.print(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
 
     web_setup();
@@ -60,6 +60,14 @@ void setup()
   }
   strcpy(tstr, "Safe Mode");
 #endif
+
+
+  conf_f = "/config.json";
+  conf_data = loadConfig(conf_f);
+
+  //conf_data = defaultConfig();
+  //saveConfig(conf_f, conf_data);
+  DBG_OUT_PORT.println(F("config loaded"));
 
   //------------------------------------------------------  Инициализируем кнопку
   pinMode(conf_data.gpio_btn, INPUT_PULLUP);
@@ -194,22 +202,22 @@ void setup()
 
     //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    if (web_cli || web_ap)
+    if (wifi_data.cli || wifi_data.ap)
     {
       //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
-      if ((ram_data.type_rtc == 0) & web_cli & conf_data.auto_corr) GetNtp();
+      if ((ram_data.type_rtc == 0) & wifi_data.cli & conf_data.auto_corr) GetNtp();
 
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
-      if ((conf_data.use_pp == 1) & web_cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+      if ((conf_data.use_pp == 1) & wifi_data.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
 
       //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
-      if ((conf_data.use_pp == 2) & web_cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+      if ((conf_data.use_pp == 2) & wifi_data.cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
 
       //------------------------------------------------------ Получаем новости от NewsApi
-      if (conf_data.news_en & web_cli)
+      if (conf_data.news_en & wifi_data.cli)
       {
         newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
         newsClient.updateNews();
@@ -260,8 +268,7 @@ void setup()
     if (conf_data.esm)
     {
 #if defined(ESP8266)
-      WiFi.shutdown(state);
-      ESP.rtcUserMemoryWrite(RTC_USER_DATA_SLOT_WIFI_STATE, reinterpret_cast<uint32_t *>(&state), sizeof(state));
+      wifi._shutdown();
 #endif
       DBG_OUT_PORT.flush();
 #if defined(ESP8266)
@@ -299,7 +306,7 @@ void loop()
   else //-------------------------------------------------- Minimal boot
   {
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    if (web_cli || web_ap)
+    if (wifi_data.cli || wifi_data.ap)
     {
       server.handleClient();
       ArduinoOTA.handle();

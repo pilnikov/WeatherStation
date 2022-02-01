@@ -88,8 +88,6 @@ void m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp)
   m7219 -> write();
 }
 
-
-
 void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 {
   f_dsp.compressor7(in, x1, x2);
@@ -146,7 +144,6 @@ void a595_init()
       naddr_pin = 5;
       text_size = 4;
     }
-
 
     m3216 = new Adafruit_Protomatter(
       wide,        // Matrix width in pixels
@@ -269,25 +266,25 @@ void lcd_time(rtc_data_t rt)
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
-/*  bool _alarmed = rt.a_hour < 24 && rt.a_min < 59;
+  uint16_t ala_t = (int) rt.a_hour * 60 + rt.a_min;
+  uint16_t cur_t = (int) rt.hour * 60 + rt.min;
+  uint8_t ala_h = trunc((ala_t - cur_t) / 60);
+  ala_h = ala_h % 100;
+  bool _alarmed = ((ala_t > cur_t) & (ala_h < 24));
 
-  uint8_t _h = rt.hour % 100, _m = rt.min % 100, _s = rt.sec % 100, ah = rt.a_hour % 100, am = rt.a_min % 100;
-  char msg[16];
-  memset (msg, 0, 16);
+  char buf[32];
+  memset (buf, 0, 32);
 
-  sprintf_P(msg, PSTR(" %2d:%02d:%02d  -:-  "), _h, _m, _s);
   if (_alarmed)
   {
-    sprintf_P(msg, PSTR(" %2d:%02d:%02d %2u:%02d"), _h, _m, _s, ah, am);
-    if (conf_data.rus_lng) sprintf_P(msg, PSTR(" %2d:%02d:%02d %2d:%02d\355"), _h, _m, _s, ah, am);
+    if (conf_data.rus_lng) sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d\355"), rt.hour, rt.min, rt.sec, rt.a_hour, rt.a_min);
+    else sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d"), rt.hour, rt.min, rt.sec, rt.a_hour, rt.a_min);
   }
-
+  else  sprintf_P(buf, PSTR("%3d:%02d:%02d --:-- "), rt.hour, rt.min, rt.sec);
   if (conf_data.time_up) lcd -> setCursor(0, 0);
   else lcd -> setCursor(0, 1);
-  lcd -> print(msg);
- */
+  lcd -> print(buf);
 }
-
 
 ///////////////////////////////////////////////////7seg////////////////////////////////////////////////////////////
 void tm1637_init()

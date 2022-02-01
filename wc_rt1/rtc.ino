@@ -365,7 +365,7 @@ bool Alarmed()
     if (conf_data.alarms[rtc_data.n_cur_alm][0] == 4)
     {
       conf_data.alarms[rtc_data.n_cur_alm][0] = 0; //Сбрасываем одноразовый будильник если это был он
-
+      conf_f = "/config.json";
       saveConfig(conf_f, conf_data);
     }
   }

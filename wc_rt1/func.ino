@@ -23,7 +23,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  if (web_cli)
+  if (wifi_data.cli)
   {
     if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1)
     {
@@ -46,7 +46,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  if (web_cli)
+  if (wifi_data.cli)
   {
     if (cf.use_ts > 0)
     {
@@ -71,7 +71,7 @@ String gs_rcv(unsigned long city_id)
 {
   if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from GisMeteo"));
   String out = "No connect to network";
-  if (web_cli)
+  if (wifi_data.cli)
   {
     String addr = "http://informer.gismeteo.ru/xml/";
     addr += String(city_id);
@@ -284,7 +284,7 @@ String es_rcv(char es_addr[17])
 {
   if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from ext server"));
   String out = "No ext srv";
-  if (web_cli)
+  if (wifi_data.cli)
   {
     String addr = "http://";
     addr += String(es_addr);
@@ -303,7 +303,7 @@ void put_to_es(char es_addr[17], uint8_t use_es, snr_data_t sd)
   // debug_level = 10;
   DBG_OUT_PORT.print(F("\nTrue put data to ext server -> "));
 
-  if (web_cli)
+  if (wifi_data.cli)
   {
     String postStr = "http://";
     postStr += String(es_addr);
@@ -383,7 +383,7 @@ String ts_rcv(unsigned long id, char api[17])
 {
   if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from TS"));
   String out = "No connect to network";
-  if (web_cli)
+  if (wifi_data.cli)
   {
     String addr = "http://api.thingspeak.com/channels/";
     addr += String(id);
@@ -402,7 +402,7 @@ String ts_snd(String inStr)
 {
   if (debug_level == 10) DBG_OUT_PORT.println(F("True put data to TS"));
   String out = "No connect to network";
-  if (web_cli)
+  if (wifi_data.cli)
   {
     WiFiClient client;
 
@@ -435,7 +435,7 @@ String radio_snd(String cmd)
 {
   if (debug_level == 10) DBG_OUT_PORT.println(F("True put data to Radio"));
   String out = "No connect with Radio";
-  if (web_cli)
+  if (wifi_data.cli)
   {
     WiFiClient client;
     const int port = 23;
@@ -466,7 +466,7 @@ void GetNtp()
   RtcDateTime c_time  = RtcDateTime(rtc_data.ct);
 
   DBG_OUT_PORT.println(F("True sync time with NTP"));
-  if (web_cli)
+  if (wifi_data.cli)
   {
     dmsg.callback(conf_data.type_disp, 0, 0, conf_data.rus_lng);; //сообщение на индикатор
 
@@ -541,7 +541,7 @@ void keyb_read()
   }
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  bool serv_act = (web_cli || web_ap);
+  bool serv_act = (wifi_data.cli || wifi_data.ap);
   if (btn_released & (millis() - setting_ms > 2000 && millis() - setting_ms < 9000)) // держим от 2 до 9 сек
   {
     if (!serv_act)
@@ -577,6 +577,7 @@ void keyb_read()
   {
     if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot...")); //Cбрасываем усе на дефолт и перезагружаемся
     conf_data = defaultConfig();
+    conf_f = "/config.json";
     saveConfig(conf_f, conf_data);
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3

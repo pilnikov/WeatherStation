@@ -38,9 +38,13 @@ void web_setup()
 //-------------------------------------------------------------- Start_serv
 void start_serv()
 {
-  if (!conf_data.cli & !conf_data.ap) myIP = start_wifi(conf_data.sta_ssid1, conf_data.sta_pass1, conf_data.ap_ssid, conf_data.ap_pass);
+  if (!wifi_data.cli & !wifi_data.ap)
+  {
+    wifi_data = wifi.begin(wifi_data);
+    myIP = wifi_data.cur_addr;
+  }
 
-  if (conf_data.cli || conf_data.ap)
+  if (wifi_data.cli || wifi_data.ap)
   {
     server.begin();
 
@@ -61,7 +65,7 @@ void stop_serv()
   DBG_OUT_PORT.println(F("OTA stopped...."));
   MDNS.end();
   DBG_OUT_PORT.println(F("MDNS stopped...."));
-  stop_wifi();
+  wifi.end(wifi_data);
 }
 
 
@@ -71,36 +75,36 @@ void handlejWiFi()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["apid"]    = conf_data.ap_ssid;
-  json["appas"]   = conf_data.ap_pass;
-  json["staid1"]  = conf_data.sta_ssid1;
-  json["staid2"]  = conf_data.sta_ssid2;
-  json["stapas1"] = conf_data.sta_pass1;
-  json["stapas2"] = conf_data.sta_pass2;
+  json["apid"]    = wifi_data.ap_ssid;
+  json["appas"]   = wifi_data.ap_pass;
+  json["staid1"]  = wifi_data.sta_ssid1;
+  json["staid2"]  = wifi_data.sta_ssid2;
+  json["stapas1"] = wifi_data.sta_pass1;
+  json["stapas2"] = wifi_data.sta_pass2;
 
-  json["iap"]   = conf_data.ap_ip;
-  json["map"]   = conf_data.ap_ma;
+  json["iap"]   = wifi_data.ap_ip;
+  json["map"]   = wifi_data.ap_ma;
 
-  json["sst1"]    = conf_data.st_ip1;
-  json["sst2"]    = conf_data.st_ip2;
+  json["sst1"]    = wifi_data.st_ip1;
+  json["sst2"]    = wifi_data.st_ip2;
 
-  if (conf_data.st_ip1)
+  if (wifi_data.st_ip1)
   {
-    json["ipst1"]   = conf_data.sta_ip1;
-    json["mast1"]   = conf_data.sta_ma1;
-    json["gwst1"]   = conf_data.sta_ma1;
-    json["dns1st1"] = conf_data.sta_dns11;
-    json["dns2st1"] = conf_data.sta_dns21;
+    json["ipst1"]   = wifi_data.sta_ip1;
+    json["mast1"]   = wifi_data.sta_ma1;
+    json["gwst1"]   = wifi_data.sta_gw1;
+    json["dns1st1"] = wifi_data.sta_dns11;
+    json["dns2st1"] = wifi_data.sta_dns21;
   }
-  if (conf_data.st_ip1)
+  if (wifi_data.st_ip1)
   {
-    json["ipst2"]   = conf_data.sta_ip2;
-    json["mast2"]   = conf_data.sta_ma2;
-    json["gwst2"]   = conf_data.sta_ma2;
-    json["dns1st2"] = conf_data.sta_dns12;
-    json["dns2st2"] = conf_data.sta_dns22;
+    json["ipst2"]   = wifi_data.sta_ip2;
+    json["mast2"]   = wifi_data.sta_ma2;
+    json["gwst2"]   = wifi_data.sta_gw2;
+    json["dns1st2"] = wifi_data.sta_dns12;
+    json["dns2st2"] = wifi_data.sta_dns22;
   }
-  json["wof"]    = conf_data.wifi_off;
+  json["wof"]    = wifi_data.wifi_off;
 
 
   String st = String();
@@ -115,22 +119,23 @@ void handleSetWiFi()
 {
   //url='/set_wifi?as='+as+'&ap='+ap+'&ss1='+ss1+'&sp1='+sp1+'&ss2='+ss2+'&sp2='+sp2+'&st1='+st1+'&st2='+st2+'&iap='+iap+'&map='+map+'&wof='+wof_t;
 
-  strcpy(conf_data.ap_ssid, server.arg("as").c_str());
-  strcpy(conf_data.ap_pass, server.arg("ap").c_str());
-  strcpy(conf_data.sta_ssid1, server.arg("ss1").c_str());
-  strcpy(conf_data.sta_pass1, server.arg("sp1").c_str());
-  strcpy(conf_data.sta_ssid2, server.arg("ss2").c_str());
-  strcpy(conf_data.sta_pass2, server.arg("sp2").c_str());
+  strcpy(wifi_data.ap_ssid, server.arg("as").c_str());
+  strcpy(wifi_data.ap_pass, server.arg("ap").c_str());
+  strcpy(wifi_data.sta_ssid1, server.arg("ss1").c_str());
+  strcpy(wifi_data.sta_pass1, server.arg("sp1").c_str());
+  strcpy(wifi_data.sta_ssid2, server.arg("ss2").c_str());
+  strcpy(wifi_data.sta_pass2, server.arg("sp2").c_str());
 
-  conf_data.st_ip1 = server.arg("st1") == "1";
-  conf_data.st_ip2 = server.arg("st2") == "1";
+  wifi_data.st_ip1 = server.arg("st1") == "1";
+  wifi_data.st_ip2 = server.arg("st2") == "1";
 
-  strcpy(conf_data.ap_ip, server.arg("iap").c_str());
-  strcpy(conf_data.ap_ma, server.arg("map").c_str());
+  strcpy(wifi_data.ap_ip, server.arg("iap").c_str());
+  strcpy(wifi_data.ap_ma, server.arg("map").c_str());
 
-  conf_data.wifi_off = server.arg("wof") == "1";
+  wifi_data.wifi_off = server.arg("wof") == "1";
 
-  saveConfig(conf_f, conf_data);
+  wifi.saveConfig(conf_f, wifi_data);
+
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -140,13 +145,14 @@ void handleSetIp1()
 {
   //url='/set_ip1?ip='+ip1+'&ma='+ma1+'&gw='+gw1+'&d1='+d11+'&d2='+d21;
 
-  strcpy(conf_data.sta_ip1, server.arg("ip").c_str());
-  strcpy(conf_data.sta_ma1, server.arg("ma").c_str());
-  strcpy(conf_data.sta_gw1, server.arg("gw").c_str());
-  strcpy(conf_data.sta_dns11, server.arg("d1").c_str());
-  strcpy(conf_data.sta_dns21, server.arg("d2").c_str());
+  strcpy(wifi_data.sta_ip1, server.arg("ip").c_str());
+  strcpy(wifi_data.sta_ma1, server.arg("ma").c_str());
+  strcpy(wifi_data.sta_gw1, server.arg("gw").c_str());
+  strcpy(wifi_data.sta_dns11, server.arg("d1").c_str());
+  strcpy(wifi_data.sta_dns21, server.arg("d2").c_str());
 
-  saveConfig(conf_f, conf_data);
+  wifi.saveConfig(conf_f, wifi_data);
+
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -156,13 +162,14 @@ void handleSetIp2()
 {
   //rl='/set_ip2?ip='+ip2+'&ma='+ma2+'&gw='+gw2+'&d1='+d12+'&d2='+d22;
 
-  strcpy(conf_data.sta_ip2, server.arg("ip").c_str());
-  strcpy(conf_data.sta_ma2, server.arg("ma").c_str());
-  strcpy(conf_data.sta_gw2, server.arg("gw").c_str());
-  strcpy(conf_data.sta_dns12, server.arg("d1").c_str());
-  strcpy(conf_data.sta_dns22, server.arg("d2").c_str());
+  strcpy(wifi_data.sta_ip2, server.arg("ip").c_str());
+  strcpy(wifi_data.sta_ma2, server.arg("ma").c_str());
+  strcpy(wifi_data.sta_gw2, server.arg("gw").c_str());
+  strcpy(wifi_data.sta_dns12, server.arg("d1").c_str());
+  strcpy(wifi_data.sta_dns22, server.arg("d2").c_str());
 
-  saveConfig(conf_f, conf_data);
+  wifi.saveConfig(conf_f, wifi_data);
+
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -196,6 +203,7 @@ bool handleFileRead(String path)
 
 void handleFileUpload()
 {
+  File fsUploadFile;
   if (server.uri() != "/edit") return;
   HTTPUpload& upload = server.upload();
   if (upload.status == UPLOAD_FILE_START) {

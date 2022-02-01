@@ -200,31 +200,31 @@
             var st = document.getElementById('sst1').checked;
 						if (st)
 						{
-							document.getElementById('ipst1').value = res.staip1;
-							document.getElementById('mast1').value = res.stama1;
-							document.getElementById('gwst1').value = res.stama1;
-							document.getElementById('dns1st1').value = res.sta1dns1;
-							document.getElementById('dns2st1').value = res.sta1dns2;
+							document.getElementById('ipst1').value = res.ipst1;
+							document.getElementById('mast1').value = res.mast1;
+							document.getElementById('gwst1').value = res.gwst1;
+							document.getElementById('dns1st1').value = res.dns1st1;
+							document.getElementById('dns2st1').value = res.dns2st1;
 						}
             st = document.getElementById('sst2').checked;
 						if (st)
 						{
-							document.getElementById('ipst2').value = res.staip2;
-							document.getElementById('mast2').value = res.stama2;
-							document.getElementById('gwst2').value = res.stama2;
-							document.getElementById('dns1st2').value = res.sta2dns1;
-							document.getElementById('dns2st2').value = res.sta2dns2;
+							document.getElementById('ipst2').value = res.ipst2;
+							document.getElementById('mast2').value = res.mast2;
+							document.getElementById('gwst2').value = res.gwst2;
+							document.getElementById('dns1st2').value = res.dns1st2;
+							document.getElementById('dns2st2').value = res.dns2st2;
 						}
+						st_ip();
 						document.getElementById('wof').checked  = res.wof;
 					}
 				}
 				xh.send(null);
-				st_ip();
 			}
 			
 			function st_ip()
 			{
-        var st = document.getElementById('sst1').checked;
+				var st = document.getElementById('sst1').checked;
 				
 				showHide('ipst1',   st);
 				showHide('mast1',   st);
@@ -232,7 +232,7 @@
 				showHide('dns1st1', st);
 				showHide('dns2st1', st);
 
-        st = document.getElementById('sst2').checked;
+				st = document.getElementById('sst2').checked;
 
 				showHide('ipst2',   st);
 				showHide('mast2',   st);

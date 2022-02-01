@@ -10,6 +10,9 @@ void handlejTime();
 void handleSetTime();
 void handlejWiFi();
 void handleSetWiFi();
+void handleSetIp1();
+void handleSetIp2();
+
 void handlejPard();
 void handlejPars();
 void handlejParc();
@@ -19,7 +22,6 @@ void handleSetAlarm();
 void handlejUart();
 void handlejTrm();
 void handleSetPartrm();
-
 
 void handlejActA();
 void handlejActB();
@@ -32,4 +34,5 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 
+File fsUploadFile; //Should be placed here as global
 # endif

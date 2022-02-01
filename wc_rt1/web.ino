@@ -5,6 +5,8 @@ void web_setup()
   server.on("/ntp", handleNTP);
   server.on("/set_time", handleSetTime);
   server.on("/set_wifi", handleSetWiFi);
+  server.on("/set_ip1",  handleSetIp1);
+  server.on("/set_ip2",  handleSetIp2);
   server.on("/exit", handleExit);
 # ifdef MATRIX
   server.on("/set_font", handleSetFont);
@@ -35,7 +37,7 @@ void web_setup()
   server.on("/jtrm", handlejTrm);
   server.on("/jnews", handlejNews);
   server.on("/jnewst", handlejNewsT);
-  
+
   //-------------------------------------------------------------- for LittleFS
   //list directory
   server.on("/list", HTTP_GET, handleFileList);
@@ -67,9 +69,13 @@ void web_setup()
 //-------------------------------------------------------------- Start_serv
 void start_serv()
 {
-  if (!web_cli & !web_ap) myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
+  if (!wifi_data.cli & !wifi_data.ap)
+  {
+    wifi_data = wifi.begin(wifi_data);
+    myIP = wifi_data.cur_addr;
+  }
 
-  if (web_cli || web_ap)
+  if (wifi_data.cli || wifi_data.ap)
   {
     server.begin();
 
@@ -90,7 +96,7 @@ void stop_serv()
   DBG_OUT_PORT.println(F("OTA stopped...."));
   MDNS.end();
   DBG_OUT_PORT.println(F("MDNS stopped...."));
-  stop_wifi();
+  wifi.end(wifi_data);
 }
 
 //-------------------------------------------------------------- handlejTime
@@ -151,11 +157,37 @@ void handlejWiFi()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["apid"]   = conf_data.ap_ssid;
-  json["appas"]  = conf_data.ap_pass;
-  json["staid"]  = conf_data.sta_ssid;
-  json["stapas"] = conf_data.sta_pass;
-  json["wof"]    = conf_data.wifi_off;
+  json["apid"]    = wifi_data.ap_ssid;
+  json["appas"]   = wifi_data.ap_pass;
+  json["staid1"]  = wifi_data.sta_ssid1;
+  json["staid2"]  = wifi_data.sta_ssid2;
+  json["stapas1"] = wifi_data.sta_pass1;
+  json["stapas2"] = wifi_data.sta_pass2;
+
+  json["iap"]   = wifi_data.ap_ip;
+  json["map"]   = wifi_data.ap_ma;
+
+  json["sst1"]    = wifi_data.st_ip1;
+  json["sst2"]    = wifi_data.st_ip2;
+
+  if (wifi_data.st_ip1)
+  {
+    json["ipst1"]   = wifi_data.sta_ip1;
+    json["mast1"]   = wifi_data.sta_ma1;
+    json["gwst1"]   = wifi_data.sta_gw1;
+    json["dns1st1"] = wifi_data.sta_dns11;
+    json["dns2st1"] = wifi_data.sta_dns21;
+  }
+  if (wifi_data.st_ip1)
+  {
+    json["ipst2"]   = wifi_data.sta_ip2;
+    json["mast2"]   = wifi_data.sta_ma2;
+    json["gwst2"]   = wifi_data.sta_gw2;
+    json["dns1st2"] = wifi_data.sta_dns12;
+    json["dns2st2"] = wifi_data.sta_dns22;
+  }
+  json["wof"]    = wifi_data.wifi_off;
+
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -167,18 +199,65 @@ void handlejWiFi()
 //-------------------------------------------------------------- handleSetWiFi
 void handleSetWiFi()
 {
-  //url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+'&wof='+wof_t;
+  //url='/set_wifi?as='+as+'&ap='+ap+'&ss1='+ss1+'&sp1='+sp1+'&ss2='+ss2+'&sp2='+sp2+'&st1='+st1+'&st2='+st2+'&iap='+iap+'&map='+map+'&wof='+wof_t;
 
-  strcpy(conf_data.ap_ssid, server.arg("as").c_str());
-  strcpy(conf_data.ap_pass, server.arg("ap").c_str());
-  strcpy(conf_data.sta_ssid, server.arg("ss").c_str());
-  strcpy(conf_data.sta_pass, server.arg("sp").c_str());
-  conf_data.wifi_off = server.arg("wof") == "1";
+  strcpy(wifi_data.ap_ssid, server.arg("as").c_str());
+  strcpy(wifi_data.ap_pass, server.arg("ap").c_str());
+  strcpy(wifi_data.sta_ssid1, server.arg("ss1").c_str());
+  strcpy(wifi_data.sta_pass1, server.arg("sp1").c_str());
+  strcpy(wifi_data.sta_ssid2, server.arg("ss2").c_str());
+  strcpy(wifi_data.sta_pass2, server.arg("sp2").c_str());
 
-  saveConfig(conf_f, conf_data);
+  wifi_data.st_ip1 = server.arg("st1") == "1";
+  wifi_data.st_ip2 = server.arg("st2") == "1";
+
+  strcpy(wifi_data.ap_ip, server.arg("iap").c_str());
+  strcpy(wifi_data.ap_ma, server.arg("map").c_str());
+
+  wifi_data.wifi_off = server.arg("wof") == "1";
+
+  conf_f = "/conf_wifi.json";
+  wifi.saveConfig(conf_f, wifi_data);
+
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
+
+//-------------------------------------------------------------- handleSetIp1
+void handleSetIp1()
+{
+  //url='/set_ip1?ip='+ip1+'&ma='+ma1+'&gw='+gw1+'&d1='+d11+'&d2='+d21;
+
+  strcpy(wifi_data.sta_ip1, server.arg("ip").c_str());
+  strcpy(wifi_data.sta_ma1, server.arg("ma").c_str());
+  strcpy(wifi_data.sta_gw1, server.arg("gw").c_str());
+  strcpy(wifi_data.sta_dns11, server.arg("d1").c_str());
+  strcpy(wifi_data.sta_dns21, server.arg("d2").c_str());
+
+  conf_f = "/conf_wifi.json";
+  wifi.saveConfig(conf_f, wifi_data);
+
+  server.send(200, "text/html", "OK!");
+  serv_ms = millis();
+}
+
+//-------------------------------------------------------------- handleSetIp2
+void handleSetIp2()
+{
+  //rl='/set_ip2?ip='+ip2+'&ma='+ma2+'&gw='+gw2+'&d1='+d12+'&d2='+d22;
+
+  strcpy(wifi_data.sta_ip2, server.arg("ip").c_str());
+  strcpy(wifi_data.sta_ma2, server.arg("ma").c_str());
+  strcpy(wifi_data.sta_gw2, server.arg("gw").c_str());
+  strcpy(wifi_data.sta_dns12, server.arg("d1").c_str());
+  strcpy(wifi_data.sta_dns22, server.arg("d2").c_str());
+  conf_f = "/conf_wifi.json";
+  wifi.saveConfig(conf_f, wifi_data);
+
+  server.send(200, "text/html", "OK!");
+  serv_ms = millis();
+}
+
 
 //-------------------------------------------------------------- handlejPard
 void handlejPard()
@@ -216,6 +295,7 @@ void handleSetFont()
   conf_data.type_font = server.arg("tfnt").toInt();
   if (debug_level == 14) DBG_OUT_PORT.printf("font is.... %u", conf_data.type_font);
 
+  conf_f = "/config.json";
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -245,6 +325,7 @@ void handleSetPard()
   conf_data.br_level[2] = server.arg("brd3").toInt();
   conf_data.br_level[3] = server.arg("brd4").toInt();
 
+  conf_f = "/config.json";
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -477,6 +558,7 @@ void handleSetPars3()
   strcpy(conf_data.AKey_w, server.arg("tsapiw").c_str());
   conf_data.use_ts = server.arg("uts").toInt();
 
+  conf_f = "/config.json";
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
 
@@ -553,6 +635,7 @@ void handleSetParc()
   conf_data.gpio_ana = constrain(server.arg("ana").toInt(), 0, 255);
   conf_data.gpio_uar = constrain(server.arg("uar").toInt(), 0, 255);
 
+  conf_f = "/config.json";
   saveConfig(conf_f, conf_data);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -607,6 +690,7 @@ void handleSetAlarm()
     DBG_OUT_PORT.println();
   }
 
+  conf_f = "/config.json";
   saveConfig(conf_f, conf_data);
   set_alarm();
   server.send(200, "text/html", "OK!");
@@ -871,6 +955,7 @@ void handleSetNews()
   strcpy(conf_data.news_api_key, server.arg("newsApiKey").c_str());
   strcpy(conf_data.news_source, server.arg("newssource").c_str());
 
+  conf_f = "/config.json";
   saveConfig(conf_f, conf_data);
 
   if (conf_data.news_en)
