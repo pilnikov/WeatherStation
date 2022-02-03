@@ -285,8 +285,11 @@ rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc
   return alm_data;
 }
 
-void CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t time_data, rtc_alm_data_t* alm_data)
+bool CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t time_data, rtc_alm_data_t* alm_data)
 {
+  alm_data->al1_on = false;
+  alm_data->al1_on = false;
+  
   if (hw_data.a_type == 1)
   {
     if (wasAlarmed_int)  // check our flag that gets sets in the interupt
@@ -305,7 +308,7 @@ void CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t
   else
   {
     alm_data->al1_on = ((time_data.hour == alm_data->hour) & (time_data.min == alm_data->min) & (time_data.sec == 0)); //Сработал будильник №1
-    alm_data->al2_on = ((time_data.min == 0) & (time_data.sec == 0));                                                   //Сработал будильник №2
+    alm_data->al2_on = ((time_data.min == 0) & (time_data.sec == 0));                                                  //Сработал будильник №2
   }
 
   if (alm_data->al1_on) //Сработал будильник №1
@@ -330,6 +333,7 @@ void CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t
       alm_data->muz = 15;
     }
   }
+  return (alm_data->al1_on || alm_data->al2_on);
 }
 
 long CT::man_set_time(rtc_hw_data_t hw_data, const RtcDateTime &dt)

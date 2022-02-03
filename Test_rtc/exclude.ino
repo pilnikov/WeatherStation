@@ -1,5 +1,8 @@
-void alm_act()
+//#include "conf.h"
+
+void alarm1_action()
 {
+play_snd = true;
 /*
   dmsg.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
 

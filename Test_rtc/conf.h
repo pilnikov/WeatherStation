@@ -92,9 +92,9 @@ ESP8266HWInfo hwi;
 const char *conf_f = "/config.json";  // config file name
 char tstr[25];
 
-unsigned long   serv_ms = 60000;
+unsigned long   serv_ms = 60000, alarm_time = millis();
 
-bool               play_snd  = false;
+bool  play_snd  = false, wasAlarm = false;
 
 uint8_t gpio_sda = 255;
 uint8_t gpio_scl = 255;

@@ -92,12 +92,16 @@ void setup()
     Wire.begin();
 # endif
   }
-  
+
   //ram_data = fsys.i2c_scan(rtc_cfg);
   //------------------------------------------------------  Инициализируем RTC
   if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
   DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(rtc_hw.a_type);
+
+  RtcDateTime c_time = myrtc.GetNtp(rtc_cfg);
+  rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
+  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_alm.muz = 15;
@@ -122,7 +126,24 @@ void loop()
 
   myrtc.cur_time_str(rtc_time, true, tstr);
 
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+  if (!wasAlarm) //Проверка будильников
+  {
+    if (myrtc.Alarmed(rtc_hw, rtc_cfg, rtc_time, &rtc_alm))
+    {
+      play_snd = rtc_alm.al2_on;
+      if (rtc_alm.al1_on) alarm1_action();
+      wasAlarm = true;
+      alarm_time = millis() + 2000;
+    }
+  }
+
+  if (wasAlarm & (millis() > alarm_time)) //Перезапуск будильников
+  {
+    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    wasAlarm = false;
+
+  }
+
 
   //------------------------------------------------------  Верифицируем ночной режим
   if (rtc_cfg.nm_start <  rtc_cfg.nm_stop) rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start && rtc_time.hour < rtc_cfg.nm_stop);

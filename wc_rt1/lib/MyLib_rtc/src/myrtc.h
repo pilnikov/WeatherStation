@@ -129,9 +129,11 @@ class CT
   public:
 	void 
 	rtc_init(rtc_hw_data_t),
-	Alarmed(rtc_hw_data_t, rtc_cfg_data_t, rtc_time_data_t, rtc_alm_data_t*),
 	GetTime(rtc_hw_data_t, rtc_time_data_t*),
 	cur_time_str(rtc_time_data_t, bool, char*);
+	
+	bool
+	Alarmed(rtc_hw_data_t, rtc_cfg_data_t, rtc_time_data_t, rtc_alm_data_t*);
 
 	long 
 	man_set_time(rtc_hw_data_t, const RtcDateTime&);
