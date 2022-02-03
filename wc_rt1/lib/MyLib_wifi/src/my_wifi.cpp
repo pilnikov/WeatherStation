@@ -9,7 +9,7 @@ WiFiState state;
 #endif
 
 //-------------------------------------------------------------- Stop_wifi
-void WF::end(wifi_data_t _data)
+void WF::end(wifi_cur_data_t _data)
 {
   if (_data.cli)     //Останавливаем клиента
   {
@@ -27,13 +27,15 @@ void WF::end(wifi_data_t _data)
 }
 
 //-------------------------------------------------------------- Start_wifi
-wifi_data_t WF::begin(wifi_data_t _data)
+wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
 {
-  //const char* ssid, const char* ssipass, const char* apid, const char* appass
-  char *ssid = _data.sta_ssid1;
+  wifi_cur_data_t c_data;
+  
+  memset(c_data.ssid,   0, 20);
+  strcpy(c_data.ssid, _data.sta_ssid1);
 
   DBG_OUT_PORT.print(F("Trying to connect a..."));
-  DBG_OUT_PORT.println(_data.sta_ssid1);
+  DBG_OUT_PORT.println(c_data.ssid);
 
   if (WiFi.getAutoConnect() != true) WiFi.setAutoConnect(true);  //on power-on automatically connects to last used hwAP
   WiFi.setAutoReconnect(true);                                   //automatically reconnects to hwAP in case it is disconnected
@@ -79,16 +81,18 @@ wifi_data_t WF::begin(wifi_data_t _data)
       if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))   DBG_OUT_PORT.println("STA1 Failed to configure");
     }
 
-    if (!WiFi.mode(WIFI_STA) || !WiFi.begin(_data.sta_ssid1, _data.sta_pass1) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
+    if (!WiFi.mode(WIFI_STA) || !WiFi.begin(c_data.ssid, _data.sta_pass1) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
     {
       DBG_OUT_PORT.print(F("Cannot connect to..."));
-      DBG_OUT_PORT.println(_data.sta_ssid1);
+      DBG_OUT_PORT.println(c_data.ssid);
+
+	  memset(c_data.ssid,   0, 20);
+	  strcpy(c_data.ssid, _data.sta_ssid2);
 
       DBG_OUT_PORT.print(F("Trying to connect to next access point..."));
-      DBG_OUT_PORT.println(_data.sta_ssid2);
+      DBG_OUT_PORT.println(c_data.ssid);
 
-      ssid = _data.sta_ssid2;
-
+ 
       local_IP     = str_to_ip(_data.sta_ip2);
       gateway      = str_to_ip(_data.sta_gw2);
       subnet       = str_to_ip(_data.sta_ma2);
@@ -101,15 +105,17 @@ wifi_data_t WF::begin(wifi_data_t _data)
         if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))   DBG_OUT_PORT.println("STA2 Failed to configure");
       }
 
-      if (!WiFi.mode(WIFI_STA) || !WiFi.begin(_data.sta_ssid2, _data.sta_pass2) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
+      if (!WiFi.mode(WIFI_STA) || !WiFi.begin(c_data.ssid, _data.sta_pass2) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
       {
         DBG_OUT_PORT.print(F("Cannot connect to..."));
-        DBG_OUT_PORT.println(_data.sta_ssid2);
+        DBG_OUT_PORT.println(c_data.ssid);
+
+		memset(c_data.ssid,   0, 20);
+		strcpy(c_data.ssid, _data.ap_ssid);
 
         DBG_OUT_PORT.print(F("Trying to start access point..."));
-        DBG_OUT_PORT.println(_data.ap_ssid);
+        DBG_OUT_PORT.println(c_data.ssid);
 
-        ssid = _data.ap_ssid;
         local_IP     = str_to_ip(_data.ap_ip);
         gateway      = str_to_ip(_data.ap_ip);
         subnet       = str_to_ip(_data.ap_ma);
@@ -118,31 +124,39 @@ wifi_data_t WF::begin(wifi_data_t _data)
 
         if (!WiFi.softAPConfig(local_IP, gateway, subnet))  DBG_OUT_PORT.println("AP Config Failed");
 
-        WiFi.softAP(_data.ap_ssid, _data.ap_pass);
+        WiFi.softAP(c_data.ssid, _data.ap_pass);
 
-        _data.cur_addr = WiFi.softAPIP();
+        c_data.addr = WiFi.softAPIP();
 
-        _data.ap = true;
+        c_data.ap = true;
 
         DBG_OUT_PORT.print(F("AP IP address: "));
-        DBG_OUT_PORT.println(_data.cur_addr);
-        return _data;
+        DBG_OUT_PORT.println(c_data.addr);
+        return c_data;
       }
     }
   }
-  DBG_OUT_PORT.print(ssid);
+  DBG_OUT_PORT.print(c_data.ssid);
   DBG_OUT_PORT.println(F(" is connected!"));
 
   unsigned long duration = millis() - start;
   DBG_OUT_PORT.printf("Duration: %f\n", duration * 0.001);
 
-  _data.cli = true;
+  c_data.cli = true;
 
-  _data.cur_addr = WiFi.localIP();
+  c_data.addr = WiFi.localIP();
 
   DBG_OUT_PORT.print(F("Client IP address: "));
-  DBG_OUT_PORT.println(_data.cur_addr);
-  return _data;
+  DBG_OUT_PORT.println(c_data.addr);
+  return c_data;
+}
+
+void WF::_shutdown()
+{
+#if defined(ESP8266)
+	WiFi.shutdown(state);
+    ESP.rtcUserMemoryWrite(RTC_USER_DATA_SLOT_WIFI_STATE, reinterpret_cast<uint32_t *>(&state), sizeof(state));
+#endif
 }
 
 IPAddress WF::str_to_ip(char *strIP)

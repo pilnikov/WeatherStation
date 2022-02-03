@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-		<title>Wifi Clock. Settings Wifi</title>
+		<title>Wifi Clock. Main</title>
 		<style>
 			body, td
 			{
@@ -24,6 +24,10 @@
 				text-align:center;
 			}
 			input
+			{
+				text-align:center;
+			}
+			option
 			{
 				text-align:center;
 			}
@@ -95,16 +99,14 @@
 	</head>
   
 	<body>
-
 		<ul class="menu">
 			<li><a href="#">Menu</a>
 				<ul class="menu-inner">
 					<li><a href='time.htm'>Time</a></li>
 					<li><a href='wifi.htm'>WiFi</a></li>
-					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='gpio.htm'>GPIO</a></li>
 					<li><a href='disp.htm'>Display</a></li>
 					<li><a href='sens.htm'>Sensor</a></li>
-					<li><a href='alarm.htm'>Alarm</a></li>
 					<li><a href='thermo.htm'>Thermo</a></li>
 					<li><a href='news.htm'>News</a></li>
 				</ul>
@@ -115,30 +117,29 @@
 			<li style='float: none; visibility: hidden;'>.</li>
 		</ul>
 		
-    <table class='t' align="left">
-      <tr>
-        <td><output id='cur_time'></output></td>
-      </tr>
-    </table>
+		<table class='t' align="left">
+		  <tr>
+			<td><output id='cur_time'></output></td>
+		  </tr>
+		</table>
     
-    <script>
-      function process()
-      {
-        var xh = new XMLHttpRequest();
-        xh.open("GET", "/jactt", true);
-        xh.onreadystatechange = function()
-        {
-          if (xh.readyState == 4 && xh.status == 200) 
-          {
-            var res = JSON.parse(xh.responseText);
-            document.getElementById('cur_time').value = res.tstr;
-          }
-        }
-        xh.send(null);
-        setTimeout('process()',500);
-      }
-
-      process();
-    </script>
-  </body>
+		<script>
+			function process()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jactt", true);
+				xh.send(null);
+				xh.onreadystatechange = function()
+				{
+					if (this.readyState == 4 && this.status == 200) 
+					{
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('cur_time').value = res.tstr;
+					}	
+				}
+			}
+			setInterval('process()',500);
+			process();
+		</script>
+	</body>
 </html>

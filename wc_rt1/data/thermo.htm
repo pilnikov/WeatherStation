@@ -27,6 +27,10 @@
 			{
 				text-align:center;
 			}
+			option
+			{
+				text-align:center;
+			}
 			.menu
 			{
 				list-style-type: none;
@@ -101,10 +105,9 @@
 				<ul class="menu-inner">
 					<li><a href='time.htm'>Time</a></li>
 					<li><a href='wifi.htm'>WiFi</a></li>
-					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='gpio.htm'>GPIO</a></li>
 					<li><a href='disp.htm'>Display</a></li>
 					<li><a href='sens.htm'>Sensor</a></li>
-					<li><a href='alarm.htm'>Alarm</a></li>
 					<li><a href='thermo.htm'>Thermo</a></li>
 					<li><a href='news.htm'>News</a></li>
 				</ul>
@@ -121,7 +124,7 @@
 			</tr>
 			<tr>
 				<td>Тип Термостата</td>
-				<td><select id='ittrm' name='nttrm' onclick='chk_trs();'>
+				<td><select id='ittrm' name='nttrm' onchange='chk_trs();'>
 						<option value = '0'> Не использовать</option>
 						<option value = '1'> На включение   </option>
 						<option value = '2'> На отключение  </option>
@@ -137,7 +140,6 @@
 					</select>
 				</td>
 			</tr>
-
 			<tr>
 				<td width='30%'>Диапазон температур</td><td>&nbsp;с&nbsp;
 					<input type='number' maxlength='3' size='1' min="-50" max="50" id='idsta' name='ndsta'/>
@@ -145,29 +147,30 @@
 					<input type='number' maxlength='3' size='1' min="-50" max="50" id='idstp' name='ndstp'/>
 				</td>
 			</tr>
-
-         <tr><td colspan='9' class='h'><input type='submit' value='Записать' onclick='set_partrm();' /></td></tr>
+			<tr>
+				<td colspan='2' class='h'><button onclick='set_partrm();'>Записать</button></td>
+			</tr>
 		</table>
   
 		<script>
 			function loadValues()
 			{
 				var xh = new XMLHttpRequest();
-				xh.onreadystatechange =  function()
+				xh.open("GET", "/jtrm", true);
+				xh.send(null);
+				xh.onreadystatechange = function()
 				{
-				  if (xh.readyState == 4 && xh.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
-					  var res = JSON.parse(xh.responseText);
-					  document.getElementById('ittrm').value = res.ttrm;
-					  document.getElementById('itsrc').value = res.tsrc;
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('ittrm').value = res.ttrm;
+						document.getElementById('itsrc').value = res.tsrc;
 						document.getElementById('idsta').value = res.dsta;
 						document.getElementById('idstp').value = res.dstp;
 					  
-					  chk_trs();
+						chk_trs();
 					}
-				  }
-				 xh.open("GET", "/jtrm", true);
-				 xh.send(null);
+				}
 			}
 
 			function chk_trs()
@@ -213,11 +216,11 @@
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (xh.readyState==4 && xh.status==200) loadValues();
+					if (this.readyState == 4 && this.status == 200) loadValues();
 				}      
-				xh.send(null);
 			}
 		</script>
 	</body>

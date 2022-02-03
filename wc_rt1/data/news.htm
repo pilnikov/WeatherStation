@@ -27,6 +27,10 @@
 			{
 				text-align:center;
 			}
+			option
+			{
+				text-align:center;
+			}
 			.menu
 			{
 				list-style-type: none;
@@ -101,10 +105,9 @@
 				<ul class="menu-inner">
 					<li><a href='time.htm'>Time</a></li>
 					<li><a href='wifi.htm'>WiFi</a></li>
-					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='gpio.htm'>GPIO</a></li>
 					<li><a href='disp.htm'>Display</a></li>
 					<li><a href='sens.htm'>Sensor</a></li>
-					<li><a href='alarm.htm'>Alarm</a></li>
 					<li><a href='thermo.htm'>Thermo</a></li>
 					<li><a href='news.htm'>News</a></li>
 				</ul>
@@ -120,7 +123,7 @@
 				<td colspan='2' class='h'>Новостная лента</td>
 			</tr>
 		 	<tr>
-				<td>Использовать новостную ленту</td><td><input type='checkbox' id='unews' name='unews'/></td>
+				<td>Использовать новостную ленту</td><td><input type='checkbox' id='unews' name='unews' onclick='hide_fields();'/></td>
 			</tr>
 			<tr>
 				<td>News API Key(get from <a href='https://newsapi.org/' target='_BLANK'>here</a>)</td><td><input type='text' maxlength='32' size='32' id='newsk' name='newsk' style='text-align:center;' /></td></tr>
@@ -128,7 +131,7 @@
 				<td>News Source</td><td><select class='w3-option w3-padding' name='newssrc' id='newssrc'></select></td>
 			</tr>
 			<tr>
-				<td colspan='2' class='h'><input type='submit' value='Записать' onclick='set_parnews();'/></td>
+				<td colspan='2' ><button onclick='set_parnews();'>Записать</button></td>
 			</tr>
 		</table>
 			
@@ -137,17 +140,17 @@
 			{
 				var xh = new XMLHttpRequest();
 				xh.open("GET", "/jnews", true);
-				xh.onreadystatechange =  
-				function()
+				xh.send(null);
+				xh.onreadystatechange = function()
 				{
-				  if (xh.readyState == 4 && xh.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
-					  var res = JSON.parse(xh.responseText);
-					  document.getElementById('unews').checked = res.displaynews;
-					  document.getElementById('newsk').value = res.newsApiKey;
+						var res = JSON.parse(xh.responseText);
+						document.getElementById('unews').checked = res.displaynews;
+						document.getElementById('newsk').value = res.newsApiKey;
+						document.getElementById('newssrc').value = res.newssource;
 					}
 				}
-				xh.send(null);
 			}
 
 			function set_parnews()
@@ -162,12 +165,28 @@
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
-				xh.onreadystatechange = 
-				function()
-				{
-					if (xh.readyState==4 && xh.status==200) loadValues();
-				}      
 				xh.send(null);
+				xh.onreadystatechange = function()
+				{
+					if (this.readyState == 4 && this.status == 200) loadValues();
+				}      
+			}
+
+			function hide_fields()
+			{
+				 
+				unews_t = document.getElementById('unews').checked;
+				
+				if (unews_t) 
+				{
+					showHide('newsk'  ,  true);
+					showHide('newssrc',  true);
+				}
+				else 
+				{
+					showHide('newsk'  ,  false);
+					showHide('newssrc',  false);
+				}
 			}
 
 			function showHide(element_id, visible) 
@@ -182,25 +201,24 @@
 				else alert("Элемент с id: " + element_id + " не найден!"); //Если элемент с id-шником element_id не найден, то выводим сообщение
 			}   
 			  
-			var s='%NEWSSRC%';
+			var s = '%NEWSSRC%';
 			var tt;
 
 			var xmlhttp=new XMLHttpRequest();
 				
 			xmlhttp.open('GET','https://raw.githubusercontent.com/Qrome/marquee-scroller/master/sources.json',!0);
-			xmlhttp.onreadystatechange = 
-			function()
+			xmlhttp.send(null);
+			xmlhttp.onreadystatechange = function()
 			{
 				if(xmlhttp.readyState==4)
 				{
-					if(xmlhttp.status==200)
+					if (this.readyState == 4 && this.status == 200) 
 					{
 						var obj=JSON.parse(xmlhttp.responseText);
 						obj.sources.forEach(t);
 					}
 				}
 			}
-			xmlhttp.send(null);
 			
 			function t(it)
 			{

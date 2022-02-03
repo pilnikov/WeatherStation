@@ -27,6 +27,10 @@
 			{
 				text-align:center;
 			}
+			option
+			{
+				text-align:center;
+			}
 			.menu
 			{
 				list-style-type: none;
@@ -125,7 +129,7 @@
 				<td>OWM API Key         		  </td><td colspan='4'><input type='text' maxlength='32' id='owmk' name='owmk'/></td>
 			</tr>
 			<tr>
-				<td>Прогноз погоды				  </td><td colspan='4'><select id='usepp' name='usepp' onclick='chk_pp();'>
+				<td>Прогноз погоды				  </td><td colspan='4'><select id='usepp' name='usepp' onchange='chk_pp();'>
 					<option value = '0'>No_use</option>
 					<option value = '1'>GM    </option>
 					<option value = '2'>OWM   </option>
@@ -156,7 +160,7 @@
 			</tr>
 			<tr>
 				<td>Тип сенсора</td>
-				<td><select id='snr1' name='snr1'  onclick='sel_ts();'>
+				<td><select id='snr1' name='snr1'  onchange='sel_ts();'>
 					<option value =  '0'>No_use</option>
 					<option value =  '1'>TS</option>
 					<option value =  '2'>ESrv_1</option>
@@ -173,7 +177,7 @@
 					<option value = '13'>DS18B20</option>
 				</select>
 				</td>
-				<td><select id='snr2' name='snr2' onclick='sel_ts();'>
+				<td><select id='snr2' name='snr2' onchange='sel_ts();'>
 					<option value =  '0'>No_use</option>
 					<option value =  '1'>TS</option>
 					<option value =  '2'>ESrv_1</option>
@@ -190,7 +194,7 @@
 					<option value = '13'>DS18B20</option>
 				</select>
 				</td>
-				<td><select id='snr3' name='snr3' onclick='sel_ts();'>
+				<td><select id='snr3' name='snr3' onchange='sel_ts();'>
 					<option value =  '0'>No_use</option>
 					<option value =  '1'>TS</option>
 					<option value =  '2'>ESrv_1</option>
@@ -207,7 +211,7 @@
 					<option value = '13'>DS18B20</option>
 				</select>
 				</td>
-				<td><select id='snrp' name='snrp' onclick='sel_ts();'>
+				<td><select id='snrp' name='snrp' onchange='sel_ts();'>
 					<option value =  '0'>No_use</option>
 					<option value =  '1'>TS</option>
 					<option value =  '2'>ESrv_1</option>
@@ -293,7 +297,7 @@
 				<td></td>
 			</tr>
 			<tr>
-				<td colspan='5' class='h'><input type='submit' value='Записать' onclick='set_pars1();'/></td>
+				<td colspan='5' class='h'><button onclick='set_pars();'>Записать</button></td>
 			</tr>
 		</table>
   
@@ -303,9 +307,10 @@
 			{
 				var xh = new XMLHttpRequest();
 				xh.open("GET", "/jsens", true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (xh.readyState == 4 && xh.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh.responseText);
 						document.getElementById('cityID').value   = res.cyid;
@@ -325,78 +330,69 @@
 						document.getElementById('name_ch3').value = res.nc3;
 						document.getElementById('period').value   = res.peri;
 						document.getElementById('esm').checked    = res.esm;
-						document.getElementById('uest1').checked = (res.ess & 0b00000001);
-						document.getElementById('uest2').checked = (res.ess & 0b00000010);
-						document.getElementById('uest3').checked = (res.ess & 0b00000100);
-						document.getElementById('uesh1').checked = (res.ess & 0b00001000);
-						document.getElementById('uesh2').checked = (res.ess & 0b00010000);
-						document.getElementById('uesh3').checked = (res.ess & 0b00100000);
-						document.getElementById('uesp').checked  = (res.ess & 0b01000000);
+						document.getElementById('uest1').checked  = (res.ess & 0b00000001);
+						document.getElementById('uest2').checked  = (res.ess & 0b00000010);
+						document.getElementById('uest3').checked  = (res.ess & 0b00000100);
+						document.getElementById('uesh1').checked  = (res.ess & 0b00001000);
+						document.getElementById('uesh2').checked  = (res.ess & 0b00010000);
+						document.getElementById('uesh3').checked  = (res.ess & 0b00100000);
+						document.getElementById('uesp').checked   = (res.ess & 0b01000000);
 
 						chk_pp();				  
 					}
 				}
-				xh.send(null);
-				loadTs();
-			}
-			  
-			function loadTs()
-			{
-				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jts", true);
-				xh.onreadystatechange = function()
+
+				var xh2 = new XMLHttpRequest();
+				xh2.open("GET", "/jts", true);
+				xh2.send(null);
+				xh2.onreadystatechange = function()
 				{
-					if (xh.readyState == 4 &&  xh.status == 200) 
+					if (this.readyState == 4 &&  this.status == 200) 
 					{
-						var res = JSON.parse(xh.responseText);
-						document.getElementById('tschan').value = res.tsid;
-						document.getElementById('tsapir').value = res.tsar;
-						document.getElementById('tsapiw').value = res.tsaw;
-						document.getElementById('utst1').checked = (res.tss & 0b00000001);
-						document.getElementById('utst2').checked = (res.tss & 0b00000010);
-						document.getElementById('utst3').checked = (res.tss & 0b00000100);
-						document.getElementById('utsh1').checked = (res.tss & 0b00001000);
-						document.getElementById('utsh2').checked = (res.tss & 0b00010000);
-						document.getElementById('utsh3').checked = (res.tss & 0b00100000);
-						document.getElementById('utsp').checked  = (res.tss & 0b01000000);
+						var res2 = JSON.parse(xh2.responseText);
+						document.getElementById('tschan').value = res2.tsid;
+						document.getElementById('tsapir').value = res2.tsar;
+						document.getElementById('tsapiw').value = res2.tsaw;
+						document.getElementById('utst1').checked = (res2.tss & 0b00000001);
+						document.getElementById('utst2').checked = (res2.tss & 0b00000010);
+						document.getElementById('utst3').checked = (res2.tss & 0b00000100);
+						document.getElementById('utsh1').checked = (res2.tss & 0b00001000);
+						document.getElementById('utsh2').checked = (res2.tss & 0b00010000);
+						document.getElementById('utsh3').checked = (res2.tss & 0b00100000);
+						document.getElementById('utsp').checked  = (res2.tss & 0b01000000);
 
 						sel_ts();
 					}   	  
 				}
-				xh.send(null);
-				loadSnr();
-			}			
 
-			function loadSnr()
-			{
-				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jsnr", true);
-				xh.onreadystatechange = function()
+				var xh3 = new XMLHttpRequest();
+				xh3.open("GET", "/jsnr", true);
+				xh3.send(null);
+				xh3.onreadystatechange = function()
 				{
-					if (xh.readyState == 4 &&  xh.status == 200) 
+					if (this.readyState == 4 &&  this.status == 200) 
 					{
-						var res = JSON.parse(xh.responseText);
-						document.getElementById('cur_t1').value = res.t1;
-						document.getElementById('cur_t2').value = res.t2;
-						document.getElementById('cur_t3').value = res.t3;
-						document.getElementById('cur_h1').value = res.h1;
-						document.getElementById('cur_h2').value = res.h2;
-						document.getElementById('cur_h3').value = res.h3;
-						document.getElementById('cur_p' ).value = res.pres;
+						var res3 = JSON.parse(xh3.responseText);
+						document.getElementById('cur_t1').value = res3.t1;
+						document.getElementById('cur_t2').value = res3.t2;
+						document.getElementById('cur_t3').value = res3.t3;
+						document.getElementById('cur_h1').value = res3.h1;
+						document.getElementById('cur_h2').value = res3.h2;
+						document.getElementById('cur_h3').value = res3.h3;
+						document.getElementById('cur_p' ).value = res3.pres;
 					}
 				}
-				xh.send(null);
 			}
 
 			function up_date()
 			{
 				var xh = new XMLHttpRequest();
 				xh.open('GET', '/updS', true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (xh.readyState==4 && xh.status==200) loadSnr();
+				  if (this.readyState==4 && this.status==200) loadSnr();
 				}      
-				xh.send(null);
 			}
 
 			function showHide(element_id, visible) 
@@ -410,7 +406,7 @@
 				else alert("Элемент с id: " + element_id + " не найден!"); //Если элемент с id-шником element_id не найден, то выводим сообщение
 			}   
 
-			function set_pars1()
+			function set_pars()
 			{
 				var udm_t = 0;     
 				var cid_t  = document.getElementById('cityID').value;
@@ -422,7 +418,7 @@
 				if (document.getElementById('udm').checked) udm_t = 1;
 				var upp_t  = document.getElementById('usepp').value;
 		 
-				url='/set_pars1?cid='+cid_t
+				var url = '/set_pars1?cid='+cid_t
 							 + '&owmk='+owmk_t
 							 + '&esa1='+esa1_t
 							 + '&esa2='+esa2_t
@@ -433,16 +429,8 @@
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
-				xh.onreadystatechange = 
-				function()
-				{
-					if (xh.readyState==4 && xh.status==200) set_pars2();
-				}
 				xh.send(null);
-			}
-			  
-			function set_pars2()
-			{
+
 				var ues_t = 0, esm_t = 0;
 
 				snr1_t = document.getElementById('snr1').value;
@@ -462,28 +450,21 @@
 				nc2_t = document.getElementById('name_ch2').value;
 				nc3_t = document.getElementById('name_ch3').value;
 			  
-				url='/set_pars2?snr1='    + snr1_t
-							 + '&snr2='   + snr2_t
-							 + '&snr3='   + snr3_t
-							 + '&snrp='   + snrp_t
-							 + '&period=' + period_t
-							 + '&ues='    + ues_t
-							 + '&esm='    + esm_t
-							 + '&nc1='    + nc1_t
-							 + '&nc2='    + nc2_t
-							 + '&nc3='    + nc3_t;
+				var url2 = '/set_pars2?snr1='     + snr1_t
+									 + '&snr2='   + snr2_t
+									 + '&snr3='   + snr3_t
+									 + '&snrp='   + snrp_t
+									 + '&period=' + period_t
+									 + '&ues='    + ues_t
+									 + '&esm='    + esm_t
+									 + '&nc1='    + nc1_t
+									 + '&nc2='    + nc2_t
+									 + '&nc3='    + nc3_t;
 
-				var xh = new XMLHttpRequest();
-				xh.open('GET', url, true);
-				xh.onreadystatechange = function()
-					{
-					  if (xh.readyState==4 && xh.status==200) set_pars3();
-					}
-				xh.send(null);
-			}
-			  
-			function set_pars3()
-			{
+				var xh1 = new XMLHttpRequest();
+				xh1.open('GET', url2, true);
+				xh1.send(null);
+
 				var uts_t = 0;
 
 				tschan_t = document.getElementById('tschan').value;
@@ -497,18 +478,18 @@
 				if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
 				if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
 
-				url='/set_pars3?tschan='+tschan_t
-							 +'&tsapir='+tsapir_t
-							 +'&tsapiw='+tsapiw_t
-							 +'&uts='	+ uts_t;
+				url3 = '/set_pars3?tschan='+tschan_t
+							    +'&tsapir='+tsapir_t
+							    +'&tsapiw='+tsapiw_t
+							    +'&uts='   + uts_t;
 
-				var xh = new XMLHttpRequest();
-				xh.open('GET', url, true);
-				xh.onreadystatechange = function()
+				var xh3 = new XMLHttpRequest();
+				xh3.open('GET', url3, true);
+				xh3.send(null);
+				xh3.onreadystatechange = function()
 				{
-					if (xh.readyState==4 && xh.status==200) loadValues();
+					if (this.readyState==4 && this.status==200) loadValues();
 				}      
-				xh.send(null);
 			}
 
 			function sel_ts()

@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-		<title>Wifi Clock. Alarm</title>
+		<title>Wifi Clock. Display</title>
 		<style>
 			body, td
 			{
@@ -24,6 +24,10 @@
 				text-align:center;
 			}
 			input
+			{
+				text-align:center;
+			}
+			option
 			{
 				text-align:center;
 			}
@@ -101,10 +105,9 @@
 				<ul class="menu-inner">
 					<li><a href='time.htm'>Time</a></li>
 					<li><a href='wifi.htm'>WiFi</a></li>
-					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='gpio.htm'>GPIO</a></li>
 					<li><a href='disp.htm'>Display</a></li>
 					<li><a href='sens.htm'>Sensor</a></li>
-					<li><a href='alarm.htm'>Alarm</a></li>
 					<li><a href='thermo.htm'>Thermo</a></li>
 					<li><a href='news.htm'>News</a></li>
 				</ul>
@@ -120,7 +123,7 @@
 				<td colspan='2' class='h'>Опции для дисплея</td>
 			</tr>
 			<tr>
-				<td>Тип MC драйвера</td><td><select align='center' id='ctyp' name='ctyp' onclick='show_abr();'>
+				<td>Тип MC драйвера</td><td><select align='center' id='ctyp' name='ctyp' onchange='show_abr();'>
 												<option value ='0'> НЕТ    </option>
 												<option value ='1'> TM1637 </option>
 												<option value ='2'> MAX7219</option>
@@ -134,7 +137,7 @@
 										</td>
 			</tr>
 			<tr>
-				<td>Тип дисплея</td><td><select align='center' id='dtyp' name='dtyp' onclick='show_abr();'>
+				<td>Тип дисплея</td><td><select align='center' id='dtyp' name='dtyp' onchange='show_abr();'>
 											<option value ='0'> БЕЗ ДИСПЛЕЯ	</option>
 											<option value ='1'> 7SEGx4D		</option> 
 											<option value ='2'> 7SEGx6D		</option>
@@ -191,7 +194,7 @@
 				<td>Мин освещенность    </td><td><input type='range' min=0 max=255 id='brd1' name='brd1'/> = <output id='rbrd1' name='rbrd1'></output></td>
 			</tr>
 			<tr>
-			<td>Мах освещенность 	  	</td><td><input type='range' min=0 max=255 id='brd2' name='brd2'/> = <output id='rbrd2' name='rbrd2'></output></td>
+				<td>Мах освещенность 	</td><td><input type='range' min=0 max=255 id='brd2' name='brd2'/> = <output id='rbrd2' name='rbrd2'></output></td>
 			</tr>
 			<tr>
 				<td>Мин яркость дисплея </td><td><input type='range' min=0 max=255 id='brd3' name='brd3'/> = <output id='rbrd3' name='rbrd3'></output></td>
@@ -200,7 +203,7 @@
 				<td>Мах яркость дисплея </td><td><input type='range' min=0 max=255 id='brd4' name='brd4'/> = <output id='rbrd4' name='rbrd4'></output></td>
 			</tr>
 			<tr>
-				<td colspan='2' class='h'><input type='submit' value='Записать' onclick='set_pard();'/></td>
+				<td colspan='2' class='h'><button onclick='set_pard();'>Записать</button></td>
 			</tr>
 		</table>
 
@@ -209,9 +212,10 @@
 			{
 				var xh = new XMLHttpRequest();
 				xh.open("GET", "/jdisp", true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (xh.readyState == 4 && xh.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh.responseText);
 						document.getElementById('ctyp').value = res.ctyp;
@@ -231,7 +235,6 @@
 						show_abr();
 					}
 				}
-				xh.send(null);
 			}
 
 			function showHide(element_id, visible) 
@@ -249,9 +252,10 @@
 			{
 				var xh1 = new XMLHttpRequest();
 				xh1.open("GET", "/jactb", true);
+				xh1.send(null);
 				xh1.onreadystatechange = function()
 				{
-					if (xh1.readyState == 4 && xh1.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res1 = JSON.parse(xh1.responseText);
 						document.getElementById('cur_foto').value = res1.brig;
@@ -275,8 +279,6 @@
 						document.getElementById('rbrd4').value = d1;
 					}
 				}
-				xh1.send(null);
-				setTimeout('process()',500);
 			}
       
 			function set_pard()
@@ -297,15 +299,15 @@
 				brd3 = document.getElementById('brd3').value;
 				brd4 = document.getElementById('brd4').value;
 
-				url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
+				var url = '/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (xh.readyState==4 && xh.status==200) loadValues();
+				  if (this.readyState==4 && this.status==200) loadValues();
 				}      
-				xh.send(null);
 			}
 			  
 			function change_font()
@@ -315,11 +317,11 @@
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (xh.readyState==4 && xh.status==200) loadValues();
+				  if (this.readyState==4 && this.status==200) loadValues();
 				}      
-				xh.send(null);
 			}
 
 			function show_abr()
@@ -383,6 +385,7 @@
 					showHide('cold',  false);
 				}
 			}
+			setInterval('process()',500);
 			process();
 		</script>
 	</body>

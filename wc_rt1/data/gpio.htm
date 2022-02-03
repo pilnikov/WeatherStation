@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-		<title>Wifi Clock. Clock</title>
+		<title>Wifi Clock. GPIO</title>
 		<style>
 			body, td
 			{
@@ -24,6 +24,10 @@
 				text-align:center;
 			}
 			input
+			{
+				text-align:center;
+			}
+			option
 			{
 				text-align:center;
 			}
@@ -101,10 +105,9 @@
 				<ul class="menu-inner">
 					<li><a href='time.htm'>Time</a></li>
 					<li><a href='wifi.htm'>WiFi</a></li>
-					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='gpio.htm'>GPIO</a></li>
 					<li><a href='disp.htm'>Display</a></li>
 					<li><a href='sens.htm'>Sensor</a></li>
-					<li><a href='alarm.htm'>Alarm</a></li>
 					<li><a href='thermo.htm'>Thermo</a></li>
 					<li><a href='news.htm'>News</a></li>
 				</ul>
@@ -117,33 +120,13 @@
 
 		<table class='t' align="left">
 			<tr>
-				<td colspan='2' class='h'>Опции для часов</td>
-			</tr>
- 			<tr>
-				<td>Часовой пояс           </td><td><input type='text' size='3' id='tzone' name='tzone'/></td>
+				<td colspan='2' class='h'>Опции</td>
 			</tr>
 			<tr>
-				<td>Автокоррекция через NTP</td><td><input type='checkbox' id='acorr' name='acorr'/></td>
+				<td>Инверсия выхода пищалки   </td><td><input type='checkbox' id='sndpol' name='sndpol' /></td>
 			</tr>
 			<tr>
-				<td>12 часовой формат      </td><td><input type='checkbox' id='upm'   name='upm'  /></td>
-			</tr>
-				<tr><td>Сигнал каждый час  </td><td><input type='checkbox' id='ehb'   name='ehb'  /></td>
-			</tr>
-				<tr><td>Инверсия выхода пищалки   </td><td><input type='checkbox' id='sndpol' name='sndpol' /></td></tr>
-				<tr><td>Инверсия выхода светодиода</td><td><input type='checkbox' id='ledpol' name='ledpol' /></td></tr>
-				<tr><td>Ночной режим</td>
-				<td>с&nbsp;   <input type='text' maxlength='2' size='1' id='nmstart' name='nmstart'/>
-				&nbsp;до&nbsp;<input type='text' maxlength='2' size='1' id='nmstop'  name='nmstop' /></td>
-			</tr>
-			<tr>
-				<td>Тип RTC</td>
-				<td><select id='rtyp' name='rtyp'>
-					<option value = '0'> Не использовать RTC </option>
-					<option value = '1'> DS3231 </option>
-					<option value = '2'> DS1302 </option>
-					<option value = '3'> DS1307 </option>
-				</select></td>
+				<td>Инверсия выхода светодиода</td><td><input type='checkbox' id='ledpol' name='ledpol' /></td>
 			</tr>
 			<tr>
 				<td colspan='2' class='h'>GPIO</td>
@@ -191,7 +174,7 @@
 				<td>UAR</td><td><input type='text' size='3' id='uar' name='uar'/></td>
 			</tr>
  			<tr>
-				<td colspan='2' class='h'><input type='submit' value='Записать' onclick='set_parc();'/></td>
+				<td colspan='2' class='h'><button onclick='set_set_parc();'>Записать</button></td>
 			</tr>
 		</table>
 
@@ -201,20 +184,14 @@
 			{
 				var xh = new XMLHttpRequest();
 				xh.open("GET", "/jclock", true);
+				xh.send(null);
 				xh.onreadystatechange =  function()
 				{
-				  if (xh.readyState == 4 && xh.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh.responseText);
-						document.getElementById('tzone').value = res.tzon;
-						document.getElementById('acorr').checked = res.acor;
-						document.getElementById('upm').checked = res.uspm;
-						document.getElementById('nmstart').value = res.nstr;
-						document.getElementById('nmstop').value = res.nend;
-						document.getElementById('ehb').checked = res.evhb;
 						document.getElementById('sndpol').checked = res.sndpol;
 						document.getElementById('ledpol').checked = res.ledpol;
-						document.getElementById('rtyp').value = res.trts;
 
 						document.getElementById('sda').value = res.sda;
 						document.getElementById('scl').value = res.scl;
@@ -232,7 +209,6 @@
 						document.getElementById('uar').value = res.uar;
 					}
 				}
-				xh.send(null);
 			}
 
 			function set_parc()
@@ -268,11 +244,11 @@
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (xh.readyState==4 && xh.status==200) loadValues();
+					if (this.readyState == 4 && this.status == 200) loadValues();
 				}      
-				xh.send(null);
 			}
 		</script>
 	</body>

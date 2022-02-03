@@ -27,10 +27,6 @@
 			{
 				text-align:center;
 			}
-			option
-			{
-				text-align:center;
-			}
 			.menu
 			{
 				list-style-type: none;
@@ -136,16 +132,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td  colspan='2' ><button onclick='set_time();'>Установить</button></td>
-			</tr>
-			<tr>
-				<td colspan='2'></td>
-			</tr>
-			<tr>
 				<td  colspan='2' ><button onclick='time_ntp();'>Время по интернету</button></td>
-			</tr>
-			<tr>
-				<td colspan='2'></td>
 			</tr>
 
 			<tr>
@@ -250,7 +237,7 @@
 			</tr>
 
 			<tr>
-				<td colspan='2' ><button onclick='set_time_2();'>Записать</button></td>
+				<td  colspan='2' class='h'><input type='submit' value='Установить' onclick='set_time();' /></td>
 			</tr>
 		</table>
   
@@ -390,10 +377,7 @@
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
 				xh.send(null);
-			}
-			
-			function set_time_2()
-			{
+				
 				var acorr = 0, upm = 0, ehb = 0, sndpol = 0, ledpol = 0;
 
 				var tzone   = document.getElementById('tzone').value;
@@ -407,7 +391,7 @@
 				var antp2 = document.getElementById('antp2').value;
 				var antp3 = document.getElementById('antp3').value;
 
-				url = '/set_time2?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&srtyp='+srtyp+'&antp1='+antp1+'&antp2='+antp2+'&antp3='+antp3;
+				url = '/set_time2?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&antp1='+antp1+'&antp2='+antp2+'&antp3='+antp3;
 
 				var xh1 = new XMLHttpRequest();
 				xh1.open('GET', url, true);

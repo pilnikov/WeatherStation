@@ -1,9 +1,9 @@
 #include "my_wifi.h"
 
 
-wifi_data_t WF::loadConfig(const char *filename)
+wifi_cfg_data_t WF::loadConfig(const char *filename)
 {
-  wifi_data_t _data;
+  wifi_cfg_data_t _data;
 
   File file = LittleFS.open(filename, "r");
 
@@ -112,7 +112,7 @@ wifi_data_t WF::loadConfig(const char *filename)
   return _data;
 }
 
-void WF::saveConfig(const char * filename, wifi_data_t _data)
+void WF::saveConfig(const char * filename, wifi_cfg_data_t _data)
 {
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving wifi_data to config.json"));
 
@@ -165,9 +165,9 @@ void WF::saveConfig(const char * filename, wifi_data_t _data)
   configFile.close();
 }
 
-wifi_data_t WF::defaultConfig()
+wifi_cfg_data_t WF::defaultConfig()
 {
-  wifi_data_t _data;
+  wifi_cfg_data_t _data;
 
   // ---------------------------------------------------- WiFi Default
 

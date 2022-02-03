@@ -56,27 +56,39 @@ typedef struct
           sta_gw2[17],
           sta_dns12[17],
           sta_dns22[17];
-  IPAddress
-  cur_addr;
   bool
   wifi_off = false,
   st_ip1 = false,
-  st_ip2 = false,
+  st_ip2 = false;
+} wifi_cfg_data_t;
+
+typedef struct
+{
+  char
+  ssid[20];
+
+  IPAddress
+  addr;
+
+  bool
   cli = false,
-  ap = false;
-} wifi_data_t;
+   ap = false;
+} wifi_cur_data_t;
 
 class WF
 {
   public:
     void
-    saveConfig(const char *, wifi_data_t),
-    end(wifi_data_t);
+    saveConfig(const char *, wifi_cfg_data_t),
+    end(wifi_cur_data_t),
+	_shutdown();
 
-    wifi_data_t
+    wifi_cfg_data_t
     loadConfig(const char*),
-    defaultConfig(),
-    begin(wifi_data_t);
+    defaultConfig();
+	
+	wifi_cur_data_t
+	begin(wifi_cfg_data_t);
     
     IPAddress
     str_to_ip(char *strIP);
