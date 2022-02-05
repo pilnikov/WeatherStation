@@ -1,5 +1,5 @@
 
-void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_data_t rt, String local_ip, uint8_t c_br, char out[])
+void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[])
 {
   const char* stdr_0 = PSTR("ночь");
   const char* stdr_1 = PSTR("yтро");
@@ -93,7 +93,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
 
   char buf[254];
 
-  uint16_t ala_t = (int) rt.a_hour * 60 + rt.a_min;
+  uint16_t ala_t = (int) rta.hour * 60 + rta.min;
   uint16_t cur_t = (int) rt.hour * 60 + rt.min;
   uint8_t ala_h = trunc((ala_t - cur_t) / 60);
   ala_h = ala_h % 100;
@@ -181,7 +181,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 4:
           if ((ala_t > cur_t) & (ala_h < 24))
           {
-            sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
+            sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rta.hour, rta.min);
             _repeat = false;
           }
           break;
@@ -286,7 +286,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 4:
           if ((ala_t > cur_t) & (ala_h < 24))
           {
-            sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
+            sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rta.hour, rta.min);
             _repeat = false;
           }
           break;

@@ -53,17 +53,10 @@ conf_data_t loadConfig(const char *filename)
       memset(_data.news_api_key, 0, 33);
       memset(_data.news_source,   0, 17);
 
-      //---Clock.html----------------------------------------
-      //---Options for clock---------------------------------
-      _data.time_zone         = doc["tzo"];
-      _data.auto_corr         = doc["auto_corr"];
-      _data.use_pm            = doc["upm"];
-      _data.every_hour_beep   = doc["e_h_b"];
+      //---gpio.html----------------------------------------
+      //---Options for HW---------------------------------
       _data.snd_pola          = doc["snd_pola"];
       _data.led_pola          = doc["led_pola"];
-      _data.nm_start          = doc["nm_start"];
-      _data.nm_stop           = doc["nm_stop"];
-      _data.type_rtc          = doc["rtc_t"];
 
       //---GPIO-----------------------------------------------
       _data.gpio_sda          = doc["sda"];
@@ -144,19 +137,6 @@ conf_data_t loadConfig(const char *filename)
       _data.news_en            = doc["news_en"];
       strcpy(_data.news_api_key, doc["news_api"]);
       strcpy(_data.news_source,  doc["news_src"]);
-
-      //---Alarm.html----------------------------------------
-      //---Options for alarms--------------------------------
-      for (uint8_t j = 0; j <= 4; j++)
-      {
-        _data.alarms[0][j] = doc["al"]["0"][j];
-        _data.alarms[1][j] = doc["al"]["1"][j];
-        _data.alarms[2][j] = doc["al"]["2"][j];
-        _data.alarms[3][j] = doc["al"]["3"][j];
-        _data.alarms[4][j] = doc["al"]["4"][j];
-        _data.alarms[5][j] = doc["al"]["5"][j];
-        _data.alarms[6][j] = doc["al"]["6"][j];
-      }
     }
     else
     {
@@ -184,17 +164,10 @@ void saveConfig(const char *filename, conf_data_t _data)
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
 
-  //---Clock.html----------------------------------------
-  //---Options for clock---------------------------------
-  json["tzo"]                 = _data.time_zone;
-  json["auto_corr"]           = _data.auto_corr;
-  json["upm"]                 = _data.use_pm;
-  json["e_h_b"]               = _data.every_hour_beep;
+  //---gpio.html----------------------------------------
+  //---Options for HW---------------------------------
   json["snd_pola"]            = _data.snd_pola;
   json["led_pola"]            = _data.led_pola;
-  json["nm_start"]            = _data.nm_start;
-  json["nm_stop"]             = _data.nm_stop;
-  json["rtc_t"]               = _data.type_rtc;
 
   //---GPIO-----------------------------------------------
   json["sda"]                 = _data.gpio_sda;
@@ -279,38 +252,6 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["news_src"]            = _data.news_source;
 
 
-  //---Alarm.html----------------------------------------
-  //---Options for alarms--------------------------------
-  DynamicJsonDocument doc2(700);
-  JsonObject json2 = doc2.to<JsonObject>();
-
-  JsonArray al0 = json2.createNestedArray("0");
-  JsonArray al1 = json2.createNestedArray("1");
-  JsonArray al2 = json2.createNestedArray("2");
-  JsonArray al3 = json2.createNestedArray("3");
-  JsonArray al4 = json2.createNestedArray("4");
-  JsonArray al5 = json2.createNestedArray("5");
-  JsonArray al6 = json2.createNestedArray("6");
-  for (uint8_t j = 0; j <= 4; j++)
-  {
-    al0.add(_data.alarms[0][j]);
-    al1.add(_data.alarms[1][j]);
-    al2.add(_data.alarms[2][j]);
-    al3.add(_data.alarms[3][j]);
-    al4.add(_data.alarms[4][j]);
-    al5.add(_data.alarms[5][j]);
-    al6.add(_data.alarms[6][j]);
-  }
-
-  JsonObject alarms = json.createNestedObject("al");
-  alarms["0"] = al0;
-  alarms["1"] = al1;
-  alarms["2"] = al2;
-  alarms["3"] = al3;
-  alarms["4"] = al4;
-  alarms["5"] = al5;
-  alarms["6"] = al6;
-
   // Delete existing file, otherwise the configuration is appended to the file
   LittleFS.remove(filename);
   File configFile = LittleFS.open(filename, "w"); //Open config file for writing
@@ -346,9 +287,6 @@ conf_data_t defaultConfig()
   strcpy(_data.news_source, "lenta");
 
 
-  _data.auto_corr        = true;
-  _data.use_pm           = false;
-  _data.every_hour_beep  = true;
   _data.snd_pola         = false;
   _data.led_pola         = false;
   _data.rus_lng          = false;
@@ -359,7 +297,6 @@ conf_data_t defaultConfig()
   _data.color_up         = 0;
   _data.color_dwn        = 0;
   _data.use_pp           = 0;
-  _data.time_zone        = 5;
   _data.type_vdrv        = 0;
   _data.type_disp        = 0;
   _data.type_snr1        = 0;
@@ -368,13 +305,10 @@ conf_data_t defaultConfig()
   _data.type_snrp        = 0;
   _data.use_es           = 0;
   _data.use_ts           = 0;
-  _data.type_rtc         = 0;
   _data.type_thermo      = 0;
   _data.src_thermo       = 0;
   _data.lb_thermo        = 0;
   _data.hb_thermo        = 0;
-  _data.nm_start         = 23;
-  _data.nm_stop          = 7;
   _data.ts_ch_id         = 0;
   _data.pp_city_id       = 28438;
   _data.period           = 10;
@@ -439,9 +373,6 @@ conf_data_t defaultConfig()
 
   _data.news_en          = false;
 
-  for (uint8_t i = 0; i <= 6; i++)
-    for (uint8_t j = 0; j <= 4; j++) _data.alarms[i][j] = 0;
-
   return _data;
 }
 
@@ -469,13 +400,9 @@ conf_data_t defaultConfig()
   memset(_data.ch3_name,    0,  17);
 #endif
   _data.boot_mode        = 2;
-  _data.auto_corr        = true;
-  _data.use_pm           = false;
-  _data.every_hour_beep  = true;
   _data.snd_pola         = false;
   _data.led_pola         = true;
   _data.rus_lng          = true;
-  _data.time_zone        = 5;
 
 #if defined _dacha
   _data.type_vdrv        = 2;
@@ -496,13 +423,10 @@ conf_data_t defaultConfig()
   _data.type_snrp        = 10;
 #endif
 
-  _data.type_rtc         = 1;
   _data.type_thermo      = 0;
   _data.src_thermo       = 0;
   _data.lb_thermo        = 0;
   _data.hb_thermo        = 0;
-  _data.nm_start         = 0;
-  _data.nm_stop          = 7;
   _data.period           = 10;
   _data.man_br           = 14;
   _data.nmd_br           = 2;
@@ -535,53 +459,6 @@ conf_data_t defaultConfig()
   _data.br_level[1]      = 1;
   _data.br_level[2]      = 1;
   _data.br_level[3]      = 254;
-#endif
-
-  for (uint8_t i = 0; i <= 6; i++)
-  {
-    for (uint8_t j = 0; j <= 4; j++)
-    {
-      _data.alarms[i][j] = 0;
-    }
-  }
-
-#if defined _dacha
-  _data.alarms[0][0] = 2;
-  _data.alarms[0][1] = 06;
-  _data.alarms[0][2] = 30;
-  _data.alarms[0][3] = 13;
-  _data.alarms[0][4] = 0;
-
-#elif defined _work
-  _data.alarms[0][0] = 2;
-  _data.alarms[0][1] = 16;
-  _data.alarms[0][2] = 30;
-  _data.alarms[0][3] = 13;
-  _data.alarms[0][4] = 0;
-
-  _data.alarms[1][0] = 2;
-  _data.alarms[1][1] = 16;
-  _data.alarms[1][2] = 38;
-  _data.alarms[1][3] = 7;
-  _data.alarms[1][4] = 0;
-
-  _data.alarms[2][0] = 2;
-  _data.alarms[2][1] = 11;
-  _data.alarms[2][2] = 59;
-  _data.alarms[2][3] = 8;
-  _data.alarms[2][4] = 0;
-
-  _data.alarms[3][0] = 2;
-  _data.alarms[3][1] = 7;
-  _data.alarms[3][2] = 30;
-  _data.alarms[3][3] = 8;
-  _data.alarms[3][4] = 3;
-
-  _data.alarms[4][0] = 1;
-  _data.alarms[4][1] = 16;
-  _data.alarms[4][2] = 50;
-  _data.alarms[4][3] = 8;
-  _data.alarms[4][4] = 4;
 #endif
 
   return _data;

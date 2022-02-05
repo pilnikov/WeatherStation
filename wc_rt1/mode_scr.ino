@@ -1,8 +1,8 @@
 
-uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t, conf_data_t, snr_data_t, rtc_data_t, uint8_t);
+uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t, conf_data_t, snr_data_t, rtc_time_data_t,  rtc_alm_data_t, uint8_t, bool);
 
 
-uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf_data_t cf, snr_data_t sn, rtc_data_t rt, uint8_t c_br)
+uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf_data_t cf, snr_data_t sn, rtc_time_data_t rt,  rtc_alm_data_t rta, uint8_t c_br, bool pm)
 {
 
   const char* name_week_0 = PSTR("  ");
@@ -17,7 +17,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
   const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
   char tStr[25];
 
-  uint8_t h = cf.use_pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;
+  uint8_t h = pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;
   h = h % 100;
 
   bool _repeat = true;
@@ -108,10 +108,10 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 10: //Актуальный будильник
-            if (rt.a_hour == 62 && rt.a_min == 62) mod ++;
+            if (rta.hour == 62 && rta.min == 62) mod ++;
             else
             {
-              sprintf_P(tStr, PSTR("%2d%02d"), rt.a_hour, rt.a_min);
+              sprintf_P(tStr, PSTR("%2d%02d"), rta.hour, rta.min);
               _repeat = false;
             }
             break;
@@ -204,10 +204,10 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 9: //Актуальный будильник
-            if (rt.a_hour == 62 && rt.a_min == 62) mod ++;
+            if (rta.hour == 62 && rta.min == 62) mod ++;
             else
             {
-              sprintf_P(tStr, PSTR("AL%2d.%02d"), rt.a_hour, rt.a_min);
+              sprintf_P(tStr, PSTR("AL%2d.%02d"), rta.hour, rta.min);
               _repeat = false;
             }
             break;
@@ -274,8 +274,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 6: //Актуальный будильник, текущая яркость
-            if (rt.a_hour == 62 && rt.a_min == 62) sprintf_P(tStr, PSTR("A----L%2d"), c_br % 100);
-            else sprintf_P(tStr, PSTR("A%2u.%02dL%2d"), rt.a_hour % 100, rt.a_min % 100, c_br % 100);
+            if (rta.hour == 62 && rta.min == 62) sprintf_P(tStr, PSTR("A----L%2d"), c_br % 100);
+            else sprintf_P(tStr, PSTR("A%2u.%02dL%2d"), rta.hour % 100, rta.min % 100, c_br % 100);
             _repeat = false;
             break;
 

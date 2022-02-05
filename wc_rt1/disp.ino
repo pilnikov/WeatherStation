@@ -262,29 +262,16 @@ void pcf8574_init()
   lcd -> print (st1);
 }
 
-void lcd_time(rtc_data_t rt)
+void lcd_time(char *buf, bool t_up)
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
-  uint16_t ala_t = (int) rt.a_hour * 60 + rt.a_min;
-  uint16_t cur_t = (int) rt.hour * 60 + rt.min;
-  uint8_t ala_h = trunc((ala_t - cur_t) / 60);
-  ala_h = ala_h % 100;
-  bool _alarmed = ((ala_t > cur_t) & (ala_h < 24));
-
-  char buf[32];
-  memset (buf, 0, 32);
-
-  if (_alarmed)
-  {
-    if (conf_data.rus_lng) sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d\355"), rt.hour, rt.min, rt.sec, rt.a_hour, rt.a_min);
-    else sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d"), rt.hour, rt.min, rt.sec, rt.a_hour, rt.a_min);
-  }
-  else  sprintf_P(buf, PSTR("%3d:%02d:%02d --:-- "), rt.hour, rt.min, rt.sec);
-  if (conf_data.time_up) lcd -> setCursor(0, 0);
+  if (t_up) lcd -> setCursor(0, 0);
   else lcd -> setCursor(0, 1);
   lcd -> print(buf);
 }
+
+
 
 ///////////////////////////////////////////////////7seg////////////////////////////////////////////////////////////
 void tm1637_init()
@@ -475,7 +462,7 @@ void ili_time(void)
 
   tft -> setTextSize(5);
 
-  if (conf_data.use_pm)
+  if (rtc_cfg.use_pm)
   {
     //uint8_t h = (rtc_data.hour + 11) % 12 + 1; // take care of noon and midnight
     //snprintf(time_str, "%2d:%02d:%02d\n", h, rtc_data.min, rtc_data.sec);
@@ -491,7 +478,7 @@ void ili_time(void)
   //  tft -> setTextAlignment(TEXT_ALIGN_LEFT);
   tft -> setTextSize(2);
   tft -> setTextColor(ILI9341_BLUE);
-  if (conf_data.use_pm)
+  if (rtc_cfg.use_pm)
   {
     //    snprintf(time_str, "%s\n%s", dstAbbrev, rtc_data.hour >= 12 ? "PM" : "AM");
     tft -> setCursor(195, 27);

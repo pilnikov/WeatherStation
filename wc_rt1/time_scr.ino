@@ -1,78 +1,98 @@
 
 void time_view(uint8_t, uint8_t);
 
+char buf[16];
 
 void time_view(uint8_t type_disp, uint8_t type_vdrv)
 {
+
+  uint8_t h = rtc_cfg.use_pm && rtc_time.hour != 12 ? rtc_time.hour % 12 : rtc_time.hour;
+  h = h % 100;
+
+  memset (buf, 0, 16);
+
+  uint16_t ala_t = (int) rtc_alm.hour * 60 + rtc_alm.min;
+  uint16_t cur_t = (int) rtc_time.hour * 60 + rtc_time.min;
+  uint8_t ala_h = trunc((ala_t - cur_t) / 60);
+  ala_h = ala_h % 100;
+  bool _alarmed = ((ala_t > cur_t) & (ala_h < 24));
+
+
+
   uint8_t mod = 13, x1 = 0;
   if (!conf_data.time_up) x1 = 32;
-  if (end_run_st || nm_is_on) f_dsp.CLS(screen, sizeof screen);
+  if (end_run_st || rtc_time.nm_is_on) f_dsp.CLS(screen, sizeof screen);
   switch (type_disp)
   {
     case 1:
       // 7SEGx4D
-      if (nm_is_on || disp_mode == 10) disp_mode = 13;
-      seg7_mode(disp_mode, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (rtc_time.nm_is_on || disp_mode == 10) disp_mode = 13;
+      seg7_mode(disp_mode, 4, screen, 0, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
       if (blinkColon) f_dsp.printDot(3, screen);
       break;
     case 2:
       // 7SEGx6D
-      if (nm_is_on || disp_mode == 9) disp_mode = 11;
-      seg7_mode(disp_mode, 6, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (rtc_time.nm_is_on || disp_mode == 9) disp_mode = 11;
+      seg7_mode(disp_mode, 6, screen, 0, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
       break;
     case 3:
       // 7SEGx8D
-      if (nm_is_on || disp_mode == 6) disp_mode = 7;
-      seg7_mode(disp_mode, 8, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (rtc_time.nm_is_on || disp_mode == 6) disp_mode = 7;
+      seg7_mode(disp_mode, 8, screen, 0, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
       break;
     case 10:
       // 14SEGx4D
-      if (nm_is_on || disp_mode == 10) disp_mode = 13;
-      seg7_mode(disp_mode, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      if (rtc_time.nm_is_on || disp_mode == 10) disp_mode = 13;
+      seg7_mode(disp_mode, 4, screen, 0, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
       if (blinkColon) f_dsp.printDot(3, screen);
       break;
     case 11:
       // 14SEGx8D
-      seg7_mode(mod, 4, screen, x1/4, conf_data, snr_data, rtc_data, cur_br);
-      if (blinkColon) f_dsp.printDot(x1/4 + 2, screen);
+      seg7_mode(mod, 4, screen, x1 / 4, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
+      if (blinkColon) f_dsp.printDot(x1 / 4 + 2, screen);
       break;
     case 12:
       // 16SEGx4D
       break;
     case 13:
       // 16SEGx8D
-      seg7_mode(mod, 4, screen, x1/4, conf_data, snr_data, rtc_data, cur_br);
+      seg7_mode(mod, 4, screen, x1 / 4, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
       if (disp_mode == 10) disp_mode = 1;
-      if (!nm_is_on) seg7_mode(disp_mode, 4, screen, 8, conf_data, snr_data, rtc_data, cur_br);
-      if (blinkColon) f_dsp.printDot(x1/4 + 2, screen);
+      if (!rtc_time.nm_is_on) seg7_mode(disp_mode, 4, screen, 8, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
+      if (blinkColon) f_dsp.printDot(x1 / 4 + 2, screen);
       break;
     case 19:
       // 2LINEx16D
-      lcd_time(rtc_data);
+      if (_alarmed)
+      {
+        if (conf_data.rus_lng) sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d\355"), h, rtc_time.min, rtc_time.sec, rtc_alm.hour, rtc_alm.min);
+        else sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d"), h, rtc_time.min, rtc_time.sec, rtc_alm.hour, rtc_alm.min);
+      }
+      else  sprintf_P(buf, PSTR("%3d:%02d:%02d --:-- "), h, rtc_time.min, rtc_time.sec);
       break;
     case 20:
       // M32x8MONO
-      m32_8time_act = f_dsp.time_m32_8(screen, 0, oldDigit, digPos_x, d_notequal, buffud, font5x7, conf_data.use_pm, q_dig, rtc_data);
+      m32_8time_act = f_dsp.time_m32_8(screen, 0, oldDigit, digPos_x, d_notequal, buffud, font5x7, rtc_cfg.use_pm, q_dig, rtc_time);
       break;
     case 21:
       // m32x16MONO
-      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, conf_data.use_pm, q_dig, rtc_data);
+      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, rtc_cfg.use_pm, q_dig, rtc_time);
       break;
     case 22:
       // M32x16BICOL
-      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, conf_data.use_pm, q_dig, rtc_data);
+      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, rtc_cfg.use_pm, q_dig, rtc_time);
       break;
     case 23:
       // M32x16COLOR
-      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, conf_data.use_pm, q_dig, rtc_data);
+      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, rtc_cfg.use_pm, q_dig, rtc_time);
       break;
     case 24:
       // M64x32COLOR
-      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, conf_data.use_pm, q_dig, rtc_data);
+      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, rtc_cfg.use_pm, q_dig, rtc_time);
       break;
     case 25:
       // M64x64COLOR
-      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, conf_data.use_pm, q_dig, rtc_data);
+      m32_8time_act = f_dsp.time_m32_8(screen, x1, oldDigit, digPos_x, d_notequal, buffud, font5x7, rtc_cfg.use_pm, q_dig, rtc_time);
       break;
     case 29:
       // 320x240COLOR
@@ -83,10 +103,10 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 31:
       // CUSTOM_2
-      seg7_mode(mod, 4, screen, 0, conf_data, snr_data, rtc_data, cur_br);
+      seg7_mode(mod, 4, screen, 0, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
       if (blinkColon) f_dsp.printDot(5, screen);
       if (disp_mode == 9) disp_mode = 1;
-      if (!nm_is_on) seg7_mode(disp_mode, 6, screen, 8, conf_data, snr_data, rtc_data, cur_br);
+      if (!rtc_time.nm_is_on) seg7_mode(disp_mode, 6, screen, 8, conf_data, snr_data, rtc_time, rtc_alm, cur_br, rtc_cfg.use_pm);
       f_dsp.compressor7(screen, 0, 10);
       break;
     default:
@@ -138,6 +158,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       break;
     case 12:
       //PCF8574
+      lcd_time(buf, conf_data.time_up);
       break;
     default:
       break;

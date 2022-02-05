@@ -9,6 +9,7 @@
 #endif
 
 #include "Udt.h"
+#include <myrtc.h>
 
 class FD
 {
@@ -32,7 +33,7 @@ class FD
    bool
 	scroll_String(int8_t, int8_t, char*, uint8_t&, uint8_t&, byte*, const byte*, uint8_t, uint8_t, uint8_t), // Бегущая строка
     lcd_mov_str(uint8_t, uint8_t&, char*, char*), // Бегущая строка для LCD
-    time_m32_8(byte*, uint8_t, unsigned char*, const uint8_t*, bool*, uint16_t*, const byte*, bool, const uint8_t, rtc_data_t); // Отображение текущего времени на матричном (32х8) дисплее 
+    time_m32_8(byte*, uint8_t, unsigned char*, const uint8_t*, bool*, uint16_t*, const byte*, bool, const uint8_t, rtc_time_data_t); // Отображение текущего времени на матричном (32х8) дисплее 
    
    uint8_t auto_br(uint16_t, conf_data_t);       // Авто регулировка яркости с расчетом пределов
    uint16_t ft_read(bool, uint16_t, const int);  // Селектор источника измерения освещенности

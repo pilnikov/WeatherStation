@@ -26,10 +26,10 @@
 #endif
 
 
-void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_data_t, String, uint8_t, char);
+void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_time_data_t, rtc_alm_data_t, String, uint8_t, char);
 
 void pcf8574_init();
-void lcd_time(rtc_data_t);
+void lcd_time(char*, bool);
 void m7219_init();
 void m7219_ramFormer(byte*);
 void ht1632_init();

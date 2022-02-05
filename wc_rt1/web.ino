@@ -3,40 +3,42 @@
 void web_setup()
 {
   server.on("/ntp", handleNTP);
-  server.on("/set_time", handleSetTime);
-  server.on("/set_wifi", handleSetWiFi);
-  server.on("/set_ip1",  handleSetIp1);
-  server.on("/set_ip2",  handleSetIp2);
-  server.on("/exit", handleExit);
+  server.on("/set_time1",   handleSetTime1);
+  server.on("/set_time2",   handleSetTime2);
+  server.on("/set_alarm",   handleSetAlarm);
+  server.on("/set_wifi",    handleSetWiFi);
+  server.on("/set_ip1",     handleSetIp1);
+  server.on("/set_ip2",     handleSetIp2);
+  server.on("/exit",        handleExit);
 # ifdef MATRIX
-  server.on("/set_font", handleSetFont);
+  server.on("/set_font",    handleSetFont);
 # endif //MATRIX
-  server.on("/sel_anum", handleSelNum);
-  server.on("/set_pard", handleSetPard);
-  server.on("/set_pars1", handleSetPars1);
-  server.on("/set_pars2", handleSetPars2);
-  server.on("/set_pars3", handleSetPars3);
-  server.on("/rcv_snr", handleRcvSnr);
-  server.on("/set_parc", handleSetParc);
-  server.on("/set_alm", handleSetAlarm);
-  server.on("/set_partrm", handleSetPartrm);
-  server.on("/set_news", handleSetNews);
-  server.on("/jactt", handlejActT);
-  server.on("/jactb", handlejActB);
-  server.on("/jacta", handlejActA);
-  server.on("/jtime", handlejTime);
-  server.on("/jwifi", handlejWiFi);
-  server.on("/jclock", handlejParc);
-  server.on("/jdisp", handlejPard);
-  server.on("/jsens", handlejPars);
-  server.on("/jts", handlejTS);
-  server.on("/jalarm", handlejAlarm);
-  server.on("/jsnr", handlejSnr);
-  server.on("/updS", handleUpdSnr);
-  server.on("/juart", handlejUart);
-  server.on("/jtrm", handlejTrm);
-  server.on("/jnews", handlejNews);
-  server.on("/jnewst", handlejNewsT);
+  server.on("/set_pard",    handleSetPard);
+  server.on("/set_pars1",   handleSetPars1);
+  server.on("/set_pars2",   handleSetPars2);
+  server.on("/set_pars3",   handleSetPars3);
+  server.on("/rcv_snr",     handleRcvSnr);
+  server.on("/set_parc",    handleSetParc);
+  server.on("/set_partrm",  handleSetPartrm);
+  server.on("/set_news",    handleSetNews);
+
+  server.on("/jactt",       handlejActT);
+  server.on("/jacta",       handlejActA);
+  server.on("/jactb",       handlejActB);
+  server.on("/jtime1",      handlejTime1);
+  server.on("/jtime2",      handlejTime2);
+  server.on("/jalarm",      handlejAlarm);
+  server.on("/jwifi",       handlejWiFi);
+  server.on("/jclock",      handlejParc);
+  server.on("/jdisp",       handlejPard);
+  server.on("/jsens",       handlejPars);
+  server.on("/jts",         handlejTS);
+  server.on("/jsnr",        handlejSnr);
+  server.on("/updS",        handleUpdSnr);
+  server.on("/juart",       handlejUart);
+  server.on("/jtrm",        handlejTrm);
+  server.on("/jnews",       handlejNews);
+  server.on("/jnewst",      handlejNewsT);
 
   //-------------------------------------------------------------- for LittleFS
   //list directory
@@ -99,19 +101,16 @@ void stop_serv()
   wifi.end(wifi_data_cur);
 }
 
-//-------------------------------------------------------------- handlejTime
-void handlejTime()
+void handlejTime1()
 {
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  rtc_data_t rt = rtc_data;
-
-  json["jhour"]  = rt.hour;
-  json["jmin"]   = rt.min;
-  json["jday"]   = rt.day;
-  json["jmonth"] = rt.month;
-  json["jyear"]  = rt.year;
+  json["hour"]  = rtc_time.hour;
+  json["min"]   = rtc_time.min;
+  json["day"]   = rtc_time.day;
+  json["month"] = rtc_time.month;
+  json["year"]  = rtc_time.year;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -120,10 +119,77 @@ void handlejTime()
   st = String();
 }
 
-//-------------------------------------------------------------- handleSetTime
-void handleSetTime()
+//-------------------------------------------------------------- handlejTime2
+void handlejTime2()
 {
-  //url='/set_time?h='+h+'&m='+m+'&d='+d+'&mm='+mm+'&y='+y;
+  DynamicJsonDocument jsonBuffer(512);
+  JsonObject json = jsonBuffer.to<JsonObject>();
+
+  json["tzon"]  = rtc_cfg.time_zone;
+  json["acor"]  = rtc_cfg.auto_corr;
+  json["uspm"]  = rtc_cfg.use_pm;
+  json["nstr"]  = rtc_cfg.nm_start;
+  json["nend"]  = rtc_cfg.nm_stop;
+  json["evhb"]  = rtc_cfg.every_hour_beep;
+  json["trts"]  = rtc_cfg.c_type;
+  json["antp1"] = rtc_cfg.ntp_srv[0];
+  json["antp2"] = rtc_cfg.ntp_srv[1];
+  json["antp3"] = rtc_cfg.ntp_srv[2];
+
+  String st = String();
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+
+  server.send(200, "text/json", st);
+  st = String();
+}
+
+//-------------------------------------------------------------- handlejAlarm
+void handlejAlarm()
+{
+  DynamicJsonDocument jsonBuffer(700);
+  JsonObject json = jsonBuffer.to<JsonObject>();
+
+  DynamicJsonDocument doc2(700);
+  JsonObject json2 = doc2.to<JsonObject>();
+
+  JsonArray al0 = json2.createNestedArray("0");
+  JsonArray al1 = json2.createNestedArray("1");
+  JsonArray al2 = json2.createNestedArray("2");
+  JsonArray al3 = json2.createNestedArray("3");
+  JsonArray al4 = json2.createNestedArray("4");
+  JsonArray al5 = json2.createNestedArray("5");
+  JsonArray al6 = json2.createNestedArray("6");
+  for (uint8_t j = 0; j <= 4; j++)
+  {
+    al0.add(rtc_cfg.alarms[0][j]);
+    al1.add(rtc_cfg.alarms[1][j]);
+    al2.add(rtc_cfg.alarms[2][j]);
+    al3.add(rtc_cfg.alarms[3][j]);
+    al4.add(rtc_cfg.alarms[4][j]);
+    al5.add(rtc_cfg.alarms[5][j]);
+    al6.add(rtc_cfg.alarms[6][j]);
+  }
+
+  JsonObject alarms = json.createNestedObject("al");
+  alarms["0"] = al0;
+  alarms["1"] = al1;
+  alarms["2"] = al2;
+  alarms["3"] = al3;
+  alarms["4"] = al4;
+  alarms["5"] = al5;
+  alarms["6"] = al6;
+
+  String st = String();
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+
+  server.send(200, "text/json", st);
+  st = String();
+}
+
+//-------------------------------------------------------------- handleSetTime1
+void handleSetTime1()
+{
+  //url='/set_time1?h='+h+'&m='+m+'&d='+d+'&mm='+mm+'&y='+y;
 
   uint8_t  hr = server.arg("h").toInt();
   uint8_t  mn = server.arg("m").toInt();
@@ -136,8 +202,64 @@ void handleSetTime()
   if (debug_level == 14) DBG_OUT_PORT.printf("set time = %02d.%02d.%04d %02d:%02d:%02d\n",
         dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
 
-  man_set_time(dt1);
+  rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
+  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 
+  server.send(200, "text/html", "OK!");
+  serv_ms = millis();
+}
+
+//-------------------------------------------------------------- handleSetTime2
+void handleSetTime2()
+{
+  //url = '/set_time2?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&srtyp='+srtyp+'&antp1='+antp1+'&antp2='+antp2+'&antp3='+antp3;
+
+  rtc_cfg.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
+  rtc_cfg.auto_corr = (server.arg("acorr") == "1");
+  rtc_cfg.use_pm = (server.arg("upm") == "1");
+  rtc_cfg.nm_start = constrain(server.arg("nmstart").toInt(), 0, 23);
+  rtc_cfg.nm_stop  = constrain(server.arg("nmstop" ).toInt(), 0, 23);
+  rtc_cfg.every_hour_beep = (server.arg("ehb") == "1");
+  rtc_cfg.c_type = server.arg("srtyp").toInt();
+  strcpy(rtc_cfg.ntp_srv[0], server.arg("antp1").c_str());
+  strcpy(rtc_cfg.ntp_srv[1], server.arg("antp2").c_str());
+  strcpy(rtc_cfg.ntp_srv[2], server.arg("antp3").c_str());
+
+  conf_f = "/conf_rtc.json";
+  myrtccfg.saveConfig(conf_f, rtc_cfg);
+  server.send(200, "text/html", "OK!");
+  serv_ms = millis();
+
+  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+}
+
+//-------------------------------------------------------------- handleSetAlarm
+void handleSetAlarm()
+{
+  //url = '/set_alarm?sanum='+sanum+'&satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
+
+  uint8_t alm_num = server.arg("sanum").toInt(); // номер будильника
+  rtc_cfg.alarms[alm_num][0] = server.arg("satyp").toInt();
+  uint8_t val = server.arg("ahour").toInt(); // час
+  rtc_cfg.alarms[alm_num][1] = constrain(val, 0, 23);
+  val = server.arg("amin").toInt(); // минута
+  rtc_cfg.alarms[alm_num][2] = constrain(val, 0, 59);
+  rtc_cfg.alarms[alm_num][3] = server.arg("samel").toInt();
+  rtc_cfg.alarms[alm_num][4] = server.arg("saon").toInt();
+
+  if (debug_level == 14)
+  {
+    DBG_OUT_PORT.print(alm_num); DBG_OUT_PORT.print(F(" alarm is...."));
+    for (int n = 0; n < 5; n++)
+    {
+      DBG_OUT_PORT.print(rtc_cfg.alarms[alm_num][n]); DBG_OUT_PORT.print(F(","));
+    }
+    DBG_OUT_PORT.println();
+  }
+
+  conf_f = "/conf_rtc.json";
+  myrtccfg.saveConfig(conf_f, rtc_cfg);
+  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -145,7 +267,13 @@ void handleSetTime()
 //-------------------------------------------------------------- handleNTP
 void handleNTP()
 {
-  GetNtp();
+  RtcDateTime c_time;
+  if (wifi_data_cur.cli)
+  {
+    c_time = myrtc.GetNtp(rtc_cfg);
+    rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
+    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+  }
 
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -571,15 +699,8 @@ void handlejParc()
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["tzon"] = conf_data.time_zone;
-  json["acor"] = conf_data.auto_corr;
-  json["uspm"] = conf_data.use_pm;
-  json["nstr"] = conf_data.nm_start;
-  json["nend"] = conf_data.nm_stop;
-  json["evhb"] = conf_data.every_hour_beep;
   json["sndpol"] = conf_data.snd_pola;
   json["ledpol"] = conf_data.led_pola;
-  json["trts"] = conf_data.type_rtc;
 
   json["sda"] = conf_data.gpio_sda;
   json["scl"] = conf_data.gpio_scl;
@@ -606,19 +727,12 @@ void handlejParc()
 //-------------------------------------------------------------- handleSetParc
 void handleSetParc()
 {
-  //url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+
+  //url = '/set_parc?sndpol='+sndpol+'&ledpol='+ledpol+
   //'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+
   //'&dht='+dht+'&ana='+ana+'&uar='+uar;
 
-  conf_data.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
-  conf_data.auto_corr = (server.arg("acorr") == "1");
-  conf_data.use_pm = (server.arg("upm") == "1");
-  conf_data.nm_start = constrain(server.arg("nmstart").toInt(), 0, 23);
-  conf_data.nm_stop  = constrain(server.arg("nmstop" ).toInt(), 0, 23);
-  conf_data.every_hour_beep = (server.arg("ehb") == "1");
   conf_data.snd_pola = (server.arg("sndpol") == "1");
   conf_data.led_pola = (server.arg("ledpol") == "1");
-  conf_data.type_rtc = server.arg("srtyp").toInt();
 
   conf_data.gpio_sda = constrain(server.arg("sda").toInt(), 0, 255);
   conf_data.gpio_scl = constrain(server.arg("scl").toInt(), 0, 255);
@@ -642,78 +756,10 @@ void handleSetParc()
   handleExit();
 }
 
-//-------------------------------------------------------------- handlejAlarm
-void handlejAlarm()
-{
-  rtc_data_t rt = rtc_data;
-
-  DynamicJsonDocument jsonBuffer(512);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["anum"] = rt.a_num;
-  json["atyp"] = conf_data.alarms[rt.a_num][0];
-  json["ahou"] = conf_data.alarms[rt.a_num][1];
-  json["amin"] = conf_data.alarms[rt.a_num][2];
-  json["amel"] = conf_data.alarms[rt.a_num][3];
-  json["aact"] = conf_data.alarms[rt.a_num][4];
-  json["acth"] = rt.a_hour;
-  json["actm"] = rt.a_min;
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
-}
-
-//-------------------------------------------------------------- handleSetAlarm
-void handleSetAlarm()
-{
-  //url='/set_alm?satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
-  rtc_data_t rt = rtc_data;
-
-  conf_data.alarms[rt.a_num][0] = server.arg("satyp").toInt();
-  uint8_t val = server.arg("ahour").toInt(); // час
-  conf_data.alarms[rt.a_num][1] = constrain(val, 0, 23);
-  val = server.arg("amin").toInt(); // минута
-  conf_data.alarms[rt.a_num][2] = constrain(val, 0, 59);
-  conf_data.alarms[rt.a_num][3] = server.arg("samel").toInt();
-  conf_data.alarms[rt.a_num][4] = server.arg("saon").toInt();
-
-  if (debug_level == 14)
-  {
-    DBG_OUT_PORT.print(rt.a_num); DBG_OUT_PORT.print(F(" alarm is...."));
-    for (int n = 0; n <= 4; n++)
-    {
-      DBG_OUT_PORT.print(conf_data.alarms[rt.a_num][n]); DBG_OUT_PORT.print(F(","));
-    }
-    DBG_OUT_PORT.println();
-  }
-
-  conf_f = "/config.json";
-  saveConfig(conf_f, conf_data);
-  set_alarm();
-  server.send(200, "text/html", "OK!");
-  serv_ms = millis();
-}
-
-//-------------------------------------------------------------- handleSelectNumber
-void handleSelNum()
-{
-  //url='/sel_anum?sanum='+sanum;
-
-  uint8_t val = server.arg("sanum").toInt();
-  rtc_data.a_num = constrain(val, 0, 6);
-  if (debug_level == 14) DBG_OUT_PORT.printf("number of alarm is....%u", rtc_data.a_num);
-
-  server.send(200, "text/html", "Ok!");
-  serv_ms = millis();
-}
-
 //-------------------------------------------------------------- handlejUart
 void handlejUart()
 {
-  server.send(200, "text/json", uart_st(snr_data, wf_data, conf_data, rtc_data, cur_br));
+  server.send(200, "text/json", uart_st(snr_data, wf_data, conf_data, rtc_time, rtc_alm, cur_br));
 }
 
 //-------------------------------------------------------------- handlejTrm
@@ -782,8 +828,9 @@ void handlejActA()
 {
   DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
-  json["acth"] = rtc_data.a_hour;
-  json["actm"] = rtc_data.a_min;
+  json["actw"] = wasAlarm;
+  json["acth"] = rtc_alm.hour;
+  json["actm"] = rtc_alm.min;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));

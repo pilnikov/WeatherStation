@@ -285,7 +285,7 @@ rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc
   return alm_data;
 }
 
-bool CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t time_data, rtc_alm_data_t* alm_data)
+bool CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_time_data_t time_data, rtc_alm_data_t* alm_data)
 {
   alm_data->al1_on = false;
   alm_data->al1_on = false;
@@ -316,11 +316,11 @@ bool CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t
     //if (debug_level == 13) DBG_OUT_PORT.println(F("alarm one is run!"));
     DBG_OUT_PORT.println(F("alarm one is run!"));
 
-    if (cfg_data.alarms[alm_data->num][0] == 4)
+    if (cfg_data->alarms[alm_data->num][0] == 4)
     {
-      cfg_data.alarms[alm_data->num][0] = 0; //Сбрасываем одноразовый будильник если это был он
+      cfg_data->alarms[alm_data->num][0] = 0; //Сбрасываем одноразовый будильник если это был он
       const char *conf_f = "/conf_rtc.json";
-      conf.saveConfig(conf_f, cfg_data);
+      conf.saveConfig(conf_f, *cfg_data);
     }
   }
 
@@ -328,7 +328,7 @@ bool CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t
   {
     //    if (debug_level == 13) DBG_OUT_PORT.println(F("alarm two is run!"));
     DBG_OUT_PORT.println(F("alarm two is run!"));
-    if (cfg_data.every_hour_beep & !time_data.nm_is_on)
+    if (cfg_data->every_hour_beep & !time_data.nm_is_on)
     {
       alm_data->muz = 15;
     }
@@ -449,4 +449,11 @@ RtcDateTime CT::GetNtp(rtc_cfg_data_t cfg_data)
   else   DBG_OUT_PORT.println(F("Failed !!!"));
   return out_time;
 #endif
+}
+
+int CT::get_temperature()
+{
+  RtcTemperature t1 = ds3231 -> GetTemperature();
+  int temp = round(t1.AsFloatDegC());
+  return temp;   
 }

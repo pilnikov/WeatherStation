@@ -305,10 +305,13 @@
 					{
 						var res1 = JSON.parse(xh1.responseText);
 						document.getElementById('atyp'  ).value = res1.al[num][0];
-			  			document.getElementById('ahour' ).value = res1.al[num][1];
-		  				document.getElementById('amin'  ).value = res1.al[num][2];
-	  					document.getElementById('amel'  ).value = res1.al[num][3];
+			  		document.getElementById('ahour' ).value = res1.al[num][1];
+		  			document.getElementById('amin'  ).value = res1.al[num][2];
+	  				document.getElementById('amel'  ).value = res1.al[num][3];
 						document.getElementById('aon'   ).value = res1.al[num][4];
+
+						sel_atyp();
+						sel_aact();      		
 					}
 				}
 			}
@@ -464,8 +467,12 @@
 					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res1 = JSON.parse(xh1.responseText);
-						document.getElementById('act_hour').value = res1.acth;
-						document.getElementById('act_min' ).value = res1.actm;
+						if (res1.acth != 62) document.getElementById('act_hour').value = res1.acth;
+						else document.getElementById('act_hour').value = "--";
+						if (res1.actm != 62) document.getElementById('act_min' ).value = res1.actm;
+						else document.getElementById('act_min').value = "--";
+						
+            if (res1.actw) sel_anum();
 					}
 				}
 			}

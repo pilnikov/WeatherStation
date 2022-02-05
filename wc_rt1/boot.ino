@@ -87,7 +87,7 @@ void runing_string_start() // ---------------------------- Запуск бегу
   memset(st1, 0, 254);
   memset(st2, 0, 20);
 
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
+  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1);
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
@@ -118,7 +118,11 @@ void firq0() // 1 hour
 
   if (wifi_data_cur.cli)
   {
-    if ((hour_cnt % 12 == 0) & conf_data.auto_corr) GetNtp();
+    if (rtc_cfg.auto_corr)
+    {
+      RtcDateTime c_time = myrtc.GetNtp(rtc_cfg);
+      rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
+    }
 
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 2)
@@ -163,14 +167,11 @@ void firq2()
 void firq5() // 0.5 sec main cycle
 {
   //-------------Refresh current time in rtc_data------------------
-  static unsigned long alarm_time;
-
-  GetTime();
+  myrtc.GetTime(rtc_hw, &rtc_time);
 
   //-------------Forming string version of current time ------------------
   memset (tstr, 0, 25);
-  rtc_data_t rt = rtc_data;
-  cur_time_str(rt, tstr);
+  myrtc.cur_time_str(rtc_time, conf_data.rus_lng, tstr);
   if (disp_on)
   {
     //-------------Brigthness------------------
@@ -181,30 +182,34 @@ void firq5() // 0.5 sec main cycle
     }
     else
     {
-      if (nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
+      if (rtc_time.nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
       else cur_br = conf_data.man_br;
       snr_data.f = cur_br;
     }
     //-----------------------------------------
     // run slowely time displays here
     m32_8time_act = false;
-    if (!((conf_data.type_disp == 20) & !end_run_st & !nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
+    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
   }
   else cur_br = 0;
-  if (!rtc_data.wasAlarm) //Проверка будильников
+
+  if (!wasAlarm) //Проверка будильников
   {
-    if (Alarmed())
+    if (myrtc.Alarmed(rtc_hw, &rtc_cfg, rtc_time, &rtc_alm))
     {
-      rtc_data.wasAlarm = true;
+      play_snd = rtc_alm.al2_on;
+      if (rtc_alm.al1_on) alarm1_action();
+      wasAlarm = true;
       alarm_time = millis() + 2000;
     }
   }
 
-  if (rtc_data.wasAlarm & (millis() > alarm_time)) //Перезапуск будильников
+  if (wasAlarm & (millis() > alarm_time)) //Перезапуск будильников
   {
-    set_alarm();
-    rtc_data.wasAlarm = false;
+    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    wasAlarm = false;
   }
+
   Thermo(snr_data, conf_data);
   blinkColon = !blinkColon;
 
@@ -236,7 +241,7 @@ void firq6() // 0.180 sec Communications with server
   {
     if (conf_data.type_disp == 11)
     {
-      if  (!nm_is_on & !end_run_st)
+      if  (!rtc_time.nm_is_on & !end_run_st)
       {
         uint8_t x1 = 8, x2 = 15;
         if (!conf_data.time_up)
@@ -251,7 +256,7 @@ void firq6() // 0.180 sec Communications with server
     }
     if (conf_data.type_disp == 31)
     {
-      if  (!nm_is_on & !end_run_st)
+      if  (!rtc_time.nm_is_on & !end_run_st)
       {
         end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
         if (end_run_st) runing_string_start(); // перезапуск бегущей строки
@@ -265,7 +270,7 @@ void firq6() // 0.180 sec Communications with server
   {
     if (conf_data.type_disp == 19)
     {
-      if  (!nm_is_on & !end_run_st & divider)
+      if  (!rtc_time.nm_is_on & !end_run_st & divider)
       {
         uint8_t x1 = 0;
         if (conf_data.time_up) x1 = 1;
@@ -303,7 +308,7 @@ void firq7() // 0.060 sec
 
 void firq8() //0.030 sec running string is out switch to time view
 {
-  if (conf_data.type_disp > 19 && conf_data.type_disp < 29 && !nm_is_on && !end_run_st)
+  if (conf_data.type_disp > 19 && conf_data.type_disp < 29 && !rtc_time.nm_is_on && !end_run_st)
   {
     uint8_t x1 = 32, x2 = 63;
     if (!conf_data.time_up)

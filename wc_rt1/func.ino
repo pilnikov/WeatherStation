@@ -18,8 +18,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 
   if ((rd.type_snr1 == 5 || rd.type_snr2 == 5 || rd.type_snr3 == 5) && rd.type_rtc == 1)
   {
-    RtcTemperature t1 = ds3231 -> GetTemperature();
-    rd.temp_rtc = round(t1.AsFloatDegC());
+    rd.temp_rtc = myrtc.get_temperature();
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -457,71 +456,6 @@ String radio_snd(String cmd)
   DBG_OUT_PORT.println(out);
   return out;
 }
-
-
-//-------------------------------------------------------- Получаем точное время с НТП сервера
-void GetNtp()
-{
-  bool result = false;
-  RtcDateTime c_time  = RtcDateTime(rtc_data.ct);
-
-  DBG_OUT_PORT.println(F("True sync time with NTP"));
-  if (wifi_data_cur.cli)
-  {
-    dmsg.callback(conf_data.type_disp, 0, 0, conf_data.rus_lng);; //сообщение на индикатор
-
-    IPAddress addr(89, 109, 251, 21);
-    c_time = NTP_t.getTime(addr, conf_data.time_zone);
-    if (c_time.Year() < 2021)
-    {
-      IPAddress addr(10, 98, 34, 10);
-      c_time = NTP_t.getTime(addr, conf_data.time_zone);
-    }
-    if (c_time.Year() < 2021)
-    {
-      IPAddress addr(88, 212, 196, 95);
-      c_time = NTP_t.getTime(addr, conf_data.time_zone);
-    }
-    if (c_time.Year() > 2020)
-    {
-      RtcDateTime c_time1 = RtcDateTime(c_time.Year() - 30, c_time.Month(), c_time.Day(), c_time.Hour(), c_time.Minute(), c_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го
-      result = true;
-      man_set_time(c_time1);
-    }
-    if (result) dmsg.callback(conf_data.type_disp, 0, 1, conf_data.rus_lng); //сообщение на индикатор
-    else dmsg.callback(conf_data.type_disp, 0, 2, conf_data.rus_lng); //сообщение на индикатор
-  }
-  if (result)   DBG_OUT_PORT.println(F("Sucsess !!!"));
-  else   DBG_OUT_PORT.println(F("Failed !!!"));
-}
-
-
-//-------------------------------------------------------------- cur_time_str
-void cur_time_str(rtc_data_t rt, char in[])
-{
-  const char* sdnr_1 = PSTR("ВС");
-  const char* sdnr_2 = PSTR("ПН");
-  const char* sdnr_3 = PSTR("ВТ");
-  const char* sdnr_4 = PSTR("СР");
-  const char* sdnr_5 = PSTR("ЧТ");
-  const char* sdnr_6 = PSTR("ПТ");
-  const char* sdnr_7 = PSTR("СБ");
-
-  const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
-
-  const char* sdne_1 = PSTR("Sun");
-  const char* sdne_2 = PSTR("Mon");
-  const char* sdne_3 = PSTR("Tue");
-  const char* sdne_4 = PSTR("Wed");
-  const char* sdne_5 = PSTR("Thu");
-  const char* sdne_6 = PSTR("Fri");
-  const char* sdne_7 = PSTR("Sat");
-
-  const char* const sdne[] = {sdne_1, sdne_2, sdne_3, sdne_4, sdne_5, sdne_6, sdne_7};
-
-  if (conf_data.rus_lng) sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
-  else sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdne[rt.wday - 1], rt.day, rt.month, rt.year, rt.hour, rt.min, rt.sec);
-}
 #endif
 
 //------------------------------------------------------  Обрабатываем клавиатуру
@@ -620,7 +554,7 @@ void ARDUINO_ISR_ATTR isr1() //Отпускаем кнопку
 #endif
 
 //------------------------------------------------------  Отправляем данные по USART
-String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_data_t rt, uint8_t c_br)
+String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_time_data_t rt, rtc_alm_data_t rta, uint8_t c_br)
 {
   DynamicJsonDocument jsonBuffer(500);
   JsonObject json = jsonBuffer.to<JsonObject>();
@@ -632,8 +566,8 @@ String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_data_t rt, uint8
   json["X"] = sn.h1;
   json["Y"] = sn.h2;
   json["Z"] = sn.p;
-  json["M"] = rt.a_hour;
-  json["N"] = rt.a_min;
+  json["M"] = rta.hour;
+  json["N"] = rta.min;
 
   if (cf.use_pp > 0)
   {
@@ -662,7 +596,7 @@ String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_data_t rt, uint8
 
 void send_uart()
 {
-  DBG_OUT_PORT.println(uart_st(snr_data, wf_data, conf_data, rtc_data, cur_br));
+  DBG_OUT_PORT.println(uart_st(snr_data, wf_data, conf_data, rtc_time, rtc_alm, cur_br));
 }
 
 //------------------------------------------------------  Термостат
@@ -705,6 +639,83 @@ void Thermo(snr_data_t sn, conf_data_t cf)
         digitalWrite(cf.gpio_trm, HIGH);
       }
     }
+  }
+}
+
+
+void alarm1_action()
+{
+  //  dmsg.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
+
+  switch (rtc_cfg.alarms[rtc_alm.num][4])     // Выполняем экшн
+  {
+    case 0:
+      play_snd = true;
+      break;
+
+    case 1:
+      rtc_time.nm_is_on = true;                       // Включаем ночной режим
+      break;
+    case 2:
+      rtc_time.nm_is_on = false;                      // Выключаем ночной режим
+      break;
+    case 3:
+      disp_on = true;
+      if (ram_data.type_vdrv == 12)
+      {
+        lcd->backlight();
+        lcd->display();
+      }
+      if (ram_data.type_vdrv == 2)
+      {
+        m7219->shutdown(false);
+        m7219->write();
+      }
+      break;
+    case 4:
+      disp_on = false;
+      cur_br = 0;
+      snr_data.f = 0;
+      f_dsp.CLS(screen, sizeof screen);
+      switch (ram_data.type_vdrv)
+      {
+        case 1:
+          tm1637->set_br(0);
+          tm1637->clear();
+          break;
+        case 2:
+          m7219->shutdown(true);
+          m7219->write();
+          break;
+        case 3:
+          if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
+          {
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
+            m3216_ramFormer(screen, cur_br, text_size);
+#endif
+          }
+          break;
+        case 12:
+          lcd->noBacklight();
+          lcd->noDisplay();
+          break;
+        case 11:
+          ht1633->clear();
+          ht1633->setBrightness(0);
+          ht1633->write();
+          break;
+      }
+      break;
+    case 5:
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+      radio_snd("cli.start");
+#endif
+      break;
+    case 6:
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+      radio_snd("cli.stop");
+#endif
+      break;
   }
 }
 

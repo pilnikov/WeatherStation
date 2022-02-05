@@ -88,6 +88,8 @@ void setup()
     Wire.begin();
 # endif
 
+    conf_data.type_rtc = rtc_cfg.c_type;
+
     ram_data = fsys.i2c_scan(conf_data);
 
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
@@ -195,18 +197,43 @@ void setup()
 
     DBG_OUT_PORT.println(F("GPIO inital"));
 
+    //------------------------------------------------------  Загружаем настройки RTC
+    conf_f = "/conf_rtc.json";
+    rtc_cfg = myrtccfg.loadConfig(conf_f);
+
+    //rtc_cfg = myrtccfg.defaultConfig();
+    //myrtccfg.saveConfig(conf_f, rtc_cfg);
+    DBG_OUT_PORT.println(F("config loaded"));
+
+    //------------------------------------------------------  GPIO for RTC
+    rtc_hw.gpio_dio = conf_data.gpio_dio;
+    rtc_hw.gpio_clk = conf_data.gpio_clk;
+    rtc_hw.gpio_dcs = conf_data.gpio_dcs;
+    rtc_hw.gpio_sqw = conf_data.gpio_sqw;
+
+    //------------------------------------------------------  ТИП МС RTC
+    rtc_hw.a_type = ram_data.type_rtc;
+
+    //ram_data = fsys.i2c_scan(rtc_cfg);
     //------------------------------------------------------  Инициализируем RTC
-    if (ram_data.type_rtc > 0) rtc_init();
+    if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
     DBG_OUT_PORT.print(F("Type of rtc = "));
-    DBG_OUT_PORT.println(ram_data.type_rtc);
+    DBG_OUT_PORT.println(rtc_hw.a_type);
+
+
+    //-------------------------------------------------------- Устанавливаем будильники
+    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 
     //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     if (wifi_data_cur.cli || wifi_data_cur.ap)
     {
-      //------------------------------------------------------ Синхронизируем время с нтп если нету RTC
-      if ((ram_data.type_rtc == 0) & wifi_data_cur.cli & conf_data.auto_corr) GetNtp();
-
+      //------------------------------------------------------ Синхронизируем время с NTP
+      if (wifi_data_cur.cli & rtc_cfg.auto_corr)
+      {
+        RtcDateTime c_time = myrtc.GetNtp(rtc_cfg);
+        rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
+      }
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
       if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
 
@@ -230,8 +257,6 @@ void setup()
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
-    //-------------------------------------------------------- Устанавливаем будильники
-    set_alarm();
 
     //-------------------------------------------------------- Регулируем яркость дисплея
     if (conf_data.auto_br)
@@ -241,7 +266,7 @@ void setup()
     }
     else
     {
-      if (nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
+      if (rtc_time.nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
       else cur_br = conf_data.man_br;
       snr_data.f = cur_br;
     }
@@ -258,8 +283,8 @@ void setup()
         send_uart();
       }
     }
-   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-    rtc_data.a_muz = 15;
+    //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
+    rtc_alm.muz = 15;
     play_snd = true;
     DBG_OUT_PORT.println(F("End of setup"));
 
@@ -286,9 +311,9 @@ void loop()
   {
     // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    Buzz.play(pgm_read_ptr(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
+    Buzz.play(pgm_read_ptr(&songs[rtc_alm.muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #elif defined (__AVR__)
-    Buzz.play(pgm_read_word(&songs[rtc_data.a_muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
+    Buzz.play(pgm_read_word(&songs[rtc_alm.muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #endif
     play_snd = false;
 
@@ -299,8 +324,8 @@ void loop()
     keyb_read();
 
     //------------------------------------------------------  Верифицируем ночной режим
-    if (conf_data.nm_start <  conf_data.nm_stop) nm_is_on = (rtc_data.hour >= conf_data.nm_start && rtc_data.hour < conf_data.nm_stop);
-    else nm_is_on = (rtc_data.hour >= conf_data.nm_start || rtc_data.hour < conf_data.nm_stop);
+    if (rtc_cfg.nm_start <  rtc_cfg.nm_stop) rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start && rtc_time.hour < rtc_cfg.nm_stop);
+    else rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start || rtc_time.hour < rtc_cfg.nm_stop);
   }
   else //-------------------------------------------------- Minimal boot
   {

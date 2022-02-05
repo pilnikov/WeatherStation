@@ -230,6 +230,7 @@
   #include "..\lib\BH1750-master\BH1750.h"
 */
 
+#include <myrtc.h>
 #include <Sysf2.h>
 #include <Snd.h>
 #include "Songs.h"
@@ -287,13 +288,15 @@ wf_data_t wf_data_cur;
 wf_data_t wf_data;
 conf_data_t conf_data;
 ram_data_t ram_data;
-rtc_data_t rtc_data;
+rtc_hw_data_t  rtc_hw;
+rtc_cfg_data_t rtc_cfg;
+rtc_time_data_t rtc_time;
+rtc_alm_data_t rtc_alm;
 wifi_cfg_data_t wifi_data;
 wifi_cur_data_t wifi_data_cur;
 
 // ----------------------------------- Internal header files
 #include "disp.h"
-#include "rtc.h"
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include "web.h"
@@ -306,10 +309,8 @@ conf_data_t loadConfig(const char*);
 void saveConfig(const char*, conf_data_t);
 conf_data_t defaultConfig();
 
-void GetNtp();
-void cur_time_str(rtc_data_t, char);
 snr_data_t GetSnr(ram_data_t, conf_data_t);
-String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_data_t, uint8_t);
+String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void send_uart();
 void keyb_read();
 inline uint8_t rumb_conv(uint16_t);
@@ -331,11 +332,6 @@ void ISR_ATTR isr1();
 void ISR_ATTR isr2();
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void ARDUINO_ISR_ATTR isr1();
-#endif
-
-// ----------------------------------- NTP
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-static NTPTime NTP_t;
 #endif
 
 // ----------------------------------- Web server
@@ -365,12 +361,11 @@ char tstr[25];
 
 int                boot_mode = 1;
 
-bool               play_snd  = false;
+unsigned long   serv_ms = 60000, alarm_time = millis();
+
+bool  play_snd  = false, wasAlarm = false;
 
 bool                disp_on  = true;
-bool               nm_is_on  = false;
-
-unsigned long   serv_ms = 60000;
 
 uint8_t            hour_cnt  = 0;
 uint8_t           disp_mode  = 0;
@@ -394,6 +389,8 @@ WF wifi;
 NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
 #endif
 
+CT myrtc;
+CfgCT myrtccfg;
 SF fsys;
 SNR sens;
 FD f_dsp;

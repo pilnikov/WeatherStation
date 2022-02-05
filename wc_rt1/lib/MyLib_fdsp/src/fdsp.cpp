@@ -248,7 +248,7 @@ void FD::utf8rus(char *source)
   for (i = j; i < k; i++) source[i] = 0;
 }
 
-bool FD::time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buff, const byte *font, bool pm, const uint8_t q_dig, rtc_data_t rt)
+bool FD::time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buff, const byte *font, bool pm, const uint8_t q_dig, rtc_time_data_t rt)
 {
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];

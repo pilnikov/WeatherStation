@@ -51,9 +51,6 @@ typedef struct
 {
   bool
   auto_br = false,
-  auto_corr = false,
-  use_pm = false,
-  every_hour_beep = false,
   snd_pola = false,
   led_pola = false,
   rus_lng = false,
@@ -77,11 +74,8 @@ typedef struct
   use_es = 0,
   man_br = 0,
   nmd_br = 0,
-  nm_start = 0,
-  nm_stop = 0,
   color_up = 0,
   color_dwn = 0,
-  alarms[7][5],
   type_font = 0,
   type_vdrv = 0,
   type_disp = 0,
@@ -120,10 +114,6 @@ typedef struct
   ch1_name[17],
   ch2_name[17],
   ch3_name[17],
-  sta_ssid[20],
-  sta_pass[20],
-  ap_ssid[20],
-  ap_pass[20],
   AKey_r[17],
   AKey_w[17],
   esrv1_addr[17],
@@ -153,24 +143,6 @@ typedef struct
   bool      bh1750_present; // Наличие датчика освещенности BH1750
 } ram_data_t;
 
-typedef struct
-{
-  long          ct        = 1530687234; // Текущее время (UNIX format)
-  uint8_t       hour      = 62;         // Текущее время. Час.
-  uint8_t       min       = 62;         // Текущее время. Минута.
-  uint8_t       sec       = 62;         // Текущее время. Секунда.
-  uint8_t       day       = 32;         // Текущее время. День.
-  uint8_t       wday      =  9;         // Текущее время. День недели.
-  uint8_t       month     = 13;         // Текущее время. Месяц.
-  uint16_t      year      = 2030;       // Текущее время. Год.
-  uint8_t       a_num     = 0;          // Номер будильника
-  uint8_t       n_cur_alm = 6;          // Номер активного будильника
-  uint8_t       a_hour    = 62;         // Час срабатывания будильника
-  uint8_t       a_min     = 62;         // Минута срабатывания будильника
-  uint8_t       a_muz     = 0;          // Номер мелодии будильника
-  bool          alarm     = false;      // Будильник ????
-  bool          alarm_on  = false;      // Будильник активен
-  bool          wasAlarm  = false;      // Было срабатывание будильника
-} rtc_data_t;
+
 
 #endif //Udt_h
