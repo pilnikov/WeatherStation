@@ -255,8 +255,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
             _repeat = false;
           }
           break;
-          break;
-        case 3:
+       case 3:
           switch (cf.use_pp)
           {
             case 1:
