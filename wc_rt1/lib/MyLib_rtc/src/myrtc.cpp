@@ -1,6 +1,21 @@
 
 #include "myrtc.h"
 
+// ----------------------------------- Конструктор DS3231
+	static RtcDS3231<TwoWire> * ds3231;
+
+	// ----------------------------------- Конструктор DS1307
+	static RtcDS1307<TwoWire> * ds1307;
+
+	// ----------------------------------- Конструктор DS1302
+	static RtcDS1302<ThreeWire> * ds1302;
+	static ThreeWire * myTWire;
+
+	#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+	static NTPTime NTP_t;
+	#endif
+
+
 	static CfgCT conf;
 
 	static uint32_t prev_ms;

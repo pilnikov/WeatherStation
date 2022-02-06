@@ -11,11 +11,9 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
 
   memset (buf, 0, 16);
 
-  uint16_t ala_t = (int) rtc_alm.hour * 60 + rtc_alm.min;
-  uint16_t cur_t = (int) rtc_time.hour * 60 + rtc_time.min;
-  uint8_t ala_h = trunc((ala_t - cur_t) / 60);
-  ala_h = ala_h % 100;
-  bool _alarmed = ((ala_t > cur_t) & (ala_h < 24));
+  uint16_t minute_ala = (uint16_t) rtc_alm.hour  * 60 + rtc_alm.min;
+  uint16_t minute_cur = (uint16_t) rtc_time.hour * 60 + rtc_time.min;
+  bool _alarmed = ((minute_ala > minute_cur) & (rtc_alm.hour < 24));
 
 
 
