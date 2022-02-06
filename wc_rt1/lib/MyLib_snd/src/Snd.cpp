@@ -24,8 +24,8 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   uint8_t octave;
 
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-  ledcSetup(1, 6000, 15);
-  ledcAttachPin(out, 1);
+  ledcSetup(2, 2000, 8);
+  ledcAttachPin(out, 2);
 #endif
 
   if (millis() > dela)
@@ -39,8 +39,8 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
     tone(out, freq, dur);
     noTone(out);
 #else
-    ledcWriteTone(1, freq);
-    ledcWriteTone(1, 0);
+    ledcWriteTone(2, freq);
+    ledcWriteTone(2, 0);
 #endif
     dela = millis() + dur;
     digitalWrite(out, pola ? HIGH : LOW);
@@ -71,12 +71,12 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
     uint8_t default_dur = 4, default_oct = 6;
     int bpm = 63;
     char flag = ' ';
-
     p = _ptr;
 
+
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-    ledcSetup(1, 6000, 15);
-    ledcAttachPin(out, 1);
+    ledcSetup(2, 2000, 8);
+    ledcAttachPin(out, 2);
 #endif
 
     // get default duration -------------------------------
@@ -138,7 +138,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 #if !defined(ARDUINO_ARCH_ESP32)
       noTone(out);
 #else
-      ledcWriteTone(1, 0);
+      ledcWriteTone(2, 0);
 #endif
       digitalWrite(out, pola ? HIGH : LOW);
     }
@@ -234,7 +234,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 #if !defined(ARDUINO_ARCH_ESP32)
       tone(out, _tone);
 #else
-      ledcWriteTone(1, _tone);
+      ledcWriteTone(2, _tone);
 #endif
       dela = millis() + duration;
     }
@@ -248,7 +248,7 @@ bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
 #if !defined(ARDUINO_ARCH_ESP32)
       noTone(out);
 #else
-      ledcWriteTone(1, 0);
+      ledcWriteTone(2, 0);
 #endif
     }
   }

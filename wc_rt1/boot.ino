@@ -116,9 +116,9 @@ void firq0() // 1 hour
     //myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
   }
 
-  if (wifi_data_cur.cli)
+  if (wifi_data_cur.cli )
   {
-    if (rtc_cfg.auto_corr)
+    if (hour_cnt % 12 && rtc_cfg.auto_corr)
     {
       RtcDateTime c_time = myrtc.GetNtp(rtc_cfg);
       rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
@@ -195,10 +195,16 @@ void firq5() // 0.5 sec main cycle
 
   if (!wasAlarm) //Проверка будильников
   {
-    if (myrtc.Alarmed(rtc_hw, &rtc_cfg, rtc_time, &rtc_alm))
+    bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
+    if (myrtc.Alarmed(aaaa, rtc_hw, &rtc_cfg, rtc_time, &rtc_alm))
     {
-      play_snd = rtc_alm.al2_on;
+      _wasAlarmed_int = false;
       if (rtc_alm.al1_on) alarm1_action();
+      if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
+      {
+        rtc_alm.muz = 15;
+        play_snd = true;
+      }
       wasAlarm = true;
       alarm_time = millis() + 2000;
     }

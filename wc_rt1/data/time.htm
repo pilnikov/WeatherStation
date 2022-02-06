@@ -124,15 +124,15 @@
 			</tr>
 			<tr>
 				<td colspan='2'>Время
-					<input type='text' maxlength='2' size='1' id='hour' name='hour'/>&nbsp;:&nbsp;
-					<input type='text' maxlength='2' size='1' id='min'  name='min' />
+					<input type='number' size='2' maxlength='2' min='0' max='23'  id='hour' name='hour'/>&nbsp;:&nbsp;
+					<input type='number' size='2' maxlength='2' min='0' max='59'  id='min'  name='min' />
 				</td>
 			</tr>
 			<tr>
 				<td colspan='2'>Дата
-					<input type='text' maxlength='2' size='1' id='day'  name='day'  style='text-align:center;'  />&nbsp;/&nbsp;
-					<input type='text' maxlength='2' size='1' id='mon'  name='mon'  style='text-align:center;'  />&nbsp;/&nbsp;
-					<input type='text' maxlength='4' size='1' id='year' name='year' style='text-align:center;' />
+					<input type='number' size='2' maxlength='2' min='1' max='31'  id='day'  name='day'  style='text-align:center;'  />&nbsp;/&nbsp;
+					<input type='number' size='2' maxlength='2' min='1' max='12'  id='mon'  name='mon'  style='text-align:center;'  />&nbsp;/&nbsp;
+					<input type='number' size='4' maxlength='4' min='2022' max='2047'  id='year' name='year' style='text-align:center;' />
 				</td>
 			</tr>
 			<tr>
@@ -161,6 +161,7 @@
 					<option value = '4'>4</option>
 					<option value = '5'>5</option>
 					<option value = '6'>6</option>
+					<option value = '7'>--</option>
 				</select>
 				&nbsp; Когда: &nbsp;
 				<select id='atyp' name='atyp' onchange='sel_atyp();'>
@@ -171,9 +172,9 @@
 					<option value = '4'>Разово</option>
 				</select>
 				&nbsp; Сработает в: &nbsp;
-				<input type='number' size='1' maxlength='2' min='0' max='23' id='ahour' name='ahour' />
+				<input type='number' size='2' maxlength='2' min='0' max='23' id='ahour' name='ahour' />
 				&nbsp;:&nbsp;
-				<input type='number' size='1' maxlength='2' min='0' max='59' id='amin'  name='amin'/></td>
+				<input type='number' size='2' maxlength='2' min='0' max='59' id='amin'  name='amin'/></td>
 			</tr>
 			<tr>
 				<td colspan='2'>&nbsp; Экшн: &nbsp;
@@ -216,7 +217,7 @@
 				<td colspan='2' class='h'>Опции для часов</td>
 			</tr>
  			<tr>
-				<td>Часовой пояс           </td><td><input type='text' size='3' id='tzone' name='tzone'/></td>
+				<td>Часовой пояс           </td><td><input type='number' size='2' maxlength='2' min='-23' max='23' id='tzone' name='tzone'/></td>
 			</tr>
 			<tr>
 				<td>Автокоррекция через NTP</td><td><input type='checkbox' id='acorr' name='acorr'/></td>
@@ -227,8 +228,8 @@
 				<tr><td>Сигнал каждый час  </td><td><input type='checkbox' id='ehb'   name='ehb'  /></td>
 			</tr>
 				<tr><td>Ночной режим</td>
-				<td>с&nbsp;   <input type='text' maxlength='2' size='1' id='nmstart' name='nmstart'/>
-				&nbsp;до&nbsp;<input type='text' maxlength='2' size='1' id='nmstop'  name='nmstop' /></td>
+				<td>с&nbsp;   <input type='number' size='2' maxlength='2' min='0' max='23' id='nmstart' name='nmstart'/>
+				&nbsp;до&nbsp;<input type='number' size='2' maxlength='2' min='0' max='23' id='nmstop' name='nmstop' /></td>
 			</tr>
 			<tr>
 				<td>Тип RTC</td>
@@ -294,24 +295,29 @@
 					}
 				} 
 
-				var num = document.getElementById('anum').value;
-
-				var xh1 = new XMLHttpRequest();
+   			var xh1 = new XMLHttpRequest();
 				xh1.open("GET", "/jalarm", true);
 				xh1.send(null);
 				xh1.onreadystatechange = function()
 				{
 					if (this.readyState == 4 && this.status == 200) 
 					{
-						var res1 = JSON.parse(xh1.responseText);
-						document.getElementById('atyp'  ).value = res1.al[num][0];
-			  		document.getElementById('ahour' ).value = res1.al[num][1];
-		  			document.getElementById('amin'  ).value = res1.al[num][2];
-	  				document.getElementById('amel'  ).value = res1.al[num][3];
-						document.getElementById('aon'   ).value = res1.al[num][4];
+	  
+	  				var res1 = JSON.parse(xh1.responseText);
+  	        var num = res1.actn;
+						document.getElementById('anum'  ).value = num;
 
-						sel_atyp();
-						sel_aact();      		
+            if  (num < 7)
+            {
+    				  document.getElementById('atyp'  ).value = res1.al[num][0];
+    			  	document.getElementById('ahour' ).value = res1.al[num][1];
+    		  		document.getElementById('amin'  ).value = res1.al[num][2];
+    	  			document.getElementById('amel'  ).value = res1.al[num][3];
+    					document.getElementById('aon'   ).value = res1.al[num][4];
+    
+    					sel_atyp();
+    					sel_aact();      		
+            }
 					}
 				}
 			}
@@ -348,24 +354,26 @@
 			function sel_anum()
 			{
 				var num = document.getElementById('anum').value;
-
-				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jalarm", true);
-				xh.send();
-				xh.onreadystatechange = function()
-				{
-					if (this.readyState == 4 && this.status == 200) 
-					{
-						var res = JSON.parse(xh.responseText);
-						document.getElementById('atyp'  ).value = res.al[num][0];
-						document.getElementById('ahour' ).value = res.al[num][1];
-						document.getElementById('amin'  ).value = res.al[num][2];
-						document.getElementById('amel'  ).value = res.al[num][3];
-						document.getElementById('aon'   ).value = res.al[num][4];
-
-						sel_atyp();
-						sel_aact();      		
-					}
+        if  (num < 7)
+        {
+  				var xh = new XMLHttpRequest();
+  				xh.open("GET", "/jalarm", true);
+  				xh.send();
+  				xh.onreadystatechange = function()
+  				{
+  					if (this.readyState == 4 && this.status == 200) 
+  					{
+  						var res = JSON.parse(xh.responseText);
+  						document.getElementById('atyp'  ).value = res.al[num][0];
+  						document.getElementById('ahour' ).value = res.al[num][1];
+  						document.getElementById('amin'  ).value = res.al[num][2];
+  						document.getElementById('amel'  ).value = res.al[num][3];
+  						document.getElementById('aon'   ).value = res.al[num][4];
+  
+  						sel_atyp();
+  						sel_aact();      		
+  					}
+					} 
 				}
 			}
 		  
@@ -467,11 +475,17 @@
 					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res1 = JSON.parse(xh1.responseText);
-						if (res1.acth != 62) document.getElementById('act_hour').value = res1.acth;
-						else document.getElementById('act_hour').value = "--";
-						if (res1.actm != 62) document.getElementById('act_min' ).value = res1.actm;
-						else document.getElementById('act_min').value = "--";
-						
+
+						if (res1.acth < 24 && res1.actm < 59) 
+						{
+						  document.getElementById('act_hour').value = res1.acth;
+						  document.getElementById('act_min' ).value = res1.actm;
+						}
+						else 
+						{
+						  document.getElementById('act_hour').value = "--";
+						  document.getElementById('act_min' ).value = "--";
+					  }
             if (res1.actw) sel_anum();
 					}
 				}

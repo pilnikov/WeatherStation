@@ -40,8 +40,23 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <EEPROM.h>
-#define SQW 4 // Mega2560
 #endif
+
+
+
+// ----------------------------------- Конструктор DS3231
+	static RtcDS3231<TwoWire> * ds3231;
+
+	// ----------------------------------- Конструктор DS1307
+	static RtcDS1307<TwoWire> * ds1307;
+
+	// ----------------------------------- Конструктор DS1302
+	static RtcDS1302<ThreeWire> * ds1302;
+	static ThreeWire * myTWire;
+
+	#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+	static NTPTime NTP_t;
+	#endif
 
 // marked volatile so interrupt can safely modify them and
 // other code can safely read and modify them
@@ -133,7 +148,7 @@ class CT
 	cur_time_str(rtc_time_data_t, bool, char*);
 	
 	bool
-	Alarmed(rtc_hw_data_t, rtc_cfg_data_t*, rtc_time_data_t, rtc_alm_data_t*);
+	Alarmed(bool, rtc_hw_data_t, rtc_cfg_data_t*, rtc_time_data_t, rtc_alm_data_t*);
 
 	long 
 	man_set_time(rtc_hw_data_t, const RtcDateTime&);
@@ -146,7 +161,6 @@ class CT
 
 	int
     get_temperature();
-
 // ----------------------------------- interrupt
   private:
   protected:

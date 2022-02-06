@@ -174,7 +174,7 @@
 				<td>UAR</td><td><input type='text' size='3' id='uar' name='uar'/></td>
 			</tr>
  			<tr>
-				<td colspan='2' class='h'><button onclick='set_set_parc();'>Записать</button></td>
+				<td colspan='2' class='h'><button onclick='set_parc();'>Записать</button></td>
 			</tr>
 		</table>
 
@@ -215,15 +215,8 @@
 			{
 				var acorr = 0, upm = 0, ehb = 0, sndpol = 0, ledpol = 0;
 
-				tzone   = document.getElementById('tzone').value;
-				if (document.getElementById('acorr').checked) acorr = 1;
-				if (document.getElementById('upm').checked) upm = 1;
-				nmstart = document.getElementById('nmstart').value;
-				nmstop  = document.getElementById('nmstop').value;
-				if (document.getElementById('ehb').checked) ehb = 1;
 				if (document.getElementById('sndpol').checked) sndpol = 1;
 				if (document.getElementById('ledpol').checked) ledpol = 1;
-				srtyp = document.getElementById('rtyp').value;
 
 				sda = document.getElementById('sda').value;
 				scl = document.getElementById('scl').value;
@@ -240,7 +233,7 @@
 				ana = document.getElementById('ana').value;
 				uar = document.getElementById('uar').value;
 
-				url = '/set_parc?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&sndpol='+sndpol+'&ledpol='+ledpol+'&srtyp='+srtyp+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+'&dht='+dht+'&ana='+ana+'&uar='+uar;
+				url = '/set_parc?sndpol='+sndpol+'&ledpol='+ledpol+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+'&dht='+dht+'&ana='+ana+'&uar='+uar;
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);

@@ -553,6 +553,24 @@ void ARDUINO_ISR_ATTR isr1() //Отпускаем кнопку
 }
 #endif
 
+
+#if defined(ESP8266)
+static void IRAM_ATTR isr0()
+{
+  _wasAlarmed_int = true;
+}
+#elif defined(__AVR__)
+static void ISR_ATTR isr0()
+{
+  _wasAlarmed_int = true;
+}
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+static void ISR_ATTR isr0()
+{
+  _wasAlarmed_int = true;
+}
+#endif
+
 //------------------------------------------------------  Отправляем данные по USART
 String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_time_data_t rt, rtc_alm_data_t rta, uint8_t c_br)
 {

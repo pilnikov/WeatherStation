@@ -27,7 +27,8 @@ void setup()
 
   //wifi_data = defaultConfig();
   //wifi.saveConfig(conf_f, wifi_data);
-  DBG_OUT_PORT.println(F("WiFi config loaded"));
+  DBG_OUT_PORT.print(conf_f);
+  DBG_OUT_PORT.println(F(" loaded"));
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -61,16 +62,27 @@ void setup()
   strcpy(tstr, "Safe Mode");
 #endif
 
+  //------------------------------------------------------  Загружаем настройки RTC
+  conf_f = "/conf_rtc.json";
+  rtc_cfg = myrtccfg.loadConfig(conf_f);
 
+  //rtc_cfg = myrtccfg.defaultConfig();
+  //myrtccfg.saveConfig(conf_f, rtc_cfg);
+  DBG_OUT_PORT.print(conf_f);
+  DBG_OUT_PORT.println(F(" loaded"));
+
+  //------------------------------------------------------  Загружаем общие настройки HW
   conf_f = "/config.json";
   conf_data = loadConfig(conf_f);
 
   //conf_data = defaultConfig();
   //saveConfig(conf_f, conf_data);
-  DBG_OUT_PORT.println(F("config loaded"));
+  DBG_OUT_PORT.print(conf_f);
+  DBG_OUT_PORT.println(F(" loaded"));
 
   //------------------------------------------------------  Инициализируем кнопку
   pinMode(conf_data.gpio_btn, INPUT_PULLUP);
+  attachInterrupt(conf_data.gpio_btn, isr1, CHANGE);
   boot_mode = digitalRead(conf_data.gpio_btn);
   DBG_OUT_PORT.print(F("boot_mode..."));
   DBG_OUT_PORT.println(boot_mode);
@@ -89,9 +101,8 @@ void setup()
 # endif
 
     conf_data.type_rtc = rtc_cfg.c_type;
-
     ram_data = fsys.i2c_scan(conf_data);
-
+    rtc_hw.a_type = ram_data.type_rtc;
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
     memset(screen, 0, 64);
@@ -186,24 +197,13 @@ void setup()
     }
 
     //------------------------------------------------------  Инициализируем GPIO
-    attachInterrupt(conf_data.gpio_btn, isr1, CHANGE);
 
     if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 
     pinMode(conf_data.gpio_snd, OUTPUT);
-
-
     DBG_OUT_PORT.println(F("GPIO inital"));
-
-    //------------------------------------------------------  Загружаем настройки RTC
-    conf_f = "/conf_rtc.json";
-    rtc_cfg = myrtccfg.loadConfig(conf_f);
-
-    //rtc_cfg = myrtccfg.defaultConfig();
-    //myrtccfg.saveConfig(conf_f, rtc_cfg);
-    DBG_OUT_PORT.println(F("config loaded"));
 
     //------------------------------------------------------  GPIO for RTC
     rtc_hw.gpio_dio = conf_data.gpio_dio;
@@ -211,8 +211,16 @@ void setup()
     rtc_hw.gpio_dcs = conf_data.gpio_dcs;
     rtc_hw.gpio_sqw = conf_data.gpio_sqw;
 
+    // set the interupt pin to input mode
+    pinMode(rtc_hw.gpio_sqw, INPUT);
+    // setup external interupt
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    attachInterrupt(rtc_hw.gpio_sqw, isr0, FALLING);
+#else
+    attachInterrupt(4, isr0, FALLING);
+#endif
+
     //------------------------------------------------------  ТИП МС RTC
-    rtc_hw.a_type = ram_data.type_rtc;
 
     //ram_data = fsys.i2c_scan(rtc_cfg);
     //------------------------------------------------------  Инициализируем RTC

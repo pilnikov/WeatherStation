@@ -149,6 +149,8 @@ void handlejAlarm()
   DynamicJsonDocument jsonBuffer(700);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
+  json["actn"] = rtc_alm.num;
+
   DynamicJsonDocument doc2(700);
   JsonObject json2 = doc2.to<JsonObject>();
 
@@ -203,7 +205,6 @@ void handleSetTime1()
         dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
 
   rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
@@ -229,8 +230,6 @@ void handleSetTime2()
   myrtccfg.saveConfig(conf_f, rtc_cfg);
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
-
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 }
 
 //-------------------------------------------------------------- handleSetAlarm

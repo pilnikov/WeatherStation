@@ -24,13 +24,13 @@
 <layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
 <layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
-<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="21" name="tPlace" color="14" fill="1" visible="yes" active="yes"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="no" active="yes"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="no" active="yes"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="yes"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="yes"/>
+<layer number="21" name="tPlace" color="14" fill="1" visible="no" active="yes"/>
 <layer number="22" name="bPlace" color="13" fill="1" visible="no" active="yes"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
@@ -1837,7 +1837,10 @@ einem neuen Namen ab.</description>
 <attribute name="VALUE" x="18.415" y="49.276" size="0.8128" layer="27" font="vector" ratio="20" rot="R180"/>
 <attribute name="NAME" x="22.733" y="47.244" size="0.4064" layer="25" rot="R270"/>
 </element>
-<element name="IC101" library="clock02" package="ESP12-SMD" value="" x="-17.018" y="-1.27" rot="MR270"/>
+<element name="IC101" library="clock02" package="ESP12-SMD" value="" x="-17.018" y="-1.27" smashed="yes" rot="MR270">
+<attribute name="VALUE" x="-5.118" y="6.43" size="1.4224" layer="28" rot="MR270"/>
+<attribute name="NAME" x="-7.988" y="3.128" size="1.4224" layer="26" rot="MR270"/>
+</element>
 <element name="SJ103" library="radiva5" package="MICROBUILDER_SOLDERJUMPER_ARROW_NOPASTE" value="DHT" x="2.032" y="-3.048" rot="MR90">
 <attribute name="BOM" value="EXCLUDE" x="7.366" y="-8.128" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>

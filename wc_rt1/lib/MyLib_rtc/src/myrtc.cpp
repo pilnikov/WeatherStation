@@ -1,39 +1,6 @@
 
 #include "myrtc.h"
 
-	volatile bool wasAlarmed_int = false;
-
-	#if defined(ESP8266)
-	static void IRAM_ATTR isr0()
-	{
-	  wasAlarmed_int = true;
-	}
-	#elif defined(__AVR__)
-	static void ISR_ATTR isr0()
-	{
-	  wasAlarmed_int = true;
-	}
-	#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-	static void ARDUINO_ISR_ATTR isr0()
-	{
-	  wasAlarmed_int = true;
-	}
-	#endif
-
-  	  // ----------------------------------- Конструктор DS3231
-	static RtcDS3231<TwoWire> * ds3231;
-
-	// ----------------------------------- Конструктор DS1307
-	static RtcDS1307<TwoWire> * ds1307;
-
-	// ----------------------------------- Конструктор DS1302
-	static RtcDS1302<ThreeWire> * ds1302;
-	static ThreeWire * myTWire;
-
-	#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-	static NTPTime NTP_t;
-	#endif
-
 	static CfgCT conf;
 
 	static uint32_t prev_ms;
@@ -51,14 +18,6 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
   switch (hw_data.a_type)
   {
     case 1:
-      // set the interupt pin to input mode
-      pinMode(hw_data.gpio_sqw, INPUT_PULLUP);
-      // setup external interupt
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-      attachInterrupt(hw_data.gpio_sqw, isr0, FALLING);
-#else
-      attachInterrupt(SQW, isr0, FALLING);
-#endif
       //--------RTC SETUP ------------
       ds3231 = new RtcDS3231<TwoWire> (Wire);
 
@@ -91,7 +50,16 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
 
   if (debug_level == 13) DBG_OUT_PORT.println(F("Starting RTC check"));
 
-  switch (hw_data.a_type)
+  if	(hw_data.a_type == 1)  
+  {
+	  DS3231AlarmTwo  alarm2(0, 0, 0, DS3231AlarmTwoControl_MinutesMatch);
+	  // set the alarm 2
+	  ds3231 -> SetAlarmTwo(alarm2);
+	  // throw away any old alarm state before we ran
+	  ds3231 -> LatchAlarmsTriggeredFlags(); // reset the flag
+  }
+ 
+ switch (hw_data.a_type)
   {
     case 1:
       ds3231 -> Begin();
@@ -131,7 +99,8 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
       }
 
       _now = ds3231 -> GetDateTime();
-      break;
+	  
+	  break;
 
     case 2:
       if (!ds1302 -> GetIsRunning())
@@ -207,11 +176,14 @@ rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc
   rtc_alm_data_t  alm_data;
 
   alm_data.num  = 7;
-  alm_data.hour = 62;
-  alm_data.min  = 62;
+  alm_data.hour = 25;
+  alm_data.min  = 61;
   alm_data.muz  = 0;
 
-  uint16_t amin = 24 * 60;
+  uint16_t 
+  minut_sut = 24 * 60, // минут в сутках
+  minut_alm = (uint16_t) alm_data.hour * 60 +  alm_data.min, // актуальный будильник (в минутах)  
+  minut_cur = (uint16_t)time_data.hour * 60 + time_data.min; // текущее время (в минутах)
   uint8_t  nmin = 7; // Номер актуального будильника (вычисляемый тут)
 
   bool new_alm_is_set = false; //Параметры для нового будильника найдены и установлены
@@ -231,38 +203,41 @@ rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc
 
   for (uint8_t j = 0; j <= 6; j++) //Ищем ближайший актуальный будильник
   {
+	uint16_t minut_cur_alm = (uint16_t)cfg_data.alarms[j][1] * 60 + cfg_data.alarms[j][2]; //минут в проверяемом будильнике
+
+    //----------------------------------------------------------------------поиск ближайшего сегоднешнего будильника
     bool snday = (time_data.wday > 6 || time_data.wday < 2); //Сегодня выходной
-
-    if (cfg_data.alarms[j][0] > 0 //будильник актививен
-        && ((cfg_data.alarms[j][0] == 1 || (cfg_data.alarms[j][0] == 2) & !snday) || (cfg_data.alarms[j][0] == 3 && snday) || cfg_data.alarms[j][0] == 4) //проверка на соответствие типу
-        && (uint16_t)cfg_data.alarms[j][1] * 60 + cfg_data.alarms[j][2] >  (uint16_t)time_data.hour * 60 + time_data.min //минут будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
-        && (uint16_t)cfg_data.alarms[j][1] * 60 + cfg_data.alarms[j][2] <= (uint16_t) alm_data.hour * 60 +  alm_data.min //минут будильника <= текущих минут актуального будильника (выбор ближайшего)
+	if (cfg_data.alarms[j][0] > 0 //будильник активирован
+        && ((cfg_data.alarms[j][0] == 1 || (cfg_data.alarms[j][0] == 2) & !snday) || (cfg_data.alarms[j][0] == 3 && snday) || cfg_data.alarms[j][0] == 4) //проверка на валидность
+        &&  minut_cur_alm >  minut_cur //минут проверяемого будильника >  текущих минут (чтоб отсеялись "вчерашние" и "завтрашние")
+        &&  minut_cur_alm <= minut_alm //минут проверяемого будильника <=         минут ближайшего, n-1 будильника (текущий - ближе)
        )
     {
-      alm_data.num = j;
-      alm_data.hour = cfg_data.alarms[alm_data.num][1];
-      alm_data.min = cfg_data.alarms[alm_data.num][2];
-      alm_data.muz = cfg_data.alarms[alm_data.num][3];
+      alm_data.num = j; //запоминание номера ближайшего будильника
+      alm_data.hour = cfg_data.alarms[j][1];
+      alm_data.min = cfg_data.alarms[j][2];
+      alm_data.muz = cfg_data.alarms[j][3];
+	  minut_alm = (uint16_t) alm_data.hour * 60 +  alm_data.min; //запоминание минут ближайшего будильника
+	  new_alm_is_set = true; //сегодня еще есть актуальные будильники
     }
-    //----------------------------------------------------------------------поиск самого раннего будильника
+    //----------------------------------------------------------------------поиск самого раннего завтрашнего будильника
     snday = ((time_data.wday + 1) > 6); //А не выходной ли завтра?
-
-    if (cfg_data.alarms[j][0] > 0 //будильник актививен
-        && ((cfg_data.alarms[j][0] == 1 || (cfg_data.alarms[j][0] == 2) & !snday) || ((cfg_data.alarms[j][0] == 3) & snday) || cfg_data.alarms[j][0] == 4) //проверка на соответствие типу
-        && (uint16_t)cfg_data.alarms[j][1] * 60 + cfg_data.alarms[j][2] < amin
+    if (cfg_data.alarms[j][0] > 0 //будильник активирован
+        && ((cfg_data.alarms[j][0] == 1 || (cfg_data.alarms[j][0] == 2) & !snday) || ((cfg_data.alarms[j][0] == 3) & snday) || cfg_data.alarms[j][0] == 4) //проверка на валидность
+        && minut_cur_alm < minut_sut //минут проверяемого будильника <  минут в сутках (чтоб отсеялись "послезавтрашние")
        )
     {
-      amin = (uint16_t)cfg_data.alarms[j][1] * 60 + cfg_data.alarms[j][2];
-      nmin = j;
+      minut_sut = minut_cur_alm; //запоминаем кол-во минут в самом раннем будильнике
+      nmin = j; //запоминаем номер самого раннего будильника
     }
   }
 
-  if (!new_alm_is_set && nmin < 7 && (int)cfg_data.alarms[nmin][1] * 60 + cfg_data.alarms[nmin][2] < (int)time_data.hour * 60 + time_data.min)
+  if (!new_alm_is_set && nmin < 7 && minut_sut < minut_cur) //Будильники завтра все же есть 
   {
     alm_data.num  = nmin;
-    alm_data.hour = cfg_data.alarms[alm_data.num][1];
-    alm_data.min  = cfg_data.alarms[alm_data.num][2];
-    alm_data.muz  = cfg_data.alarms[alm_data.num][3];
+    alm_data.hour = cfg_data.alarms[nmin][1];
+    alm_data.min  = cfg_data.alarms[nmin][2];
+    alm_data.muz  = cfg_data.alarms[nmin][3];
     new_alm_is_set = true;
   }
 
@@ -277,33 +252,29 @@ rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc
     //DS3231AlarmOne alarm1(0, 0, 0, 0, DS3231AlarmOneControl_OncePerSecond);
     ds3231 -> SetAlarmOne(alarm1);
     // Alarm 2 set to trigger at the top of the every hour
-    DS3231AlarmTwo  alarm2(0, 0, 0, DS3231AlarmTwoControl_MinutesMatch);
-    ds3231 -> SetAlarmTwo(alarm2);
     // throw away any old alarm state before we ran
-    ds3231 -> LatchAlarmsTriggeredFlags();
+    ds3231 -> LatchAlarmsTriggeredFlags(); // reset the flag
   }
   return alm_data;
 }
 
-bool CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_time_data_t time_data, rtc_alm_data_t* alm_data)
+bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_time_data_t time_data, rtc_alm_data_t* alm_data)
 {
   alm_data->al1_on = false;
   alm_data->al1_on = false;
   
   if (hw_data.a_type == 1)
   {
-    if (wasAlarmed_int)  // check our flag that gets sets in the interupt
+    if (irq)  // check our flag that gets sets in the interupt
     {
-      DBG_OUT_PORT.println(F("Interrupt done"));
-      wasAlarmed_int = false; // reset the flag
-
       // this gives us which alarms triggered and
       // then allows for others to trigger again
-      DS3231AlarmFlag flag = ds3231 -> LatchAlarmsTriggeredFlags();
+      DS3231AlarmFlag flag = ds3231 -> LatchAlarmsTriggeredFlags(); // reset the flag
 
       if (flag & DS3231AlarmFlag_Alarm1) alm_data->al1_on = true; //Сработал будильник №1
       if (flag & DS3231AlarmFlag_Alarm2) alm_data->al2_on = true; //Сработал будильник №2
-    }
+      DBG_OUT_PORT.println(F("Interrupt done"));
+     }
   }
   else
   {
@@ -328,10 +299,6 @@ bool CT::Alarmed(rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_time_data_
   {
     //    if (debug_level == 13) DBG_OUT_PORT.println(F("alarm two is run!"));
     DBG_OUT_PORT.println(F("alarm two is run!"));
-    if (cfg_data->every_hour_beep & !time_data.nm_is_on)
-    {
-      alm_data->muz = 15;
-    }
   }
   return (alm_data->al1_on || alm_data->al2_on);
 }
