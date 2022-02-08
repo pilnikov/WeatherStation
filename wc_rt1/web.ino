@@ -269,7 +269,7 @@ void handleNTP()
   RtcDateTime c_time;
   if (wifi_data_cur.cli)
   {
-    c_time = myrtc.GetNtp(rtc_cfg);
+    c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
     rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
     rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
   }

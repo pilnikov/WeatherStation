@@ -120,7 +120,7 @@ void firq0() // 1 hour
   {
     if (hour_cnt % 12 && rtc_cfg.auto_corr)
     {
-      RtcDateTime c_time = myrtc.GetNtp(rtc_cfg);
+      RtcDateTime c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
       rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
     }
 

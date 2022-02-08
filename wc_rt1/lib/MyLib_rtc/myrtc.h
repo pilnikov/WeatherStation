@@ -138,7 +138,7 @@ class CT
 	set_alarm(rtc_hw_data_t, rtc_cfg_data_t, rtc_time_data_t);
 	
 	RtcDateTime 
-	GetNtp(rtc_cfg_data_t);
+	GetNtp(rtc_cfg_data_t, rtc_time_data_t);
 
 	int
     get_temperature();

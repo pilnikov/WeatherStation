@@ -69,11 +69,17 @@ wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
 #else
     WiFi.persistent(false);
 #endif
-    IPAddress local_IP     = str_to_ip(_data.sta_ip1),
-              gateway      = str_to_ip(_data.sta_gw1),
-              subnet       = str_to_ip(_data.sta_ma1),
-              primaryDNS   = str_to_ip(_data.sta_dns11),   //optional
-              secondaryDNS = str_to_ip(_data.sta_dns21); //optional
+    IPAddress local_IP,
+              gateway,
+              subnet,
+              primaryDNS,   //optional
+              secondaryDNS; //optional
+			  
+	local_IP.fromString(_data.sta_ip1);
+    gateway.fromString(_data.sta_gw1);
+    subnet.fromString(_data.sta_ma1);
+    primaryDNS.fromString(_data.sta_dns11);   //optional
+    secondaryDNS.fromString(_data.sta_dns21); //optional
 
     if (_data.st_ip1)
     {
@@ -93,11 +99,11 @@ wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
       DBG_OUT_PORT.println(c_data.ssid);
 
  
-      local_IP     = str_to_ip(_data.sta_ip2);
-      gateway      = str_to_ip(_data.sta_gw2);
-      subnet       = str_to_ip(_data.sta_ma2);
-      primaryDNS   = str_to_ip(_data.sta_dns12);   //optional
-      secondaryDNS = str_to_ip(_data.sta_dns22); //optional
+	  local_IP.fromString(_data.sta_ip2);
+      gateway.fromString(_data.sta_gw2);
+      subnet.fromString(_data.sta_ma2);
+      primaryDNS.fromString(_data.sta_dns12);   //optional
+      secondaryDNS.fromString(_data.sta_dns22); //optional
 
       if (_data.st_ip2)
       {
@@ -116,10 +122,10 @@ wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
         DBG_OUT_PORT.print(F("Trying to start access point..."));
         DBG_OUT_PORT.println(c_data.ssid);
 
-        local_IP     = str_to_ip(_data.ap_ip);
-        gateway      = str_to_ip(_data.ap_ip);
-        subnet       = str_to_ip(_data.ap_ma);
-
+ 	    local_IP.fromString(_data.ap_ip);
+        gateway.fromString(_data.ap_ip);
+        subnet.fromString(_data.ap_ma);
+        
         WiFi.mode(WIFI_AP);
 
         if (!WiFi.softAPConfig(local_IP, gateway, subnet))  DBG_OUT_PORT.println("AP Config Failed");
@@ -157,22 +163,4 @@ void WF::_shutdown()
 	WiFi.shutdown(state);
     ESP.rtcUserMemoryWrite(RTC_USER_DATA_SLOT_WIFI_STATE, reinterpret_cast<uint32_t *>(&state), sizeof(state));
 #endif
-}
-
-IPAddress WF::str_to_ip(char *strIP)
-{
-  uint8_t Part = 0, Parts[4] = {0, 0, 0, 0}, k = strlen(strIP);
-  for ( uint8_t i = 0; i < k; i++ )
-  {
-    char c = strIP[i];
-    if ( c == '.' )
-    {
-      Part++;
-      continue;
-    }
-    Parts[Part] *= 10;
-    Parts[Part] += c - '0';
-  }
-  IPAddress ip( Parts[0], Parts[1], Parts[2], Parts[3]);
-  return ip;
 }

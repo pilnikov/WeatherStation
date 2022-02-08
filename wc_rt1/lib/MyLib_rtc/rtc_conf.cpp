@@ -84,7 +84,7 @@ void CfgCT::saveConfig(const char *filename, rtc_cfg_data_t _data)
 {
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving rtc_cfg to config.json"));
 
-  DynamicJsonDocument doc(3000);
+  DynamicJsonDocument doc(3100);
   JsonObject json = doc.to<JsonObject>();
 
   //---Clock.html----------------------------------------

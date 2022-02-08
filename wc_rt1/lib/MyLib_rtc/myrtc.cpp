@@ -398,17 +398,18 @@ void CT::cur_time_str(rtc_time_data_t time_data, bool lng, char* in)
 }
 
 //-------------------------------------------------------- Получаем точное время с НТП сервера
-RtcDateTime CT::GetNtp(rtc_cfg_data_t cfg_data)
+RtcDateTime CT::GetNtp(rtc_cfg_data_t cfg_data, rtc_time_data_t time_data)
 {
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   
   IPAddress myip;
   
+
+  RtcDateTime c_time(2021, time_data.month, time_data.day,
+					time_data.hour, time_data.min, time_data.sec),
+			out_time(time_data.year, time_data.month, time_data.day,
+					time_data.hour, time_data.min, time_data.sec); 
   DBG_OUT_PORT.println(F("True sync time with NTP"));
-
-  bool result = false;
-  RtcDateTime c_time, out_time = RtcDateTime(1992, 1, 1, 0, 0, 0);
-
   myip.fromString(cfg_data.ntp_srv[0]);
   c_time = NTP_t.getTime(myip, cfg_data.time_zone);
   if (c_time.Year() < 2022)
@@ -421,14 +422,13 @@ RtcDateTime CT::GetNtp(rtc_cfg_data_t cfg_data)
     myip.fromString(cfg_data.ntp_srv[2]);
 	c_time = NTP_t.getTime(myip, cfg_data.time_zone);
   }
-  if (c_time.Year() > 2022)
+  if (c_time.Year() < 2022)
   {
-    out_time = RtcDateTime(c_time.Year() - 30, c_time.Month(), c_time.Day(), c_time.Hour(), c_time.Minute(), c_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го
-    result = true;
+	  DBG_OUT_PORT.println(F("Failed !!!"));
+	  return out_time;
   }
-
-  if (result)  DBG_OUT_PORT.println(F("Sucsess !!!"));
-  else   DBG_OUT_PORT.println(F("Failed !!!"));
+  DBG_OUT_PORT.println(F("Sucsess !!!"));
+  out_time = RtcDateTime(c_time.Year() - 30, c_time.Month(), c_time.Day(), c_time.Hour(), c_time.Minute(), c_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го
   return out_time;
 #endif
 }

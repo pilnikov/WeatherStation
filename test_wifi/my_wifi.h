@@ -1,17 +1,18 @@
 #ifndef my_wifi_h
 #define my_wifi_h
 
-// ------------------------------------------------------------- Include
-
 #if ARDUINO >= 100
 #include <Arduino.h>
 #else
 #include <WProgram.h>
 #endif
 
-
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
+#include <include/WiFiState.h> // WiFiState structure details
+#ifndef RTC_USER_DATA_SLOT_WIFI_STATE
+#define RTC_USER_DATA_SLOT_WIFI_STATE 33u
+#endif
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 #include <WiFi.h>
 #endif
@@ -20,6 +21,7 @@
 
 #include <pgmspace.h>
 #include <ArduinoJson.h>
+
 #include <LittleFS.h>
 
 #ifndef DBG_OUT_PORT
@@ -28,6 +30,10 @@
 
 #ifndef debug_level
 #define debug_level 0
+#endif
+
+#if defined(ESP8266)
+//WiFiState _state;
 #endif
 
 typedef struct
@@ -59,41 +65,26 @@ typedef struct
   bool
   wifi_off = false,
   st_ip1 = false,
-  st_ip2 = false;
-} wifi_cfg_data_t;
-
-typedef struct
-{
-  char
-  ssid[20];
-
-  IPAddress
-  addr;
-
-  bool
+  st_ip2 = false,
   cli = false,
-   ap = false;
-} wifi_cur_data_t;
+  ap = false;
+} wifi_data_t;
 
 class WF
 {
   public:
     void
-    saveConfig(const char *, wifi_cfg_data_t),
-    end(wifi_cur_data_t),
-	_shutdown();
-
-    wifi_cfg_data_t
+    saveConfig(const char*, wifi_data_t),
+    end(wifi_data_t);
+    
+    wifi_data_t
     loadConfig(const char*),
     defaultConfig();
-	
-	wifi_cur_data_t
-	begin(wifi_cfg_data_t);
-    
+
     IPAddress
-    str_to_ip(char *strIP);
+    begin(wifi_data_t),
+    str_to_ip(char*);
   private:
   protected:
 };
-
-#endif /*conf_h*/
+#endif

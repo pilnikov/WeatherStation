@@ -85,25 +85,3 @@ void NF::OTA_init(char* ssid, char* pass )
   DBG_OUT_PORT.print("IP address: ");
   DBG_OUT_PORT.println(WiFi.localIP());
 }
-
-IPAddress NF::str_to_ip(String inStr)
-{
-  String vStr = "";
-  char inChr = inStr[0]; //Обрабатываемый символ
-  IPAddress addr;
-  uint8_t j = 0;
-  for ( uint8_t n = 0; n < inStr.length(); n++)
-  {
-    inChr = inStr[n];
-	if (inChr == '.' || n == inStr.length())
-    {
-      addr[j] = vStr.toInt();
-      j++; //переход к следующей триаде
-      vStr = String();
-    }
-
-    if (isDigit(inChr)) vStr += (char)inChr; //Формируем значение
-  }
-  return addr;
-}
-

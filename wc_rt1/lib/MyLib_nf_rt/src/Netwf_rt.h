@@ -30,7 +30,6 @@ class NF
     String    http_client(String);
     void      ssdp_init();
     void      OTA_init(char*, char*);
-    IPAddress str_to_ip(String);
  
   private:
 /*    String formatBytes(size_t bytes); 

@@ -240,7 +240,7 @@ void setup()
       //------------------------------------------------------ Синхронизируем время с NTP
       if (wifi_data_cur.cli & rtc_cfg.auto_corr)
       {
-        RtcDateTime c_time = myrtc.GetNtp(rtc_cfg);
+        RtcDateTime c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
         rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
       }
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
