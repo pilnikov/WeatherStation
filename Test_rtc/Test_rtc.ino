@@ -99,9 +99,11 @@ void setup()
   DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(rtc_hw.a_type);
 
-  RtcDateTime c_time = myrtc.GetNtp(rtc_cfg);
+  RtcDateTime c_time;
+  c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
   rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
   rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
   rtc_alm.muz = 15;
@@ -128,10 +130,16 @@ void loop()
 
   if (!wasAlarm) //Проверка будильников
   {
-    if (myrtc.Alarmed(rtc_hw, rtc_cfg, rtc_time, &rtc_alm))
+    bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
+    if (myrtc.Alarmed(aaaa, rtc_hw, &rtc_cfg, rtc_time, &rtc_alm))
     {
-      play_snd = rtc_alm.al2_on;
+      _wasAlarmed_int = false;
       if (rtc_alm.al1_on) alarm1_action();
+      if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
+      {
+        rtc_alm.muz = 15;
+        play_snd = true;
+      }
       wasAlarm = true;
       alarm_time = millis() + 2000;
     }
@@ -141,10 +149,7 @@ void loop()
   {
     rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
     wasAlarm = false;
-
   }
-
-
   //------------------------------------------------------  Верифицируем ночной режим
   if (rtc_cfg.nm_start <  rtc_cfg.nm_stop) rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start && rtc_time.hour < rtc_cfg.nm_stop);
   else rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start || rtc_time.hour < rtc_cfg.nm_stop);

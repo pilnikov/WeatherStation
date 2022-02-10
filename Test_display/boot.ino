@@ -86,7 +86,7 @@ void runing_string_start() // ---------------------------- Запуск бегу
   memset(st1, 0, 254);
   memset(st2, 0, 20);
 
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_data, local_ip, cur_br, st1);
+  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, true);
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
@@ -110,13 +110,12 @@ void firq1() // 1 hour
 
 void firq6() // 0.5 sec main cycle
 {
+  //-------------Refresh current time in rtc_data------------------
+  myrtc.GetTime(rtc_hw, &rtc_time);
+
   //-------------Forming string version of current time ------------------
-  if (conf_data.boot_mode == 2)
-  {
-    memset (tstr, 0, 25);
-    rtc_data_t rt = rtc_data;
-    cur_time_str(rt, tstr);
-  }
+  memset (tstr, 0, 25);
+  myrtc.cur_time_str(rtc_time, conf_data.rus_lng, tstr);
   if (disp_on)
   {
     //-------------Brigthness------------------
@@ -135,7 +134,7 @@ void firq6() // 0.5 sec main cycle
 
     // run slowely time displays here
     m32_8time_act = false;
-    if (!((conf_data.type_disp == 20) & !end_run_st & !nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv, end_run_st, nm_is_on, blinkColon); // break time view while string is running
+    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
   }
   else cur_br = 0;
 

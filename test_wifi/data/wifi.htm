@@ -27,6 +27,10 @@
 			{
 				text-align:center;
 			}
+			option
+			{
+				text-align:center;
+			}
 			.menu
 			{
 				list-style-type: none;
@@ -101,10 +105,9 @@
 				<ul class="menu-inner">
 					<li><a href='time.htm'>Time</a></li>
 					<li><a href='wifi.htm'>WiFi</a></li>
-					<li><a href='clock.htm'>Clock</a></li>
+					<li><a href='gpio.htm'>GPIO</a></li>
 					<li><a href='disp.htm'>Display</a></li>
 					<li><a href='sens.htm'>Sensor</a></li>
-					<li><a href='alarm.htm'>Alarm</a></li>
 					<li><a href='thermo.htm'>Thermo</a></li>
 					<li><a href='news.htm'>News</a></li>
 				</ul>
@@ -171,7 +174,7 @@
 				<td>Отключать WiFi</td><td colspan='3'><input type='checkbox' id='wof' name='wof'/></td>
 			</tr>  
 			<tr>
-				<td colspan='4' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td>
+				<td colspan='4' class='h'><button onclick='set_wifi();'>Записать</button></td>
 			</tr>
 		</table>
 	  
@@ -180,9 +183,10 @@
 			{
 				var xh = new XMLHttpRequest();
 				xh.open("GET", "/jwifi", true);
+				xh.send(null);
 				xh.onreadystatechange =  function()
 				{
-					if (xh.readyState == 4 && xh.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh.responseText);
 						document.getElementById('aps' ).value = res.apid;
@@ -197,7 +201,7 @@
 						document.getElementById('ipap').value = res.iap;
 						document.getElementById('maap').value = res.map;
             
-            var st = document.getElementById('sst1').checked;
+						var st = document.getElementById('sst1').checked;
 						if (st)
 						{
 							document.getElementById('ipst1').value = res.ipst1;
@@ -206,7 +210,7 @@
 							document.getElementById('dns1st1').value = res.dns1st1;
 							document.getElementById('dns2st1').value = res.dns2st1;
 						}
-            st = document.getElementById('sst2').checked;
+						st = document.getElementById('sst2').checked;
 						if (st)
 						{
 							document.getElementById('ipst2').value = res.ipst2;
@@ -219,7 +223,6 @@
 						document.getElementById('wof').checked  = res.wof;
 					}
 				}
-				xh.send(null);
 			}
 			
 			function st_ip()
@@ -264,11 +267,11 @@
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (xh.readyState==4 && xh.status==200) loadValues();
+					if (this.readyState == 4 && this.status == 200) loadValues();
 				}      
-				xh.send(null);
 				
 				if (st1 == 1)
 				{
@@ -282,11 +285,11 @@
 
 					xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
+					xh.send(null);
 					xh.onreadystatechange = function()
 					{
-						if (xh.readyState==4 && xh.status==200) loadValues();
+						if (this.readyState == 4 && this.status == 200) loadValues();
 					}      
-					xh.send(null);
 				}
 				
 				if (st2 == 1)
@@ -301,11 +304,11 @@
 
 					xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
+					xh.send(null);
 					xh.onreadystatechange = function()
 					{
-						if (xh.readyState==4 && xh.status==200) loadValues();
+						if (this.readyState == 4 && this.status == 200) loadValues();
 					}      
-					xh.send(null);
 				}
 			}
 

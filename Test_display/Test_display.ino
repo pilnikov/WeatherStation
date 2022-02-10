@@ -7,10 +7,29 @@ void setup()
   //------------------------------------------------------  Определяем консоль
   DBG_OUT_PORT.begin(115200);
 
-# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
-# elif defined(__AVR_ATmega2560__)
-    Wire.begin();
+# if defined(ESP8266)
+  conf_data.gpio_sda = 4;
+  conf_data.gpio_scl = 5;
+  conf_data.gpio_dio = 13;
+  conf_data.gpio_clk = 14;
+  conf_data.gpio_dcs = 16;
+  conf_data.gpio_dwr = 2;
+#endif
+
+  conf_data.type_vdrv = 2;  //MAX7219
+  conf_data.type_disp = 21; //M32x16MONO
+  conf_data.auto_br = false;
+  conf_data.nmd_br = 7;  // Man brigthness
+  conf_data.man_br = 7;
+
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+  Wire.setPins(conf_data.gpio_sda, conf_data.gpio_scl);
+# endif
+
+# if defined(ESP8266)
+  Wire.begin(conf_data.gpio_sda, conf_data.gpio_scl);
+# else
+  Wire.begin();
 # endif
 
   ram_data = fsys.i2c_scan(conf_data);

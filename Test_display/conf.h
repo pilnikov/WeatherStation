@@ -170,8 +170,15 @@
 #include "Udt.h"
 #include <Fdsp.h>
 #include <BH1750.h>
+#include <myrtc.h>
 
+#ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
+#endif
+
+#ifndef debug_level
+#define debug_level 0
+#endif
 
 // ------------------------------------------------------ GPIO
 
@@ -180,7 +187,10 @@
 snr_data_t snr_data;
 conf_data_t conf_data;
 ram_data_t ram_data;
-rtc_data_t rtc_data;
+rtc_hw_data_t  rtc_hw;
+rtc_cfg_data_t rtc_cfg;
+rtc_time_data_t rtc_time;
+rtc_alm_data_t rtc_alm;
 wf_data_t wf_data;
 wf_data_t wf_data_cur;
 
@@ -189,10 +199,6 @@ wf_data_t wf_data_cur;
 #include <Sysf2.h>
 
 // ----------------------------------- Force define func name
-
-
-
-void cur_time_str(rtc_data_t, char);
 
 // ---------------------------------------------------- LM
 BH1750 lightMeter;
@@ -204,10 +210,10 @@ bool                disp_on  = true, nm_is_on = false;
 uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
 
-uint8_t         debug_level  = 0; // 0 - отключен
-
 
 // ---------------------------------------------------- Constructors
+CT myrtc;
+CfgCT myrtccfg;
 SF fsys;
 FD f_dsp;
 HT h_dsp;

@@ -1,5 +1,5 @@
 
-void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_data_t rt, String local_ip, uint8_t c_br, char out[])
+void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[], bool cli)
 {
   const char* stdr_0 = PSTR("ночь");
   const char* stdr_1 = PSTR("yтро");
@@ -19,14 +19,24 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
 
   const char* const swnr[] = {swnr_0, swnr_1, swnr_2, swnr_3, swnr_4, swnr_5, swnr_6, swnr_7};
 
-  const char* sprcr_0 = PSTR("дождь");
-  const char* sprcr_1 = PSTR("ливень");
-  const char* sprcr_2 = PSTR("снегопад");
-  const char* sprcr_3 = PSTR("сильный снегопад");
-  const char* sprcr_4 = PSTR("гроза");
-  const char* sprcr_5 = PSTR("без осадков");
+  const char* sprcr_0 = PSTR("ясно");
+  const char* sprcr_1 = PSTR("малооблачно");
+  const char* sprcr_2 = PSTR("облачно");
+  const char* sprcr_3 = PSTR("пасмурно");
+  const char* sprcr_4 = PSTR("дождь");
+  const char* sprcr_5 = PSTR("ливень");
+  const char* sprcr_6 = PSTR("снегопад");
+  const char* sprcr_7 = PSTR("сильный снегопад");
+  const char* sprcr_8 = PSTR("гроза");
+  const char* sprcr_9 = PSTR("нет данных");
+  const char* sprcr_10 = PSTR("без осадков");
+  const char* sprcr_16 = PSTR("возможен снегопад");
+  const char* sprcr_17 = PSTR("возможен сильный снегопад");
+  const char* sprcr_18 = PSTR("возможна гроза");
 
-  const char* const sprcr[] = {sprcr_0, sprcr_1, sprcr_2, sprcr_3, sprcr_4, sprcr_5};
+  const char* const sprcr[] = {sprcr_0, sprcr_1, sprcr_2, sprcr_3, sprcr_4, sprcr_5, sprcr_6,
+                               sprcr_7, sprcr_8, sprcr_9, sprcr_10, sprcr_16, sprcr_17, sprcr_18
+                              };
 
   const char* sdnr_1 = PSTR("воскресенье");
   const char* sdnr_2 = PSTR("понедельник");
@@ -83,11 +93,13 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
 
   char buf[254];
 
-  uint16_t ala_t = (int) rt.a_hour * 60 + rt.a_min;
-  uint16_t cur_t = (int) rt.hour * 60 + rt.min;
-  uint8_t ala_h = trunc((ala_t - cur_t) / 60);
+  uint16_t minute_ala = (uint16_t) rta.hour * 60 + rta.min;
+  uint16_t minute_cur = (uint16_t) rt.hour *  60 + rt.min;
+  uint8_t ala_h = trunc((minute_ala - minute_cur) / 60);
   ala_h = ala_h % 100;
-  uint8_t ala_m = (ala_t - cur_t - (ala_h * 60)) % 100;
+  uint8_t ala_m = (minute_ala - minute_cur - (ala_h * 60)) % 100;
+  bool alarmed = ((minute_ala > minute_cur) & (rta.hour < 24));
+
   bool _repeat = true;
   static uint8_t newsIndex;
 
@@ -100,7 +112,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
       switch (num)
       {
         case 1:
-          sprintf_P(out, PSTR(" Today is %S %d %S %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
+          sprintf_P(out, PSTR("Today is %S %d %S %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
           _repeat = false;
           break;
         case 2:
@@ -143,9 +155,12 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
             case 1:
               if (wf.temp_min > -99)
               {
-                sprintf_P(out, PSTR(" Weather forecast from GM on %S %d %S: temp from %d to %d%cC wind %S %d - %dm/s %S humid. %d%% press %dmm.m."),
+                if ((wf.prec == 6) & (wf.rpower == 0)) wf.prec = 11;
+                if ((wf.prec == 7) & (wf.rpower == 0)) wf.prec = 12;
+                if ((wf.prec == 8) & (wf.spower == 0)) wf.prec = 13;
+                sprintf_P(out, PSTR(" Weather forecast from GM on %S %d %S: temp from %d to %d%cC wind %S %S %d - %dm/s %S humid. %d%% press %dmm.m."),
                           stdr[wf.tod], wf.day, smnr[wf.month - 1],
-                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
+                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.cloud], sprcr[wf.prec],
                           wf.hum_max, wf.press_max);
                 _repeat = false;
               }
@@ -166,19 +181,20 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 4:
-          if ((ala_t > cur_t) & (ala_h < 24))
+          if (alarmed)
           {
-            sprintf_P(out, PSTR(" Alarm from %2dh. %2dmin. on %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
+            if (ala_h > 0) sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %d:%02d"), ala_h, ala_m, rta.hour, rta.min);
+            else sprintf_P(out, PSTR(" Alarm after %dmin. on %d:%02d"), ala_m, rta.hour, rta.min);
             _repeat = false;
           }
           break;
         case 5:
-          if (cf.news_en)
+          if (cf.news_en & cli)
           {
             String news_s = "News not support this platform";
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
             news_s = "";
-            //news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+//            news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
 # endif
             strcpy(out, news_s.c_str());
             newsIndex ++;
@@ -200,7 +216,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
       switch (num)
       {
         case 1:
-          sprintf_P(out, PSTR(" Сегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
+          sprintf_P(out, PSTR("Сегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
           _repeat = false;
           break;
         case 2:
@@ -239,15 +255,18 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
             _repeat = false;
           }
           break;
-        case 3:
+       case 3:
           switch (cf.use_pp)
           {
             case 1:
               if (wf.temp_min > -99)
               {
-                sprintf_P(out, PSTR(" Прогноз погоды от GM на %S %d %S: температура от %d до %d%cC ветер %S %d - %dм/с %S, oтн.влажность %d%%, давление %dмм.рт.ст."),
+                if ((wf.prec == 6) & (wf.rpower == 0)) wf.prec = 11;
+                if ((wf.prec == 7) & (wf.rpower == 0)) wf.prec = 12;
+                if ((wf.prec == 8) & (wf.spower == 0)) wf.prec = 13;
+                sprintf_P(out, PSTR(" Прогноз погоды от GM на %S %d %S: температура от %d до %d%cC ветер %S %d - %dм/с %S %S, oтн.влажность %d%%, давление %dмм.рт.ст."),
                           stdr[wf.tod], wf.day, smnr[wf.month - 1],
-                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.prec],
+                          wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.cloud], sprcr[wf.prec],
                           wf.hum_max, wf.press_max);
                 _repeat = false;
               }
@@ -268,19 +287,20 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 4:
-          if ((ala_t > cur_t) & (ala_h < 24))
+          if (alarmed)
           {
-            sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rt.a_hour, rt.a_min);
+            if (ala_h > 0) sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rta.hour, rta.min);
+            else sprintf_P(out, PSTR(" Будильник зазвонит через %dмин. в %2d:%02d"), ala_m, rta.hour, rta.min);
             _repeat = false;
           }
           break;
         case 5:
-          if (cf.news_en)
+          if (cf.news_en & cli)
           {
             String news_s = "Новости недоступны для этой платформы";
-# if defined(__xtensa__)  || CONFIG_IDF_TARGET_ESP32C3
+# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
             news_s = "";
-            //news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+//            news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
 # endif
             strcpy(out, news_s.c_str());
             newsIndex ++;

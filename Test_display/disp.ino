@@ -19,9 +19,10 @@ void m7219_init()
 
   if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
   {
-    memset (tstr, 0, 25);
-    strcpy(tstr, "7219");
-    f_dsp.print_(tstr, 5, screen, 0, font14s, 2, 0);
+    char Tstr[25];
+    memset (Tstr, 0, 25);
+    strcpy(Tstr, "7219");
+    f_dsp.print_(Tstr, 5, screen, 0, font14s, 2, 0);
     m7adopt(screen, 0, 4);
   }
 
@@ -87,8 +88,6 @@ void m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp)
   m7219 -> write();
 }
 
-
-
 void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 {
   f_dsp.compressor7(in, x1, x2);
@@ -102,40 +101,64 @@ void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
 void a595_init()
 {
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
-
-  //G1  R1 | 12 04
-  //GND B1 |  g 13
-  //G2  R2 | 15 14
-  //E   B2 | 25 21
-  //B   A  | 05 26
-  //D   C  | 19 18
-  //LAT CLK| 32 27
-  //GND OE |  g 33
-
-#if defined(__AVR_ATmega2560__)
-  uint8_t A_PIN =  54, //A0 Пин A
-          B_PIN =  55, //A1 Пин B
-          C_PIN =  56, //A2 Пин C
-          D_PIN =  57, //A3 Пин D
-
-          CLK_PIN =  11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
-          LAT_PIN =  10,  // Пин LAT
-          OE_PIN =   9;   // Пин OE
-#endif
-
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 
   if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
   {
 #if defined(__AVR_ATmega2560__)
+    //G1  R1 | 12 04
+    //GND B1 |  g 13
+    //G2  R2 | 15 14
+    //E   B2 | 25 21
+    //B   A  | 05 26
+    //D   C  | 19 18
+    //LAT CLK| 32 27
+    //GND OE |  g 33
+
+    uint8_t A_PIN =  54, //A0 Пин A
+            B_PIN =  55, //A1 Пин B
+            C_PIN =  56, //A2 Пин C
+            D_PIN =  57, //A3 Пин D
+
+            CLK_PIN =  11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+            LAT_PIN =  10,  // Пин LAT
+            OE_PIN =   9;   // Пин OE
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32
     uint8_t rgbPins[] = {4, 12, 13, 14, 15, 21},
                         addrPins[] = {26, 5, 18, 19, 25},
                                      clockPin   = 27, // Must be on same port as rgbPins
                                      latchPin   = 32,
                                      oePin      = 33,
+                                     naddr_pin  = 3,
+                                     wide       = 32;
+    if (conf_data.type_disp != 23) wide = 64;
+    if (conf_data.type_disp == 24)
+    {
+      naddr_pin = 4;
+      text_size = 2;
+    }
+    if (conf_data.type_disp == 25)
+    {
+      naddr_pin = 5;
+      text_size = 4;
+    }
+
+    m3216 = new Adafruit_Protomatter(
+      wide,        // Matrix width in pixels
+      6,           // Bit depth -- 6 here provides maximum color options
+      1, rgbPins,  // # of matrix chains, array of 6 RGB pins for each
+      naddr_pin, addrPins, // # of address pins (height is inferred), array of pins
+      clockPin, latchPin, oePin, // Other matrix control pins
+      true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
+
+#elif CONFIG_IDF_TARGET_ESP32S2
+    uint8_t rgbPins[] = {16, 15, 14, 13, 11, 12},
+                        addrPins[] = {34, 33, 36, 35, 16},
+                                     clockPin   = 10, // Must be on same port as rgbPins
+                                     latchPin   = 9,
+                                     oePin      = 21,
                                      naddr_pin  = 3,
                                      wide       = 32;
     if (conf_data.type_disp != 23) wide = 64;
@@ -157,13 +180,14 @@ void a595_init()
       1, rgbPins,  // # of matrix chains, array of 6 RGB pins for each
       naddr_pin, addrPins, // # of address pins (height is inferred), array of pins
       clockPin, latchPin, oePin, // Other matrix control pins
-      true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!
+      true);       // HERE IS THE MAGIG FOR DOUBLE-BUFFERING!#endif
+
 #endif
 
 #if defined(__AVR_ATmega2560__)
     m3216 -> begin();
 
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 
     ProtomatterStatus status = m3216 -> begin();
 
@@ -179,7 +203,7 @@ void a595_init()
 
 void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 {
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
   for (uint8_t x = 0; x < 32; x++)
   {
     uint8_t dt = 0b1;
@@ -195,7 +219,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 #if defined(__AVR_ATmega2560__)
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> ColorHSV(700, 255, c_br, true) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> ColorHSV(400, 255, c_br, true) : 0);
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
           m3216 -> drawPixel(_x, _y, (in[x] & dt << y) ?  m3216 -> color565(c_br, 0 , 0) : 0);
           m3216 -> drawPixel(_x, _yy, (in[x + 32] & dt << y) ?  m3216 -> color565(0, c_br, 0) : 0);
 #endif
@@ -205,7 +229,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
   }
 #if defined(__AVR_ATmega2560__)
   m3216 -> swapBuffers(true);
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
   m3216 -> show();
 #endif
 #endif
@@ -238,24 +262,15 @@ void pcf8574_init()
   lcd -> print (st1);
 }
 
-void lcd_time(rtc_data_t rt)
+void lcd_time(char *buf, bool t_up)
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
-  bool _alarmed = rt.a_hour < 24 && rt.a_min < 59;
-
-  uint8_t _h = rt.hour % 100, _m = rt.min % 100, _s = rt.sec % 100, ah = rt.a_hour % 100, am = rt.a_min % 100;
-  char msg[20];
-  memset (msg, 0, 16);
-  sprintf_P(msg, PSTR(" %2u:%02u:%02u  -:-  "), _h, _m, _s);
-  if (_alarmed)
-  {
-    sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u"), _h, _m, _s, ah, am);
-    if (conf_data.rus_lng) sprintf_P(msg, PSTR(" %2u:%02u:%02u %2u:%02u\355"), _h, _m, _s, ah, am);
-  }
-  lcd -> setCursor(0, 1);
-  lcd -> print(msg);
+  if (t_up) lcd -> setCursor(0, 0);
+  else lcd -> setCursor(0, 1);
+  lcd -> print(buf);
 }
+
 
 
 ///////////////////////////////////////////////////7seg////////////////////////////////////////////////////////////
@@ -398,23 +413,12 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 {
   uint16_t _row = 0;
-  if  (x1 < 0 || x2 > 8) return;
+  if  (x1 < 0 || x2 > 7) return;
 
-  for (uint8_t i = x1, y = x1; i < x2; i++, y++)
+  for (uint8_t i = x1, y = x1; i <= x2; i++, y++)
   {
-    _row = 0;
-
-    if (in[y] & 0x80) // запись точки
-    {
-      _row  = (in[y - 2] << 8) | 0x8000;
-      _row |= (in[y - 1] & 0xFF);
-      ht1633->setRow(i - 1, _row);
-      y += 2;
-    }
-
     _row = in[y] << 8;
     y++;
-    if (in[y] & 0x80) _row |= 0x8000; // если во входящем буфере была точка - запишем ее
     _row |= (in[y] & 0xFF);
     ht1633->setRow(i, _row);
   }
@@ -458,7 +462,7 @@ void ili_time(void)
 
   tft -> setTextSize(5);
 
-  if (conf_data.use_pm)
+  if (rtc_cfg.use_pm)
   {
     //uint8_t h = (rtc_data.hour + 11) % 12 + 1; // take care of noon and midnight
     //snprintf(time_str, "%2d:%02d:%02d\n", h, rtc_data.min, rtc_data.sec);
@@ -474,7 +478,7 @@ void ili_time(void)
   //  tft -> setTextAlignment(TEXT_ALIGN_LEFT);
   tft -> setTextSize(2);
   tft -> setTextColor(ILI9341_BLUE);
-  if (conf_data.use_pm)
+  if (rtc_cfg.use_pm)
   {
     //    snprintf(time_str, "%s\n%s", dstAbbrev, rtc_data.hour >= 12 ? "PM" : "AM");
     tft -> setCursor(195, 27);
@@ -508,10 +512,6 @@ void drawWifiQuality()
 int8_t getWifiQuality()
 {
   int32_t dbm = -200;
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  //dbm = WiFi.RSSI();
-#endif
 
   if (dbm <= -100) return 0;
   else if (dbm >= -50) return 100;

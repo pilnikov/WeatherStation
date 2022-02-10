@@ -94,7 +94,7 @@ char tstr[25];
 
 unsigned long   serv_ms = 60000, alarm_time = millis();
 
-bool  play_snd  = false, wasAlarm = false;
+bool  play_snd  = false, wasAlarm = false, _wasAlarmed_int = false;;
 
 uint8_t gpio_sda = 255;
 uint8_t gpio_scl = 255;

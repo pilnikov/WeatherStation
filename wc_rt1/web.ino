@@ -146,7 +146,7 @@ void handlejTime2()
 //-------------------------------------------------------------- handlejAlarm
 void handlejAlarm()
 {
-  DynamicJsonDocument jsonBuffer(700);
+  DynamicJsonDocument jsonBuffer(900);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["actn"] = rtc_alm.num;
