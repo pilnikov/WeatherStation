@@ -9331,10 +9331,10 @@ Based on the following sources:
 <net name="PRG_BTN" class="0">
 <segment>
 <wire x1="93.98" y1="137.16" x2="91.44" y2="137.16" width="0.1524" layer="91"/>
-<label x="83.312" y="139.7" size="1.27" layer="95" rot="R180"/>
+<label x="78.74" y="137.16" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="SW101" gate="G$1" pin="B"/>
 <pinref part="R109" gate="G$1" pin="1"/>
-<wire x1="91.44" y1="137.16" x2="73.66" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="91.44" y1="137.16" x2="78.74" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="88.9" y1="142.24" x2="91.44" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="91.44" y1="142.24" x2="91.44" y2="137.16" width="0.1524" layer="91"/>
 <junction x="91.44" y="137.16"/>
