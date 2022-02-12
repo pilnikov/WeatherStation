@@ -8,10 +8,10 @@
   #include "..\lib\MyLib_TM1637\myTM1637.h"
 */
 
-#include "Max72.h"
-#include "SHT1632_3.h"
-#include "myHT16K33.h"
-#include "myTM1637.h"
+#include <Max72.h>
+#include <SHT1632_3.h>
+#include <myHT16K33.h>
+#include <myTM1637.h>
 
 
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2

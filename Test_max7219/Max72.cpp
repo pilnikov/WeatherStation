@@ -46,10 +46,7 @@ Max72::Max72(byte csPin, byte hDisplays, byte vDisplays)
 }
 void Max72::begin(void) {
 
-  //SPI.begin();
-  //SPI.setBitOrder(MSBFIRST);
-  //SPI.setDataMode(SPI_MODE0);
-  //pinMode(SPI_CS, OUTPUT);
+  pinMode(SPI_CS, OUTPUT);
 
   // Clear the screen
   fillScreen(0);
@@ -97,6 +94,8 @@ void Max72::write()
 
 void Max72::spiTransfer(byte opcode, byte data)
 {
+  SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+
   // If opcode > OP_DIGIT7, send the opcode and data to all displays.
   // If opcode <= OP_DIGIT7, display the column with data in our buffer for all displays.
   // We do not support (nor need) to use the OP_NOOP opcode.
@@ -118,6 +117,8 @@ void Max72::spiTransfer(byte opcode, byte data)
 
   // Latch the data onto the display(s)
   digitalWrite(SPI_CS, HIGH);
+
+  SPI.endTransaction();
 }
 
 void Max72::setRam(byte *data, uint8_t size)
