@@ -317,7 +317,6 @@ void ht1621_init()
 void ht1632_init()
 {
   m1632 = new HT1632C(conf_data.gpio_dwr, /*clk*/ conf_data.gpio_dcs /*cs*/);
-  m1632 -> setFrequency(100000);
 }
 
 void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)

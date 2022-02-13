@@ -1,11 +1,5 @@
 #include "SHT1632_3.h"
 
-void abortIfInit(bool isInit) {
-  if (isInit) {
-    Serial.println(F("Display already initialized, unable to set value"));
-    abort();
-  }
-}
 
 HT1632C::HT1632C(const uint8_t clk_pin, const uint8_t cs_pin)
   : clk_pin(clk_pin),
@@ -19,47 +13,6 @@ HT1632C::~HT1632C()
   free(framebuffer);
 }
 
-void HT1632C::setChipHeight(uint8_t chip_height)
-{
-  abortIfInit(isInit);
-  this->chip_height = chip_height;
-}
-
-void HT1632C::setChipWidth(uint8_t chip_width)
-{
-  abortIfInit(isInit);
-  this->chip_width = chip_width;
-}
-
-void HT1632C::setChipsPerPanel(uint8_t chips_per_panel)
-{
-  abortIfInit(isInit);
-  this->chips_per_panel = chips_per_panel;
-}
-
-void HT1632C::setColors(uint8_t colors)
-{
-  abortIfInit(isInit);
-  this->colors = colors;
-}
-
-void HT1632C::setFrequency(uint32_t frequency)
-{
-  abortIfInit(isInit);
-  this->frequency = frequency;
-}
-
-void HT1632C::setPanelWidth(uint8_t width)
-{
-  abortIfInit(isInit);
-  this->panel_width = width;
-}
-
-void HT1632C::setPanelHeight(uint8_t height)
-{
-  abortIfInit(isInit);
-  this->panel_height = height;
-}
 
 int HT1632C::init()
 {
@@ -68,14 +21,8 @@ int HT1632C::init()
   color_size = chip_width * chip_height / 8; // 16 * 8 / 8 = 16
   chip_size = (color_size * colors) + 2; // 16 * 2 = 32
   num_chips = chips_per_panel * num_panels; // 4 * 1 = 4
-  DEBUGF("Chip Size: %d\n", chip_size);
   framebuffer = (uint8_t*)malloc(num_chips * chip_size); //4 * 32 = 128
   if (!framebuffer) return 3;
-
-//  SPI.begin();
-# if defined(__xtensa__)
-  SPI.setFrequency(frequency);
-#endif
 
   pinMode(clk_pin, OUTPUT);
   pinMode(cs_pin, OUTPUT);
@@ -94,52 +41,6 @@ int HT1632C::init()
   return 0;
 }
 
-
-int HT1632C::getWidth()
-{
-  return (rotation & 1) ? height : width;
-}
-
-int HT1632C::getHeight()
-{
-  return (rotation & 1) ? width : height;
-}
-
-void HT1632C::ledOn()
-{
-  sendCmd(CS_ALL, COMMAND_CODE::LEDON);
-}
-
-void HT1632C::ledOff()
-{
-  sendCmd(CS_ALL, COMMAND_CODE::LEDOFF);
-}
-
-void HT1632C::blinkOn()
-{
-  sendCmd(CS_ALL, COMMAND_CODE::BLON);
-}
-
-void HT1632C::blinkOff()
-{
-  sendCmd(CS_ALL, COMMAND_CODE::BLOFF);
-}
-
-void HT1632C::pwm(const uint8_t value)
-{
-  sendCmd(CS_ALL, COMMAND_CODE::PWM | (value & 0x0f));
-}
-
-void HT1632C::clear()
-{
-  // clear buffer
-  memset(framebuffer, 0, num_chips * chip_size);
-  for (int i = 0; i < num_chips; ++i)
-  {
-    *framebufferPtr(i, 0) = ID_CODE::WR << (8 - ID_LEN);
-  }
-}
-
 void HT1632C::ramSet(byte *in, uint8_t in_size)
 {
   uint8_t _size = num_chips * chip_size;
@@ -154,15 +55,18 @@ void HT1632C::ramSet(byte *in, uint8_t in_size)
 
 void HT1632C::sendFrame()
 {
-  for (int chip = 1; chip <= num_chips; ++chip) {
+  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  for (int chip = 1; chip <= num_chips; ++chip) 
+  {
 	chipSelect(chip);
     for (uint8_t addr = 0; addr < chip_size; addr++)
-    # if defined(__xtensa__)
+	{
 		SPI.write(*framebufferPtr(chip - 1, addr));
-	# endif
+	}
     chipSelect(CS_NONE);
 	yield();
   }
+  SPI.endTransaction();
 }
 
 void HT1632C::plot(const int rx, const int ry, const uint8_t color)
@@ -191,12 +95,12 @@ void HT1632C::plot(const int rx, const int ry, const uint8_t color)
 
 void HT1632C::sendCmd(const uint8_t chip, const uint8_t cmd)
 {
+  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
   chipSelect(chip);
-  # if defined(__xtensa__)
   uint16_t data = ((ID_CODE::CMD << 8) | cmd) << 5;
   SPI.write16(data);
-  # endif 
   chipSelect(CS_NONE);
+  SPI.endTransaction();
 }
 
 void HT1632C::chipSelect(const uint8_t cs)
@@ -220,42 +124,19 @@ void HT1632C::chipSelect(const uint8_t cs)
   }
 }
 
-void HT1632C::clkPulse(int num)
-{
-  while (num--) 
-  {
-    digitalWrite(clk_pin, HIGH);
-	digitalWrite(clk_pin, LOW);
-  }
-}
-
-void HT1632C::updateFramebuffer(const int chip, const int addr,
-                                const uint8_t target_bitval,
-                                const uint8_t pixel_bitval)
-{
-  uint8_t* const v = framebufferPtr(chip, addr);
-  if (target_bitval)
-    *v |= pixel_bitval;
-  else
-    *v &= ~pixel_bitval;
-}
-
-uint8_t* HT1632C::framebufferPtr(uint8_t chip, uint8_t addr)
-{
-  return framebuffer + (chip * chip_size + addr);
-}
 
 void HT1632C::debugFramebuffer()
 {
   for (int chip = 0; chip < num_chips; chip++) {
-    DEBUGF("Chip %d: ", chip);
+    DBG_OUT_PORT.print("Chip: ");
+    DBG_OUT_PORT.println(chip);
     uint8_t* ptr = framebufferPtr(chip, 0);
     for (uint8_t i = 0; i < chip_size; i++) {
-      Serial.print(*(ptr + i), HEX);
+      DBG_OUT_PORT.print(*(ptr + i), HEX);
       if (i != chip_size - 1) {
-        DEBUGF(",");
+        DBG_OUT_PORT.print(",");
       }
     }
-    DEBUGF("\n");
+    DBG_OUT_PORT.print("\n");
   }
 }

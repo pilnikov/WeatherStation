@@ -1,5 +1,5 @@
 //------------------------------------------------------  Получаем данные с датчиков
-snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
+snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc)
 {
   snr_data_t td;
   snr_data_t ed1;
@@ -14,11 +14,11 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
   sd.h3 = 0;
   sd.p = 700;
 
-  rd.temp_rtc = 99;
+  uint8_t temp_rtc = 99;
 
-  if ((rd.type_snr1 == 5 || rd.type_snr2 == 5 || rd.type_snr3 == 5) && rd.type_rtc == 1)
+  if ((rd.type_snr1 == 5 || rd.type_snr2 == 5 || rd.type_snr3 == 5) && type_rtc == 1)
   {
-    rd.temp_rtc = myrtc.get_temperature();
+    temp_rtc = myrtc.get_temperature();
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -41,7 +41,7 @@ snr_data_t GetSnr(ram_data_t rd, conf_data_t cf)
 #endif
   if ((rd.type_snr1 > 0 && rd.type_snr1 < 14) || (rd.type_snr2 > 0 && rd.type_snr2 < 14) || (rd.type_snr3 > 0 && rd.type_snr3 < 14) || (rd.type_snrp > 0 && rd.type_snrp < 14))
   {
-    sd = sens.read_snr(rd.type_snr1, rd.type_snr2, rd.type_snr3, rd.type_snrp, rd.temp_rtc, td, ed1, ed2, wf_data_cur); // Заполняем матрицу данных с датчиков
+    sd = sens.read_snr(rd, temp_rtc, td, ed1, ed2, wf_data_cur); // Заполняем матрицу данных с датчиков
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3

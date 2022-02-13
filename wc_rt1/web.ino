@@ -491,10 +491,10 @@ void handlejPars()
   json["udp"]   = conf_data.srudp_addr;
   json["udm"]   = conf_data.udp_mon;
   json["prgp"]  = conf_data.use_pp;
-  json["s1"]    = conf_data.type_snr1;
-  json["s2"]    = conf_data.type_snr2;
-  json["s3"]    = conf_data.type_snr3;
-  json["sp"]    = conf_data.type_snrp;
+  json["s1"]    = snr_cfg_data.type_snr1;
+  json["s2"]    = snr_cfg_data.type_snr2;
+  json["s3"]    = snr_cfg_data.type_snr3;
+  json["sp"]    = snr_cfg_data.type_snrp;
   json["nc1"]   = conf_data.ch1_name;
   json["nc2"]   = conf_data.ch2_name;
   json["nc3"]   = conf_data.ch3_name;
@@ -580,23 +580,23 @@ void handlejSnr()
 void handleUpdSnr()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(ram_data, conf_data);
-  if (ram_data.type_snr1 == 12)
+  snr_data = GetSnr(ram_data, conf_data, rtc_hw.a_type);
+  if (snr_cur_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
     snr_data.h1 = sb.h1;
   }
-  if (ram_data.type_snr2 == 12)
+  if (snr_cur_data.type_snr2 == 12)
   {
     snr_data.t2 = sb.t2;
     snr_data.h2 = sb.h2;
   }
-  if (ram_data.type_snr3 == 12)
+  if (snr_cur_data.type_snr3 == 12)
   {
     snr_data.t3 = sb.t3;
     snr_data.h3 = sb.h3;
   }
-  if (ram_data.type_snrp == 12)
+  if (snr_cur_data.type_snrp == 12)
   {
     snr_data.p = sb.p;
   }
@@ -650,10 +650,10 @@ void handleSetPars2()
   		 + '&nc3='    + nc3_t;
   */
 
-  conf_data.type_snr1 = server.arg("snr1").toInt();
-  conf_data.type_snr2 = server.arg("snr2").toInt();
-  conf_data.type_snr3 = server.arg("snr3").toInt();
-  conf_data.type_snrp = server.arg("snrp").toInt();
+  snr_cfg_data.type_snr1 = server.arg("snr1").toInt();
+  snr_cfg_data.type_snr2 = server.arg("snr2").toInt();
+  snr_cfg_data.type_snr3 = server.arg("snr3").toInt();
+  snr_cfg_data.type_snrp = server.arg("snrp").toInt();
   conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
   conf_data.use_es = server.arg("ues").toInt();
   conf_data.esm = server.arg("esm") == "1";
@@ -664,10 +664,7 @@ void handleSetPars2()
 
   server.send(200, "text/html", "OK!");
 
-  ram_data.type_snr1 = conf_data.type_snr1;
-  ram_data.type_snr2 = conf_data.type_snr2;
-  ram_data.type_snr2 = conf_data.type_snr2;
-  ram_data.type_snrp = conf_data.type_snrp;
+  snr_cur_data = sens.init(snr_cfg_data);
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor part tree
@@ -1039,43 +1036,43 @@ void handlejNewsT()
   uint8_t inx = 0;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string1"] = st;
+  json["st_1"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string2"] = st;
+  json["st_2"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string3"] = st;
+  json["st_3"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string4"] = st;
+  json["st_4"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string5"] = st;
+  json["st_5"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string6"] = st;
+  json["st_6"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string7"] = st;
+  json["st_7"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string8"] = st;
+  json["st_8"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string9"] = st;
+  json["st_9"] = st;
   inx++;
   st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
   st += newsClient.getDescription(inx);
-  json["string10"] = st;
+  json["st_10"] = st;
 
   String st1 = String();
   if (serializeJson(jsonBuffer, st1) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));

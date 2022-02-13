@@ -81,13 +81,15 @@ void irq_set()
 void runing_string_start() // ---------------------------- Запуск бегущей строки
 {
   String local_ip = "192.168.0.0";
+  static uint8_t newsIndex;
+
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   local_ip = myIP.toString();
 #endif
   memset(st1, 0, 254);
   memset(st2, 0, 20);
 
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1);
+  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, wifi_data_cur.cli, newsClient.getTitle(newsIndex));
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
@@ -103,6 +105,9 @@ void runing_string_start() // ---------------------------- Запуск бегу
 
   end_run_st = false;
   if (conf_data.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
+
+  newsIndex ++;
+  if (newsIndex > 9) newsIndex = 0;
 }
 
 void firq0() // 1 hour
@@ -142,23 +147,23 @@ void firq0() // 1 hour
 void firq2()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(ram_data, conf_data);
-  if (ram_data.type_snr1 == 12)
+  snr_data = GetSnr(snr_cur_data, conf_data, rtc_hw.a_type);
+  if (snr_cur_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
     snr_data.h1 = sb.h1;
   }
-  if (ram_data.type_snr2 == 12)
+  if (snr_cur_data.type_snr2 == 12)
   {
     snr_data.t2 = sb.t2;
     snr_data.h2 = sb.h2;
   }
-  if (ram_data.type_snr3 == 12)
+  if (snr_cur_data.type_snr3 == 12)
   {
     snr_data.t3 = sb.t3;
     snr_data.h3 = sb.h3;
   }
-  if (ram_data.type_snrp == 12)
+  if (snr_cur_data.type_snrp == 12)
   {
     snr_data.p = sb.p;
   }

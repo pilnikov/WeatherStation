@@ -20,8 +20,6 @@
 #include <DHT_U.h>
 #endif
 
-#include <Udt.h>
-
 #include "OneWireNg_CurrentPlatform.h"
 #include "drivers/DSTherm.h"
 #include "utils/Placeholder.h"
@@ -35,13 +33,38 @@
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
+typedef struct 
+{
+  int8_t
+	t1 =  99, //Температура. Канал 1
+    t2 =  99, //Температура. Канал 2
+    t3 =  99; //Температура. Канал 3
+  uint8_t
+	h1 =   0, //Влажность. Канал 1
+    h2 =   0, //Влажность. Канал 2
+    h3 =   0; //Влажность. Канал 3
+  uint16_t  
+     p =   0, //Давление
+     f =   0; //Освещенность  
+} snr_data_t;
+
+typedef struct 
+{
+  uint8_t
+  type_snr1 = 0, // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
+  type_snr2 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
+  type_snr3 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
+  type_snrp = 0; // Тип датчика давления 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 3 - Взять с ES2,                                                8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 
+} snr_cfg_t;
+
+
 class SNR
 {
 public:
 
 	void dht_preset(uint8_t, uint8_t);
-	ram_data_t init(ram_data_t);
-	snr_data_t read_snr(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, snr_data_t, snr_data_t, snr_data_t, wf_data_t);
+	snr_cfg_t init(snr_cfg_t);
+	snr_data_t read_snr(snr_cfg_t, uint8_t, snr_data_t, snr_data_t, snr_data_t, wf_data_t);
 
 private:
 	//----------------------------------------------------------dht
@@ -82,27 +105,5 @@ private:
 	int printScratchpad(const DSTherm::Scratchpad& scrpd);
 
 protected:
-
 };
-
-//-------------------------------------------------------Sensor
-
-/*
-  Типы датчиков температуры, влажности, давления
-  0 - нет
-  1 - ThingSpeak
-  2 - Внешний сервер 1
-  3 - Внешний сервер 2
-  4 - dht22
-  5 - Встроеный в DS3231 датчик температуры
-  6 - si7021
-  7 - am2320
-  8 - bmp180
-  9 - bmp280
- 10 - bme280
-
-  bh1750 - датчик освещенности
-*/
-
-
 #endif //Snr_h

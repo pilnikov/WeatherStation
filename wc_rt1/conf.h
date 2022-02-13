@@ -284,6 +284,8 @@ udp_cons print_console_udp;
 
 // ----------------------------------- Typedef
 snr_data_t snr_data;
+snr_cfg_t snr_cfg_data;
+snr_cfg_t snr_cur_data;
 wf_data_t wf_data_cur;
 wf_data_t wf_data;
 conf_data_t conf_data;
@@ -309,7 +311,7 @@ conf_data_t loadConfig(const char*);
 void saveConfig(const char*, conf_data_t);
 conf_data_t defaultConfig();
 
-snr_data_t GetSnr(ram_data_t, conf_data_t);
+snr_data_t GetSnr(snr_cfg_t, conf_data_t, uint8_t);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void send_uart();
 void keyb_read();

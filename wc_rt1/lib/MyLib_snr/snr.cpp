@@ -1,9 +1,9 @@
 #include "Snr.h"
 
-ram_data_t SNR::init(ram_data_t in_data)
+snr_cfg_t SNR::init(snr_cfg_t in_data)
 {
 	
-	ram_data_t out_data = in_data;
+	snr_cfg_t out_data = in_data;
 	for(uint8_t i = 0; i < 4; i++)
 	{	
 		uint8_t type_snr = 0;
@@ -428,7 +428,7 @@ int SNR::printScratchpad(const DSTherm::Scratchpad & scrpd)
 }
 
 
-snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3, uint8_t type_snrp, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data1, snr_data_t e_data2, wf_data_t w_data)
+snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data1, snr_data_t e_data2, wf_data_t w_data)
 {
 	snr_data_t data;
 
@@ -440,7 +440,7 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 		switch (i)
 		{
 			case 0:
-				type_snr = type_snr1;
+				type_snr = cfg.type_snr1;
 				data.h1 = 0; 
 				data.t1 = 99;
 
@@ -454,7 +454,7 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 				e_data2_t = e_data2.t1;
 				break;
 			case 1:
-				type_snr = type_snr2;
+				type_snr = cfg.type_snr2;
 				data.h2 = 0; 
 				data.t2 = 99;
 
@@ -468,7 +468,7 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 				e_data2_t = e_data2.t2;
 				break;
 			case 2:
-				type_snr = type_snr3;
+				type_snr = cfg.type_snr3;
 				data.h3 = 0; 
 				data.t3 = 99;
 
@@ -483,7 +483,7 @@ snr_data_t SNR::read_snr(uint8_t type_snr1, uint8_t type_snr2, uint8_t type_snr3
 				break;
 			case 3:
 				data.p = 700; 
-				type_snr = type_snrp;
+				type_snr = cfg.type_snrp;
 
 				t_data_p = t_data.p;
 

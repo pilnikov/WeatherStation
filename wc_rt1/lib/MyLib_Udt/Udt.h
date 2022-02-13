@@ -11,19 +11,6 @@
 
 typedef struct 
 {
-    int8_t   t1 =  99; //Температура. Канал 1
-    uint8_t  h1 =   0; //Влажность. Канал 1
-    int8_t   t2 =  99; //Температура. Канал 2
-    uint8_t  h2 =   0; //Влажность. Канал 2
-    int8_t   t3 =  99; //Температура. Канал 3
-    uint8_t  h3 =   0; //Влажность. Канал 3
-    uint16_t  p =   0; //Давление
-    uint16_t  f =   0; //Освещенность  
-} snr_data_t;
-	
-	
-typedef struct 
-{
     uint8_t  day       =   0; // день  , для которого составлен прогноз
     uint8_t  month     =   0; // месяц , для которого составлен прогноз
     uint16_t year      =2022; // год,    для которого составлен прогноз
@@ -55,7 +42,6 @@ typedef struct
   led_pola = false,
   rus_lng = false,
   time_up = false,
-  wifi_off = false,
   udp_mon = false,
   esm = false,
   news_en = false;
@@ -79,10 +65,6 @@ typedef struct
   type_font = 0,
   type_vdrv = 0,
   type_disp = 0,
-  type_snr1 = 0,
-  type_snr2 = 0,
-  type_snr3 = 0,
-  type_snrp = 0,
   type_rtc = 0,
   type_thermo = 0,
   src_thermo = 0,
@@ -129,10 +111,6 @@ typedef struct
 {
   uint8_t   
   type_vdrv = 0, // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574 
-  type_snr1 = 0, // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
-  type_snr2 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
-  type_snr3 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
-  type_snrp = 0, // Тип датчика давления 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 3 - Взять с ES2,                                                8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 
   type_rtc = 0,  // Тип RTC 0 - Нет, 1 - DS3231, 2 - DS1302, 3 - DS1307
   temp_rtc = 0,  // Температура чипа DS3231,
   lcd_addr = 0,  // Адрес LCD дисплея

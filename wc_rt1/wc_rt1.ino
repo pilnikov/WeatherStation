@@ -169,30 +169,27 @@ void setup()
     //------------------------------------------------------  Инициализируем датчики
     if (ram_data.bh1750_present) lightMeter.begin();
 
-    if (ram_data.type_snr1 > 0 || ram_data.type_snr2 > 0 || ram_data.type_snr3 > 0)
+    if (snr_cur_data.type_snr1 > 0 || snr_cur_data.type_snr2 > 0 || snr_cur_data.type_snr3 > 0)
     {
-      if (ram_data.type_snr1 == 4 || ram_data.type_snr2 == 4 || ram_data.type_snr3 == 4)
+      if (snr_cur_data.type_snr1 == 4 || snr_cur_data.type_snr2 == 4 || snr_cur_data.type_snr3 == 4)
       {
         pinMode(conf_data.gpio_dht, INPUT_PULLUP);
         sens.dht_preset(conf_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
       }
 
-      if (ram_data.type_snr1 == 13 || ram_data.type_snr2 == 13 || ram_data.type_snr3 == 13)
+      if (snr_cur_data.type_snr1 == 13 || snr_cur_data.type_snr2 == 13 || snr_cur_data.type_snr3 == 13)
         ram_data.gpio_dht = conf_data.gpio_dht; //Тут устанавливается GPIO для DS18B20
 
-      ram_data_t sens_data = ram_data;
-
-      sens_data = sens.init(ram_data);
-      ram_data = sens_data;
+      snr_cur_data = sens.init(snr_cfg_data);
 
       DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
-      DBG_OUT_PORT.println(ram_data.type_snr1);
+      DBG_OUT_PORT.println(snr_cur_data.type_snr1);
       DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
-      DBG_OUT_PORT.println(ram_data.type_snr2);
+      DBG_OUT_PORT.println(snr_cur_data.type_snr2);
       DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
-      DBG_OUT_PORT.println(ram_data.type_snr3);
+      DBG_OUT_PORT.println(snr_cur_data.type_snr3);
       DBG_OUT_PORT.print("Snr type on pressure = ");
-      DBG_OUT_PORT.println(ram_data.type_snrp);
+      DBG_OUT_PORT.println(snr_cur_data.type_snrp);
       DBG_OUT_PORT.println(F("sensor inital"));
     }
 
@@ -261,7 +258,7 @@ void setup()
     }
 # endif
     //-------------------------------------------------------  Опрашиваем датчики
-    snr_data = GetSnr(ram_data, conf_data);
+    snr_data = GetSnr(snr_cur_data, conf_data, rtc_hw.a_type);
 
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);

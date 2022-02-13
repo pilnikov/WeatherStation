@@ -104,10 +104,6 @@ conf_data_t loadConfig(const char *filename)
       _data.use_pp            = doc["upp"];
 
       //---Sensor type---------------------------------------
-      _data.type_snr1         = doc["snr1_t"];
-      _data.type_snr2         = doc["snr2_t"];
-      _data.type_snr3         = doc["snr3_t"];
-      _data.type_snrp         = doc["snrp_t"];
       _data.period            = doc["period"]; // minutes
       _data.use_es            = doc["ues"];
       _data.esm               = doc["esm"];
@@ -156,10 +152,6 @@ void saveConfig(const char *filename, conf_data_t _data)
 
   if ( _data.type_vdrv    < 0  || _data.type_vdrv  >  20) _data.type_vdrv  = 0;
   if ( _data.type_disp    < 0  || _data.type_disp  >  50) _data.type_disp  = 0;
-  if ( _data.type_snr1    < 0  || _data.type_snr1  >  13) _data.type_snr1  = 0;
-  if ( _data.type_snr2    < 0  || _data.type_snr2  >  13) _data.type_snr2  = 0;
-  if ( _data.type_snr3    < 0  || _data.type_snr3  >  13) _data.type_snr3  = 0;
-  if ( _data.type_snrp    < 0  || _data.type_snrp  >  12) _data.type_snrp  = 0;
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
@@ -216,15 +208,11 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["upp"]                 = _data.use_pp;
 
   //---Sensor type---------------------------------------
-  json["snr1_t"]              = _data.type_snr1;
-  json["snr2_t"]              = _data.type_snr2;
-  json["snr3_t"]              = _data.type_snr3;
-  json["snrp_t"]              = _data.type_snrp;
   json["period"]              = _data.period; // minutes
   json["ues"]                 = _data.use_es;
   json["esm"]                 = _data.esm;
 
-  //---Sensor actual value-------------------------------
+  //---Sensor channel name -------------------------------
   json["ch1_name"]            = _data.ch1_name;
   json["ch2_name"]            = _data.ch2_name;
   json["ch3_name"]            = _data.ch3_name;
@@ -299,10 +287,6 @@ conf_data_t defaultConfig()
   _data.use_pp           = 0;
   _data.type_vdrv        = 0;
   _data.type_disp        = 0;
-  _data.type_snr1        = 0;
-  _data.type_snr2        = 0;
-  _data.type_snr3        = 0;
-  _data.type_snrp        = 0;
   _data.use_es           = 0;
   _data.use_ts           = 0;
   _data.type_thermo      = 0;
@@ -407,11 +391,6 @@ conf_data_t defaultConfig()
 #if defined _dacha
   _data.type_vdrv        = 2;
   _data.type_disp        = 21;
-
-  _data.type_snr1        = 4;
-  _data.type_snr2        = 6;
-  _data.type_snr3        = 10;
-  _data.type_snrp        = 10;
 
 #elif defined _work
   _data.type_vdrv        = 3;

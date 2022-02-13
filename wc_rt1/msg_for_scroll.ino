@@ -1,5 +1,5 @@
 
-void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[])
+void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[], bool cur_cli, String newsClient)
 {
   const char* stdr_0 = PSTR("ночь");
   const char* stdr_1 = PSTR("yтро");
@@ -101,7 +101,6 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
   bool alarmed = ((minute_ala > minute_cur) & (rta.hour < 24));
 
   bool _repeat = true;
-  static uint8_t newsIndex;
 
   do
   {
@@ -189,17 +188,15 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 5:
-          if (cf.news_en & wifi_data_cur.cli)
+          if (cf.news_en & cur_cli)
           {
             String news_s = "News not support this platform";
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
             news_s = "";
-            news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+            news_s = (String)cf.news_source + ": " + newsClient;
 # endif
             strcpy(out, news_s.c_str());
-            newsIndex ++;
-            if (newsIndex > 9) newsIndex = 0;
-            _repeat = false;
+           _repeat = false;
           }
           break;
         case 6:
@@ -295,16 +292,14 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 5:
-          if (cf.news_en & wifi_data_cur.cli)
+          if (cf.news_en & cur_cli)
           {
             String news_s = "Новости недоступны для этой платформы";
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
             news_s = "";
-            news_s = (String)cf.news_source + ": " + newsClient.getTitle(newsIndex);
+            news_s = (String)cf.news_source + ": " + newsClient;
 # endif
             strcpy(out, news_s.c_str());
-            newsIndex ++;
-            if (newsIndex > 9) newsIndex = 0;
             _repeat = false;
 
           }
