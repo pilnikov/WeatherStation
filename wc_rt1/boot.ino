@@ -101,8 +101,8 @@ void runing_string_start() // ---------------------------- Запуск бегу
   DBG_OUT_PORT.println(st1);
 
 
-  if (conf_data.rus_lng & (type_vdrv == 12)) f_dsp.lcd_rus(st1);
-  if (conf_data.rus_lng & (type_vdrv != 12)) f_dsp.utf8rus(st1);
+  if (conf_data.rus_lng & (conf_data.type_vdrv == 12)) f_dsp.lcd_rus(st1);
+  if (conf_data.rus_lng & (conf_data.type_vdrv != 12)) f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
   cur_sym_pos[1] = 0;
@@ -151,7 +151,7 @@ void firq0() // 1 hour
 void firq2()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type);
+  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_cfg.c_type);
   if (snr_cfg_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
@@ -198,7 +198,7 @@ void firq5() // 0.5 sec main cycle
     //-----------------------------------------
     // run slowely time displays here
     m32_8time_act = false;
-    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on)) time_view(conf_data.type_disp, type_vdrv); // break time view while string is running
+    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on)) time_view(conf_data.type_disp, conf_data.type_vdrv); // break time view while string is running
   }
   else cur_br = 0;
 
@@ -252,7 +252,7 @@ void firq6() // 0.180 sec Communications with server
   }
 # endif
 
-  if (type_vdrv == 11)
+  if (conf_data.type_vdrv == 11)
   {
     if (conf_data.type_disp == 11)
     {
@@ -281,7 +281,7 @@ void firq6() // 0.180 sec Communications with server
     ht1633->setBrightness(cur_br);
     ht1633->write();
   }
-  if (type_vdrv == 12)
+  if (conf_data.type_vdrv == 12)
   {
     if (conf_data.type_disp == 19)
     {
@@ -335,7 +335,7 @@ void firq8() //0.030 sec running string is out switch to time view
     if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
 
-  switch (type_vdrv)
+  switch (conf_data.type_vdrv)
   {
     case 2:
       if (conf_data.type_disp == 20 || conf_data.type_disp == 21)

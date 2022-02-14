@@ -193,7 +193,7 @@ void a595_init()
 
     if (status != PROTOMATTER_OK)
     {
-      type_vdrv = 0;
+      conf_data.type_vdrv = 0;
       DBG_OUT_PORT.print(F("Failed initialize display - set it to 0..."));
     }
 #endif

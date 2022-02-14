@@ -95,6 +95,3 @@ static Adafruit_Protomatter * m3216;
 #include "Adafruit_ILI9341.h"
 
 static Adafruit_ILI9341 * tft;
-
-//---------------------------------------------------------------------------Common
-uint8_t type_vdrv;

@@ -105,9 +105,10 @@
 				<ul class="menu-inner">
 					<li><a href='time.htm'>Time</a></li>
 					<li><a href='wifi.htm'>WiFi</a></li>
-					<li><a href='gpio.htm'>GPIO</a></li>
+					<li><a href='clock.htm'>Clock</a></li>
 					<li><a href='disp.htm'>Display</a></li>
 					<li><a href='sens.htm'>Sensor</a></li>
+					<li><a href='alarm.htm'>Alarm</a></li>
 					<li><a href='thermo.htm'>Thermo</a></li>
 					<li><a href='news.htm'>News</a></li>
 				</ul>
@@ -122,10 +123,10 @@
 			<tr>
 				<td colspan='5' class='h'>Опции</td></tr>
 			<tr>
-				<td>City ID для GM и OWM		  </td><td colspan='4'><input type='text' size='6' maxlength='6' id='cityID' name='cityID'/></td>
+				<td>City ID для GM и OWM		  </td><td colspan='4'><input type='text' size='6'  maxlength='6'  id='cityID' name='cityID'/></td>
 			</tr>
 			<tr>
-				<td>OWM API Key         		  </td><td colspan='4'><input type='text' size='32' maxlength='32' id='owmk' name='owmk'/></td>
+				<td>OWM API Key         		  </td><td colspan='4'><input type='text' size='32' maxlength='32' id='owmk'   name='owmk'  /></td>
 			</tr>
 			<tr>
 				<td>Прогноз погоды				  </td><td colspan='4'><select id='usepp' name='usepp' onchange='chk_pp();'>
@@ -136,16 +137,16 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Адрес ES1					  </td><td colspan='4'><input type='text' maxlength='17' id='esaddr1' name='esaddr1'/></td>
+				<td>Адрес ES1					  </td><td colspan='4'><input type='text' size='17' maxlength='17' id='esaddr1' name='esaddr1'/></td>
 			</tr>
 			<tr>
-				<td>Адрес ES2        			  </td><td colspan='4'><input type='text' maxlength='17' id='esaddr2' name='esaddr2'/></td>
+				<td>Адрес ES2        			  </td><td colspan='4'><input type='text' size='17' maxlength='17' id='esaddr2' name='esaddr2'/></td>
 			</tr>
 			<tr>
-				<td>Адрес радиоприемничка         </td><td colspan='4'><input type='text' maxlength='17' id='rdaddr' name='rdaddr' /></td>
+				<td>Адрес радиоприемничка         </td><td colspan='4'><input type='text' size='17' maxlength='17' id='rdaddr' name='rdaddr' /></td>
 			</tr>
 			<tr>
-				<td>Адрес хоста для UDP консоли   </td><td colspan='4'><input type='text' maxlength='17' id='udp' name='udp' /></td>
+				<td>Адрес хоста для UDP консоли   </td><td colspan='4'><input type='text' size='17' maxlength='17' id='udp' name='udp' /></td>
 			</tr>
 			<tr>
 				<td>Использовать UDP консоль      </td><td colspan='4'><input type='checkbox' id='udm' name='udm' onclick='sel_ts();'/></td>
@@ -224,7 +225,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Период опроса (минут)</td><td colspan='4'><input type='text' maxlength='2' id='period' name='period'/></td>
+				<td>Период опроса (минут)</td><td colspan='4'><input type='text' size='2'  maxlength='2' id='period' name='period'/></td>
 			</tr>
 			<tr>
 				<td>Энергосбережение     </td><td colspan='4'><input type='checkbox' id='esm' name='esm'/></td>
@@ -270,13 +271,13 @@
 				<td colspan='5' class='h'>Параметры аккаунта ТS:</td>
 			</tr>
 			<tr>
-				<td>Channel ID</td><td colspan='4'><input type='text' maxlength='6' id='tschan' name='tschan'/></td>
+				<td>Channel ID</td><td colspan='4'><input type='text' size='6'  maxlength='6'  id='tschan' name='tschan'/></td>
 			</tr>
 			<tr>
-				<td>API key R</td><td colspan='4'><input type='text' maxlength='17' id='tsapir' name='tsapir'/></td>
+				<td>API key R </td><td colspan='4'><input type='text' size='17' maxlength='17' id='tsapir' name='tsapir'/></td>
 			</tr>
 			<tr>
-				<td>API key W</td><td colspan='4'><input type='text' maxlength='17' id='tsapiw' name='tsapiw'/></td>
+				<td>API key W </td><td colspan='4'><input type='text' size='17' maxlength='17' id='tsapiw' name='tsapiw'/></td>
 			</tr>
 			<tr>
 				<td colspan='5' class='h'>Отправка показаний на ТS</td>
@@ -361,9 +362,13 @@
 						document.getElementById('utsp').checked  = (res2.tss & 0b01000000);
 
 						sel_ts();
+						loadSnr();
 					}   	  
 				}
-
+      }
+			
+			function loadSnr()
+			{
 				var xh3 = new XMLHttpRequest();
 				xh3.open("GET", "/jsnr", true);
 				xh3.send(null);

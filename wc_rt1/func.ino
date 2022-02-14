@@ -486,18 +486,18 @@ void keyb_read()
     {
       serv_ms = millis();
       start_serv();  //Запускаем web морду
-      if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Включаем светодиод
+      if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Включаем светодиод
     }
     else
     {
       serv_ms = millis() + 60000L;
       stop_serv();  //Останавливаем web морду
-      if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
+      if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
     }
   }
 
 #endif
-  if ((millis() - setting_ms > 9000) & (conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
+  if ((millis() - setting_ms > 9000) & (conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
 
   if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000)) //держим от 9 до 15 сек
   {
@@ -683,12 +683,12 @@ void alarm1_action()
       break;
     case 3:
       disp_on = true;
-      if (type_vdrv == 12)
+      if (conf_data.type_vdrv == 12)
       {
         lcd->backlight();
         lcd->display();
       }
-      if (type_vdrv == 2)
+      if (conf_data.type_vdrv == 2)
       {
         m7219->shutdown(false);
         m7219->write();
@@ -699,7 +699,7 @@ void alarm1_action()
       cur_br = 0;
       snr_data.f = 0;
       f_dsp.CLS(screen, sizeof screen);
-      switch (type_vdrv)
+      switch (conf_data.type_vdrv)
       {
         case 1:
           tm1637->set_br(0);
@@ -830,9 +830,9 @@ void hard_restart() {
 #endif
 #endif
 
-void hw_accept(hw_data_t hd, snr_cfg_t *snr_cfg)
+void hw_accept(hw_data_t hd, snr_cfg_t *snr_cfg, uint8_t *vd_typ, uint8_t *rt_typ)
 {
-  type_vdrv    = conf_data.type_vdrv;
+  snr_cfg->bm_addr = hd.bm_addr;
 
   // if selected -> deselect auto
   if (!hd.ds3231_present && snr_cfg->type_snr1 == 5)
@@ -942,24 +942,24 @@ void hw_accept(hw_data_t hd, snr_cfg_t *snr_cfg)
     snr_cfg->type_snrp = 0;
     DBG_OUT_PORT.println(F("BME280 as a pressure sensor is not found -> deselected"));
   }
-  if (!hd.lcd_present    && conf_data.type_vdrv == 12)
+  if (!hd.lcd_present    && *vd_typ == 12)
   {
-    type_vdrv    = 0;
+    *vd_typ    = 0;
     DBG_OUT_PORT.println(F("LCD I2C is not found -> deselected"));
   }
-  if (!hd.ht1633_present && conf_data.type_vdrv == 11)
+  if (!hd.ht1633_present && *vd_typ == 11)
   {
-    type_vdrv    = 0;
+    *vd_typ    = 0;
     DBG_OUT_PORT.println(F("HT1633 is not found -> deselected"));
   }
-  if (!hd.ds3231_present && rtc_cfg.c_type  == 1)
+  if (!hd.ds3231_present && *rt_typ  == 1)
   {
-    rtc_hw.a_type     = 0; //DS3231 is not present
+    *rt_typ     = 0; //DS3231 is not present
     DBG_OUT_PORT.println(F("DS3231 is not found -> deselected"));
   }
-  if (!hd.ds1307_present && rtc_cfg.c_type  == 3)
+  if (!hd.ds1307_present && *rt_typ  == 3)
   {
-    rtc_hw.a_type     = 0; //DS1307 is not present
+    *rt_typ     = 0; //DS1307 is not present
     DBG_OUT_PORT.println(F("DS1307 is not found -> deselected"));
   }
   if (!hd.bh1750_present)

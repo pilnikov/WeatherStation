@@ -328,7 +328,7 @@ String ts_snd (String);
 void put_to_es(char*, uint8_t, snr_data_t);
 
 String formatBytes(uint32_t);
-void hw_accept(hw_data_t, snr_cfg_t*);
+void hw_accept(hw_data_t, snr_cfg_t*, uint8_t*, uint8_t*);
 
 #if defined(ESP8266)
 void IRAM_ATTR isr1();
