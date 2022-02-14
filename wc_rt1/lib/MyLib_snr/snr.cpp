@@ -1,25 +1,24 @@
 #include "Snr.h"
 
-snr_cfg_t SNR::init(snr_cfg_t in_data)
+void SNR::init(snr_cfg_t* _data)
 {
 	
-	snr_cfg_t out_data = in_data;
 	for(uint8_t i = 0; i < 4; i++)
 	{	
 		uint8_t type_snr = 0;
 		switch (i)
 		{
 			case 0:
-				type_snr = in_data.type_snr1;
+				type_snr = _data->type_snr1;
 				break;
 			case 1:
-				type_snr = in_data.type_snr2;
+				type_snr = _data->type_snr2;
 				break;
 			case 2:
-				type_snr = in_data.type_snr3;
+				type_snr = _data->type_snr3;
 				break;
 			case 3:
-				type_snr = in_data.type_snrp;
+				type_snr = _data->type_snrp;
 				break;
 			default: 
 				break;
@@ -95,47 +94,26 @@ snr_cfg_t SNR::init(snr_cfg_t in_data)
 				}
 				break;
 			case 9:
-				if (!bmp2.begin(in_data.bm_addr, 0x58))
+				if (!bmp2.begin(_data->bm_addr, 0x58))
 				{
 					DBG_OUT_PORT.println(F("There was a problem detecting the BMP280 ... check your connections!"));
 					type_snr = 0;
 				}
 				break;
 			case 10:
-				if (!bme.begin(in_data.bm_addr, &Wire))
+				if (!bme.begin(_data->bm_addr, &Wire))
 				{
 					DBG_OUT_PORT.println(F("There was a problem detecting the BME280 ... check your connections!"));
 					type_snr = 0;
 				}
 				break;
 			case 13:
-				SNR::ds_init(in_data.gpio_dht);
+				SNR::ds_init(_data->gpio_dht);
 				break;
 			default:
 				break;
 		}
-		
-		switch (i)
-		{
-			case 0:
-				out_data.type_snr1 = type_snr;
-				break;
-			case 1:
-				out_data.type_snr2 = type_snr;
-				break;
-			case 2:
-				out_data.type_snr3 = type_snr;
-				break;
-			case 3:
-				out_data.type_snrp = type_snr;
-				break;
-			default: 
-				break;
-		}
-
-		
 	}
-	return out_data;
 }
 
 

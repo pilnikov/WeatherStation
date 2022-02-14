@@ -108,7 +108,7 @@ void setup()
 # endif
     
     hw_data = hw_chk.hw_present();
-    hw_accept(hw_data);
+    hw_accept(hw_data, &snr_cfg_data);
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
     memset(screen, 0, 64);
@@ -175,26 +175,26 @@ void setup()
     //------------------------------------------------------  Инициализируем датчики
     if (hw_data.bh1750_present) lightMeter.begin();
 
-    snr_cur_data.bm_addr = hw_data.bm_addr;
-    snr_cur_data.gpio_dht = conf_data.gpio_dht;
+    snr_cfg_data.bm_addr = hw_data.bm_addr;
+    snr_cfg_data.gpio_dht = conf_data.gpio_dht;
 
-    if (snr_cur_data.type_snr1 > 0 || snr_cur_data.type_snr2 > 0 || snr_cur_data.type_snr3 > 0)
+    if (snr_cfg_data.type_snr1 > 0 || snr_cfg_data.type_snr2 > 0 || snr_cfg_data.type_snr3 > 0)
     {
-      if (snr_cur_data.type_snr1 == 4 || snr_cur_data.type_snr2 == 4 || snr_cur_data.type_snr3 == 4)
+      if (snr_cfg_data.type_snr1 == 4 || snr_cfg_data.type_snr2 == 4 || snr_cfg_data.type_snr3 == 4)
       {
-        sens.dht_preset(snr_cur_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
+        sens.dht_preset(snr_cfg_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
       }
 
-      snr_cur_data = sens.init(snr_cfg_data);
+      sens.init(&snr_cfg_data);
 
       DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
-      DBG_OUT_PORT.println(snr_cur_data.type_snr1);
+      DBG_OUT_PORT.println(snr_cfg_data.type_snr1);
       DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
-      DBG_OUT_PORT.println(snr_cur_data.type_snr2);
+      DBG_OUT_PORT.println(snr_cfg_data.type_snr2);
       DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
-      DBG_OUT_PORT.println(snr_cur_data.type_snr3);
+      DBG_OUT_PORT.println(snr_cfg_data.type_snr3);
       DBG_OUT_PORT.print("Snr type on pressure = ");
-      DBG_OUT_PORT.println(snr_cur_data.type_snrp);
+      DBG_OUT_PORT.println(snr_cfg_data.type_snrp);
       DBG_OUT_PORT.println(F("sensor inital"));
     }
 
@@ -263,7 +263,7 @@ void setup()
     }
 # endif
     //-------------------------------------------------------  Опрашиваем датчики
-    snr_data = GetSnr(snr_cur_data, conf_data, rtc_hw.a_type);
+    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type);
 
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);

@@ -580,23 +580,23 @@ void handlejSnr()
 void handleUpdSnr()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cur_data, conf_data, rtc_hw.a_type);
-  if (snr_cur_data.type_snr1 == 12)
+  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type);
+  if (snr_cfg_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
     snr_data.h1 = sb.h1;
   }
-  if (snr_cur_data.type_snr2 == 12)
+  if (snr_cfg_data.type_snr2 == 12)
   {
     snr_data.t2 = sb.t2;
     snr_data.h2 = sb.h2;
   }
-  if (snr_cur_data.type_snr3 == 12)
+  if (snr_cfg_data.type_snr3 == 12)
   {
     snr_data.t3 = sb.t3;
     snr_data.h3 = sb.h3;
   }
-  if (snr_cur_data.type_snrp == 12)
+  if (snr_cfg_data.type_snrp == 12)
   {
     snr_data.p = sb.p;
   }
@@ -668,7 +668,7 @@ void handleSetPars2()
 
   server.send(200, "text/html", "OK!");
 
-  snr_cur_data = sens.init(snr_cfg_data);
+  sens.init(&snr_cfg_data);
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor part tree

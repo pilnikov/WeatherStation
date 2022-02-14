@@ -67,10 +67,11 @@ typedef struct
 class SNR
 {
 public:
-
-	void dht_preset(uint8_t, uint8_t);
-	snr_cfg_t init(snr_cfg_t);
-	snr_data_t read_snr(snr_cfg_t, uint8_t, snr_data_t, snr_data_t, snr_data_t, snr_data_t);
+	void 
+		dht_preset(uint8_t, uint8_t),
+		init(snr_cfg_t *);
+	snr_data_t 
+		read_snr(snr_cfg_t, uint8_t, snr_data_t, snr_data_t, snr_data_t, snr_data_t);
 
 private:
 	//----------------------------------------------------------dht
@@ -98,11 +99,14 @@ private:
 
 	Adafruit_BME280 bme; // I2C
 
-	float humi_read(uint8_t);
-	float temp_read(uint8_t);
-	float pres_read(uint8_t);
-    void  ds_init(uint8_t);
-    int   ds_read();
+	float 
+		humi_read(uint8_t),
+		temp_read(uint8_t),
+		pres_read(uint8_t);
+    void  
+		ds_init(uint8_t);
+    int   
+		ds_read();
 
 	Placeholder<OneWireNg_CurrentPlatform> _ow;
 

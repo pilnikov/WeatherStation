@@ -57,7 +57,7 @@ rtc_cfg_data_t CfgCT::loadConfig(const char *filename)
 
 	  strcpy(_data.ntp_srv[0], doc["ntp1"]);
 	  strcpy(_data.ntp_srv[1], doc["ntp2"]);
-	  strcpy(_data.ntp_srv[2], doc["ntp1"]);
+	  strcpy(_data.ntp_srv[2], doc["ntp3"]);
 
       //---Alarm.html----------------------------------------
       //---Options for alarms--------------------------------

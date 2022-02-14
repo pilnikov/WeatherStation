@@ -830,117 +830,116 @@ void hard_restart() {
 #endif
 #endif
 
-void hw_accept(hw_data_t hd)
+void hw_accept(hw_data_t hd, snr_cfg_t *snr_cfg)
 {
-  snr_cur_data = snr_cfg_data;
   type_vdrv    = conf_data.type_vdrv;
 
   // if selected -> deselect auto
-  if (!hd.ds3231_present && snr_cfg_data.type_snr1 == 5)
+  if (!hd.ds3231_present && snr_cfg->type_snr1 == 5)
   {
-    snr_cur_data.type_snr1 = 0;
+    snr_cfg->type_snr1 = 0;
     DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.ds3231_present && snr_cfg_data.type_snr2 == 5)
+  if (!hd.ds3231_present && snr_cfg->type_snr2 == 5)
   {
-    snr_cur_data.type_snr2 = 0;
+    snr_cfg->type_snr2 = 0;
     DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.ds3231_present && snr_cfg_data.type_snr3 == 5)
+  if (!hd.ds3231_present && snr_cfg->type_snr3 == 5)
   {
-    snr_cur_data.type_snr3 = 0;
+    snr_cfg->type_snr3 = 0;
     DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.si7021_present && snr_cfg_data.type_snr1 == 6)
+  if (!hd.si7021_present && snr_cfg->type_snr1 == 6)
   {
-    snr_cur_data.type_snr1 = 0;
+    snr_cfg->type_snr1 = 0;
     DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.si7021_present && snr_cfg_data.type_snr2 == 6)
+  if (!hd.si7021_present && snr_cfg->type_snr2 == 6)
   {
-    snr_cur_data.type_snr2 = 0;
+    snr_cfg->type_snr2 = 0;
     DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.si7021_present && snr_cfg_data.type_snr3 == 6)
+  if (!hd.si7021_present && snr_cfg->type_snr3 == 6)
   {
-    snr_cur_data.type_snr3 = 0;
+    snr_cfg->type_snr3 = 0;
     DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#2 is not found -> deselected"));
   }
   /*
-    if (!hd.am2320_present && snr_cfg_data.type_snr1 == 7)
+    if (!hd.am2320_present && snr_cfg->type_snr1 == 7)
     {
-      snr_cur_data.type_snr1 = 0;
+      snr_cfg->type_snr1 = 0;
       DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#1 is not found -> deselected"));
     }
-    if (!hd.am2320_present && snr_cfg_data.type_snr2 == 7)
+    if (!hd.am2320_present && snr_cfg->type_snr2 == 7)
     {
-      snr_cur_data.type_snr2 = 0;
+      snr_cfg->type_snr2 = 0;
       DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#2 is not found -> deselected"));
     }
-    if (!hd.am2320_present && snr_cfg_data.type_snr3 == 7)
+    if (!hd.am2320_present && snr_cfg->type_snr3 == 7)
     {
-      snr_cur_data.type_snr3 = 0;
+      snr_cfg->type_snr3 = 0;
       DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#3 is not found -> deselected"));
     }
   */
-  if (!hd.bmp180_present && snr_cfg_data.type_snr1 == 8)
+  if (!hd.bmp180_present && snr_cfg->type_snr1 == 8)
   {
-    snr_cur_data.type_snr1 = 0;
+    snr_cfg->type_snr1 = 0;
     DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.bmp180_present && snr_cfg_data.type_snr2 == 8)
+  if (!hd.bmp180_present && snr_cfg->type_snr2 == 8)
   {
-    snr_cur_data.type_snr2 = 0;
+    snr_cfg->type_snr2 = 0;
     DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.bmp180_present && snr_cfg_data.type_snr3 == 8)
+  if (!hd.bmp180_present && snr_cfg->type_snr3 == 8)
   {
-    snr_cur_data.type_snr3 = 0;
+    snr_cfg->type_snr3 = 0;
     DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.bmp180_present && snr_cfg_data.type_snrp == 8)
+  if (!hd.bmp180_present && snr_cfg->type_snrp == 8)
   {
-    snr_cur_data.type_snrp = 0;
+    snr_cfg->type_snrp = 0;
     DBG_OUT_PORT.println(F("BMP180 as a pressure sensor is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg_data.type_snr1 == 9)
+  if (!hd.bmp280_present && snr_cfg->type_snr1 == 9)
   {
-    snr_cur_data.type_snr1 = 0;
+    snr_cfg->type_snr1 = 0;
     DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg_data.type_snr2 == 9)
+  if (!hd.bmp280_present && snr_cfg->type_snr2 == 9)
   {
-    snr_cur_data.type_snr2 = 0;
+    snr_cfg->type_snr2 = 0;
     DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg_data.type_snr3 == 9)
+  if (!hd.bmp280_present && snr_cfg->type_snr3 == 9)
   {
-    snr_cur_data.type_snr3 = 0;
+    snr_cfg->type_snr3 = 0;
     DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg_data.type_snrp == 9)
+  if (!hd.bmp280_present && snr_cfg->type_snrp == 9)
   {
-    snr_cur_data.type_snrp = 0;
+    snr_cfg->type_snrp = 0;
     DBG_OUT_PORT.println(F("BMP280 as a pressure sensor is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg_data.type_snr1 == 10)
+  if (!hd.bme280_present && snr_cfg->type_snr1 == 10)
   {
-    snr_cur_data.type_snr1 = 0;
+    snr_cfg->type_snr1 = 0;
     DBG_OUT_PORT.println(F("BME280 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg_data.type_snr2 == 10)
+  if (!hd.bme280_present && snr_cfg->type_snr2 == 10)
   {
-    snr_cur_data.type_snr2 = 0;
+    snr_cfg->type_snr2 = 0;
     DBG_OUT_PORT.println(F("BME280 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg_data.type_snr3 == 10)
+  if (!hd.bme280_present && snr_cfg->type_snr3 == 10)
   {
-    snr_cur_data.type_snr3 = 0;
+    snr_cfg->type_snr3 = 0;
     DBG_OUT_PORT.println(F("BME280 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg_data.type_snrp == 10)
+  if (!hd.bme280_present && snr_cfg->type_snrp == 10)
   {
-    snr_cur_data.type_snrp = 0;
+    snr_cfg->type_snrp = 0;
     DBG_OUT_PORT.println(F("BME280 as a pressure sensor is not found -> deselected"));
   }
   if (!hd.lcd_present    && conf_data.type_vdrv == 12)
