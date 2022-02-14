@@ -12,7 +12,7 @@ rtc_cfg_data_t CfgCT::loadConfig(const char *filename)
   {
     DBG_OUT_PORT.print(F("Failed to open "));
     DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(", using default configuration"));
+    DBG_OUT_PORT.println(F(". Using default configuration!!!"));
     _data = defaultConfig();
     saveConfig(filename, _data);
   }
@@ -27,9 +27,11 @@ rtc_cfg_data_t CfgCT::loadConfig(const char *filename)
     DeserializationError error = deserializeJson(doc, file);
     if (error)
     {
-      DBG_OUT_PORT.print(F("deserializeJson() for configFile failed: "));
-      DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Using default configuration"));
+      DBG_OUT_PORT.print(F("deserializeJson() for "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.print(F(" failed: "));
+      DBG_OUT_PORT.print(error.c_str());
+      DBG_OUT_PORT.println(F(". Using default configuration!!!"));
       _data = defaultConfig();
       saveConfig(filename, _data);
       return _data;
@@ -39,7 +41,9 @@ rtc_cfg_data_t CfgCT::loadConfig(const char *filename)
 
     if (!error)
     {
-      DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
+      DBG_OUT_PORT.print(F("Read "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.println(F(" sucsses!!!"));
 
       //---Clock.html----------------------------------------
       //---Options for clock---------------------------------
@@ -72,7 +76,9 @@ rtc_cfg_data_t CfgCT::loadConfig(const char *filename)
     {
       DBG_OUT_PORT.print(F("deserializeJson() failed: "));
       DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
+      DBG_OUT_PORT.print(F("Failed to read "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.println(F(" - Using default configuration!!!"));
       _data = defaultConfig();
       saveConfig(filename, _data);
     }
@@ -82,7 +88,11 @@ rtc_cfg_data_t CfgCT::loadConfig(const char *filename)
 
 void CfgCT::saveConfig(const char *filename, rtc_cfg_data_t _data)
 {
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving rtc_cfg to config.json"));
+  if (debug_level == 3)
+  {
+    DBG_OUT_PORT.print(F("Start saving rtc_cfg_data to "));
+    DBG_OUT_PORT.println(filename);
+  }
 
   DynamicJsonDocument doc(3100);
   JsonObject json = doc.to<JsonObject>();
@@ -138,11 +148,19 @@ void CfgCT::saveConfig(const char *filename, rtc_cfg_data_t _data)
   File configFile = LittleFS.open(filename, "w"); //Open config file for writing
   if (!configFile)
   {
-    DBG_OUT_PORT.println(F("Failed to open config file for writing"));
+    DBG_OUT_PORT.print(F("Failed open "));
+    DBG_OUT_PORT.print(filename);
+    DBG_OUT_PORT.println(F(" for writing"));
     return;
   }
-  if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed write to file"));
-  DBG_OUT_PORT.println(F("End write buffer to file"));
+  if (serializeJson(doc, configFile) == 0)
+  {
+    DBG_OUT_PORT.print(F("Failed write to "));
+    DBG_OUT_PORT.println(filename);
+    return;
+  }
+  DBG_OUT_PORT.print(F("End write buffer to "));
+  DBG_OUT_PORT.println(filename);
   configFile.close();
 }
 
@@ -152,7 +170,7 @@ rtc_cfg_data_t CfgCT::defaultConfig()
 
   // ---------------------------------------------------- WiFi Default
 
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital rtc_cfg with config.json"));
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital rtc_cfg_data"));
 
   _data.auto_corr        = true;
   _data.use_pm           = false;
@@ -184,12 +202,11 @@ rtc_cfg_data_t CfgCT::loadConfig(const char *filename)
 rtc_cfg_data_t CfgCT::defaultConfig()
 {
   rtc_cfg_data_t _data;
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital rtc_cfg_data"));
 
   _data.auto_corr        = true;
   _data.use_pm           = false;
   _data.every_hour_beep  = true;
-  _data.rus_lng          = true;
   _data.time_zone        = 5;
   _data.c_type           = 1;
   _data.nm_start         = 0;

@@ -383,7 +383,6 @@ conf_data_t defaultConfig()
   strcpy(_data.ch2_name,   "На улице");
   memset(_data.ch3_name,    0,  17);
 #endif
-  _data.boot_mode        = 2;
   _data.snd_pola         = false;
   _data.led_pola         = true;
   _data.rus_lng          = true;

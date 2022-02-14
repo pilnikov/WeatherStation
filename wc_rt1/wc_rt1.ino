@@ -17,7 +17,6 @@ void setup()
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   fs_setup();
   DBG_OUT_PORT.println(F("file system started"));
-#endif
 
   //------------------------------------------------------  Загружаем конфигурацию
 
@@ -31,7 +30,6 @@ void setup()
   DBG_OUT_PORT.println(F(" loaded"));
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //--------------------------------------------------------  Запускаем WiFi
   wifi_data_cur = wifi.begin(wifi_data);
   myIP = wifi_data_cur.addr;
@@ -71,6 +69,15 @@ void setup()
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 
+  //------------------------------------------------------  Загружаем настройки датчиков
+  conf_f = "/conf_snr.json";
+  snr_cfg_data = mysnrcfg.loadCfgSnr(conf_f);
+
+  //snr_cfg_data = mysnrcfg.defaultCfgSnr();
+  //mysnrcfg.saveCfg(conf_f, snr_cfg_data);
+  DBG_OUT_PORT.print(conf_f);
+  DBG_OUT_PORT.println(F(" loaded"));
+
   //------------------------------------------------------  Загружаем общие настройки HW
   conf_f = "/config.json";
   conf_data = loadConfig(conf_f);
@@ -99,15 +106,14 @@ void setup()
 # else
     Wire.begin();
 # endif
-
-    conf_data.type_rtc = rtc_cfg.c_type;
-    ram_data = fsys.i2c_scan(conf_data);
-    rtc_hw.a_type = ram_data.type_rtc;
+    
+    hw_data = hw_chk.hw_present();
+    hw_accept(hw_data);
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
     memset(st1, 0, 254);
     memset(screen, 0, 64);
 
-    switch (ram_data.type_vdrv)
+    switch (type_vdrv)
     {
       case 0:
 #if defined(ESP8266)
@@ -164,21 +170,20 @@ void setup()
         break;
     }
     DBG_OUT_PORT.print(F("Type chip driver of display = "));
-    DBG_OUT_PORT.println(ram_data.type_vdrv);
+    DBG_OUT_PORT.println(type_vdrv);
 
     //------------------------------------------------------  Инициализируем датчики
-    if (ram_data.bh1750_present) lightMeter.begin();
+    if (hw_data.bh1750_present) lightMeter.begin();
+
+    snr_cur_data.bm_addr = hw_data.bm_addr;
+    snr_cur_data.gpio_dht = conf_data.gpio_dht;
 
     if (snr_cur_data.type_snr1 > 0 || snr_cur_data.type_snr2 > 0 || snr_cur_data.type_snr3 > 0)
     {
       if (snr_cur_data.type_snr1 == 4 || snr_cur_data.type_snr2 == 4 || snr_cur_data.type_snr3 == 4)
       {
-        pinMode(conf_data.gpio_dht, INPUT_PULLUP);
-        sens.dht_preset(conf_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
+        sens.dht_preset(snr_cur_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
       }
-
-      if (snr_cur_data.type_snr1 == 13 || snr_cur_data.type_snr2 == 13 || snr_cur_data.type_snr3 == 13)
-        ram_data.gpio_dht = conf_data.gpio_dht; //Тут устанавливается GPIO для DS18B20
 
       snr_cur_data = sens.init(snr_cfg_data);
 
@@ -195,9 +200,9 @@ void setup()
 
     //------------------------------------------------------  Инициализируем GPIO
 
-    if (!ram_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
+    if (!hw_data.bh1750_present) pinMode(conf_data.gpio_ana, INPUT);
+    if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) pinMode(conf_data.gpio_led, OUTPUT);     // Initialize the LED_PIN pin as an output
+    if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW);  //Включаем светодиод
 
     pinMode(conf_data.gpio_snd, OUTPUT);
     DBG_OUT_PORT.println(F("GPIO inital"));
@@ -219,7 +224,7 @@ void setup()
 
     //------------------------------------------------------  ТИП МС RTC
 
-    //ram_data = fsys.i2c_scan(rtc_cfg);
+    //hw_data = fsys.i2c_scan(rtc_cfg);
     //------------------------------------------------------  Инициализируем RTC
     if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
     DBG_OUT_PORT.print(F("Type of rtc = "));
@@ -261,13 +266,13 @@ void setup()
     snr_data = GetSnr(snr_cur_data, conf_data, rtc_hw.a_type);
 
     //-------------------------------------------------------- Гасим светодиод
-    if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
+    if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
 
 
     //-------------------------------------------------------- Регулируем яркость дисплея
     if (conf_data.auto_br)
     {
-      snr_data.f = f_dsp.ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      snr_data.f = f_dsp.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
       cur_br = f_dsp.auto_br(snr_data.f, conf_data);
     }
     else

@@ -428,7 +428,7 @@ int SNR::printScratchpad(const DSTherm::Scratchpad & scrpd)
 }
 
 
-snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data1, snr_data_t e_data2, wf_data_t w_data)
+snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr_data_t e_data1, snr_data_t e_data2, snr_data_t w_data)
 {
 	snr_data_t data;
 
@@ -485,7 +485,7 @@ snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr
 				data.p = 700; 
 				type_snr = cfg.type_snrp;
 
-				t_data_p = t_data.p;
+				t_data_p  = t_data.p;
 
 				e_data1_p = e_data1.p;
 
@@ -543,9 +543,9 @@ snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr
 				p = pres_read(type_snr);
 				break;
 			case 11:
-				h = w_data.hum_min;
-				t = w_data.temp_min;
-				p = w_data.press_min;
+				h = w_data.h1;
+				t = w_data.t1;
+				p = w_data.p;
 				break;
 			case 13:
 				t = temp_read(type_snr);

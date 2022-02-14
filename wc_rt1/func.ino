@@ -5,6 +5,7 @@ snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc)
   snr_data_t ed1;
   snr_data_t ed2;
   snr_data_t sd;
+  snr_data_t wd;
 
   sd.t1 = 99;
   sd.t2 = 99;
@@ -36,12 +37,15 @@ snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc)
 
     if (cf.use_pp == 2) {
       wf_data_cur = getOWM_current(cf.pp_city_id, cf.owm_key);// Получаем данные от OWM
+      wd.h1 = wf_data_cur.hum_min;
+      wd.t1 = wf_data_cur.temp_min;
+      wd.p  = wf_data_cur.press_min;
     }
   }
 #endif
   if ((rd.type_snr1 > 0 && rd.type_snr1 < 14) || (rd.type_snr2 > 0 && rd.type_snr2 < 14) || (rd.type_snr3 > 0 && rd.type_snr3 < 14) || (rd.type_snrp > 0 && rd.type_snrp < 14))
   {
-    sd = sens.read_snr(rd, temp_rtc, td, ed1, ed2, wf_data_cur); // Заполняем матрицу данных с датчиков
+    sd = sens.read_snr(rd, temp_rtc, td, ed1, ed2, wd); // Заполняем матрицу данных с датчиков
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -482,18 +486,18 @@ void keyb_read()
     {
       serv_ms = millis();
       start_serv();  //Запускаем web морду
-      if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Включаем светодиод
+      if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH); // Включаем светодиод
     }
     else
     {
       serv_ms = millis() + 60000L;
       stop_serv();  //Останавливаем web морду
-      if ((conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
+      if ((conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
     }
   }
 
 #endif
-  if ((millis() - setting_ms > 9000) & (conf_data.type_thermo == 0) & (ram_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
+  if ((millis() - setting_ms > 9000) & (conf_data.type_thermo == 0) & (type_vdrv != 5)) digitalWrite(conf_data.gpio_led, blinkColon); // Мигаем светодиодом
 
   if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000)) //держим от 9 до 15 сек
   {
@@ -679,12 +683,12 @@ void alarm1_action()
       break;
     case 3:
       disp_on = true;
-      if (ram_data.type_vdrv == 12)
+      if (type_vdrv == 12)
       {
         lcd->backlight();
         lcd->display();
       }
-      if (ram_data.type_vdrv == 2)
+      if (type_vdrv == 2)
       {
         m7219->shutdown(false);
         m7219->write();
@@ -695,7 +699,7 @@ void alarm1_action()
       cur_br = 0;
       snr_data.f = 0;
       f_dsp.CLS(screen, sizeof screen);
-      switch (ram_data.type_vdrv)
+      switch (type_vdrv)
       {
         case 1:
           tm1637->set_br(0);
@@ -773,7 +777,7 @@ void fs_setup()
     {
       String fileName = dir.fileName();
       size_t fileSize = dir.fileSize();
-      DBG_OUT_PORT.printf(" FS File: %s, size: %s\n", fileName.c_str(), fsys.formatBytes(fileSize).c_str());
+      DBG_OUT_PORT.printf(" FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
     }
   }
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
@@ -803,6 +807,20 @@ void fs_setup()
   }
 # endif
 }
+
+String formatBytes(uint32_t bytes)
+{
+  if (bytes < 1024) {
+    return String(bytes) + "B";
+  } else if (bytes < (1024 * 1024)) {
+    return String(bytes / 1024.0) + "KB";
+  } else if (bytes < (1024 * 1024 * 1024)) {
+    return String(bytes / 1024.0 / 1024.0) + "MB";
+  } else {
+    return String(bytes / 1024.0 / 1024.0 / 1024.0) + "GB";
+  }
+}
+
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void hard_restart() {
   esp_task_wdt_init(1, true);
@@ -811,3 +829,142 @@ void hard_restart() {
 }
 #endif
 #endif
+
+void hw_accept(hw_data_t hd)
+{
+  snr_cur_data = snr_cfg_data;
+  type_vdrv    = conf_data.type_vdrv;
+
+  // if selected -> deselect auto
+  if (!hd.ds3231_present && snr_cfg_data.type_snr1 == 5)
+  {
+    snr_cur_data.type_snr1 = 0;
+    DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#1 is not found -> deselected"));
+  }
+  if (!hd.ds3231_present && snr_cfg_data.type_snr2 == 5)
+  {
+    snr_cur_data.type_snr2 = 0;
+    DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#2 is not found -> deselected"));
+  }
+  if (!hd.ds3231_present && snr_cfg_data.type_snr3 == 5)
+  {
+    snr_cur_data.type_snr3 = 0;
+    DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#3 is not found -> deselected"));
+  }
+  if (!hd.si7021_present && snr_cfg_data.type_snr1 == 6)
+  {
+    snr_cur_data.type_snr1 = 0;
+    DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#1 is not found -> deselected"));
+  }
+  if (!hd.si7021_present && snr_cfg_data.type_snr2 == 6)
+  {
+    snr_cur_data.type_snr2 = 0;
+    DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#2 is not found -> deselected"));
+  }
+  if (!hd.si7021_present && snr_cfg_data.type_snr3 == 6)
+  {
+    snr_cur_data.type_snr3 = 0;
+    DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#2 is not found -> deselected"));
+  }
+  /*
+    if (!hd.am2320_present && snr_cfg_data.type_snr1 == 7)
+    {
+      snr_cur_data.type_snr1 = 0;
+      DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#1 is not found -> deselected"));
+    }
+    if (!hd.am2320_present && snr_cfg_data.type_snr2 == 7)
+    {
+      snr_cur_data.type_snr2 = 0;
+      DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#2 is not found -> deselected"));
+    }
+    if (!hd.am2320_present && snr_cfg_data.type_snr3 == 7)
+    {
+      snr_cur_data.type_snr3 = 0;
+      DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#3 is not found -> deselected"));
+    }
+  */
+  if (!hd.bmp180_present && snr_cfg_data.type_snr1 == 8)
+  {
+    snr_cur_data.type_snr1 = 0;
+    DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#1 is not found -> deselected"));
+  }
+  if (!hd.bmp180_present && snr_cfg_data.type_snr2 == 8)
+  {
+    snr_cur_data.type_snr2 = 0;
+    DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#2 is not found -> deselected"));
+  }
+  if (!hd.bmp180_present && snr_cfg_data.type_snr3 == 8)
+  {
+    snr_cur_data.type_snr3 = 0;
+    DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#3 is not found -> deselected"));
+  }
+  if (!hd.bmp180_present && snr_cfg_data.type_snrp == 8)
+  {
+    snr_cur_data.type_snrp = 0;
+    DBG_OUT_PORT.println(F("BMP180 as a pressure sensor is not found -> deselected"));
+  }
+  if (!hd.bmp280_present && snr_cfg_data.type_snr1 == 9)
+  {
+    snr_cur_data.type_snr1 = 0;
+    DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#1 is not found -> deselected"));
+  }
+  if (!hd.bmp280_present && snr_cfg_data.type_snr2 == 9)
+  {
+    snr_cur_data.type_snr2 = 0;
+    DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#2 is not found -> deselected"));
+  }
+  if (!hd.bmp280_present && snr_cfg_data.type_snr3 == 9)
+  {
+    snr_cur_data.type_snr3 = 0;
+    DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#3 is not found -> deselected"));
+  }
+  if (!hd.bmp280_present && snr_cfg_data.type_snrp == 9)
+  {
+    snr_cur_data.type_snrp = 0;
+    DBG_OUT_PORT.println(F("BMP280 as a pressure sensor is not found -> deselected"));
+  }
+  if (!hd.bme280_present && snr_cfg_data.type_snr1 == 10)
+  {
+    snr_cur_data.type_snr1 = 0;
+    DBG_OUT_PORT.println(F("BME280 as a sensor on CH#1 is not found -> deselected"));
+  }
+  if (!hd.bme280_present && snr_cfg_data.type_snr2 == 10)
+  {
+    snr_cur_data.type_snr2 = 0;
+    DBG_OUT_PORT.println(F("BME280 as a sensor on CH#2 is not found -> deselected"));
+  }
+  if (!hd.bme280_present && snr_cfg_data.type_snr3 == 10)
+  {
+    snr_cur_data.type_snr3 = 0;
+    DBG_OUT_PORT.println(F("BME280 as a sensor on CH#3 is not found -> deselected"));
+  }
+  if (!hd.bme280_present && snr_cfg_data.type_snrp == 10)
+  {
+    snr_cur_data.type_snrp = 0;
+    DBG_OUT_PORT.println(F("BME280 as a pressure sensor is not found -> deselected"));
+  }
+  if (!hd.lcd_present    && conf_data.type_vdrv == 12)
+  {
+    type_vdrv    = 0;
+    DBG_OUT_PORT.println(F("LCD I2C is not found -> deselected"));
+  }
+  if (!hd.ht1633_present && conf_data.type_vdrv == 11)
+  {
+    type_vdrv    = 0;
+    DBG_OUT_PORT.println(F("HT1633 is not found -> deselected"));
+  }
+  if (!hd.ds3231_present && rtc_cfg.c_type  == 1)
+  {
+    rtc_hw.a_type     = 0; //DS3231 is not present
+    DBG_OUT_PORT.println(F("DS3231 is not found -> deselected"));
+  }
+  if (!hd.ds1307_present && rtc_cfg.c_type  == 3)
+  {
+    rtc_hw.a_type     = 0; //DS1307 is not present
+    DBG_OUT_PORT.println(F("DS1307 is not found -> deselected"));
+  }
+  if (!hd.bh1750_present)
+  {
+    DBG_OUT_PORT.println(F("BH1750 is not found -> get light level from Analog Input"));
+  }
+}

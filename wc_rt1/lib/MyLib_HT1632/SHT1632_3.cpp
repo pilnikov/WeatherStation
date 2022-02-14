@@ -61,7 +61,11 @@ void HT1632C::sendFrame()
 	chipSelect(chip);
     for (uint8_t addr = 0; addr < chip_size; addr++)
 	{
-		SPI.write(*framebufferPtr(chip - 1, addr));
+		#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+			SPI.write(*framebufferPtr(chip - 1, addr));
+		#else
+			SPI.transfer(*framebufferPtr(chip - 1, addr));
+		#endif
 	}
     chipSelect(CS_NONE);
 	yield();
@@ -98,7 +102,11 @@ void HT1632C::sendCmd(const uint8_t chip, const uint8_t cmd)
   SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
   chipSelect(chip);
   uint16_t data = ((ID_CODE::CMD << 8) | cmd) << 5;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   SPI.write16(data);
+#else
+  SPI.transfer(data);
+#endif
   chipSelect(CS_NONE);
   SPI.endTransaction();
 }

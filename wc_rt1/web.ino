@@ -580,7 +580,7 @@ void handlejSnr()
 void handleUpdSnr()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(ram_data, conf_data, rtc_hw.a_type);
+  snr_data = GetSnr(snr_cur_data, conf_data, rtc_hw.a_type);
   if (snr_cur_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
@@ -654,6 +654,10 @@ void handleSetPars2()
   snr_cfg_data.type_snr2 = server.arg("snr2").toInt();
   snr_cfg_data.type_snr3 = server.arg("snr3").toInt();
   snr_cfg_data.type_snrp = server.arg("snrp").toInt();
+
+  conf_f = "/conf_snr.json";
+  mysnrcfg.saveCfgSnr(conf_f, snr_cfg_data);
+
   conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
   conf_data.use_es = server.arg("ues").toInt();
   conf_data.esm = server.arg("esm") == "1";

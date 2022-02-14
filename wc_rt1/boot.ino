@@ -89,7 +89,11 @@ void runing_string_start() // ---------------------------- Запуск бегу
   memset(st1, 0, 254);
   memset(st2, 0, 20);
 
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, wifi_data_cur.cli, newsClient.getTitle(newsIndex));
+#else
+  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, false, "");
+#endif
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
@@ -97,8 +101,8 @@ void runing_string_start() // ---------------------------- Запуск бегу
   DBG_OUT_PORT.println(st1);
 
 
-  if (conf_data.rus_lng & (ram_data.type_vdrv == 12)) f_dsp.lcd_rus(st1);
-  if (conf_data.rus_lng & (ram_data.type_vdrv != 12)) f_dsp.utf8rus(st1);
+  if (conf_data.rus_lng & (type_vdrv == 12)) f_dsp.lcd_rus(st1);
+  if (conf_data.rus_lng & (type_vdrv != 12)) f_dsp.utf8rus(st1);
 
   cur_sym_pos[0] = 0;
   cur_sym_pos[1] = 0;
@@ -182,7 +186,7 @@ void firq5() // 0.5 sec main cycle
     //-------------Brigthness------------------
     if (conf_data.auto_br)
     {
-      snr_data.f = f_dsp.ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      snr_data.f = f_dsp.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
       cur_br = f_dsp.auto_br(snr_data.f, conf_data);
     }
     else
@@ -194,7 +198,7 @@ void firq5() // 0.5 sec main cycle
     //-----------------------------------------
     // run slowely time displays here
     m32_8time_act = false;
-    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
+    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on)) time_view(conf_data.type_disp, type_vdrv); // break time view while string is running
   }
   else cur_br = 0;
 
@@ -248,7 +252,7 @@ void firq6() // 0.180 sec Communications with server
   }
 # endif
 
-  if (ram_data.type_vdrv == 11)
+  if (type_vdrv == 11)
   {
     if (conf_data.type_disp == 11)
     {
@@ -277,7 +281,7 @@ void firq6() // 0.180 sec Communications with server
     ht1633->setBrightness(cur_br);
     ht1633->write();
   }
-  if (ram_data.type_vdrv == 12)
+  if (type_vdrv == 12)
   {
     if (conf_data.type_disp == 19)
     {
@@ -331,7 +335,7 @@ void firq8() //0.030 sec running string is out switch to time view
     if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
 
-  switch (ram_data.type_vdrv)
+  switch (type_vdrv)
   {
     case 2:
       if (conf_data.type_disp == 20 || conf_data.type_disp == 21)

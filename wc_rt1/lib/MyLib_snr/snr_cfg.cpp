@@ -8,7 +8,7 @@
 #include <LittleFS.h>
 
 
-snr_cfg_t loadConfig(const char *filename)
+snr_cfg_t CfgSNR::loadCfgSnr(const char *filename)
 {
   snr_cfg_t _data;
 
@@ -19,8 +19,8 @@ snr_cfg_t loadConfig(const char *filename)
     DBG_OUT_PORT.print(F("Failed to open "));
     DBG_OUT_PORT.print(filename);
     DBG_OUT_PORT.println(F(". Using default configuration!!!"));
-    _data = defaultConfig();
-    saveConfig(filename, _data);
+    _data = defaultCfgSnr();
+    saveCfgSnr(filename, _data);
   }
   else
   {
@@ -38,8 +38,8 @@ snr_cfg_t loadConfig(const char *filename)
       DBG_OUT_PORT.print(F(" failed: "));
       DBG_OUT_PORT.print(error.c_str());
       DBG_OUT_PORT.println(F(". Using default configuration!!!"));
-      _data = defaultConfig();
-      saveConfig(filename, _data);
+      _data = defaultCfgSnr();
+      saveCfgSnr(filename, _data);
       return _data;
     }
 
@@ -47,7 +47,9 @@ snr_cfg_t loadConfig(const char *filename)
 
     if (!error)
     {
-      DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
+      DBG_OUT_PORT.print(F("Read "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.println(F(" sucsses!!!"));
       //---Sensor type---------------------------------------
       _data.type_snr1         = doc["snr1_t"];
       _data.type_snr2         = doc["snr2_t"];
@@ -61,13 +63,13 @@ snr_cfg_t loadConfig(const char *filename)
       DBG_OUT_PORT.print(F("Failed to read "));
       DBG_OUT_PORT.print(filename);
       DBG_OUT_PORT.println(F(" - Using default configuration!!!"));
-      _data = defaultConfig();
-      saveConfig(filename, _data);
+      _data = defaultCfgSnr();
+      saveCfgSnr(filename, _data);
     }
   }
   return _data;
 }
-void saveConfig(const char *filename, snr_cfg_t _data)
+void CfgSNR::saveCfgSnr(const char *filename, snr_cfg_t _data)
 {
   if (debug_level == 3)
   {
@@ -112,9 +114,9 @@ void saveConfig(const char *filename, snr_cfg_t _data)
   configFile.close();
 }
 
-conf_data_t defaultConfig()
+snr_cfg_t CfgSNR::defaultCfgSnr()
 {
-  conf_data_t _data;
+  snr_cfg_t _data;
 
   // ---------------------------------------------------- WiFi Default
 
@@ -134,14 +136,14 @@ conf_data_t defaultConfig()
 
 #include <EEPROM.h>
 
-snr_cfg_t loadConfig(const char *filename)
+snr_cfg_t CfgSNR::loadCfgSnr(const char *filename)
 {
   snr_cfg_t _data;
   EEPROM.get(0, _data);           // прочитали из адреса 0
   return _data;
 }
 
-snr_cfg_t defaultConfig()
+snr_cfg_t CfgSNR::defaultCfgSnr()
 {
   snr_cfg_t _data;
   if (debug_level == 3)
@@ -166,7 +168,7 @@ snr_cfg_t defaultConfig()
   return _data;
 }
 
-void saveConfig(const char *filename, conf_data_t _data)
+void CfgSNR::saveCfgSnr(const char *filename, snr_cfg_t _data)
 {
   EEPROM.put(0, _data);           // записали по адресу 0
 }

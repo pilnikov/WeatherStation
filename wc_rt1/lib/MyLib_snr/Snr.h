@@ -31,30 +31,36 @@
 #define DBG_OUT_PORT Serial
 #endif
 
+#ifndef debug_level
+#define debug_level 0
+#endif
+
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 typedef struct 
 {
   int8_t
 	t1 =  99, //Температура. Канал 1
-    t2 =  99, //Температура. Канал 2
-    t3 =  99; //Температура. Канал 3
+	t2 =  99, //Температура. Канал 2
+	t3 =  99; //Температура. Канал 3
   uint8_t
 	h1 =   0, //Влажность. Канал 1
-    h2 =   0, //Влажность. Канал 2
-    h3 =   0; //Влажность. Канал 3
+	h2 =   0, //Влажность. Канал 2
+	h3 =   0; //Влажность. Канал 3
   uint16_t  
-     p =   0, //Давление
-     f =   0; //Освещенность  
+	p =   0, //Давление
+	f =   0; //Освещенность  
 } snr_data_t;
 
 typedef struct 
 {
   uint8_t
-  type_snr1 = 0, // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
-  type_snr2 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
-  type_snr3 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
-  type_snrp = 0; // Тип датчика давления 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 3 - Взять с ES2,                                                8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 
+  type_snr1 = 0, // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 12 - External source, 13 - DS18B20
+  type_snr2 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 12 - External source, 13 - DS18B20
+  type_snr3 = 0, // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT21, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 12 - External source, 13 - DS18B20
+  type_snrp = 0, // Тип датчика давления 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 3 - Взять с ES2,                                                8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза 12 - External source 
+  bm_addr   = 0x58, //I2C Адрес BME/BMP
+  gpio_dht  = 255;  //GPIO для DHT/DS18B20
 } snr_cfg_t;
 
 
@@ -64,7 +70,7 @@ public:
 
 	void dht_preset(uint8_t, uint8_t);
 	snr_cfg_t init(snr_cfg_t);
-	snr_data_t read_snr(snr_cfg_t, uint8_t, snr_data_t, snr_data_t, snr_data_t, wf_data_t);
+	snr_data_t read_snr(snr_cfg_t, uint8_t, snr_data_t, snr_data_t, snr_data_t, snr_data_t);
 
 private:
 	//----------------------------------------------------------dht
@@ -106,4 +112,18 @@ private:
 
 protected:
 };
+
+class CfgSNR
+{
+  public:
+	void 
+	saveCfgSnr(const char*, snr_cfg_t);
+	
+	snr_cfg_t
+	loadCfgSnr(const char*),
+	defaultCfgSnr();
+  private:
+  protected:
+};
+
 #endif //Snr_h

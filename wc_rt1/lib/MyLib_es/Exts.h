@@ -15,7 +15,8 @@
 #define DBG_OUT_PORT Serial
 #endif
 
-#include "Udt.h"
+#include <Udt.h>
+#include <Snr.h>
 
 class ES
 {

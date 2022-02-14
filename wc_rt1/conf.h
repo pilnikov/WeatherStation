@@ -121,7 +121,7 @@
   } conf_data_t;
 
 ********************************************************** Actual config
-  struct ram_data_t
+  struct hw_data_t
   {
   uint8_t   type_vdrv;      // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574
   uint8_t   type_disp;      // Тип дисплея 0 - Внешний, 1 - 7SEGx4D, 2 - 7SEGx6D, 3 - 7SEGx8D, 10 - 14SEGx4D, 11 - 14SEGx8D, 12 - 16SEGx4D, 13 - 16SEGx8D, 19 - 2Linex16D, 20 - M32x8Mono, 21 - M32x16Mono, 22 - M32x16BiColor, 23 - M32x16Color, 24 - M64x32Color, 25 - M64x64Color, 29 - 320x240Color, 30 - Custom_1, 31 - Custom_2
@@ -231,7 +231,7 @@
 */
 
 #include <myrtc.h>
-#include <Sysf2.h>
+#include <Sysfn.h>
 #include <Snd.h>
 #include "Songs.h"
 #include <Snr.h>
@@ -286,16 +286,18 @@ udp_cons print_console_udp;
 snr_data_t snr_data;
 snr_cfg_t snr_cfg_data;
 snr_cfg_t snr_cur_data;
-wf_data_t wf_data_cur;
-wf_data_t wf_data;
 conf_data_t conf_data;
-ram_data_t ram_data;
+hw_data_t hw_data;
 rtc_hw_data_t  rtc_hw;
 rtc_cfg_data_t rtc_cfg;
 rtc_time_data_t rtc_time;
 rtc_alm_data_t rtc_alm;
+wf_data_t wf_data_cur;
+wf_data_t wf_data;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 wifi_cfg_data_t wifi_data;
 wifi_cur_data_t wifi_data_cur;
+#endif
 
 // ----------------------------------- Internal header files
 #include "disp.h"
@@ -325,6 +327,9 @@ String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
 String ts_snd (String);
 void put_to_es(char*, uint8_t, snr_data_t);
+
+String formatBytes(uint32_t);
+void hw_accept(hw_data_t);
 
 #if defined(ESP8266)
 void IRAM_ATTR isr1();
@@ -363,9 +368,6 @@ ESP8266HWInfo hwi;
 BH1750 lightMeter;
 
 // ---------------------------------------------------- Common
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-const char ntp_server[] = "ru.pool.ntp.org";
-#endif
 
 const char *conf_f = "/config.json";  // config file name
 char tstr[25];
@@ -403,8 +405,9 @@ NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
 
 CT myrtc;
 CfgCT myrtccfg;
-SF fsys;
+SF hw_chk;
 SNR sens;
+CfgSNR mysnrcfg;
 FD f_dsp;
 HT h_dsp;
 MSG dmsg;

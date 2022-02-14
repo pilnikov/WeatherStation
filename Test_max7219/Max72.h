@@ -28,6 +28,10 @@
 #include "pins_arduino.h"
 #endif
 
+
+#include <SPI.h>
+
+
 class Max72 {
 
   public:

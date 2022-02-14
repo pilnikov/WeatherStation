@@ -11,7 +11,7 @@ wifi_cfg_data_t WF::loadConfig(const char *filename)
   {
     DBG_OUT_PORT.print(F("Failed to open "));
     DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(", using default configuration"));
+    DBG_OUT_PORT.println(F(". Using default configuration!!!"));
     _data = defaultConfig();
     saveConfig(filename, _data);
   }
@@ -28,9 +28,9 @@ wifi_cfg_data_t WF::loadConfig(const char *filename)
     {
       DBG_OUT_PORT.print(F("deserializeJson() for"));
       DBG_OUT_PORT.print(filename);
-      DBG_OUT_PORT.print(F("failed: "));
+      DBG_OUT_PORT.print(F(" failed: "));
       DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Using default configuration"));
+      DBG_OUT_PORT.println(F(". Using default configuration!!!"));
       _data = defaultConfig();
       saveConfig(filename, _data);
       return _data;
@@ -39,7 +39,9 @@ wifi_cfg_data_t WF::loadConfig(const char *filename)
 
     if (!error)
     {
-      DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
+      DBG_OUT_PORT.print(F("Read "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.println(F(" sucsses!!!"));
 
       memset(_data.ap_ssid,   0, 20);
       memset(_data.ap_pass,   0, 20);
@@ -103,8 +105,9 @@ wifi_cfg_data_t WF::loadConfig(const char *filename)
     {
       DBG_OUT_PORT.print(F("deserializeJson() failed: "));
       DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
-
+      DBG_OUT_PORT.print(F("Failed to read "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.println(F(" - Using default configuration!!!"));
       _data = defaultConfig();
       saveConfig(filename, _data);
     }
@@ -114,7 +117,11 @@ wifi_cfg_data_t WF::loadConfig(const char *filename)
 
 void WF::saveConfig(const char * filename, wifi_cfg_data_t _data)
 {
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving wifi_data to config.json"));
+  if (debug_level == 3)
+  {
+    DBG_OUT_PORT.print(F("Start saving wifi_cfg_data to "));
+    DBG_OUT_PORT.println(filename);
+  }
 
   if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
 
@@ -157,11 +164,19 @@ void WF::saveConfig(const char * filename, wifi_cfg_data_t _data)
   File configFile = LittleFS.open(filename, "w"); //Open config file for writing
   if (!configFile)
   {
-    DBG_OUT_PORT.println(F("Failed to open config file for writing"));
+    DBG_OUT_PORT.print(F("Failed open "));
+    DBG_OUT_PORT.print(filename);
+    DBG_OUT_PORT.println(F(" for writing"));
     return;
   }
-  if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed write to file"));
-  else DBG_OUT_PORT.println(F("End write buffer to file"));
+  if (serializeJson(doc, configFile) == 0)
+  {
+    DBG_OUT_PORT.print(F("Failed write to "));
+    DBG_OUT_PORT.println(filename);
+    return;
+  }
+  DBG_OUT_PORT.print(F("End write buffer to "));
+  DBG_OUT_PORT.println(filename);
   configFile.close();
 }
 
@@ -171,7 +186,7 @@ wifi_cfg_data_t WF::defaultConfig()
 
   // ---------------------------------------------------- WiFi Default
 
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital wifi_data with config.json"));
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital wifi_cfg_data"));
 
   memset(_data.ap_ssid,   0, 20);
   memset(_data.ap_pass,   0, 20);

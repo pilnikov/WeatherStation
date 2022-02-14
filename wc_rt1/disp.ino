@@ -193,7 +193,7 @@ void a595_init()
 
     if (status != PROTOMATTER_OK)
     {
-      ram_data.type_vdrv = 0;
+      type_vdrv = 0;
       DBG_OUT_PORT.print(F("Failed initialize display - set it to 0..."));
     }
 #endif
@@ -239,12 +239,12 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 void pcf8574_init()
 {
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  lcd = new LiquidCrystal_I2C(ram_data.lcd_addr, lcd_col, lcd_row);
+  lcd = new LiquidCrystal_I2C(hw_data.lcd_addr, lcd_col, lcd_row);
   lcd -> init();
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
-  lcd = new LiquidCrystal_I2C(ram_data.lcd_addr);
+  lcd = new LiquidCrystal_I2C(hw_data.lcd_addr);
   lcd -> begin(lcd_col, lcd_row);               // initialize the lcd
 #endif
 
@@ -345,7 +345,7 @@ void ht1633_ramFormer2(byte*, uint8_t, uint8_t);
 void ht1633_init()
 {
   ht1633 = new HT16K33;
-  ht1633->init(ram_data.ht_addr);
+  ht1633->init(hw_data.ht_addr);
   ht1633->setBrightness(14);
   ht1633->clear();
   ht1633->write();

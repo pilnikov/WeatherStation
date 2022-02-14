@@ -24,7 +24,9 @@
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include <LittleFS.h>
+#endif
 
 #include <RtcDateTime.h>
 
