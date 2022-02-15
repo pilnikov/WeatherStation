@@ -1,3 +1,4 @@
+
 conf_data_t loadConfig(const char *filename)
 {
   conf_data_t _data;
@@ -8,49 +9,37 @@ conf_data_t loadConfig(const char *filename)
   {
     DBG_OUT_PORT.print(F("Failed to open "));
     DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(", using default configuration"));
+    DBG_OUT_PORT.println(F(". Using default configuration!!!"));
     _data = defaultConfig();
-    saveConfig(conf_f, _data);
+    saveConfig(filename, _data);
   }
   else
   {
     // Allocate the document on the stack.
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/assistant to compute the capacity.
-    DynamicJsonDocument doc(3100);
+    DynamicJsonDocument doc(1000);
 
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, file);
     if (error)
     {
-      DBG_OUT_PORT.print(F("deserializeJson() for configFile failed: "));
+      DBG_OUT_PORT.print(F("deserializeJson() for"));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.print(F(" failed: "));
       DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Using default configuration"));
+      DBG_OUT_PORT.println(F(". Using default configuration!!!"));
       _data = defaultConfig();
-      saveConfig(conf_f, _data);
+      saveConfig(filename, _data);
       return _data;
     }
-
     file.close();
 
     if (!error)
     {
-      DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
-
-      // Get the root object in the document
-      memset(_data.sta_ssid,   0, 17);
-      memset(_data.sta_pass,   0, 17);
-      memset(_data.ap_ssid,    0, 17);
-      memset(_data.ap_pass ,   0, 17);
-
-      //---Wifi.html----------------------------------------
-      //---AP-----------------------------------------------
-      strcpy(_data.ap_ssid,    doc["ap_ssid"]);
-      strcpy(_data.ap_pass,    doc["ap_pass"]);
-
-      //---STA----------------------------------------------
-      strcpy(_data.sta_ssid,   doc["sta_ssid"]);
-      strcpy(_data.sta_pass,   doc["sta_pass"]);
+      DBG_OUT_PORT.print(F("Read "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.println(F(" sucsses!!!"));
 
       _data.str1_on              = doc["on1_code"];
       _data.str1_off             = doc["off1_code"];
@@ -65,9 +54,11 @@ conf_data_t loadConfig(const char *filename)
     {
       DBG_OUT_PORT.print(F("deserializeJson() failed: "));
       DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
+      DBG_OUT_PORT.print(F("Failed to read "));
+      DBG_OUT_PORT.print(filename);
+      DBG_OUT_PORT.println(F(" - Using default configuration!!!"));
       _data = defaultConfig();
-      saveConfig(conf_f, _data);
+      saveConfig(filename, _data);
     }
   }
   return _data;
@@ -75,22 +66,14 @@ conf_data_t loadConfig(const char *filename)
 
 void saveConfig(const char *filename, conf_data_t _data)
 {
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
-
-  if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
+  if (debug_level == 3)
+  {
+    DBG_OUT_PORT.print(F("Start saving cfg_data to "));
+    DBG_OUT_PORT.println(filename);
+  }
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
-
-  //---Wifi.html----------------------------------------
-  //---AP-----------------------------------------------
-  json["ap_ssid"]             = _data.ap_ssid;
-  json["ap_pass"]             = _data.ap_pass;
-
-  //---STA----------------------------------------------
-  json["sta_ssid"]            = _data.sta_ssid;
-  json["sta_pass"]            = _data.sta_pass;
-
 
   json["pin1"]                = _data.pin1;
   json["pin2"]                = _data.pin2;
@@ -108,11 +91,19 @@ void saveConfig(const char *filename, conf_data_t _data)
   File configFile = LittleFS.open(filename, "w"); //Open config file for writing
   if (!configFile)
   {
-    DBG_OUT_PORT.println(F("Failed to open config file for writing"));
+    DBG_OUT_PORT.print(F("Failed open "));
+    DBG_OUT_PORT.print(filename);
+    DBG_OUT_PORT.println(F(" for writing"));
     return;
   }
-  if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed write to file"));
-  DBG_OUT_PORT.println(F("End write buffer to file"));
+  if (serializeJson(doc, configFile) == 0)
+  {
+    DBG_OUT_PORT.print(F("Failed write to "));
+    DBG_OUT_PORT.println(filename);
+    return;
+  }
+  DBG_OUT_PORT.print(F("End write buffer to "));
+  DBG_OUT_PORT.println(filename);
   configFile.close();
 }
 
@@ -120,14 +111,9 @@ conf_data_t defaultConfig()
 {
   conf_data_t _data;
 
-  // ---------------------------------------------------- WiFi Default
+  // ---------------------------------------------------- Default
 
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
-
-  strcpy(_data.sta_ssid,  "MyWiFi");
-  strcpy(_data.sta_pass,  "12345678");
-  strcpy(_data.ap_ssid,   "Relay");
-  strcpy(_data.ap_pass ,  "12345678");
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data"));
 
   _data.str1_on = 10;
   _data.str1_off = 20;

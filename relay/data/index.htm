@@ -34,22 +34,19 @@
 
 		<table border="1" align="center" class='t'>
 			<tr>
-				<td colspan='3' class='h'>Точка доступа</td>
+				<td class='h'></td>
+				<td class='h'>Точка доступа</td>
+				<td class='h'>Клиент</td>
 			</tr>
 			<tr>
-				<td>SSID</td><td colspan='2'><input type='text' size='10' id='aps' name='aps'/></td>
+				<td>SSID</td>
+				<td><input type='text' size='20' id='aps'  name='aps' /></td>
+				<td><input type='text' size='20' id='stas' name='stas'/></td>
 			</tr>
 			<tr>
-				<td>Password</td><td colspan='2'><input type='password' size='10' id='app' name='app'/></td>
-			</tr>
-			<tr>
-				<td colspan='3' class='h'>Клиент</td>
-			</tr>
-			<tr>
-				<td>SSID    </td><td colspan='2'><input type='text'     size='10' id='stas' name='stas'/></td>
-			</tr>
-			<tr>
-				<td>Password</td><td colspan='2'><input type='password' size='10' id='stap' name='stap'/></td>
+				<td>Password</td>
+				<td><input type='password' size='20' id='app'  name='app' /></td>
+				<td><input type='password' size='20' id='stap' name='stap'/></td>
 			</tr>
 			<tr>
 				<td class='h'>Выходы</td>
@@ -114,13 +111,14 @@
 		<script>
 			function loadValues()
 			{
-				var xh1 = new XMLHttpRequest();
-				xh1.open("GET", "/jwifi", true);
-				xh1.onreadystatechange =  function()
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jwifi", true);
+				xh.send(null);
+				xh.onreadystatechange =  function()
 				{
-					if (xh1.readyState == 4 && xh1.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
-						var res = JSON.parse(xh1.responseText);
+						var res = JSON.parse(xh.responseText);
 						document.getElementById('aps' ).value = res.apid;
 						document.getElementById('app' ).value = res.appas;
 						document.getElementById('stas').value = res.staid;
@@ -135,7 +133,6 @@
 						document.getElementById('lim_h').value = res.lim_h;
 					}
 				}
-				xh1.send(null);
 			}
 
 			function Q1_On_Off()
@@ -182,30 +179,44 @@
 				var ll  = document.getElementById('lim_l').value;
 				var lh  = document.getElementById('lim_h').value;
 
-				url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+'&p1='+p1
-				+'&p2='+p2+'&on1='+on1+'&of1='+of1+'&on2='+on2+'&of2='+of2+'&ll='+ll+'&lh='+lh;
+				const url2 = {
+                        as: as,
+                        ap: ap,
+                        ss: ss,
+                        sp: sp,
+
+                        p1: p1,
+                        p2: p2,
+                        on1: on1,
+                        of1: of1,
+                        on2: on2,
+                        of2: of2,
+                        ll: ll,
+                        lh: lh
+                      };
+
+				const url2Str = '/set_wifi?in=' + JSON.stringify(url2);
 
 				var xh = new XMLHttpRequest();
-				xh.open('GET', url, true);
+				xh.open('GET', url2Str, true);
+				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (xh.readyState==4 && xh.status==200) 
-					{
-						loadValues();
-					}
+					if (this.readyState == 4 && this.status == 200) loadValues();
 				}
-				xh.send(null);
 			}
 		  
 			function process()
 			{
-				var xh1 = new XMLHttpRequest();
-				xh1.open("GET", "/jwifi", true);
-				xh1.onreadystatechange = function()
+				var xh = new XMLHttpRequest();
+				xh.open("GET", "/jwifi", true);
+				xh.send(null);
+				xh.onreadystatechange = function()
 				{
-					if (xh1.readyState == 4 && xh1.status == 200) 
+					if (this.readyState == 4 && this.status == 200) 
 					{
-						var res = JSON.parse(xh1.responseText);
+						var res = JSON.parse(xh.responseText);
+						
 						document.getElementById('cur_br').value = res.ana_code;
 						
 						if ( res.out1_state)  document.getElementById(  'on1').value = 'On';
@@ -225,8 +236,7 @@
 						document.getElementById('rliml').value = d1;
 					}
 				}
-				xh1.send(null);
-				setTimeout('process()',200);
+				setInterval('process()',500);
 			}
 
 			process();

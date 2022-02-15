@@ -12,9 +12,7 @@ void setup()
   DBG_OUT_PORT.println(F("file system started"));
 
   //------------------------------------------------------  Загружаем конфигурацию
-
-  //------------------------------------------------------  Читаем установки из EEPROM
-
+  conf_f = "/conf_main.json";
   conf_data = loadConfig(conf_f);
 
   //  conf_data = defaultConfig();
@@ -24,29 +22,34 @@ void setup()
   pinMode(conf_data.pin1, OUTPUT);
   pinMode(conf_data.pin2, OUTPUT);
 
+  conf_f = "/conf_wifi.json";
+  wifi_data = wifi.loadConfig(conf_f);
+
+  //wifi_data = defaultConfig();
+  //wifi.saveConfig(conf_f, wifi_data);
+  DBG_OUT_PORT.print(conf_f);
+  DBG_OUT_PORT.println(F(" loaded"));
+
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
-
   //--------------------------------------------------------  Запускаем WiFi
-  myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
+  wifi_data_cur = wifi.begin(wifi_data);
 
-  if (web_cli || web_ap)
+  if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
-    //------------------------------------------------------  Переопределяем консоль
-
     //------------------------------------------------------  Запускаем сервер, ОТА, MDNS
-    ArduinoOTA.setHostname(conf_data.ap_ssid);
+    ArduinoOTA.setHostname(wifi_data.ap_ssid);
 
     // Authentication
-    ArduinoOTA.setPassword(conf_data.ap_pass);
+    ArduinoOTA.setPassword(wifi_data.ap_pass);
 
     ArduinoOTA.begin();
     DBG_OUT_PORT.println("OTA Ready");
     DBG_OUT_PORT.print("IP address: ");
     DBG_OUT_PORT.println(WiFi.localIP());
 
-    MDNS.begin(conf_data.ap_ssid);
+    MDNS.begin(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F("Open http://"));
-    DBG_OUT_PORT.print(conf_data.ap_ssid);
+    DBG_OUT_PORT.print(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
 
     web_setup();
@@ -71,7 +74,6 @@ void loop()
   server.handleClient();
   ArduinoOTA.handle();
   uint16_t lm = lightMeter.readLightLevel();
-
   //DBG_OUT_PORT.print(F("Lux.."));
   //DBG_OUT_PORT.println(lm);
 
