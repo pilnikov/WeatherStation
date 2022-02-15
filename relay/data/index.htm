@@ -179,7 +179,7 @@
 				var ll  = document.getElementById('lim_l').value;
 				var lh  = document.getElementById('lim_h').value;
 
-				const url2 = {
+				var url2 = {
                         as: as,
                         ap: ap,
                         ss: ss,
@@ -195,7 +195,7 @@
                         lh: lh
                       };
 
-				const url2Str = '/set_wifi?in=' + JSON.stringify(url2);
+				var url2Str = '/set_wifi?in=' + JSON.stringify(url2);
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url2Str, true);
@@ -236,9 +236,8 @@
 						document.getElementById('rliml').value = d1;
 					}
 				}
-				setInterval('process()',500);
 			}
-
+			setInterval('process()',500);
 			process();
 			
 		</script>

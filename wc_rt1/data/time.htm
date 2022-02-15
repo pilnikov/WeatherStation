@@ -314,10 +314,9 @@
     		  		document.getElementById('amin'  ).value = res1.al[num][2];
     	  			document.getElementById('amel'  ).value = res1.al[num][3];
     					document.getElementById('aon'   ).value = res1.al[num][4];
-    
-    					sel_atyp();
-    					sel_aact();      		
             }
+  					sel_atyp();
+  					sel_aact();      		
 					}
 				}
 			}
@@ -325,8 +324,9 @@
 
 			function sel_atyp()
 			{
-				satyp = document.getElementById('atyp').value;
-				if (satyp > 0)
+				var satyp = document.getElementById('atyp').value;
+
+  			if (satyp > 0)
 				{
 					showHide('ahour', true);
 					showHide('amin',  true);
@@ -346,7 +346,7 @@
 			{
 				var saact = document.getElementById('aon').value;
 				var satyp = document.getElementById('atyp').value;
-			 
+
 				if (saact == 0 && satyp > 0) showHide('amel',  true);
 				else showHide('amel',  false);
 			}
@@ -369,12 +369,11 @@
   						document.getElementById('amin'  ).value = res.al[num][2];
   						document.getElementById('amel'  ).value = res.al[num][3];
   						document.getElementById('aon'   ).value = res.al[num][4];
-  
-  						sel_atyp();
-  						sel_aact();      		
   					}
 					} 
 				}
+				sel_atyp();
+				sel_aact();      		
 			}
 		  
 			function time_ntp()
@@ -423,23 +422,22 @@
 				var xh1 = new XMLHttpRequest();
 				xh1.open('GET', url, true);
 				xh1.send(null);
-				xh1.onreadystatechange = function()
-				{
-					if (this.readyState == 4 && this.status == 200) loadValues();
-				}      
 
 				var sanum = document.getElementById('anum').value;
-				var satyp = document.getElementById('atyp').value;
-				var ahour = document.getElementById('ahour').value;
-				var amin  = document.getElementById('amin').value;
-				var samel = document.getElementById('amel').value;
-				var saon  = document.getElementById('aon').value;
-				
-				url = '/set_alarm?sanum='+sanum+'&satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
-				
-				var xh = new XMLHttpRequest();
-				xh.open('GET', url, true);
-				xh.send(null);
+        if  (sanum < 7)
+        {
+    			var satyp = document.getElementById('atyp').value;
+    			var ahour = document.getElementById('ahour').value;
+    			var amin  = document.getElementById('amin').value;
+    			var samel = document.getElementById('amel').value;
+    			var saon  = document.getElementById('aon').value;
+    				
+    			url = '/set_alarm?sanum='+sanum+'&satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
+    				
+    			var xh = new XMLHttpRequest();
+    			xh.open('GET', url, true);
+    			xh.send(null);
+        }
 			}
 
 			function showHide(element_id, visible) 

@@ -106,12 +106,11 @@ void setup()
 # else
     Wire.begin();
 # endif
-    
+
+    rtc_hw.a_type = rtc_cfg.c_type;
     hw_data = hw_chk.hw_present();
-    hw_accept(hw_data, &snr_cfg_data, &conf_data.type_vdrv, &rtc_cfg.c_type);
+    hw_accept(hw_data, &snr_cfg_data, &conf_data.type_vdrv, &rtc_hw.a_type);
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
-    memset(st1, 0, 254);
-    memset(screen, 0, 64);
 
     switch (conf_data.type_vdrv)
     {
@@ -222,13 +221,15 @@ void setup()
 #endif
 
     //------------------------------------------------------  Инициализируем RTC
-    if (rtc_cfg.c_type > 0) myrtc.rtc_init(rtc_hw);
+    if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
     DBG_OUT_PORT.print(F("Type of rtc = "));
-    DBG_OUT_PORT.println(rtc_cfg.c_type);
+    DBG_OUT_PORT.println(rtc_hw.a_type);
 
 
     //-------------------------------------------------------- Устанавливаем будильники
     myrtc.GetTime(rtc_hw, &rtc_time);
+    myrtc.cur_time_str(rtc_time, conf_data.rus_lng, tstr);
+    DBG_OUT_PORT.println(tstr);
     rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 
     //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
@@ -259,7 +260,7 @@ void setup()
     }
 # endif
     //-------------------------------------------------------  Опрашиваем датчики
-    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_cfg.c_type);
+    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type);
 
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);

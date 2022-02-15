@@ -29,7 +29,6 @@
 
 void CT::rtc_init(rtc_hw_data_t hw_data)
 {
-
   switch (hw_data.a_type)
   {
     case 1:
@@ -74,11 +73,9 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
 	  ds3231 -> LatchAlarmsTriggeredFlags(); // reset the flag
   }
  
- switch (hw_data.a_type)
+  switch (hw_data.a_type)
   {
     case 1:
-      ds3231 -> Begin();
-
       if (!ds3231 -> IsDateTimeValid())
       {
         if (ds3231 -> LastError() != 0)
@@ -114,6 +111,23 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
       }
 
       _now = ds3231 -> GetDateTime();
+      if (debug_level == 13)
+      {
+	      char _buf[25];
+		  memset(_buf, 0, 25);
+
+		  rtc_time_data_t rt;
+		  rt.hour = _now.Hour();
+		  rt.min = _now.Minute();
+		  rt.sec = _now.Second();
+		  rt.wday = _now.DayOfWeek() + 1;
+		  rt.month = _now.Month();
+		  rt.day = _now.Day();
+		  rt.year = _now.Year(); //костыль
+		  
+		  cur_time_str(rt, false, _buf);
+		  DBG_OUT_PORT.println(_buf);
+	  }
 	  
 	  break;
 

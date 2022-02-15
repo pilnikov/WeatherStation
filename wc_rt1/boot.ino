@@ -151,7 +151,7 @@ void firq0() // 1 hour
 void firq2()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_cfg.c_type);
+  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type);
   if (snr_cfg_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
