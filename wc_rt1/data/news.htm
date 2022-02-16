@@ -2,103 +2,11 @@
 	<head>
 		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
 		<title>WiFi Clock Configure News</title>
-		<style>
-			body, td
-			{
-				font-family:tahoma,arial,helvetica,sans-serif;
-				border: 0px solid #333;
-				padding: 5px;
-				text-align:center;
-			}
-			table.t td.h
-			{
-				background-color:#C9C9C0;
-				font-size:12px;
-				font-weight:bold;
-				text-align:center;
-			}
-			table.t td
-			{
-				background-color:#E2E2DB;
-				font-size:12px;
-				text-align:center;
-			}
-			input
-			{
-				text-align:center;
-			}
-			option
-			{
-				text-align:center;
-			}
-			.menu
-			{
-				list-style-type: none;
-				padding: 1px;
-			}
-			.menu > li 
-			{
-				float: left;
-				margin-right: 10px;
-			}
-			.menu > li > a 
-			{
-				color: blue;
-				padding: 2px;
-			}
-			.menu > li:hover > a 
-			{
-				color: black;
-				text-decoration: none;
-				border-radius: 5px 5px 0 0;
-				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
-			}
-			/* Этот стиль должен убирать серую полосу */
-			.menu > li:hover > a:before 
-			{
-				content:'';
-				position: absolute;
-				bottom: -5px; left: 0;
-				width: 100%;
-				height: 7px;
-				background: white;
-				z-index: 5;
-				cursor: pointer;
-			}
-			.menu-inner
-			{
-				display: none;
-			}
-			.menu > li:hover > .menu-inner
-			{
-				display: block;
-				background-color: white; /* обязательно, зарисовываем тень */
-				position: absolute;
-				left: 0;
-				top: 22px; /* подняли блок немного вверх */
-				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
-				width: 120px;
-				padding: 3px;
-			}
-			/* Стили для ниспадающего меню */
-			.menu-inner > li
-			{
-				padding: 2px 0;
-			}
-			.menu-inner > li:hover
-			{
-				background-color: blue;
-			}
-			.menu-inner > li:hover > a
-			{
-				color: white;
-				padding: 2px;
-				text-decoration: none;
-			}
-		</style>
+		<link rel='stylesheet' title='base' href='style.css' type='text/css'/>
+		<style type='text/css'></style>
 	</head>
   
-	<body onload='loadValues();'>
+	<body onload='loadVal_News();'>
 
 		<ul class="menu">
 			<li><a href="#">Menu</a>
@@ -118,7 +26,7 @@
 			<li style='float: none; visibility: hidden;'>.</li>
 		 </ul>
 		
-		<table class='t' align="left">
+		<table class='t' align='left'>
 			<tr>
 				<td colspan='2' class='h'>Новостная лента</td>
 			</tr>
@@ -134,110 +42,7 @@
 				<td colspan='2' ><button onclick='set_parnews();'>Записать</button></td>
 			</tr>
 		</table>
-			
-		<script>
-			function loadValues()
-			{
-				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jnews", true);
-				xh.send(null);
-				xh.onreadystatechange = function()
-				{
-					if (this.readyState == 4 && this.status == 200) 
-					{
-						var res = JSON.parse(xh.responseText);
-						document.getElementById('unews').checked = res.displaynews;
-						document.getElementById('newsk').value = res.newsApiKey;
-						document.getElementById('newssrc').value = res.newssource;
-						
-						hide_fields();
-					}
-				}
-			}
-
-			function set_parnews()
-			{
-				var sdisplaynews = 0;
-
-				if (document.getElementById('unews').checked) sdisplaynews = 1;
-				snewsApiKey = document.getElementById('newsk').value;
-				snewssource = document.getElementById('newssrc').value;
-
-				url = '/set_news?displaynews='+sdisplaynews+'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
-
-				var xh = new XMLHttpRequest();
-				xh.open('GET', url, true);
-				xh.send(null);
-				xh.onreadystatechange = function()
-				{
-					if (this.readyState == 4 && this.status == 200) loadValues();
-				}      
-			}
-
-			function hide_fields()
-			{
-				 
-				unews_t = document.getElementById('unews').checked;
-				
-				if (unews_t) 
-				{
-					showHide('newsk'  ,  true);
-					showHide('newssrc',  true);
-				}
-				else 
-				{
-					showHide('newsk'  ,  false);
-					showHide('newssrc',  false);
-				}
-			}
-
-			function showHide(element_id, visible) 
-			{
-				
-				if (document.getElementById(element_id)) //Если элемент с id-шником element_id существует
-				{ 
-					var obj = document.getElementById(element_id); //Записываем ссылку на элемент в переменную obj
-					if (visible) obj.style.display = "inline-block"; //Показываем элемент
-					else obj.style.display = "none"; //Скрываем элемент
-				}
-				else alert("Элемент с id: " + element_id + " не найден!"); //Если элемент с id-шником element_id не найден, то выводим сообщение
-			}   
-			  
-			var s = '%NEWSSRC%';
-			var tt;
-
-			var xmlhttp=new XMLHttpRequest();
-				
-			xmlhttp.open('GET','https://raw.githubusercontent.com/Qrome/marquee-scroller/master/sources.json',!0);
-			xmlhttp.send(null);
-			xmlhttp.onreadystatechange = function()
-			{
-				if(xmlhttp.readyState==4)
-				{
-					if (this.readyState == 4 && this.status == 200) 
-					{
-						var obj=JSON.parse(xmlhttp.responseText);
-						obj.sources.forEach(t);
-					}
-				}
-			}
-			
-			function t(it)
-			{
-				if(it!=null)
-				{
-					if(s==it.id)
-					{
-						se=' selected';
-					}
-					else
-					{
-						se='';
-					}
-					tt+='<option'+se+'>'+it.id+'</option>';
-					document.getElementById('newssrc').innerHTML=tt;
-				}
-			}
-		</script>
+	
+		<script src="script.js"></script>
 	</body>
 </html>

@@ -221,10 +221,13 @@ void setup()
 #endif
 
     //------------------------------------------------------  Инициализируем RTC
-    if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
+    RtcDateTime c_time = RtcDateTime(__DATE__, __TIME__);
+
     DBG_OUT_PORT.print(F("Type of rtc = "));
     DBG_OUT_PORT.println(rtc_hw.a_type);
 
+    if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
+    else rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
 
     //-------------------------------------------------------- Устанавливаем будильники
     myrtc.GetTime(rtc_hw, &rtc_time);
@@ -239,7 +242,7 @@ void setup()
       //------------------------------------------------------ Синхронизируем время с NTP
       if (wifi_data_cur.cli & rtc_cfg.auto_corr)
       {
-        RtcDateTime c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
+        c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
         rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
       }
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
