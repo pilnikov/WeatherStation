@@ -37,16 +37,11 @@
 #include <ArduinoJson.h>
 
 #include <my_wifi.h>
-#include <Netwf.h>
 #include <WiFiUdp.h>
 #include <LittleFS.h>
 #include <ArduinoOTA.h>
 
 #include "web.h"
-
-// ----------------------------------- Force define func name
-void printFile(const char*);
-void fs_setup();
 
 // ----------------------------------- Web server
 #if defined(ESP8266)
@@ -70,13 +65,11 @@ HTTPUpdateServer httpUpdater;
 // ---------------------------------------------------- Common
 
 const char *conf_f = "/conf_wifi.json";  // config file name
+bool save_data_req;
+String from_client = String();
 
-unsigned long   serv_ms = 60000;
-
-IPAddress myIP;
-
-NF nsys;
 WF wifi;
+WFJS wifi_cfg;
 
 wifi_cfg_data_t wifi_data;
 wifi_cur_data_t wifi_data_cur;

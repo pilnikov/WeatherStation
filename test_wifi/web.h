@@ -16,7 +16,6 @@ void handleFileList();
 
 
 String getContentType(String);
-void printFile(const char*);
 
 void fs_setup();
 

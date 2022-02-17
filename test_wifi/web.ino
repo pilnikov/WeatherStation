@@ -1,11 +1,12 @@
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
-  server.on("/set_wifi", handleSetWiFi);
-  server.on("/set_ip1",  handleSetIp1);
-  server.on("/set_ip2",  handleSetIp2);
-  server.on("/exit",     handleExit);
-  server.on("/jwifi",    handlejWiFi);
+  server.on("/set_wifi",      handleSetWiFi);
+  server.on("/set_ip1",       handleSetIp1);
+  server.on("/set_ip2",       handleSetIp2);
+  server.on("/end_set_wifi",  handleEndSetWiFi);
+  server.on("/exit",          handleExit);
+  server.on("/jwifi",         handlejWiFi);
 
   //-------------------------------------------------------------- for LittleFS
   //list directory
@@ -41,7 +42,6 @@ void start_serv()
   if (!wifi_data_cur.cli & !wifi_data_cur.ap)
   {
     wifi_data_cur = wifi.begin(wifi_data);
-    myIP = wifi_data_cur.addr;
   }
 
   if (wifi_data_cur.cli || wifi_data_cur.ap)
@@ -72,106 +72,38 @@ void stop_serv()
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
-  DynamicJsonDocument jsonBuffer(512);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["apid"]    = wifi_data.ap_ssid;
-  json["appas"]   = wifi_data.ap_pass;
-  json["staid1"]  = wifi_data.sta_ssid1;
-  json["staid2"]  = wifi_data.sta_ssid2;
-  json["stapas1"] = wifi_data.sta_pass1;
-  json["stapas2"] = wifi_data.sta_pass2;
-
-  json["iap"]   = wifi_data.ap_ip;
-  json["map"]   = wifi_data.ap_ma;
-
-  json["sst1"]    = wifi_data.st_ip1;
-  json["sst2"]    = wifi_data.st_ip2;
-
-  if (wifi_data.st_ip1)
-  {
-    json["ipst1"]   = wifi_data.sta_ip1;
-    json["mast1"]   = wifi_data.sta_ma1;
-    json["gwst1"]   = wifi_data.sta_gw1;
-    json["dns1st1"] = wifi_data.sta_dns11;
-    json["dns2st1"] = wifi_data.sta_dns21;
-  }
-  if (wifi_data.st_ip1)
-  {
-    json["ipst2"]   = wifi_data.sta_ip2;
-    json["mast2"]   = wifi_data.sta_ma2;
-    json["gwst2"]   = wifi_data.sta_gw2;
-    json["dns1st2"] = wifi_data.sta_dns12;
-    json["dns2st2"] = wifi_data.sta_dns22;
-  }
-  json["wof"]    = wifi_data.wifi_off;
-
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
+  DBG_OUT_PORT.println(wifi_data.sta_ip2);
+  from_client = wifi_cfg.to_json(wifi_data);
+  server.send(200, "text/json", from_client);
 }
 
 //-------------------------------------------------------------- handleSetWiFi
 void handleSetWiFi()
 {
-  //url='/set_wifi?as='+as+'&ap='+ap+'&ss1='+ss1+'&sp1='+sp1+'&ss2='+ss2+'&sp2='+sp2+'&st1='+st1+'&st2='+st2+'&iap='+iap+'&map='+map+'&wof='+wof_t;
-
-  strcpy(wifi_data.ap_ssid, server.arg("as").c_str());
-  strcpy(wifi_data.ap_pass, server.arg("ap").c_str());
-  strcpy(wifi_data.sta_ssid1, server.arg("ss1").c_str());
-  strcpy(wifi_data.sta_pass1, server.arg("sp1").c_str());
-  strcpy(wifi_data.sta_ssid2, server.arg("ss2").c_str());
-  strcpy(wifi_data.sta_pass2, server.arg("sp2").c_str());
-
-  wifi_data.st_ip1 = server.arg("st1") == "1";
-  wifi_data.st_ip2 = server.arg("st2") == "1";
-
-  strcpy(wifi_data.ap_ip, server.arg("iap").c_str());
-  strcpy(wifi_data.ap_ma, server.arg("map").c_str());
-
-  wifi_data.wifi_off = server.arg("wof") == "1";
-
-  wifi.saveConfig(conf_f, wifi_data);
-
+  from_client = server.arg("in");
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSetIp1
 void handleSetIp1()
 {
-  //url='/set_ip1?ip='+ip1+'&ma='+ma1+'&gw='+gw1+'&d1='+d11+'&d2='+d21;
-
-  strcpy(wifi_data.sta_ip1, server.arg("ip").c_str());
-  strcpy(wifi_data.sta_ma1, server.arg("ma").c_str());
-  strcpy(wifi_data.sta_gw1, server.arg("gw").c_str());
-  strcpy(wifi_data.sta_dns11, server.arg("d1").c_str());
-  strcpy(wifi_data.sta_dns21, server.arg("d2").c_str());
-
-  wifi.saveConfig(conf_f, wifi_data);
-
+  from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSetIp2
 void handleSetIp2()
 {
-  //rl='/set_ip2?ip='+ip2+'&ma='+ma2+'&gw='+gw2+'&d1='+d12+'&d2='+d22;
-
-  strcpy(wifi_data.sta_ip2, server.arg("ip").c_str());
-  strcpy(wifi_data.sta_ma2, server.arg("ma").c_str());
-  strcpy(wifi_data.sta_gw2, server.arg("gw").c_str());
-  strcpy(wifi_data.sta_dns12, server.arg("d1").c_str());
-  strcpy(wifi_data.sta_dns22, server.arg("d2").c_str());
-
-  wifi.saveConfig(conf_f, wifi_data);
-
+  from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
+}
+
+//-------------------------------------------------------------- handleEndSetWiFi
+void handleEndSetWiFi()
+{
+  DBG_OUT_PORT.println(from_client);
+  save_data_req = true;
+  server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handleExit
@@ -185,7 +117,6 @@ void handleExit()
 //-------------------------------------------------------------- for FS
 bool handleFileRead(String path)
 {
-  serv_ms = millis();
   DBG_OUT_PORT.println("handleFileRead: " + path);
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
@@ -222,7 +153,6 @@ void handleFileUpload()
       fsUploadFile.close();
     DBG_OUT_PORT.printf("handleFileUpload Size: %u\n", upload.totalSize);
   }
-  serv_ms = millis();
 }
 
 void handleFileDelete()
@@ -237,7 +167,6 @@ void handleFileDelete()
   LittleFS.remove(path);
   server.send(200, "text/plain", "");
   path = String();
-  serv_ms = millis();
 }
 
 void handleFileCreate()
@@ -258,14 +187,12 @@ void handleFileCreate()
     return server.send(500, "text/plain", "CREATE FAILED");
   server.send(200, "text/plain", "");
   path = String();
-  serv_ms = millis();
 }
 
 void handleFileList()
 {
   if (!server.hasArg("dir")) {
     server.send(500, "text/plain", "BAD ARGS");
-    serv_ms = millis();
     return;
   }
 
@@ -305,8 +232,6 @@ void handleFileList()
   path = String();
   output += "]";
   server.send(200, "text/json", output);
-
-  serv_ms = millis();
 }
 
 String getContentType(String filename)
@@ -327,24 +252,6 @@ String getContentType(String filename)
   return "text/plain";
 }
 
-
-void printFile(const char* filename) {
-  // Open file for reading
-  File file = LittleFS.open(filename, "r");
-
-  if (!file)
-  {
-    DBG_OUT_PORT.println(F("Failed to read file"));
-    return;
-  }
-
-  // Extract each characters by one by one
-  while (file.available()) DBG_OUT_PORT.print((char)file.read());
-  DBG_OUT_PORT.println();
-
-  // Close the file
-  file.close();
-}
 
 void fs_setup()
 {
