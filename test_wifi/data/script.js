@@ -24,7 +24,7 @@ let _from = 'none';
 						document.getElementById('wof').checked  = res.wof;
 
             
-						var st = document.getElementById('st1').checked;
+						var st = document.getElementById('sst1').checked;
 						if (st)
 						{
 							document.getElementById('ipst1').value = res.ip1;
@@ -33,7 +33,7 @@ let _from = 'none';
 							document.getElementById('dns1st1').value = res.d11;
 							document.getElementById('dns2st1').value = res.d21;
 						}
-						st = document.getElementById('st2').checked;
+						st = document.getElementById('sst2').checked;
 						if (st)
 						{
 							document.getElementById('ipst2').value = res.ip2;
@@ -69,7 +69,7 @@ let _from = 'none';
 
 			function set_wifi()
 			{
-				var wof = 0, st1= 0, st2 = 0, ip, ma, gw, d1, d2; 
+				var wof = 0, st1= 0, st2 = 0, ip, ma, gw, d1, d2, xh1, xh2, xh3; 
 
 				var as = document.getElementById('aps').value;
 				var ap = document.getElementById('app').value;
@@ -102,70 +102,75 @@ let _from = 'none';
 
 				let url = '/set_wifi?in=' + JSON.stringify(urlc);
 
-				var xh = new XMLHttpRequest();
-				xh.open('GET', url, true);
-				xh.send(null);
-				xh.onreadystatechange = function()
+				xh1 = new XMLHttpRequest();
+				xh1.open('GET', url, true);
+				xh1.send(null);
+				xh1.onreadystatechange = function()
 				{
-					if (this.readyState == 4 && this.status == 200) loadVal_WiFi();
-				};      
-				
-				if (st1 === 1)
-				{
-					ip = document.getElementById('ipst1').value;
-					ma = document.getElementById('mast1').value;
-					gw = document.getElementById('gwst1').value;
-					d1 = document.getElementById('dns1st1').value;
-					d2 = document.getElementById('dns2st1').value;
-
-				  urlc  = {
-                      ip1: ip,
-                      ap1: ap,
-                      na1: ma,
-                      gw1: gw,
-                      d11: d1,
-                      d21: d2
-                    };
-
-				  url = '/set_ip1?in=' + JSON.stringify(urlc);
-
-
-					xh = new XMLHttpRequest();
-					xh.open('GET', url, true);
-					xh.send(null);
-					xh.onreadystatechange = function()
-					{
-						if (this.readyState == 4 && this.status == 200) loadVal_WiFi();
-					}      
-				}
-				
-				if (st2 === 1)
-				{
-					ip = document.getElementById('ipst2').value;
-					ma = document.getElementById('mast2').value;
-					gw = document.getElementById('gwst2').value;
-					d1 = document.getElementById('dns1st2').value;
-					d2 = document.getElementById('dns2st2').value;
-
-				  urlc  = {
-                      ip2: ip,
-                      ap2: ap,
-                      na2: ma,
-                      gw2: gw,
-                      d12: d1,
-                      d22: d2
-                    };
-
-				  url = '/set_ip2?in=' + JSON.stringify(urlc);
-
-					xh = new XMLHttpRequest();
-					xh.open('GET', url, true);
-					xh.send(null);
-					xh.onreadystatechange = function()
-					{
-						if (this.readyState == 4 && this.status == 200) loadVal_WiFi();
-					};      
-				}
+  				if (this.readyState == 4 && this.status == 200)
+  				{
+    				if (st1 === 1)
+    				{
+    					ip = document.getElementById('ipst1').value;
+    					ma = document.getElementById('mast1').value;
+    					gw = document.getElementById('gwst1').value;
+    					d1 = document.getElementById('dns1st1').value;
+    					d2 = document.getElementById('dns2st1').value;
+    
+    				  urlc  = {
+                          ip1: ip,
+                          ma1: ma,
+                          gw1: gw,
+                          d11: d1,
+                          d21: d2
+                        };
+    
+    				  url = '/set_ip1?in=' + JSON.stringify(urlc);
+    
+    
+    					xh2 = new XMLHttpRequest();
+    					xh2.open('GET', url, true);
+    					xh2.send(null);
+    				}
+    				
+    				if (st2 === 1)
+    				{
+    					ip = document.getElementById('ipst2').value;
+    					ma = document.getElementById('mast2').value;
+    					gw = document.getElementById('gwst2').value;
+    					d1 = document.getElementById('dns1st2').value;
+    					d2 = document.getElementById('dns2st2').value;
+    
+    				  urlc  = {
+                          ip2: ip,
+                          ma2: ma,
+                          gw2: gw,
+                          d12: d1,
+                          d22: d2
+                        };
+    
+    				  url = '/set_ip2?in=' + JSON.stringify(urlc);
+    
+    					var xh3 = new XMLHttpRequest();
+    					xh3.open('GET', url, true);
+    					xh3.send(null);
+      				xh3.onreadystatechange = function()
+      				{
+        				if (this.readyState == 4 && this.status == 200)
+        				{
+                  url = '/end_set_wifi';
+          				var xh4 = new XMLHttpRequest();
+          				xh4.open('GET', url, true);
+          				xh4.send(null);
+          				xh4.onreadystatechange = function()
+          				{
+          					if (this.readyState == 4 && this.status == 200) loadVal_WiFi();
+          				};      
+        				}
+    				  };
+			      }
+			    }
+				};
 			}
 //------------------------------------------------------------------------------Common
 			function showHide(element_id, visible) 

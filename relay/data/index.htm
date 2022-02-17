@@ -1,78 +1,86 @@
 <html>
 	<head>
 		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-		<title>Wifi Test. Settings Wifi</title>
+		<title>Wifi Relay</title>
 		<link rel='stylesheet' title='base' href='style.css' type='text/css'/>
 		<style type='text/css'></style>
 	</head>
-  
-	<body onload='loadVal_WiFi();'>
+ 
+	<body onload='loadValues();'>
 
-		<ul class="menu">
-			<li><a href='index.htm'>WiFi</a></li>
-			<li><a href='/update'>Update</a></li>
-			<li><a href='/edit'>Edit</a></li>
-			<li><a href='/exit'>Restart</a></li>
-			<li style='float: none; visibility: hidden;'>.</li>
-		</ul>
-		
-		<table class='t' align='left'>
+		<table border="1" align='left' class='t'>
 			<tr>
-				<td class='h'></td><td class='h'>Точка доступа</td><td colspan='2' class='h'>Клиент</td>
+				<td class='h'></td>
+				<td class='h'>Точка доступа</td>
+				<td class='h'>Клиент</td>
 			</tr>
 			<tr>
 				<td>SSID</td>
-				<td><input type='text' size='15' maxlength='20' id='aps' name='aps'/></td>
-				<td><input type='text' size='15' maxlength='20' id='stas1' name='stas1'/></td>
-				<td><input type='text' size='15' maxlength='20' id='stas2' name='stas2'/></td>
+				<td><input type='text' size='20' id='aps'  name='aps' /></td>
+				<td><input type='text' size='20' id='stas' name='stas'/></td>
 			</tr>
 			<tr>
 				<td>Password</td>
-				<td><input type='password' size='15' maxlength='20' id='app' name='app'/></td>
-				<td><input type='password' size='15' maxlength='20' id='stap1' name='stap1'/></td>
-				<td><input type='password' size='15' maxlength='20' id='stap2' name='stap2'/></td>
+				<td><input type='password' size='20' id='app'  name='app' /></td>
+				<td><input type='password' size='20' id='stap' name='stap'/></td>
 			</tr>
 			<tr>
-				<td>Static IP</td>
+				<td class='h'>Выходы</td>
+				<td class='h'>1</td>
+				<td class='h'>2</td>
+			</tr>
+			<tr>
+				<td>GPIO</td>
+				<td><input type='number' size='1' min=0 max=16 id='pin1' name='pin1'/></td>
+				<td><input type='number' size='1' min=0 max=16 id='pin2' name='pin2'/></td>
+			</tr>
+			<tr>
+				<td>ON Code</td>
+				<td><input type='number' size='1' min=0 max=255 id='on1_code' name='on1_code'/></td>
+				<td><input type='number' size='1' min=0 max=255 id='on2_code' name='on2_code'/></td>
+			</tr>
+			<tr>
+				<td colspan='1'>OFF Code</td>
+				<td><input type='number' size='1' min=0 max=255 id='off1_code' name='off1_code'/></td>
+				<td><input type='number' size='1' min=0 max=255 id='off2_code' name='off2_code'/></td>
+			</tr>
+			<tr>
+				<td>ON/OFF</td>
+				<td><input type='button' value='Off'    onclick='Q1_On_Off();' id='on1'    name='on1'/></td>
+				<td><input type='button' value='Off'    onclick='Q2_On_Off();' id='on2'    name='on2'/></td>
+			</tr>
+			<tr>
+				<td>AUTO/MAN</td>
+				<td><input type='button' value='Manual' onclick='Q1_Auto();'   id='auto1'  name='auto1'/></td>
+				<td><input type='button' value='Manual' onclick='Q2_Auto();'   id='auto2'  name='auto2'/></td>
+			</tr>
+			<tr>
+				<td colspan='3' class='h'>Освещенность</td>
+			</tr>
+			<tr>
+				<td>Верхний предел </td><td><input type='range' min=0 max=255 id='lim_h' name='lim_h'/></td>
+				<td><output id='rlimh' name='rliml'></output></td>
+			</tr>
+			<tr>
+				<td> Нижний предел </td><td><input type='range' min=0 max=255 id='lim_l' name='lim_l'/></td>
+				<td><output id='rliml' name='rliml'></output></td>
+			</tr>
+			<tr>
+				<td>Текущее значение </td>
 				<td></td>
-				<td><input type='checkbox' id='sst1' name='sst1' onclick='st_ip();'/></td>
-				<td><input type='checkbox' id='sst2' name='sst2' onclick='st_ip();'/></td>
-			</tr>  
-			<tr>
-				<td>IP</td>
-				<td><input type='text' size='15' maxlength='17' id='ipap'  name='ipap'  value='192.168.4.1'/></td>
-				<td><input type='text' size='15' maxlength='17' id='ipst1' name='ipst1' value='192.168.1.2'/></td>
-				<td><input type='text' size='15' maxlength='17' id='ipst2' name='ipst2' value='192.168.0.2'/></td>
+				<td><output id='cur_br' name='cur_br'></output></td>
 			</tr>
 			<tr>
-				<td>Mask</td>
-				<td><input type='text' size='15' maxlength='17' id='maap'  name='ipap'  value='255.255.255.0'/></td>
-				<td><input type='text' size='15' maxlength='17' id='mast1' name='ipst1' value='255.255.255.0'/></td>
-				<td><input type='text' size='15' maxlength='17' id='mast2' name='ipst2' value='255.255.255.0'/></td>
+				<td colspan='3' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td>
 			</tr>
 			<tr>
-				<td>Gateway</td>
-				<td></td>
-				<td><input type='text' size='15' maxlength='17' id='gwst1' name='gwst1' value='192.168.1.1'/></td>
-				<td><input type='text' size='15' maxlength='17' id='gwst2' name='gwst2' value='192.168.0.1'/></td>
+				<td colspan='3'><a href='/update'>Обновление прошивки</a></td>
 			</tr>
 			<tr>
-				<td>DNS1</td>
-				<td></td>
-				<td><input type='text' size='15' maxlength='17' id='dns1st1' name='dns1st1' value='8.8.8.8'/></td>
-				<td><input type='text' size='15' maxlength='17' id='dns1st2' name='dns1st2' value='8.8.8.8'/></td>
+				<td colspan='3' class='h'><a href='/edit'>Редактор</a></td>
 			</tr>
 			<tr>
-				<td>DNS2</td>
-				<td></td>
-				<td><input type='text' maxlength='17' id='dns2st1' name='dns2st1' value='8.8.4.4'/></td>
-				<td><input type='text' maxlength='17' id='dns2st2' name='dns2st2' value='8.8.4.4'/></td>
-			</tr>
-			<tr>
-				<td>Отключать WiFi</td><td colspan='3'><input type='checkbox' id='wof' name='wof'/></td>
-			</tr>  
-			<tr>
-				<td colspan='4' class='h'><button onclick='set_wifi();'>Записать</button></td>
+				<td colspan='3'><a href='/exit'>Перезагрузка</a></td>
 			</tr>
 		</table>
 
