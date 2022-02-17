@@ -1,0 +1,24 @@
+			body, td
+			{
+				font-family:tahoma,arial,helvetica,sans-serif;
+				border: 0px solid #333;
+				padding: 5px;
+				text-align:center;
+			}
+			table.t td.h
+			{
+				background-color:#C9C9C0;
+				font-size:12px;
+				font-weight:bold;
+				text-align:center;
+			}
+			table.t td
+			{
+				background-color:#E2E2DB;
+				font-size:12px;
+				text-align:center;
+			}
+			input
+			{
+				text-align:center;
+			}

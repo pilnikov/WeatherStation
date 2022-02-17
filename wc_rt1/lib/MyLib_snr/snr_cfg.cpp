@@ -1,12 +1,12 @@
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
-#include <Snr.h>
+#include "Snr.h"
+
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
 #define ARDUINOJSON_USE_LONG_LONG 1
 #include <pgmspace.h>
 #include <ArduinoJson.h>
 #include <LittleFS.h>
-
 
 snr_cfg_t CfgSNR::loadCfgSnr(const char *filename)
 {

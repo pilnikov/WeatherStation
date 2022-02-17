@@ -1,113 +1,81 @@
 <html>
 	<head>
 		<meta http-equiv = 'content-type' content = 'text/html; charset = utf-8' />
-		<title>Wifi Clock. Settings Wifi</title>
-		<style>
-			body, td
-			{
-				font-family:tahoma,arial,helvetica,sans-serif;
-				border: 0px solid #333;
-				padding: 5px;
-				text-align:center;
-			}
-			table.t td.h
-			{
-				background-color:#C9C9C0;
-				font-size:12px;
-				font-weight:bold;
-				text-align:center;
-			}
-			table.t td
-			{
-				background-color:#E2E2DB;
-				font-size:12px;
-				text-align:center;
-			}
-			input
-			{
-				text-align:center;
-			}
-			.menu
-			{
-				list-style-type: none;
-				padding: 1px;
-			}
-			.menu > li 
-			{
-				float: left;
-				margin-right: 10px;
-			}
-			.menu > li > a 
-			{
-				color: blue;
-				padding: 2px;
-			}
-			.menu > li:hover > a 
-			{
-				color: black;
-				text-decoration: none;
-				border-radius: 5px 5px 0 0;
-				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
-			}
-			/* Этот стиль должен убирать серую полосу */
-			.menu > li:hover > a:before 
-			{
-				content:'';
-				position: absolute;
-				bottom: -5px; left: 0;
-				width: 100%;
-				height: 7px;
-				background: white;
-				z-index: 5;
-				cursor: pointer;
-			}
-			.menu-inner
-			{
-				display: none;
-			}
-			.menu > li:hover > .menu-inner
-			{
-				display: block;
-				background-color: white; /* обязательно, зарисовываем тень */
-				position: absolute;
-				left: 0;
-				top: 22px; /* подняли блок немного вверх */
-				box-shadow: 0 0 7px 0 rgba(0,0,0,0.6);
-				width: 120px;
-				padding: 3px;
-			}
-			/* Стили для ниспадающего меню */
-			.menu-inner > li
-			{
-				padding: 2px 0;
-			}
-			.menu-inner > li:hover
-			{
-				background-color: blue;
-			}
-			.menu-inner > li:hover > a
-			{
-				color: white;
-				padding: 2px;
-				text-decoration: none;
-			}
-		</style>
+		<title>Wifi Test. Settings Wifi</title>
+		<link rel='stylesheet' title='base' href='style.css' type='text/css'/>
+		<style type='text/css'></style>
 	</head>
   
-	<body>
+	<body onload='loadVal_WiFi();'>
 
 		<ul class="menu">
-			<li><a href="#">Menu</a>
-				<ul class="menu-inner">
-					<li><a href='wifi.htm'>WiFi</a></li>
-				</ul>
-			</li>
+			<li><a href='wifi.htm'>WiFi</a></li>
 			<li><a href='/update'>Update</a></li>
 			<li><a href='/edit'>Edit</a></li>
 			<li><a href='/exit'>Restart</a></li>
 			<li style='float: none; visibility: hidden;'>.</li>
 		</ul>
-    <script>
-    </script>
-  </body>
+		
+		<table class='t' align='left'>
+			<tr>
+				<td class='h'></td><td class='h'>Точка доступа</td><td colspan='2' class='h'>Клиент</td>
+			</tr>
+			<tr>
+				<td>SSID</td>
+				<td><input type='text' size='15' maxlength='20' id='aps' name='aps'/></td>
+				<td><input type='text' size='15' maxlength='20' id='stas1' name='stas1'/></td>
+				<td><input type='text' size='15' maxlength='20' id='stas2' name='stas2'/></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+				<td><input type='password' size='15' maxlength='20' id='app' name='app'/></td>
+				<td><input type='password' size='15' maxlength='20' id='stap1' name='stap1'/></td>
+				<td><input type='password' size='15' maxlength='20' id='stap2' name='stap2'/></td>
+			</tr>
+			<tr>
+				<td>Static IP</td>
+				<td></td>
+				<td><input type='checkbox' id='sst1' name='sst1' onclick='st_ip();'/></td>
+				<td><input type='checkbox' id='sst2' name='sst2' onclick='st_ip();'/></td>
+			</tr>  
+			<tr>
+				<td>IP</td>
+				<td><input type='text' size='15' maxlength='17' id='ipap'  name='ipap'  value='192.168.4.1'/></td>
+				<td><input type='text' size='15' maxlength='17' id='ipst1' name='ipst1' value='192.168.1.2'/></td>
+				<td><input type='text' size='15' maxlength='17' id='ipst2' name='ipst2' value='192.168.0.2'/></td>
+			</tr>
+			<tr>
+				<td>Mask</td>
+				<td><input type='text' size='15' maxlength='17' id='maap'  name='ipap'  value='255.255.255.0'/></td>
+				<td><input type='text' size='15' maxlength='17' id='mast1' name='ipst1' value='255.255.255.0'/></td>
+				<td><input type='text' size='15' maxlength='17' id='mast2' name='ipst2' value='255.255.255.0'/></td>
+			</tr>
+			<tr>
+				<td>Gateway</td>
+				<td></td>
+				<td><input type='text' size='15' maxlength='17' id='gwst1' name='gwst1' value='192.168.1.1'/></td>
+				<td><input type='text' size='15' maxlength='17' id='gwst2' name='gwst2' value='192.168.0.1'/></td>
+			</tr>
+			<tr>
+				<td>DNS1</td>
+				<td></td>
+				<td><input type='text' size='15' maxlength='17' id='dns1st1' name='dns1st1' value='8.8.8.8'/></td>
+				<td><input type='text' size='15' maxlength='17' id='dns1st2' name='dns1st2' value='8.8.8.8'/></td>
+			</tr>
+			<tr>
+				<td>DNS2</td>
+				<td></td>
+				<td><input type='text' maxlength='17' id='dns2st1' name='dns2st1' value='8.8.4.4'/></td>
+				<td><input type='text' maxlength='17' id='dns2st2' name='dns2st2' value='8.8.4.4'/></td>
+			</tr>
+			<tr>
+				<td>Отключать WiFi</td><td colspan='3'><input type='checkbox' id='wof' name='wof'/></td>
+			</tr>  
+			<tr>
+				<td colspan='4' class='h'><button onclick='set_wifi();'>Записать</button></td>
+			</tr>
+		</table>
+
+		<script src="script.js"></script>
+	</body>
 </html>

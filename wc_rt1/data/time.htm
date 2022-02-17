@@ -72,7 +72,7 @@
 					<option value = '7'>--</option>
 				</select>
 				&nbsp; Когда: &nbsp;
-				<select id='atyp' name='atyp' onchange='sel_atyp();'>
+				<select style='display: none;' id='atyp' name='atyp' onchange='sel_atyp();'>
 					<option value = '0'>Отключен</option>
 					<option value = '1'>Ежедневно</option>
 					<option value = '2'>По рабочим</option>
@@ -80,13 +80,13 @@
 					<option value = '4'>Разово</option>
 				</select>
 				&nbsp; Сработает в: &nbsp;
-				<input type='number' size='2' maxlength='2' min='0' max='23' id='ahour' name='ahour' />
+				<input type='number' size='2' maxlength='2' min='0' max='23' style='display: none;' id='ahour' name='ahour' />
 				&nbsp;:&nbsp;
-				<input type='number' size='2' maxlength='2' min='0' max='59' id='amin'  name='amin'/></td>
+				<input type='number' size='2' maxlength='2' min='0' max='59' style='display: none;' id='amin'  name='amin'/></td>
 			</tr>
 			<tr>
 				<td colspan='2'>&nbsp; Экшн: &nbsp;
-				<select id='aon' name='aon' onchange='sel_aact();'>
+				<select style='display: none;' id='aon' name='aon' onchange='sel_atyp();'>
 					<option value = '0'>Сыграет  мелодию</option>
 					<option value = '1'>Включит  ночной режим</option>
 					<option value = '2'>Выключит ночной режим</option>
@@ -96,7 +96,7 @@
 					<option value = '6'>Выключит радио</option>
 				</select>
 				&nbsp; Мелодия: &nbsp;
-				<select id='amel' name='amel'>
+				<select style='display: none;' id='amel' name='amel'>
 					<option value = '0' >The Simpsons</option>
 					<option value = '1' >Indiana</option>
 					<option value = '2' >Entertainer</option>

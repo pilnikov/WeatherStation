@@ -191,76 +191,133 @@ void handlejAlarm()
 //-------------------------------------------------------------- handleSetTime1
 void handleSetTime1()
 {
-  //url='/set_time1?h='+h+'&m='+m+'&d='+d+'&mm='+mm+'&y='+y;
+  char buf[100];
+  memset (buf , 0 , 100);
+  strcpy(buf, server.arg("in").c_str());
 
-  uint8_t  hr = server.arg("h").toInt();
-  uint8_t  mn = server.arg("m").toInt();
-  uint8_t  dy = server.arg("d").toInt();
-  uint8_t  mo = server.arg("mm").toInt();
-  uint16_t yr = server.arg("y").toInt();
+  // Allocate the document on the stack.
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/assistant to compute the capacity.
+  DynamicJsonDocument doc(100);
 
-  RtcDateTime dt1 = RtcDateTime(constrain(yr, 2021, 2036), constrain(mo, 1, 12), constrain(dy, 1, 31), constrain(hr, 0, 23), constrain(mn, 0, 59), 0);
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, buf);
+  if (error)
+  {
+    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+    DBG_OUT_PORT.println(error.c_str());
+  }
+  else
+  {
+    DBG_OUT_PORT.println(buf);
+    uint8_t  hr = doc["h"];
+    uint8_t  mn = doc["m"];
+    uint8_t  dy = doc["d"];
+    uint8_t  mo = doc["mm"];
+    uint16_t yr = doc["y"];
+    RtcDateTime dt1 = RtcDateTime(constrain(yr, 2021, 2036), constrain(mo, 1, 12), constrain(dy, 1, 31), constrain(hr, 0, 23), constrain(mn, 0, 59), 0);
 
-  if (debug_level == 14) DBG_OUT_PORT.printf("set time = %02d.%02d.%04d %02d:%02d:%02d\n",
-        dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
+    if (debug_level == 14) DBG_OUT_PORT.printf("set time = %02d.%02d.%04d %02d:%02d:%02d\n",
+          dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
 
-  rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
+    rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
 
-  server.send(200, "text/html", "OK!");
-  serv_ms = millis();
+    server.send(200, "text/html", "OK!");
+    serv_ms = millis();
+  }
 }
 
 //-------------------------------------------------------------- handleSetTime2
 void handleSetTime2()
 {
-  //url = '/set_time2?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&srtyp='+srtyp+'&antp1='+antp1+'&antp2='+antp2+'&antp3='+antp3;
+  char buf[300];
+  memset (buf , 0 , 300);
+  strcpy(buf, server.arg("in").c_str());
 
-  rtc_cfg.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
-  rtc_cfg.auto_corr = (server.arg("acorr") == "1");
-  rtc_cfg.use_pm = (server.arg("upm") == "1");
-  rtc_cfg.nm_start = constrain(server.arg("nmstart").toInt(), 0, 23);
-  rtc_cfg.nm_stop  = constrain(server.arg("nmstop" ).toInt(), 0, 23);
-  rtc_cfg.every_hour_beep = (server.arg("ehb") == "1");
-  rtc_cfg.c_type = server.arg("srtyp").toInt();
-  strcpy(rtc_cfg.ntp_srv[0], server.arg("antp1").c_str());
-  strcpy(rtc_cfg.ntp_srv[1], server.arg("antp2").c_str());
-  strcpy(rtc_cfg.ntp_srv[2], server.arg("antp3").c_str());
+  // Allocate the document on the stack.
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/assistant to compute the capacity.
+  DynamicJsonDocument doc(900);
 
-  conf_f = "/conf_rtc.json";
-  myrtccfg.saveConfig(conf_f, rtc_cfg);
-  server.send(200, "text/html", "OK!");
-  serv_ms = millis();
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, buf);
+  if (error)
+  {
+    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+    DBG_OUT_PORT.println(error.c_str());
+  }
+  else
+  {
+    DBG_OUT_PORT.println(buf);
+    rtc_cfg.time_zone       = doc["tzone"];
+    rtc_cfg.auto_corr       = doc["acorr"];
+    rtc_cfg.use_pm          = doc["upm"];
+    rtc_cfg.nm_start        = doc["nmstart"];
+    rtc_cfg.nm_stop         = doc["nmstop"];
+    rtc_cfg.every_hour_beep = doc["ehb"];
+    rtc_cfg.c_type          = doc["srtyp"];
+
+    memset(rtc_cfg.ntp_srv[0], 0, 17);
+    memset(rtc_cfg.ntp_srv[1], 0, 17);
+    memset(rtc_cfg.ntp_srv[2], 0, 17);
+
+    strcpy(rtc_cfg.ntp_srv[0],  doc["antp1"]);
+    strcpy(rtc_cfg.ntp_srv[1],  doc["antp2"]);
+    strcpy(rtc_cfg.ntp_srv[2],  doc["antp3"]);
+
+    conf_f = "/conf_rtc.json";
+    myrtccfg.saveConfig(conf_f, rtc_cfg);
+    server.send(200, "text/html", "OK!");
+    serv_ms = millis();
+  }
 }
 
 //-------------------------------------------------------------- handleSetAlarm
 void handleSetAlarm()
 {
-  //url = '/set_alarm?sanum='+sanum+'&satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
+  char buf[300];
+  memset (buf , 0 , 300);
+  strcpy(buf, server.arg("in").c_str());
 
-  uint8_t alm_num = server.arg("sanum").toInt(); // номер будильника
-  rtc_cfg.alarms[alm_num][0] = server.arg("satyp").toInt();
-  uint8_t val = server.arg("ahour").toInt(); // час
-  rtc_cfg.alarms[alm_num][1] = constrain(val, 0, 23);
-  val = server.arg("amin").toInt(); // минута
-  rtc_cfg.alarms[alm_num][2] = constrain(val, 0, 59);
-  rtc_cfg.alarms[alm_num][3] = server.arg("samel").toInt();
-  rtc_cfg.alarms[alm_num][4] = server.arg("saon").toInt();
+  // Allocate the document on the stack.
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/assistant to compute the capacity.
+  DynamicJsonDocument doc(900);
 
-  if (debug_level == 14)
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, buf);
+  if (error)
   {
-    DBG_OUT_PORT.print(alm_num); DBG_OUT_PORT.print(F(" alarm is...."));
-    for (int n = 0; n < 5; n++)
-    {
-      DBG_OUT_PORT.print(rtc_cfg.alarms[alm_num][n]); DBG_OUT_PORT.print(F(","));
-    }
-    DBG_OUT_PORT.println();
+    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+    DBG_OUT_PORT.println(error.c_str());
   }
+  else
+  {
+    DBG_OUT_PORT.println(buf);
 
-  conf_f = "/conf_rtc.json";
-  myrtccfg.saveConfig(conf_f, rtc_cfg);
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
-  server.send(200, "text/html", "OK!");
-  serv_ms = millis();
+    uint8_t alm_num            = doc["sanum"]; // номер будильника
+    rtc_cfg.alarms[alm_num][0] = doc["satyp"]; // тип будильника
+    rtc_cfg.alarms[alm_num][1] = doc["ahour"]; // час срабатывания будильника
+    rtc_cfg.alarms[alm_num][2] = doc["amin"];  // минута срабатывания будильника
+    rtc_cfg.alarms[alm_num][3] = doc["samel"]; // номер мелодии будильника
+    rtc_cfg.alarms[alm_num][4] = doc["saon"];  // экшн будильника
+
+    if (debug_level == 14)
+    {
+      DBG_OUT_PORT.print(alm_num); DBG_OUT_PORT.print(F(" alarm is...."));
+      for (int n = 0; n < 5; n++)
+      {
+        DBG_OUT_PORT.print(rtc_cfg.alarms[alm_num][n]); DBG_OUT_PORT.print(F(","));
+      }
+      DBG_OUT_PORT.println();
+    }
+
+    conf_f = "/conf_rtc.json";
+    myrtccfg.saveConfig(conf_f, rtc_cfg);
+    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    server.send(200, "text/html", "OK!");
+    serv_ms = millis();
+  }
 }
 
 //-------------------------------------------------------------- handleNTP

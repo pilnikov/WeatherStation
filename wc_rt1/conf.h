@@ -168,7 +168,15 @@
 // ------------------------------------------------------------- Include
 //#include "..\lib\MyLib_Udt\Udt.h"
 
-#include "Udt.h"
+#include <Udt.h>
+#include <myrtc.h>
+#include <Sysfn.h>
+#include <Snd.h>
+#include "Songs.h"
+#include <Snr.h>
+#include <Fdsp.h>
+#include <BH1750.h>
+
 
 #if defined(__AVR_ATmega2560__)
 #include <EEPROM.h>
@@ -229,14 +237,6 @@
   #include "..\lib\MyLib_fdsp\src\Fdsp.h"
   #include "..\lib\BH1750-master\BH1750.h"
 */
-
-#include <myrtc.h>
-#include <Sysfn.h>
-#include <Snd.h>
-#include "Songs.h"
-#include <Snr.h>
-#include <Fdsp.h>
-#include <BH1750.h>
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include <ntp.h>
