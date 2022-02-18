@@ -8,7 +8,7 @@
  
 	<body onload='loadValues();'>
 
-		<table border="1" align='left' class='t'>
+		<table border='1' align='left' class='t'>
 			<tr>
 				<td class='h'></td>
 				<td class='h'>Точка доступа</td>
@@ -25,6 +25,12 @@
 				<td><input type='password' size='20' id='stap' name='stap'/></td>
 			</tr>
 			<tr>
+				<td colspan='3' class='h'><button onclick='set_wifi();'>Записать</button></td>
+			</tr>
+			<tr>
+			  <td colspan='3'></td>
+			</tr>
+      <tr>
 				<td class='h'>Выходы</td>
 				<td class='h'>1</td>
 				<td class='h'>2</td>
@@ -71,7 +77,7 @@
 				<td><output id='cur_br' name='cur_br'></output></td>
 			</tr>
 			<tr>
-				<td colspan='3' class='h'><input type='submit' value='Записать' onclick='set_wifi();' /></td>
+				<td colspan='3' class='h'><button onclick='set_par();'>Записать</button></td>
 			</tr>
 			<tr>
 				<td colspan='3'><a href='/update'>Обновление прошивки</a></td>

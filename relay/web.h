@@ -6,12 +6,15 @@ void start_serv();
 void  stop_serv();
 
 void handleSET_1();
-void handleRESET_1();
-void handleSET_1();
-void handleRESET_1();
-void handlejWiFi();
+void handleAuto_1();
+void handleSET_2();
+void handleAuto_2();
 void handleSetWiFi();
-
+void handleSetPar();
+void handlejWiFi();
+void handlejPar();
+void handlejAct();
+void handleExit();
 
 String getContentType(String filename);
 bool handleFileRead(String path);
@@ -20,4 +23,5 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 
+File fsUploadFile;
 # endif

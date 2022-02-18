@@ -5,8 +5,11 @@
 #define FW_Ver 1.0 //11.01.22 added udp debug console
 
 // ------------------------------------------------------------- Include
-
-#include <WiFiClient.h>
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
 
 #if defined(ESP8266)
 #include <ESP8266mDNS.h>
@@ -25,9 +28,7 @@
 #include <esp_task_wdt.h>
 #endif
 
-#include <my_wifi.h>
-
-#define ARDUINOJSON_USE_LONG_LONG 1
+#include <WiFiClient.h>
 #include <pgmspace.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
@@ -38,9 +39,25 @@
 #include <LittleFS.h>
 #include <ArduinoOTA.h>
 
+#include <my_wifi.h>
+#include <BH1750.h>
+#include <My_LFS.h>
+
+#include "cfg.h"
 #include "web.h"
 
+// ----------------------------------- Typedef
+#ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
+#endif
+
+#ifndef debug_level
+#define debug_level 0
+#endif
+
+#define ARDUINOJSON_USE_LONG_LONG 1
+
+// ----------------------------------- Constructors
 
 #if defined(ESP8266)
 static ESP8266WebServer server(80);
@@ -51,44 +68,20 @@ static WebServer server(80);
 static HTTPUpdateServer httpUpdater;
 #endif
 
-#include <Wire.h>
-#include <BH1750.h>
-
-// ----------------------------------- Constructor
+BH1750 lightMeter;
+CFG main_cfg;
 WF wifi;
+WFJS wifi_cfg;
+LFS lfs;
 
-// ----------------------------------- Typedef
-typedef struct
-{
-  uint8_t
-  str1_on = 10,
-  str1_off = 20,
-  str2_on = 30,
-  str2_off = 40,
-  pin1 = 11,
-  pin2 = 12,
-  lim_l = 128,
-  lim_h = 128;
-} conf_data_t;
+// ----------------------------------- Variable
 
 conf_data_t conf_data;
 wifi_cfg_data_t wifi_data;
 wifi_cur_data_t wifi_data_cur;
 
-// ----------------------------------- Force define func name
-void printFile(const char*);
-void fs_setup();
-conf_data_t loadConfig(const char*);
-void saveConfig(const char*, conf_data_t);
-conf_data_t defaultConfig();
-
-uint8_t selector (uint8_t);
-bool start_client();
-void stop_client();
-
-const char *conf_f = "/config.json";  // config file name
-
-BH1750 lightMeter;
+const char *conf_f = "/conf_main.json";  // config file name
+String from_client = String();
 
 bool pin1_t   = false;
 bool pin2_t   = false;
@@ -100,7 +93,5 @@ bool bumpless = false;
 uint8_t ft = 0;
 
 static unsigned long setting_ms;
-
-File fsUploadFile;
 
 #endif /* conf_h */

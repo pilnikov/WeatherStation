@@ -72,7 +72,6 @@ void stop_serv()
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
-  DBG_OUT_PORT.println(wifi_data.sta_ip2);
   from_client = wifi_cfg.to_json(wifi_data);
   server.send(200, "text/json", from_client);
 }
@@ -101,8 +100,9 @@ void handleSetIp2()
 //-------------------------------------------------------------- handleEndSetWiFi
 void handleEndSetWiFi()
 {
-  DBG_OUT_PORT.println(from_client);
-  save_data_req = true;
+  from_client.replace("}{", ",");
+  lfs.writeFile(conf_f, from_client.c_str());
+  wifi_data = wifi_cfg.from_json(from_client);
   server.send(200, "text/html", "OK!");
 }
 
@@ -250,73 +250,4 @@ String getContentType(String filename)
   else if (filename.endsWith(".zip")) return "application/x-zip";
   else if (filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
-}
-
-
-void fs_setup()
-{
-#if defined(ESP8266)
-  if (!LittleFS.begin())
-  {
-    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    LittleFS.format();
-  }
-  else
-  {
-    Dir dir = LittleFS.openDir("/");
-    while (dir.next())
-    {
-      String fileName = dir.fileName();
-      size_t fileSize = dir.fileSize();
-      DBG_OUT_PORT.printf(" FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
-    }
-  }
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-  if (!LittleFS.begin())
-  {
-    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    LittleFS.format();
-  }
-  else
-  {
-    File root = LittleFS.open("/");
-
-    String output = "[";
-    if (root.isDirectory()) {
-      File file = root.openNextFile();
-      while (file) {
-        if (output != "[") output += ',';
-        output += "{\"type\":\"";
-        output += (file.isDirectory()) ? "dir" : "file";
-        output += "\",\"name\":\"";
-        output += String(file.name());
-        output += "\"}";
-        file = root.openNextFile();
-      }
-      DBG_OUT_PORT.println(output);
-    }
-  }
-# endif
-}
-
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-void hard_restart()
-{
-  esp_task_wdt_init(1, true);
-  esp_task_wdt_add(NULL);
-  while (true);
-}
-#endif
-
-String formatBytes(uint32_t bytes)
-{
-  if (bytes < 1024) {
-    return String(bytes) + "B";
-  } else if (bytes < (1024 * 1024)) {
-    return String(bytes / 1024.0) + "KB";
-  } else if (bytes < (1024 * 1024 * 1024)) {
-    return String(bytes / 1024.0 / 1024.0) + "MB";
-  } else {
-    return String(bytes / 1024.0 / 1024.0 / 1024.0) + "GB";
-  }
 }

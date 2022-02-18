@@ -18,9 +18,7 @@
 
 #define ARDUINOJSON_USE_LONG_LONG 1
 
-#include <pgmspace.h>
 #include <ArduinoJson.h>
-#include <LittleFS.h>
 
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
@@ -79,16 +77,24 @@ class WF
 {
   public:
     void
-    saveConfig(const char *, wifi_cfg_data_t),
     end(wifi_cur_data_t),
 	_shutdown();
 
-    wifi_cfg_data_t
-    loadConfig(const char*),
-    defaultConfig();
-	
 	wifi_cur_data_t
 	begin(wifi_cfg_data_t);
+  private:
+  protected:
+};
+
+class WFJS
+{
+  public:
+    String
+    to_json(wifi_cfg_data_t);
+
+    wifi_cfg_data_t
+    from_json(String),
+    def_conf();
   private:
   protected:
 };

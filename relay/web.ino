@@ -6,7 +6,10 @@ void web_setup()
   server.on("/q2_set",  handleSET_2);
   server.on("/q2_auto", handleAuto_2);
   server.on("/set_wifi", handleSetWiFi);
+  server.on("/set_par", handleSetPar);
   server.on("/jwifi", handlejWiFi);
+  server.on("/jpar", handlejPar);
+  server.on("/jact", handlejAct);
   server.on("/exit", handleExit);
 
   //-------------------------------------------------------------- for LittleFS
@@ -148,24 +151,44 @@ void handleAuto_2()
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
-  DynamicJsonDocument jsonBuffer(512);
+  from_client = wifi_cfg.to_json(wifi_data);
+  server.send(200, "text/json", from_client);
+}
+
+//-------------------------------------------------------------- handlejPar
+void handlejPar()
+{
+  from_client = main_cfg.to_json(conf_data);
+  server.send(200, "text/json", from_client);
+}
+//-------------------------------------------------------------- handleSetWiFi
+void handleSetWiFi()
+{
+  from_client = server.arg("in");
+  from_client.replace("}{", ",");
+  conf_f = "/conf_wifi.json";
+  lfs.writeFile(conf_f, from_client.c_str());
+  wifi_data = wifi_cfg.from_json(from_client);
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handleSetPar
+void handleSetPar()
+{
+  from_client = server.arg("in");
+  from_client.replace("}{", ",");
+  conf_f = "/conf_main.json";
+  lfs.writeFile(conf_f, from_client.c_str());
+  conf_data = main_cfg.from_json(from_client);
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handlejAct
+void handlejAct()
+{
+  from_client = String();
+  DynamicJsonDocument jsonBuffer(200);
   JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["apid"]   = wifi_data.ap_ssid;
-  json["appas"]  = wifi_data.ap_pass;
-  json["staid"]  = wifi_data.sta_ssid1;
-  json["stapas"] = wifi_data.sta_pass1;
-
-  json["pin1_name"] = conf_data.pin1;
-  json["pin2_name"] = conf_data.pin2;
-
-  json["on1_code"] = conf_data.str1_on;
-  json["off1_code"] = conf_data.str1_off;
-  json["on2_code"] = conf_data.str2_on;
-  json["off2_code"] = conf_data.str2_off;
-
-  json["lim_l"] = conf_data.lim_l;
-  json["lim_h"] = conf_data.lim_h;
 
   json["out1_auto"] = pin1_a;
   json["out2_auto"] = pin2_a;
@@ -175,106 +198,11 @@ void handlejWiFi()
 
   json["ana_code"] = ft;
 
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  if (serializeJson(jsonBuffer, from_client) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
-  server.send(200, "text/json", st);
-  st = String();
+  server.send(200, "text/json", from_client);
 }
 
-//-------------------------------------------------------------- handleSetWiFi
-void handleSetWiFi()
-{
-  //url='/set_wifi?as='+as+'&ap='+ap+'&ss='+ss+'&sp='+sp+
-  //'&p1='+p1+'&p2='+p2'+'&on1='+on1+'&of1='+of1+'&on2='+on2+'&of2='+of2+'&ll='+ll+'&lh='+lh;
-
-  /*
-    strcpy(wifi_data.ap_ssid, server.arg("as").c_str());
-    strcpy(wifi_data.ap_pass, server.arg("ap").c_str());
-    strcpy(wifi_data.sta_ssid1, server.arg("ss").c_str());
-    strcpy(wifi_data.sta_pass1, server.arg("sp").c_str());
-
-    uint8_t __pin = constrain(server.arg("p1").toInt(), 0, 255);
-    conf_data.pin1 = selector(__pin);
-    __pin = constrain(server.arg("p2").toInt(), 0, 255);
-    conf_data.pin2 = selector(__pin);
-
-    conf_data.str1_on  = constrain(server.arg("on1").toInt(), 0, 255);
-    conf_data.str1_off = constrain(server.arg("of1").toInt(), 0, 255);
-
-    conf_data.str2_on  = constrain(server.arg("on2").toInt(), 0, 255);
-    conf_data.str2_off = constrain(server.arg("of2").toInt(), 0, 255);
-
-    conf_data.lim_l = constrain(server.arg("ll").toInt(), 0, 255);
-    conf_data.lim_h = constrain(server.arg("lh").toInt(), 0, 255);
-  */
-  char buf[255];
-  memset (buf , 0 , 255);
-  strcpy(buf, server.arg("in").c_str());
-
-  // Allocate the document on the stack.
-  // Don't forget to change the capacity to match your requirements.
-  // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument doc(1000);
-
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(doc, buf);
-  if (error)
-  {
-    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
-    DBG_OUT_PORT.println(error.c_str());
-  }
-  else
-  {
-    DBG_OUT_PORT.println(F("Read sucsses!!!"));
-
-    memset(wifi_data.ap_ssid,   0, 20);
-    memset(wifi_data.ap_pass,   0, 20);
-
-    memset(wifi_data.sta_ssid1, 0, 20);
-    memset(wifi_data.sta_pass1, 0, 20);
-
-    strcpy(wifi_data.ap_ssid,  doc["as"]);
-    strcpy(wifi_data.ap_pass , doc["ap"]);
-
-    strcpy(wifi_data.sta_ssid1, doc["ss"]);
-    strcpy(wifi_data.sta_pass1, doc["sp"]);
-
-
-    uint8_t __pin = doc["p1"];
-    conf_data.pin1 = selector(__pin);
-    __pin = doc["p2"];
-    conf_data.pin2 = selector(__pin);
-
-    conf_data.str1_on  = doc["on1"];
-    conf_data.str1_off = doc["of1"];
-
-    conf_data.str2_on  = doc["on2"];
-    conf_data.str2_off = doc["of2"];
-
-    conf_data.lim_l = doc["ll"];
-    conf_data.lim_h = doc["lh"];
-  }
-
-  conf_f = "/conf_wifi.json";
-  wifi.saveConfig(conf_f, wifi_data);
-
-  conf_f = "/conf_main.json";
-  saveConfig(conf_f, conf_data);
-  server.send(200, "text/html", "OK!");
-}
-
-uint8_t selector (uint8_t _pin)
-{
-  const uint8_t gpio[6] = {0, 2, 12, 13, 14, 15};
-  bool valid = false;
-  for (uint8_t i = 0; i < 6; i++)
-  {
-    if (_pin == gpio[i]) valid = true;
-  }
-  if (!valid) _pin = 255;
-  return _pin;
-}
 
 //-------------------------------------------------------------- handleExit
 void handleExit()

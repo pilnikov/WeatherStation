@@ -1,47 +1,28 @@
 #include "my_wifi.h"
 
 
-wifi_cfg_data_t WF::loadConfig(const char *filename)
+wifi_cfg_data_t WFJS::from_json(String message)
 {
   wifi_cfg_data_t _data;
 
-  File file = LittleFS.open(filename, "r");
-
-  if (!file)
-  {
-    DBG_OUT_PORT.print(F("Failed to open "));
-    DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(". Using default configuration!!!"));
-    _data = defaultConfig();
-    saveConfig(filename, _data);
-  }
-  else
-  {
     // Allocate the document on the stack.
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/assistant to compute the capacity.
-    DynamicJsonDocument doc(1000);
+    DynamicJsonDocument doc(3000);
 
     // Deserialize the JSON document
-    DeserializationError error = deserializeJson(doc, file);
+    DeserializationError error = deserializeJson(doc, message);
     if (error)
     {
-      DBG_OUT_PORT.print(F("deserializeJson() for"));
-      DBG_OUT_PORT.print(filename);
-      DBG_OUT_PORT.print(F(" failed: "));
+      DBG_OUT_PORT.print(F("deserializeJson() failed: "));
       DBG_OUT_PORT.println(error.c_str());
       DBG_OUT_PORT.println(F(". Using default configuration!!!"));
-      _data = defaultConfig();
-      saveConfig(filename, _data);
+      _data = def_conf();
       return _data;
-    }
-    file.close();
-
-    if (!error)
+	}
+	else
     {
-      DBG_OUT_PORT.print(F("Read "));
-      DBG_OUT_PORT.print(filename);
-      DBG_OUT_PORT.println(F(" sucsses!!!"));
+      DBG_OUT_PORT.println(F("Read msg sucsses!!!"));
 
       memset(_data.ap_ssid,   0, 20);
       memset(_data.ap_pass,   0, 20);
@@ -67,60 +48,49 @@ wifi_cfg_data_t WF::loadConfig(const char *filename)
       memset(_data.sta_dns12, 0, 17);
       memset(_data.sta_dns22, 0, 17);
 
-      strcpy(_data.ap_ssid,  doc["apid"]);
-      strcpy(_data.ap_pass , doc["appas"]);
+      strcpy(_data.ap_ssid,  doc["as"] | "N/A");
+      strcpy(_data.ap_pass , doc["ap"] | "N/A");
 
-      strcpy(_data.sta_ssid1, doc["staid1"]);
-      strcpy(_data.sta_pass1, doc["stapas1"]);
+      strcpy(_data.ap_ip, doc["iap"] | "N/A");
+      strcpy(_data.ap_ma, doc["map"] | "N/A");
 
-      strcpy(_data.sta_ssid2, doc["staid2"]);
-      strcpy(_data.sta_pass2, doc["stapas2"]);
+      strcpy(_data.sta_ssid1, doc["ss1"] | "N/A");
+      strcpy(_data.sta_pass1, doc["sp1"] | "N/A");
 
-      strcpy(_data.ap_ip, doc["iap"]);
-      strcpy(_data.ap_ma, doc["map"]);
+      strcpy(_data.sta_ssid2, doc["ss2"] | "N/A");
+      strcpy(_data.sta_pass2, doc["sp2"] | "N/A");
 
-      _data.st_ip1            = doc["sst1"];
-      _data.st_ip2            = doc["sst2"];
+
+      _data.st_ip1            = doc["st1"];
+      _data.st_ip2            = doc["st2"];
+
+      _data.wifi_off          = doc["wof"];
+
       if (_data.st_ip1)
       {
-
-        strcpy(_data.sta_ip1, doc["ipst1"]);
-        strcpy(_data.sta_ma1, doc["mast1"]);
-        strcpy(_data.sta_gw1, doc["gwst1"]);
-        strcpy(_data.sta_dns11, doc["dns1st1"]);
-        strcpy(_data.sta_dns21, doc["dns2st1"]);
+        strcpy(_data.sta_ip1, doc["ip1"] | "N/A");
+        strcpy(_data.sta_ma1, doc["ma1"] | "N/A");
+        strcpy(_data.sta_gw1, doc["gw1"] | "N/A");
+        strcpy(_data.sta_dns11, doc["d11"] | "N/A");
+        strcpy(_data.sta_dns21, doc["d21"] | "N/A");
       }
       if (_data.st_ip2)
       {
-
-        strcpy(_data.sta_ip2, doc["ipst2"]);
-        strcpy(_data.sta_ma2, doc["mast2"]);
-        strcpy(_data.sta_gw2, doc["gwst2"]);
-        strcpy(_data.sta_dns12, doc["dns1st2"]);
-        strcpy(_data.sta_dns22, doc["dns2st2"]);
+        strcpy(_data.sta_ip2, doc["ip2"] | "N/A");
+        strcpy(_data.sta_ma2, doc["ma2"] | "N/A");
+        strcpy(_data.sta_gw2, doc["gw2"] | "N/A");
+        strcpy(_data.sta_dns12, doc["d12"] | "N/A");
+        strcpy(_data.sta_dns22, doc["d22"] | "N/A");
       }
-      _data.wifi_off          = doc["wof"];
+	 return _data;
     }
-    else
-    {
-      DBG_OUT_PORT.print(F("deserializeJson() failed: "));
-      DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.print(F("Failed to read "));
-      DBG_OUT_PORT.print(filename);
-      DBG_OUT_PORT.println(F(" - Using default configuration!!!"));
-      _data = defaultConfig();
-      saveConfig(filename, _data);
-    }
-  }
-  return _data;
 }
 
-void WF::saveConfig(const char * filename, wifi_cfg_data_t _data)
+String WFJS::to_json(wifi_cfg_data_t _data)
 {
   if (debug_level == 3)
   {
-    DBG_OUT_PORT.print(F("Start saving wifi_cfg_data to "));
-    DBG_OUT_PORT.println(filename);
+    DBG_OUT_PORT.print(F("Start forming wifi_cfg_data to json string"));
   }
 
   if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "Radio_Clock");
@@ -128,64 +98,47 @@ void WF::saveConfig(const char * filename, wifi_cfg_data_t _data)
   DynamicJsonDocument doc(1000);
   JsonObject json = doc.to<JsonObject>();
 
-  json["apid"]    = _data.ap_ssid;
-  json["appas"]   = _data.ap_pass;
-  json["staid1"]  = _data.sta_ssid1;
-  json["staid2"]  = _data.sta_ssid2;
-  json["stapas1"] = _data.sta_pass1;
-  json["stapas2"] = _data.sta_pass2;
+  json["as"]  = _data.ap_ssid;
+  json["ap"]  = _data.ap_pass;
+  json["ss1"] = _data.sta_ssid1;
+  json["ss2"] = _data.sta_ssid2;
+  json["sp1"] = _data.sta_pass1;
+  json["sp2"] = _data.sta_pass2;
 
-  json["iap"]     = _data.ap_ip;
-  json["map"]     = _data.ap_ma;
+  json["iap"] = _data.ap_ip;
+  json["map"] = _data.ap_ma;
 
-  json["sst1"]  = _data.st_ip1;
-  json["sst2"]  = _data.st_ip2;
+  json["st1"] = _data.st_ip1;
+  json["st2"] = _data.st_ip2;
+
+  json["wof"] = _data.wifi_off;
 
   if (_data.st_ip1)
   {
-    json["ipst1"]   = _data.sta_ip1;
-    json["mast1"]   = _data.sta_ma1;
-    json["gwst1"]   = _data.sta_gw1;
-    json["dns1st1"] = _data.sta_dns11;
-    json["dns2st1"] = _data.sta_dns21;
+    json["ip1"] = _data.sta_ip1;
+    json["ma1"] = _data.sta_ma1;
+    json["gw1"] = _data.sta_gw1;
+    json["d11"] = _data.sta_dns11;
+    json["d21"] = _data.sta_dns21;
   }
   if (_data.st_ip2)
   {
-    json["ipst2"]   = _data.sta_ip2;
-    json["mast2"]   = _data.sta_ma2;
-    json["gwst2"]   = _data.sta_gw2;
-    json["dns1st2"] = _data.sta_dns12;
-    json["dns2st2"] = _data.sta_dns22;
+    json["ip2"] = _data.sta_ip2;
+    json["ma2"] = _data.sta_ma2;
+    json["gw2"] = _data.sta_gw2;
+    json["d12"] = _data.sta_dns12;
+    json["d22"] = _data.sta_dns22;
   }
-  json["wof"]       = _data.wifi_off;
-
-  // Delete existing file, otherwise the configuration is appended to the file
-  LittleFS.remove(filename);
-  File configFile = LittleFS.open(filename, "w"); //Open config file for writing
-  if (!configFile)
-  {
-    DBG_OUT_PORT.print(F("Failed open "));
-    DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(" for writing"));
-    return;
-  }
-  if (serializeJson(doc, configFile) == 0)
-  {
-    DBG_OUT_PORT.print(F("Failed write to "));
-    DBG_OUT_PORT.println(filename);
-    return;
-  }
-  DBG_OUT_PORT.print(F("End write buffer to "));
-  DBG_OUT_PORT.println(filename);
-  configFile.close();
+  String msg = String();
+  if (serializeJson(doc, msg) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  return msg;
 }
 
-wifi_cfg_data_t WF::defaultConfig()
+wifi_cfg_data_t WFJS::def_conf()
 {
   wifi_cfg_data_t _data;
 
   // ---------------------------------------------------- WiFi Default
-
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital wifi_cfg_data"));
 
   memset(_data.ap_ssid,   0, 20);
@@ -212,7 +165,7 @@ wifi_cfg_data_t WF::defaultConfig()
   memset(_data.sta_dns12, 0, 17);
   memset(_data.sta_dns22, 0, 17);
 
-  strcpy(_data.ap_ssid,   "Radio_Clock");
+  strcpy(_data.ap_ssid,   "MyWiFi_AP");
   strcpy(_data.ap_pass ,  "12345678");
 
   strcpy(_data.sta_ssid1,  "MyWiFi_1");

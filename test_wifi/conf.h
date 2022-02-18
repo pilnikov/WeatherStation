@@ -38,10 +38,10 @@
 
 #include <my_wifi.h>
 #include <WiFiUdp.h>
-#include <LittleFS.h>
 #include <ArduinoOTA.h>
 
 #include "web.h"
+#include <My_LFS.h>
 
 // ----------------------------------- Web server
 #if defined(ESP8266)
@@ -70,6 +70,7 @@ String from_client = String();
 
 WF wifi;
 WFJS wifi_cfg;
+LFS lfs;
 
 wifi_cfg_data_t wifi_data;
 wifi_cur_data_t wifi_data_cur;
