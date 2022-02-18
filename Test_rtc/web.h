@@ -12,19 +12,9 @@ void handlejWiFi();
 void handleSetWiFi();
 void handleSetIp1();
 void handleSetIp2();
-
-void handlejPard();
-void handlejPars();
-void handlejParc();
-void handlejAlarm();
-void handleSetFont();
-void handleSetAlarm();
-void handlejUart();
-void handlejTrm();
-void handleSetPartrm();
+void handleEndSetWiFi();
 
 void handlejActA();
-void handlejActB();
 void handlejActT();
 
 String getContentType(String filename);

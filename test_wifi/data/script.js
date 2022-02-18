@@ -4,7 +4,7 @@ let nIntervId;
 let sti = 0;
 
 
-///-----------------------------------------------------------------------------WiFi.htm
+//-----------------------------------------------------------------------------WiFi.htm
 			function loadVal_WiFi()
 			{
 				let url = '/jwifi';
@@ -189,70 +189,62 @@ let sti = 0;
 			}
 
 			function set_wifi2()
-    	{
-    		var ip = document.getElementById('ipst2').value;
-    		var ma = document.getElementById('mast2').value;
-    		var gw = document.getElementById('gwst2').value;
-    		var d1 = document.getElementById('dns1st2').value;
-    		var d2 = document.getElementById('dns2st2').value;
-    
-    	  var urlc  = {
-                      ip2: ip,
-                      ma2: ma,
-                      gw2: gw,
-                      d12: d1,
-                      d22: d2
-                    };
-    
-			  var url = '/set_ip2?in=' + JSON.stringify(urlc);
-        
-  			if (req_done)
-  			{
-    		  req_done = false;
-    		  var xh = new XMLHttpRequest();
-    			xh.open('GET', url, true);
-      		xh.send(null);
-     			xh.onreadystatechange = function()
-    			{
-      			if (this.readyState == 4 && this.status == 200)
-      			{
-      			  req_done = true;
-      			  set_wifi_end();
-      			}
-    			};
-        }
+			{
+				var ip = document.getElementById('ipst2').value;
+				var ma = document.getElementById('mast2').value;
+				var gw = document.getElementById('gwst2').value;
+				var d1 = document.getElementById('dns1st2').value;
+				var d2 = document.getElementById('dns2st2').value;
+		
+				var urlc  = {
+							  ip2: ip,
+							  ma2: ma,
+							  gw2: gw,
+							  d12: d1,
+							  d22: d2
+							};
+		
+				var url = '/set_ip2?in=' + JSON.stringify(urlc);
+			
+				if (req_done)
+				{
+					req_done = false;
+					var xh = new XMLHttpRequest();
+					xh.open('GET', url, true);
+					xh.send(null);
+					xh.onreadystatechange = function()
+					{
+						if (this.readyState == 4 && this.status == 200)
+						{
+							req_done = true;
+							set_wifi_end();
+						}
+					};
+				}
 			}
-				
 
 			function set_wifi_end()
 			{
-        url = '/end_set_wifi';
+				url = '/end_set_wifi';
 
-  			if (req_done)
-  			{
-    		  req_done = false;
-    		  xh = new XMLHttpRequest();
-    			xh.open('GET', url, true);
-      		xh.send(null);
-     			xh.onreadystatechange = function()
-    			{
-      			if (this.readyState == 4 && this.status == 200) 
-      			{
-      			  req_done = true;
-      			  loadVal_WiFi();
-      			}
-    			};
-        }
+				if (req_done)
+				{
+					req_done = false;
+					xh = new XMLHttpRequest();
+					xh.open('GET', url, true);
+					xh.send(null);
+					xh.onreadystatechange = function()
+					{
+						if (this.readyState == 4 && this.status == 200) 
+						{
+							req_done = true;
+							loadVal_WiFi();
+						}
+					};
+				}
 			}
 
 //------------------------------------------------------------------------------Common
-			function process() 
-			{
-			  req_done = true;
-			}
-			
-			
-			
 			function showHide(element_id, visible) 
 			{
 				if (document.getElementById(element_id)) //Если элемент с id-шником element_id существует 
@@ -262,6 +254,11 @@ let sti = 0;
 					else obj.style.display = "none"; //Скрываем элемент
 				}
 				else alert("Элемент с id: " + element_id + " не найден!"); //Если элемент с id-шником element_id не найден, то выводим сообщение
+			}   
+
+			function process() 
+			{
+			  req_done = true;
 			}
-			
-		  nIntervId = setInterval(process, 500);
+	
+			nIntervId = setInterval(process, 500);

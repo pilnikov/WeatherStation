@@ -109,15 +109,15 @@ typedef struct
   al2_on    = false;      // Будильник 2 активен
 } rtc_alm_data_t;
 
-class CfgCT
+class RTCJS
 {
   public:
-	void 
-	saveConfig(const char*, rtc_cfg_data_t);
-	
-	rtc_cfg_data_t
-	loadConfig(const char*),
-	defaultConfig();
+    String
+    to_json(rtc_cfg_data_t);
+
+    rtc_cfg_data_t
+    from_json(String),
+    def_conf();
   private:
   protected:
 };

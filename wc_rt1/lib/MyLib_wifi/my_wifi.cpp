@@ -84,14 +84,8 @@ wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
     if (_data.st_ip1)
     {
       // Configures static IP address
-      if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))   
-	  {
-		  DBG_OUT_PORT.print(c_data.ssid);
-		  DBG_OUT_PORT.println(F(" failed to configure for static, use DHCP"));
-		  WiFi.config(0u, 0u, 0u);
-	  }
+      if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))   DBG_OUT_PORT.println("STA1 Failed to configure");
     }
-	else WiFi.config(0u, 0u, 0u);
 
     if (!WiFi.mode(WIFI_STA) || !WiFi.begin(c_data.ssid, _data.sta_pass1) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
     {
@@ -117,14 +111,8 @@ wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
       if (_data.st_ip2)
       {
         // Configures static IP address
-		if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))   
-		{
-			  DBG_OUT_PORT.print(c_data.ssid);
-			  DBG_OUT_PORT.println(F(" failed to configure for static, use DHCP"));
-			  WiFi.config(0u, 0u, 0u);
-		}
-	  }
-	  else WiFi.config(0u, 0u, 0u);
+        if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))   DBG_OUT_PORT.println("STA2 Failed to configure");
+      }
 
       if (!WiFi.mode(WIFI_STA) || !WiFi.begin(c_data.ssid, _data.sta_pass2) || (WiFi.waitForConnectResult(10000) != WL_CONNECTED))
       {
@@ -143,12 +131,8 @@ wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
         
         WiFi.mode(WIFI_AP);
 
-        if (!WiFi.softAPConfig(local_IP, gateway, subnet))
-		{
-			  DBG_OUT_PORT.print(c_data.ssid);
-			  DBG_OUT_PORT.println(F(" failed to configure, use default 192.168.4.1"));
-			  WiFi.softAPConfig(0u, 0u, 0u);
-		}
+        if (!WiFi.softAPConfig(local_IP, gateway, subnet))  DBG_OUT_PORT.println("AP Config Failed");
+
         WiFi.softAP(c_data.ssid, _data.ap_pass);
 
         c_data.addr = WiFi.softAPIP();

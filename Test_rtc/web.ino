@@ -9,12 +9,12 @@ void web_setup()
   server.on("/set_wifi",  handleSetWiFi);
   server.on("/set_ip1",   handleSetIp1);
   server.on("/set_ip2",   handleSetIp2);
+  server.on("/end_set_wifi",  handleEndSetWiFi);
   server.on("/exit",      handleExit);
   server.on("/jactt",     handlejActT);
   server.on("/jacta",     handlejActA);
   server.on("/jtime1",    handlejTime1);
   server.on("/jtime2",    handlejTime2);
-  server.on("/jalarm",    handlejAlarm);
   server.on("/jwifi",     handlejWiFi);
 
   //-------------------------------------------------------------- for LittleFS
@@ -51,7 +51,6 @@ void start_serv()
   if (!wifi_data_cur.cli & !wifi_data_cur.ap)
   {
     wifi_data_cur = wifi.begin(wifi_data);
-    myIP = wifi_data_cur.addr;
   }
 
   if (wifi_data_cur.cli || wifi_data_cur.ap)
@@ -100,69 +99,10 @@ void handlejTime1()
 //-------------------------------------------------------------- handlejTime2
 void handlejTime2()
 {
-  DynamicJsonDocument jsonBuffer(512);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["tzon"]  = rtc_cfg.time_zone;
-  json["acor"]  = rtc_cfg.auto_corr;
-  json["uspm"]  = rtc_cfg.use_pm;
-  json["nstr"]  = rtc_cfg.nm_start;
-  json["nend"]  = rtc_cfg.nm_stop;
-  json["evhb"]  = rtc_cfg.every_hour_beep;
-  json["trts"]  = rtc_cfg.c_type;
-  json["antp1"] = rtc_cfg.ntp_srv[0];
-  json["antp2"] = rtc_cfg.ntp_srv[1];
-  json["antp3"] = rtc_cfg.ntp_srv[2];
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
+  from_client = myrtccfg.to_json(rtc_cfg);
+  server.send(200, "text/json", from_client);
 }
 
-//-------------------------------------------------------------- handlejAlarm
-void handlejAlarm()
-{
-  DynamicJsonDocument jsonBuffer(700);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  DynamicJsonDocument doc2(700);
-  JsonObject json2 = doc2.to<JsonObject>();
-
-  JsonArray al0 = json2.createNestedArray("0");
-  JsonArray al1 = json2.createNestedArray("1");
-  JsonArray al2 = json2.createNestedArray("2");
-  JsonArray al3 = json2.createNestedArray("3");
-  JsonArray al4 = json2.createNestedArray("4");
-  JsonArray al5 = json2.createNestedArray("5");
-  JsonArray al6 = json2.createNestedArray("6");
-  for (uint8_t j = 0; j <= 4; j++)
-  {
-    al0.add(rtc_cfg.alarms[0][j]);
-    al1.add(rtc_cfg.alarms[1][j]);
-    al2.add(rtc_cfg.alarms[2][j]);
-    al3.add(rtc_cfg.alarms[3][j]);
-    al4.add(rtc_cfg.alarms[4][j]);
-    al5.add(rtc_cfg.alarms[5][j]);
-    al6.add(rtc_cfg.alarms[6][j]);
-  }
-
-  JsonObject alarms = json.createNestedObject("al");
-  alarms["0"] = al0;
-  alarms["1"] = al1;
-  alarms["2"] = al2;
-  alarms["3"] = al3;
-  alarms["4"] = al4;
-  alarms["5"] = al5;
-  alarms["6"] = al6;
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
-}
 
 //-------------------------------------------------------------- handleSetTime1
 void handleSetTime1()
@@ -184,29 +124,13 @@ void handleSetTime1()
   rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSetTime2
 void handleSetTime2()
 {
-  //url = '/set_time2?tzone='+tzone+'&acorr='+acorr+'&upm='+upm+'&nmstart='+nmstart+'&nmstop='+nmstop+'&ehb='+ehb+'&srtyp='+srtyp+'&antp1='+antp1+'&antp2='+antp2+'&antp3='+antp3;
-
-  rtc_cfg.time_zone = constrain(server.arg("tzone").toInt(), -12, 12);
-  rtc_cfg.auto_corr = (server.arg("acorr") == "1");
-  rtc_cfg.use_pm = (server.arg("upm") == "1");
-  rtc_cfg.nm_start = constrain(server.arg("nmstart").toInt(), 0, 23);
-  rtc_cfg.nm_stop  = constrain(server.arg("nmstop" ).toInt(), 0, 23);
-  rtc_cfg.every_hour_beep = (server.arg("ehb") == "1");
-  rtc_cfg.c_type = server.arg("srtyp").toInt();
-  strcpy(rtc_cfg.ntp_srv[0], server.arg("antp1").c_str());
-  strcpy(rtc_cfg.ntp_srv[1], server.arg("antp2").c_str());
-  strcpy(rtc_cfg.ntp_srv[2], server.arg("antp3").c_str());
-
-  conf_f = "/conf_rtc.json";
-  myrtccfg.saveConfig(conf_f, rtc_cfg);
+  from_client = server.arg("in");
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 
   rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
 }
@@ -214,32 +138,13 @@ void handleSetTime2()
 //-------------------------------------------------------------- handleSetAlarm
 void handleSetAlarm()
 {
-  //url = '/set_alarm?sanum='+sanum+'&satyp='+satyp+'&ahour='+ahour+'&amin='+amin+'&samel='+samel+'&saon='+saon;
-
-  uint8_t alm_num = server.arg("sanum").toInt(); // номер будильника
-  rtc_cfg.alarms[alm_num][0] = server.arg("satyp").toInt();
-  uint8_t val = server.arg("ahour").toInt(); // час
-  rtc_cfg.alarms[alm_num][1] = constrain(val, 0, 23);
-  val = server.arg("amin").toInt(); // минута
-  rtc_cfg.alarms[alm_num][2] = constrain(val, 0, 59);
-  rtc_cfg.alarms[alm_num][3] = server.arg("samel").toInt();
-  rtc_cfg.alarms[alm_num][4] = server.arg("saon").toInt();
-
-  if (debug_level == 14)
-  {
-    DBG_OUT_PORT.print(alm_num); DBG_OUT_PORT.print(F(" alarm is...."));
-    for (int n = 0; n < 5; n++)
-    {
-      DBG_OUT_PORT.print(rtc_cfg.alarms[alm_num][n]); DBG_OUT_PORT.print(F(","));
-    }
-    DBG_OUT_PORT.println();
-  }
+  from_client += server.arg("in");
+  from_client.replace("}{", ",");
 
   conf_f = "/conf_rtc.json";
-  myrtccfg.saveConfig(conf_f, rtc_cfg);
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+  lfs.writeFile(conf_f, from_client.c_str());
+  rtc_cfg = myrtccfg.from_json(from_client);
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handleNTP
@@ -252,116 +157,46 @@ void handleNTP()
     rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
     rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
   }
-
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
-  DynamicJsonDocument jsonBuffer(512);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["apid"]    = wifi_data.ap_ssid;
-  json["appas"]   = wifi_data.ap_pass;
-  json["staid1"]  = wifi_data.sta_ssid1;
-  json["staid2"]  = wifi_data.sta_ssid2;
-  json["stapas1"] = wifi_data.sta_pass1;
-  json["stapas2"] = wifi_data.sta_pass2;
-
-  json["iap"]   = wifi_data.ap_ip;
-  json["map"]   = wifi_data.ap_ma;
-
-  json["sst1"]    = wifi_data.st_ip1;
-  json["sst2"]    = wifi_data.st_ip2;
-
-  if (wifi_data.st_ip1)
-  {
-    json["ipst1"]   = wifi_data.sta_ip1;
-    json["mast1"]   = wifi_data.sta_ma1;
-    json["gwst1"]   = wifi_data.sta_gw1;
-    json["dns1st1"] = wifi_data.sta_dns11;
-    json["dns2st1"] = wifi_data.sta_dns21;
-  }
-  if (wifi_data.st_ip1)
-  {
-    json["ipst2"]   = wifi_data.sta_ip2;
-    json["mast2"]   = wifi_data.sta_ma2;
-    json["gwst2"]   = wifi_data.sta_gw2;
-    json["dns1st2"] = wifi_data.sta_dns12;
-    json["dns2st2"] = wifi_data.sta_dns22;
-  }
-  json["wof"]    = wifi_data.wifi_off;
-
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
+  from_client = wifi_cfg.to_json(wifi_data);
+  server.send(200, "text/json", from_client);
 }
 
 //-------------------------------------------------------------- handleSetWiFi
 void handleSetWiFi()
 {
-  //url='/set_wifi?as='+as+'&ap='+ap+'&ss1='+ss1+'&sp1='+sp1+'&ss2='+ss2+'&sp2='+sp2+'&st1='+st1+'&st2='+st2+'&iap='+iap+'&map='+map+'&wof='+wof_t;
-
-  strcpy(wifi_data.ap_ssid, server.arg("as").c_str());
-  strcpy(wifi_data.ap_pass, server.arg("ap").c_str());
-  strcpy(wifi_data.sta_ssid1, server.arg("ss1").c_str());
-  strcpy(wifi_data.sta_pass1, server.arg("sp1").c_str());
-  strcpy(wifi_data.sta_ssid2, server.arg("ss2").c_str());
-  strcpy(wifi_data.sta_pass2, server.arg("sp2").c_str());
-
-  wifi_data.st_ip1 = server.arg("st1") == "1";
-  wifi_data.st_ip2 = server.arg("st2") == "1";
-
-  strcpy(wifi_data.ap_ip, server.arg("iap").c_str());
-  strcpy(wifi_data.ap_ma, server.arg("map").c_str());
-
-  wifi_data.wifi_off = server.arg("wof") == "1";
-
-  conf_f = "/conf_wifi.json";
-  wifi.saveConfig(conf_f, wifi_data);
-
+  from_client = server.arg("in");
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSetIp1
 void handleSetIp1()
 {
-  //url='/set_ip1?ip='+ip1+'&ma='+ma1+'&gw='+gw1+'&d1='+d11+'&d2='+d21;
-
-  strcpy(wifi_data.sta_ip1, server.arg("ip").c_str());
-  strcpy(wifi_data.sta_ma1, server.arg("ma").c_str());
-  strcpy(wifi_data.sta_gw1, server.arg("gw").c_str());
-  strcpy(wifi_data.sta_dns11, server.arg("d1").c_str());
-  strcpy(wifi_data.sta_dns21, server.arg("d2").c_str());
-
-  conf_f = "/conf_wifi.json";
-  wifi.saveConfig(conf_f, wifi_data);
-
+  from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSetIp2
 void handleSetIp2()
 {
-  //rl='/set_ip2?ip='+ip2+'&ma='+ma2+'&gw='+gw2+'&d1='+d12+'&d2='+d22;
-
-  strcpy(wifi_data.sta_ip2, server.arg("ip").c_str());
-  strcpy(wifi_data.sta_ma2, server.arg("ma").c_str());
-  strcpy(wifi_data.sta_gw2, server.arg("gw").c_str());
-  strcpy(wifi_data.sta_dns12, server.arg("d1").c_str());
-  strcpy(wifi_data.sta_dns22, server.arg("d2").c_str());
-  conf_f = "/conf_wifi.json";
-  wifi.saveConfig(conf_f, wifi_data);
-
+  from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
+}
+
+//-------------------------------------------------------------- handleEndSetWiFi
+void handleEndSetWiFi()
+{
+  from_client.replace("}{", ",");
+
+  conf_f = "/conf_wifi.json";
+  lfs.writeFile(conf_f, from_client.c_str());
+  wifi_data = wifi_cfg.from_json(from_client);
+  server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handlejActT
@@ -405,7 +240,6 @@ void handleExit()
 //-------------------------------------------------------------- for FS
 bool handleFileRead(String path)
 {
-  serv_ms = millis();
   DBG_OUT_PORT.println("handleFileRead: " + path);
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
@@ -442,7 +276,6 @@ void handleFileUpload()
       fsUploadFile.close();
     DBG_OUT_PORT.printf("handleFileUpload Size: %u\n", upload.totalSize);
   }
-  serv_ms = millis();
 }
 
 void handleFileDelete()
@@ -457,7 +290,6 @@ void handleFileDelete()
   LittleFS.remove(path);
   server.send(200, "text/plain", "");
   path = String();
-  serv_ms = millis();
 }
 
 void handleFileCreate()
@@ -478,14 +310,12 @@ void handleFileCreate()
     return server.send(500, "text/plain", "CREATE FAILED");
   server.send(200, "text/plain", "");
   path = String();
-  serv_ms = millis();
 }
 
 void handleFileList()
 {
   if (!server.hasArg("dir")) {
     server.send(500, "text/plain", "BAD ARGS");
-    serv_ms = millis();
     return;
   }
 
@@ -525,8 +355,6 @@ void handleFileList()
   path = String();
   output += "]";
   server.send(200, "text/json", output);
-
-  serv_ms = millis();
 }
 
 String getContentType(String filename)
@@ -547,52 +375,6 @@ String getContentType(String filename)
   return "text/plain";
 }
 
-void fs_setup()
-{
-#if defined(ESP8266)
-  if (!LittleFS.begin())
-  {
-    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    LittleFS.format();
-  }
-  else
-  {
-    Dir dir = LittleFS.openDir("/");
-    while (dir.next())
-    {
-      String fileName = dir.fileName();
-      size_t fileSize = dir.fileSize();
-      DBG_OUT_PORT.printf(" FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
-    }
-  }
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-  if (!LittleFS.begin())
-  {
-    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    LittleFS.format();
-  }
-  else
-  {
-    File root = LittleFS.open("/");
-
-    String output = "[";
-    if (root.isDirectory()) {
-      File file = root.openNextFile();
-      while (file) {
-        if (output != "[") output += ',';
-        output += "{\"type\":\"";
-        output += (file.isDirectory()) ? "dir" : "file";
-        output += "\",\"name\":\"";
-        output += String(file.name());
-        output += "\"}";
-        file = root.openNextFile();
-      }
-      DBG_OUT_PORT.println(output);
-    }
-  }
-# endif
-}
-
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void hard_restart()
 {
@@ -601,18 +383,5 @@ void hard_restart()
   while (true);
 }
 #endif
-
-String formatBytes(uint32_t bytes)
-{
-  if (bytes < 1024) {
-    return String(bytes) + "B";
-  } else if (bytes < (1024 * 1024)) {
-    return String(bytes / 1024.0) + "KB";
-  } else if (bytes < (1024 * 1024 * 1024)) {
-    return String(bytes / 1024.0 / 1024.0) + "MB";
-  } else {
-    return String(bytes / 1024.0 / 1024.0 / 1024.0) + "GB";
-  }
-}
 
 # endif

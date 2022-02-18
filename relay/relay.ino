@@ -9,7 +9,7 @@ void setup()
 
   //------------------------------------------------------  Инициализируем встроенную файловую систему LittleFS
   lfs.begin();
-  DBG_OUT_PORT.println(F("file system started"));
+  DBG_OUT_PORT.println(F("LittleFS started"));
 
   //------------------------------------------------------  Загружаем основную конфигурацию
   conf_f = "/conf_main.json";
@@ -17,7 +17,8 @@ void setup()
   conf_data = main_cfg.from_json(from_client);
 
   //conf_data = main_cfg.def_conf();
-  DBG_OUT_PORT.println(F("config loaded"));
+  DBG_OUT_PORT.print(conf_f);
+  DBG_OUT_PORT.println(F(" loaded"));
 
   pinMode(conf_data.pin1, OUTPUT);
   pinMode(conf_data.pin2, OUTPUT);
@@ -28,8 +29,6 @@ void setup()
   wifi_data = wifi_cfg.from_json(from_client);
 
   //wifi_data = wifi_cfg.def_conf();
-  //wifi_data.st_ip1 = false;
-  //wifi_data.st_ip2 = false;
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 

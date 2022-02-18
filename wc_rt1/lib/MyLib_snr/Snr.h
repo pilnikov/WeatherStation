@@ -117,15 +117,15 @@ private:
 protected:
 };
 
-class CfgSNR
+class SNRJS
 {
   public:
-	void 
-	saveCfgSnr(const char*, snr_cfg_t);
-	
-	snr_cfg_t
-	loadCfgSnr(const char*),
-	defaultCfgSnr();
+    String
+    to_json(snr_cfg_t);
+
+    snr_cfg_t
+    from_json(String),
+    def_conf();
   private:
   protected:
 };

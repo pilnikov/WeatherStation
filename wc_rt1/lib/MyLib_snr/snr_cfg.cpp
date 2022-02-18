@@ -4,77 +4,47 @@
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
 #define ARDUINOJSON_USE_LONG_LONG 1
-#include <pgmspace.h>
-#include <ArduinoJson.h>
-#include <LittleFS.h>
 
-snr_cfg_t CfgSNR::loadCfgSnr(const char *filename)
+#include <ArduinoJson.h>
+
+
+snr_cfg_t SNRJS::from_json(String message)
 {
   snr_cfg_t _data;
 
-  File file = LittleFS.open(filename, "r");
-
-  if (!file)
-  {
-    DBG_OUT_PORT.print(F("Failed to open "));
-    DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(". Using default configuration!!!"));
-    _data = defaultCfgSnr();
-    saveCfgSnr(filename, _data);
-  }
-  else
-  {
     // Allocate the document on the stack.
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/assistant to compute the capacity.
     DynamicJsonDocument doc(3100);
 
     // Deserialize the JSON document
-    DeserializationError error = deserializeJson(doc, file);
+    DeserializationError error = deserializeJson(doc, message);
     if (error)
-    {
-      DBG_OUT_PORT.print(F("deserializeJson() for "));
-      DBG_OUT_PORT.print(filename);
-      DBG_OUT_PORT.print(F(" failed: "));
-      DBG_OUT_PORT.print(error.c_str());
-      DBG_OUT_PORT.println(F(". Using default configuration!!!"));
-      _data = defaultCfgSnr();
-      saveCfgSnr(filename, _data);
-      return _data;
-    }
-
-    file.close();
-
-    if (!error)
-    {
-      DBG_OUT_PORT.print(F("Read "));
-      DBG_OUT_PORT.print(filename);
-      DBG_OUT_PORT.println(F(" sucsses!!!"));
-      //---Sensor type---------------------------------------
-      _data.type_snr1         = doc["snr1_t"];
-      _data.type_snr2         = doc["snr2_t"];
-      _data.type_snr3         = doc["snr3_t"];
-      _data.type_snrp         = doc["snrp_t"];
-    }
-    else
     {
       DBG_OUT_PORT.print(F("deserializeJson() failed: "));
       DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.print(F("Failed to read "));
-      DBG_OUT_PORT.print(filename);
-      DBG_OUT_PORT.println(F(" - Using default configuration!!!"));
-      _data = defaultCfgSnr();
-      saveCfgSnr(filename, _data);
+      DBG_OUT_PORT.println(F(". Using default configuration!!!"));
+      _data = def_conf();
+      return _data;
     }
-  }
-  return _data;
+	else
+	{
+      DBG_OUT_PORT.println(F("Read msg sucsses!!!"));
+
+      //---Sensor type---------------------------------------
+      _data.type_snr1         = doc["s1_t"];
+      _data.type_snr2         = doc["s2_t"];
+      _data.type_snr3         = doc["s3_t"];
+      _data.type_snrp         = doc["sp_t"];
+    }
+	return _data;
 }
-void CfgSNR::saveCfgSnr(const char *filename, snr_cfg_t _data)
+
+String SNRJS::to_json(snr_cfg_t _data)
 {
   if (debug_level == 3)
   {
-    DBG_OUT_PORT.print(F("Start saving snr_cfg_data to "));
-    DBG_OUT_PORT.println(filename);
+    DBG_OUT_PORT.print(F("Start forming snr_cfg_data to json string"));
   }
 
   if ( _data.type_snr1    < 0  || _data.type_snr1  >  13) _data.type_snr1  = 0;
@@ -88,33 +58,17 @@ void CfgSNR::saveCfgSnr(const char *filename, snr_cfg_t _data)
   //---Sensor.html---------------------------------------
   //---Options for sensor--------------------------------
   //---Sensor type---------------------------------------
-  json["snr1_t"]              = _data.type_snr1;
-  json["snr2_t"]              = _data.type_snr2;
-  json["snr3_t"]              = _data.type_snr3;
-  json["snrp_t"]              = _data.type_snrp;
+  json["s1_t"]              = _data.type_snr1;
+  json["s2_t"]              = _data.type_snr2;
+  json["s3_t"]              = _data.type_snr3;
+  json["sp_t"]              = _data.type_snrp;
 
-  // Delete existing file, otherwise the configuration is appended to the file
-  LittleFS.remove(filename);
-  File configFile = LittleFS.open(filename, "w"); //Open config file for writing
-  if (!configFile)
-  {
-    DBG_OUT_PORT.print(F("Failed open "));
-    DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(" for writing"));
-    return;
-  }
-  if (serializeJson(doc, configFile) == 0)
-  {
-    DBG_OUT_PORT.print(F("Failed write to "));
-    DBG_OUT_PORT.println(filename);
-    return;
-  }
-  DBG_OUT_PORT.print(F("End write buffer to "));
-  DBG_OUT_PORT.println(filename);
-  configFile.close();
+  String msg = String();
+  if (serializeJson(doc, msg) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  return msg;
 }
 
-snr_cfg_t CfgSNR::defaultCfgSnr()
+snr_cfg_t SNRJS::def_conf()
 {
   snr_cfg_t _data;
 
@@ -132,18 +86,16 @@ snr_cfg_t CfgSNR::defaultCfgSnr()
 
 #elif defined(__AVR_ATmega2560__)
 
-#include <Snr.h>
-
 #include <EEPROM.h>
 
-snr_cfg_t CfgSNR::loadCfgSnr(const char *filename)
+snr_cfg_t SNRJS::from_json(String message)
 {
   snr_cfg_t _data;
   EEPROM.get(0, _data);           // прочитали из адреса 0
   return _data;
 }
 
-snr_cfg_t CfgSNR::defaultCfgSnr()
+snr_cfg_t SNRJ::def_conf()
 {
   snr_cfg_t _data;
   if (debug_level == 3)
@@ -168,8 +120,10 @@ snr_cfg_t CfgSNR::defaultCfgSnr()
   return _data;
 }
 
-void CfgSNR::saveCfgSnr(const char *filename, snr_cfg_t _data)
+String SNRJS::to_json(snr_cfg_t _data)
 {
   EEPROM.put(0, _data);           // записали по адресу 0
+  String msg = "OK";
+  return msg;
 }
 #endif

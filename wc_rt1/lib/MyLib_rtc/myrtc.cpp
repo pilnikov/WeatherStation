@@ -16,7 +16,7 @@
 	#endif
 
 
-	static CfgCT conf;
+	static RTCJS conf;
 
 	static uint32_t prev_ms;
 
@@ -320,7 +320,7 @@ bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_
     {
       cfg_data->alarms[alm_data->num][0] = 0; //Сбрасываем одноразовый будильник если это был он
       const char *conf_f = "/conf_rtc.json";
-      conf.saveConfig(conf_f, *cfg_data);
+      //conf.saveConfig(conf_f, *cfg_data);
     }
   }
 
