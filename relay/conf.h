@@ -13,14 +13,12 @@
 
 #if defined(ESP8266)
 #include <ESP8266mDNS.h>
-#include <ESP8266SSDP.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 #include <ESPmDNS.h>
 #include <ESP32SSDP.h>
-#include <HTTPClient.h>
 #include <WebServer.h>
 #include <HTTPUpdateServer.h>
 
@@ -28,15 +26,11 @@
 #include <esp_task_wdt.h>
 #endif
 
-#include <WiFiClient.h>
-#include <pgmspace.h>
-#include <ArduinoJson.h>
 #include <Wire.h>
 #include <SPI.h>
 
 #include <FS.h>
 #include <WiFiUdp.h>
-#include <LittleFS.h>
 #include <ArduinoOTA.h>
 
 #include <my_wifi.h>

@@ -6,58 +6,58 @@ let sti = 0;
 
 ///-----------------------------------------------------------------------------WiFi.htm
 			function loadVal_WiFi()
-	    {
+			{
 				let url = '/jwifi';
 
 				if (req_done)
 				{
-          rec_done = false;
-  				var xh = new XMLHttpRequest();
-  				xh.open('GET', url, true);
-  				xh.send(null);
-  				xh.onreadystatechange = function()
-  				{
-  					if (this.readyState == 4 && this.status == 200) 
-  					{
-  						var res = JSON.parse(xh.responseText);
-  						document.getElementById('aps' ).value   = res.as;
-  						document.getElementById('app' ).value   = res.ap;
-  						document.getElementById('ipap').value   = res.iap;
-  						document.getElementById('maap').value   = res.map;
-  						document.getElementById('stas1').value  = res.ss1;
-  						document.getElementById('stap1').value  = res.sp1;
-  						document.getElementById('sst1').checked = res.st1;
-  						document.getElementById('stas2').value  = res.ss2;
-  						document.getElementById('stap2').value  = res.sp2;
-  						document.getElementById('sst2').checked = res.st2;
-  						document.getElementById('wof').checked  = res.wof;
-  
-              
-  						var st = document.getElementById('sst1').checked;
-  						if (st)
-  						{
-  							document.getElementById('ipst1').value = res.ip1;
-  							document.getElementById('mast1').value = res.ma1;
-  							document.getElementById('gwst1').value = res.gw1;
-  							document.getElementById('dns1st1').value = res.d11;
-  							document.getElementById('dns2st1').value = res.d21;
-  						}
-  						st = document.getElementById('sst2').checked;
-  						if (st)
-  						{
-  							document.getElementById('ipst2').value = res.ip2;
-  							document.getElementById('mast2').value = res.ma2;
-  							document.getElementById('gwst2').value = res.gw2;
-  							document.getElementById('dns1st2').value = res.d12;
-  							document.getElementById('dns2st2').value = res.d22;
-  						}
-  						st_ip();
-  						rec_done = true;
-					  }
-				  };
-			  }
-			  _from = 'WiFi';
-	    }
+					rec_done = false;
+					var xh = new XMLHttpRequest();
+					xh.open('GET', url, true);
+					xh.send(null);
+					xh.onreadystatechange = function()
+					{
+						if (this.readyState == 4 && this.status == 200) 
+						{
+							var res = JSON.parse(xh.responseText);
+							document.getElementById('aps' ).value   = res.as;
+							document.getElementById('app' ).value   = res.ap;
+							document.getElementById('ipap').value   = res.iap;
+							document.getElementById('maap').value   = res.map;
+							document.getElementById('stas1').value  = res.ss1;
+							document.getElementById('stap1').value  = res.sp1;
+							document.getElementById('sst1').checked = res.st1;
+							document.getElementById('stas2').value  = res.ss2;
+							document.getElementById('stap2').value  = res.sp2;
+							document.getElementById('sst2').checked = res.st2;
+							document.getElementById('wof').checked  = res.wof;
+	  
+				  
+							var st = document.getElementById('sst1').checked;
+							if (st)
+							{
+								document.getElementById('ipst1').value = res.ip1;
+								document.getElementById('mast1').value = res.ma1;
+								document.getElementById('gwst1').value = res.gw1;
+								document.getElementById('dns1st1').value = res.d11;
+								document.getElementById('dns2st1').value = res.d21;
+							}
+							st = document.getElementById('sst2').checked;
+							if (st)
+							{
+								document.getElementById('ipst2').value = res.ip2;
+								document.getElementById('mast2').value = res.ma2;
+								document.getElementById('gwst2').value = res.gw2;
+								document.getElementById('dns1st2').value = res.d12;
+								document.getElementById('dns2st2').value = res.d22;
+							}
+							st_ip();
+							rec_done = true;
+						}
+					};
+				}
+				_from = 'WiFi';
+			}
 			
 			function st_ip()
 			{
@@ -80,7 +80,7 @@ let sti = 0;
 
 			function set_wifi()
 			{
-				var wof = 0, st1= 0, st2 = 0, ip, ma, gw, d1, d2, xh; 
+				var wof = 0, st1= 0, st2 = 0, xh; 
 
 				var as = document.getElementById('aps').value;
 				var ap = document.getElementById('app').value;
@@ -98,52 +98,52 @@ let sti = 0;
 				if (document.getElementById('wof').checked) wof = 1;
 
 				let urlc  = {
-                      as: as,
-                      ap: ap,
-                     iap: iap,
-                     map: map,
-                     ss1: ss1,
-                     sp1: sp1,
-                     st1: st1,
-                     ss2: ss2,
-                     sp2: sp2,
-                     st2: st2,
-                     wof: wof
-                    };
+							  as: as,
+							  ap: ap,
+							 iap: iap,
+							 map: map,
+							 ss1: ss1,
+							 sp1: sp1,
+							 st1: st1,
+							 ss2: ss2,
+							 sp2: sp2,
+							 st2: st2,
+							 wof: wof
+							};
 
 				let url = '/set_wifi?in=' + JSON.stringify(urlc);
         
-        if (st1 === 1 & st2 === 0) sti = 1;
-        if (st1 === 0 & st2 === 1) sti = 2;
-        if (st1 === 1 & st2 === 1) sti = 1;
+				if (st1 === 1 & st2 === 0) sti = 1;
+				if (st1 === 0 & st2 === 1) sti = 2;
+				if (st1 === 1 & st2 === 1) sti = 1;
         
 				if (req_done)
 				{
-          rec_done = false;
-  				xh = new XMLHttpRequest();
-  				xh.open('GET', url, true);
-  				xh.send(null);
-  				xh.onreadystatechange = function()
-  				{
-    				if (this.readyState == 4 && this.status == 200) 
-    				{
-    				  req_done = true;
-              switch (sti) 
-              {
-                case 1:
-                  set_wifi1();
-                break;
-                case 2:
-                  set_wifi2();
-                break;
-                default:
-                  set_wifi_end();                
-                break;
-              }
-     				}
-  				};
-        }
-      }
+					rec_done = false;
+					xh = new XMLHttpRequest();
+					xh.open('GET', url, true);
+					xh.send(null);
+					xh.onreadystatechange = function()
+					{
+						if (this.readyState == 4 && this.status == 200) 
+						{
+							req_done = true;
+							switch (sti) 
+							{
+								case 1:
+									set_wifi1();
+								break;
+								case 2:
+									set_wifi2();
+								break;
+								default:
+									set_wifi_end();                
+								break;
+							}
+						}
+					};
+				}
+			}
 
 			function set_wifi1()
 			{
@@ -165,27 +165,27 @@ let sti = 0;
 
 				if (req_done)
 				{
-  			  req_done = false;
-  			  var xh = new XMLHttpRequest();
-  				xh.open('GET', url, true);
-    			xh.send(null);
-   				xh.onreadystatechange = function()
-  				{
-      			if (this.readyState == 4 && this.status == 200)
-      			{
-      			  req_done = true;
-              switch (sti) 
-              {
-                case 2:
-                  set_wifi2();
-                break;
-                default:
-                  set_wifi_end();                
-                break;
-              }
-      			}
-    			};
-        }
+					req_done = false;
+					var xh = new XMLHttpRequest();
+					xh.open('GET', url, true);
+					xh.send(null);
+					xh.onreadystatechange = function()
+					{
+						if (this.readyState == 4 && this.status == 200)
+						{
+							req_done = true;
+							switch (sti) 
+							{
+								case 2:
+									set_wifi2();
+								break;
+								default:
+									set_wifi_end();                
+								break;
+							}
+						}
+					};
+				}
 			}
 
 			function set_wifi2()
