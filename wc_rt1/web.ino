@@ -3,12 +3,12 @@
 void web_setup()
 {
   server.on("/ntp", handleNTP);
-  server.on("/set_time1",   handleSetTime1);
-  server.on("/set_time2",   handleSetTime2);
-  server.on("/set_alarm",   handleSetAlarm);
-  server.on("/set_wifi",    handleSetWiFi);
-  server.on("/set_ip1",     handleSetIp1);
-  server.on("/set_ip2",     handleSetIp2);
+  server.on("/set_time1", handleSetTime1);
+  server.on("/set_time2", handleSetTime2);
+  server.on("/set_wifi",  handleSetWiFi);
+  server.on("/set_ip1",   handleSetIp1);
+  server.on("/set_ip2",   handleSetIp2);
+  server.on("/end_set_wifi",  handleEndSetWiFi);
   server.on("/exit",        handleExit);
 # ifdef MATRIX
   server.on("/set_font",    handleSetFont);
@@ -22,14 +22,12 @@ void web_setup()
   server.on("/set_partrm",  handleSetPartrm);
   server.on("/set_news",    handleSetNews);
 
-  server.on("/jactt",       handlejActT);
-  server.on("/jacta",       handlejActA);
+  server.on("/jactt",     handlejActT);
+  server.on("/jacta",     handlejActA);
+  server.on("/jtime1",    handlejTime1);
+  server.on("/jtime2",    handlejTime2);
+  server.on("/jwifi",     handlejWiFi);
   server.on("/jactb",       handlejActB);
-  server.on("/jtime1",      handlejTime1);
-  server.on("/jtime2",      handlejTime2);
-  server.on("/jalarm",      handlejAlarm);
-  server.on("/jwifi",       handlejWiFi);
-  server.on("/jclock",      handlejParc);
   server.on("/jdisp",       handlejPard);
   server.on("/jsens",       handlejPars);
   server.on("/jts",         handlejTS);
@@ -74,7 +72,6 @@ void start_serv()
   if (!wifi_data_cur.cli & !wifi_data_cur.ap)
   {
     wifi_data_cur = wifi.begin(wifi_data);
-    myIP = wifi_data_cur.addr;
   }
 
   if (wifi_data_cur.cli || wifi_data_cur.ap)
@@ -101,6 +98,7 @@ void stop_serv()
   wifi.end(wifi_data_cur);
 }
 
+//-------------------------------------------------------------- handlejTime1
 void handlejTime1()
 {
   DynamicJsonDocument jsonBuffer(512);
@@ -122,77 +120,16 @@ void handlejTime1()
 //-------------------------------------------------------------- handlejTime2
 void handlejTime2()
 {
-  DynamicJsonDocument jsonBuffer(512);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["tzon"]  = rtc_cfg.time_zone;
-  json["acor"]  = rtc_cfg.auto_corr;
-  json["uspm"]  = rtc_cfg.use_pm;
-  json["nstr"]  = rtc_cfg.nm_start;
-  json["nend"]  = rtc_cfg.nm_stop;
-  json["evhb"]  = rtc_cfg.every_hour_beep;
-  json["trts"]  = rtc_cfg.c_type;
-  json["antp1"] = rtc_cfg.ntp_srv[0];
-  json["antp2"] = rtc_cfg.ntp_srv[1];
-  json["antp3"] = rtc_cfg.ntp_srv[2];
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
+  from_client = myrtccfg.to_json(rtc_cfg);
+  server.send(200, "text/json", from_client);
 }
 
-//-------------------------------------------------------------- handlejAlarm
-void handlejAlarm()
-{
-  DynamicJsonDocument jsonBuffer(900);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["actn"] = rtc_alm.num;
-
-  DynamicJsonDocument doc2(700);
-  JsonObject json2 = doc2.to<JsonObject>();
-
-  JsonArray al0 = json2.createNestedArray("0");
-  JsonArray al1 = json2.createNestedArray("1");
-  JsonArray al2 = json2.createNestedArray("2");
-  JsonArray al3 = json2.createNestedArray("3");
-  JsonArray al4 = json2.createNestedArray("4");
-  JsonArray al5 = json2.createNestedArray("5");
-  JsonArray al6 = json2.createNestedArray("6");
-  for (uint8_t j = 0; j <= 4; j++)
-  {
-    al0.add(rtc_cfg.alarms[0][j]);
-    al1.add(rtc_cfg.alarms[1][j]);
-    al2.add(rtc_cfg.alarms[2][j]);
-    al3.add(rtc_cfg.alarms[3][j]);
-    al4.add(rtc_cfg.alarms[4][j]);
-    al5.add(rtc_cfg.alarms[5][j]);
-    al6.add(rtc_cfg.alarms[6][j]);
-  }
-
-  JsonObject alarms = json.createNestedObject("al");
-  alarms["0"] = al0;
-  alarms["1"] = al1;
-  alarms["2"] = al2;
-  alarms["3"] = al3;
-  alarms["4"] = al4;
-  alarms["5"] = al5;
-  alarms["6"] = al6;
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
-}
 
 //-------------------------------------------------------------- handleSetTime1
 void handleSetTime1()
 {
-  char buf[100];
-  memset (buf , 0 , 100);
+  char buf[100] = {0};
+
   strcpy(buf, server.arg("in").c_str());
 
   // Allocate the document on the stack.
@@ -223,101 +160,19 @@ void handleSetTime1()
     rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
 
     server.send(200, "text/html", "OK!");
-    serv_ms = millis();
   }
 }
 
 //-------------------------------------------------------------- handleSetTime2
 void handleSetTime2()
 {
-  char buf[300];
-  memset (buf , 0 , 300);
-  strcpy(buf, server.arg("in").c_str());
+  from_client = server.arg("in");
 
-  // Allocate the document on the stack.
-  // Don't forget to change the capacity to match your requirements.
-  // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument doc(900);
-
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(doc, buf);
-  if (error)
-  {
-    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
-    DBG_OUT_PORT.println(error.c_str());
-  }
-  else
-  {
-    DBG_OUT_PORT.println(buf);
-    rtc_cfg.time_zone       = doc["tzone"];
-    rtc_cfg.auto_corr       = doc["acorr"];
-    rtc_cfg.use_pm          = doc["upm"];
-    rtc_cfg.nm_start        = doc["nmstart"];
-    rtc_cfg.nm_stop         = doc["nmstop"];
-    rtc_cfg.every_hour_beep = doc["ehb"];
-    rtc_cfg.c_type          = doc["srtyp"];
-
-    memset(rtc_cfg.ntp_srv[0], 0, 17);
-    memset(rtc_cfg.ntp_srv[1], 0, 17);
-    memset(rtc_cfg.ntp_srv[2], 0, 17);
-
-    strcpy(rtc_cfg.ntp_srv[0],  doc["antp1"]);
-    strcpy(rtc_cfg.ntp_srv[1],  doc["antp2"]);
-    strcpy(rtc_cfg.ntp_srv[2],  doc["antp3"]);
-
-    conf_f = "/conf_rtc.json";
-    myrtccfg.saveConfig(conf_f, rtc_cfg);
-    server.send(200, "text/html", "OK!");
-    serv_ms = millis();
-  }
-}
-
-//-------------------------------------------------------------- handleSetAlarm
-void handleSetAlarm()
-{
-  char buf[300];
-  memset (buf , 0 , 300);
-  strcpy(buf, server.arg("in").c_str());
-
-  // Allocate the document on the stack.
-  // Don't forget to change the capacity to match your requirements.
-  // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument doc(900);
-
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(doc, buf);
-  if (error)
-  {
-    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
-    DBG_OUT_PORT.println(error.c_str());
-  }
-  else
-  {
-    DBG_OUT_PORT.println(buf);
-
-    uint8_t alm_num            = doc["sanum"]; // номер будильника
-    rtc_cfg.alarms[alm_num][0] = doc["satyp"]; // тип будильника
-    rtc_cfg.alarms[alm_num][1] = doc["ahour"]; // час срабатывания будильника
-    rtc_cfg.alarms[alm_num][2] = doc["amin"];  // минута срабатывания будильника
-    rtc_cfg.alarms[alm_num][3] = doc["samel"]; // номер мелодии будильника
-    rtc_cfg.alarms[alm_num][4] = doc["saon"];  // экшн будильника
-
-    if (debug_level == 14)
-    {
-      DBG_OUT_PORT.print(alm_num); DBG_OUT_PORT.print(F(" alarm is...."));
-      for (int n = 0; n < 5; n++)
-      {
-        DBG_OUT_PORT.print(rtc_cfg.alarms[alm_num][n]); DBG_OUT_PORT.print(F(","));
-      }
-      DBG_OUT_PORT.println();
-    }
-
-    conf_f = "/conf_rtc.json";
-    myrtccfg.saveConfig(conf_f, rtc_cfg);
-    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
-    server.send(200, "text/html", "OK!");
-    serv_ms = millis();
-  }
+  conf_f = "/conf_rtc.json";
+  lfs.writeFile(conf_f, from_client.c_str());
+  rtc_cfg = myrtccfg.from_json(from_client);
+  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+  server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handleNTP
@@ -330,48 +185,56 @@ void handleNTP()
     rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
     rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
   }
-
   server.send(200, "text/html", "OK!");
-  serv_ms = millis();
 }
 
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
-  DynamicJsonDocument jsonBuffer(512);
+  from_client = wifi_cfg.to_json(wifi_data);
+  server.send(200, "text/json", from_client);
+}
+
+//-------------------------------------------------------------- handleSetWiFi
+void handleSetWiFi()
+{
+  from_client = server.arg("in");
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handleSetIp1
+void handleSetIp1()
+{
+  from_client += server.arg("in");
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handleSetIp2
+void handleSetIp2()
+{
+  from_client += server.arg("in");
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handleEndSetWiFi
+void handleEndSetWiFi()
+{
+  from_client.replace("}{", ",");
+
+  conf_f = "/conf_wifi.json";
+  lfs.writeFile(conf_f, from_client.c_str());
+  wifi_data = wifi_cfg.from_json(from_client);
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handlejActT
+void handlejActT()
+{
+  DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["apid"]    = wifi_data.ap_ssid;
-  json["appas"]   = wifi_data.ap_pass;
-  json["staid1"]  = wifi_data.sta_ssid1;
-  json["staid2"]  = wifi_data.sta_ssid2;
-  json["stapas1"] = wifi_data.sta_pass1;
-  json["stapas2"] = wifi_data.sta_pass2;
-
-  json["iap"]   = wifi_data.ap_ip;
-  json["map"]   = wifi_data.ap_ma;
-
-  json["sst1"]    = wifi_data.st_ip1;
-  json["sst2"]    = wifi_data.st_ip2;
-
-  if (wifi_data.st_ip1)
-  {
-    json["ipst1"]   = wifi_data.sta_ip1;
-    json["mast1"]   = wifi_data.sta_ma1;
-    json["gwst1"]   = wifi_data.sta_gw1;
-    json["dns1st1"] = wifi_data.sta_dns11;
-    json["dns2st1"] = wifi_data.sta_dns21;
-  }
-  if (wifi_data.st_ip1)
-  {
-    json["ipst2"]   = wifi_data.sta_ip2;
-    json["mast2"]   = wifi_data.sta_ma2;
-    json["gwst2"]   = wifi_data.sta_gw2;
-    json["dns1st2"] = wifi_data.sta_dns12;
-    json["dns2st2"] = wifi_data.sta_dns22;
-  }
-  json["wof"]    = wifi_data.wifi_off;
-
+  json["actw"] = wasAlarm;
+  json["tstr"] = tstr;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -380,68 +243,21 @@ void handlejWiFi()
   st = String();
 }
 
-//-------------------------------------------------------------- handleSetWiFi
-void handleSetWiFi()
+//-------------------------------------------------------------- handlejActA
+void handlejActA()
 {
-  //url='/set_wifi?as='+as+'&ap='+ap+'&ss1='+ss1+'&sp1='+sp1+'&ss2='+ss2+'&sp2='+sp2+'&st1='+st1+'&st2='+st2+'&iap='+iap+'&map='+map+'&wof='+wof_t;
+  DynamicJsonDocument jsonBuffer(300);
+  JsonObject json = jsonBuffer.to<JsonObject>();
+  json["actn"] = rtc_alm.num;
+  json["acth"] = rtc_alm.hour;
+  json["actm"] = rtc_alm.min;
 
-  strcpy(wifi_data.ap_ssid, server.arg("as").c_str());
-  strcpy(wifi_data.ap_pass, server.arg("ap").c_str());
-  strcpy(wifi_data.sta_ssid1, server.arg("ss1").c_str());
-  strcpy(wifi_data.sta_pass1, server.arg("sp1").c_str());
-  strcpy(wifi_data.sta_ssid2, server.arg("ss2").c_str());
-  strcpy(wifi_data.sta_pass2, server.arg("sp2").c_str());
+  String st = String();
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
-  wifi_data.st_ip1 = server.arg("st1") == "1";
-  wifi_data.st_ip2 = server.arg("st2") == "1";
-
-  strcpy(wifi_data.ap_ip, server.arg("iap").c_str());
-  strcpy(wifi_data.ap_ma, server.arg("map").c_str());
-
-  wifi_data.wifi_off = server.arg("wof") == "1";
-
-  conf_f = "/conf_wifi.json";
-  wifi.saveConfig(conf_f, wifi_data);
-
-  server.send(200, "text/html", "OK!");
-  serv_ms = millis();
+  server.send(200, "text/json", st);
+  st = String();
 }
-
-//-------------------------------------------------------------- handleSetIp1
-void handleSetIp1()
-{
-  //url='/set_ip1?ip='+ip1+'&ma='+ma1+'&gw='+gw1+'&d1='+d11+'&d2='+d21;
-
-  strcpy(wifi_data.sta_ip1, server.arg("ip").c_str());
-  strcpy(wifi_data.sta_ma1, server.arg("ma").c_str());
-  strcpy(wifi_data.sta_gw1, server.arg("gw").c_str());
-  strcpy(wifi_data.sta_dns11, server.arg("d1").c_str());
-  strcpy(wifi_data.sta_dns21, server.arg("d2").c_str());
-
-  conf_f = "/conf_wifi.json";
-  wifi.saveConfig(conf_f, wifi_data);
-
-  server.send(200, "text/html", "OK!");
-  serv_ms = millis();
-}
-
-//-------------------------------------------------------------- handleSetIp2
-void handleSetIp2()
-{
-  //rl='/set_ip2?ip='+ip2+'&ma='+ma2+'&gw='+gw2+'&d1='+d12+'&d2='+d22;
-
-  strcpy(wifi_data.sta_ip2, server.arg("ip").c_str());
-  strcpy(wifi_data.sta_ma2, server.arg("ma").c_str());
-  strcpy(wifi_data.sta_gw2, server.arg("gw").c_str());
-  strcpy(wifi_data.sta_dns12, server.arg("d1").c_str());
-  strcpy(wifi_data.sta_dns22, server.arg("d2").c_str());
-  conf_f = "/conf_wifi.json";
-  wifi.saveConfig(conf_f, wifi_data);
-
-  server.send(200, "text/html", "OK!");
-  serv_ms = millis();
-}
-
 
 //-------------------------------------------------------------- handlejPard
 void handlejPard()
@@ -713,7 +529,9 @@ void handleSetPars2()
   snr_cfg_data.type_snrp = server.arg("snrp").toInt();
 
   conf_f = "/conf_snr.json";
-  mysnrcfg.saveCfgSnr(conf_f, snr_cfg_data);
+  from_client = mysnrcfg.to_json(snr_cfg_data);
+  lfs.writeFile(conf_f, from_client.c_str());
+  snr_cfg_data = mysnrcfg.from_json(from_client);
 
   conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
   conf_data.use_es = server.arg("ues").toInt();
@@ -851,21 +669,6 @@ void handleSetPartrm()
   serv_ms = millis();
 }
 
-//-------------------------------------------------------------- handlejActT
-void handlejActT()
-{
-  DynamicJsonDocument jsonBuffer(100);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-
-  json["tstr"] = tstr;
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
-}
-
 //-------------------------------------------------------------- handlejActB
 void handlejActB()
 {
@@ -879,23 +682,6 @@ void handlejActB()
   server.send(200, "text/json", st);
   st = String();
 }
-
-//-------------------------------------------------------------- handlejActA
-void handlejActA()
-{
-  DynamicJsonDocument jsonBuffer(100);
-  JsonObject json = jsonBuffer.to<JsonObject>();
-  json["actw"] = wasAlarm;
-  json["acth"] = rtc_alm.hour;
-  json["actm"] = rtc_alm.min;
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
-}
-
 
 //-------------------------------------------------------------- handleExit
 void handleExit()

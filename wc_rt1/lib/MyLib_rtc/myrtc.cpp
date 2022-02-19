@@ -1,5 +1,6 @@
 
 #include "myrtc.h"
+#include <My_LFS.h>
 
 // ----------------------------------- Конструктор DS3231
 	static RtcDS3231<TwoWire> * ds3231;
@@ -17,6 +18,10 @@
 
 
 	static RTCJS conf;
+	
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+	static LFS lfs;
+#endif	
 
 	static uint32_t prev_ms;
 
@@ -319,8 +324,11 @@ bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_
     if (cfg_data->alarms[alm_data->num][0] == 4)
     {
       cfg_data->alarms[alm_data->num][0] = 0; //Сбрасываем одноразовый будильник если это был он
-      const char *conf_f = "/conf_rtc.json";
-      //conf.saveConfig(conf_f, *cfg_data);
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+      const char* conf_f = "/conf_rtc.json";
+	  String from_client = conf.to_json(*cfg_data);
+	  lfs.writeFile(conf_f, from_client.c_str());
+#endif
     }
   }
 

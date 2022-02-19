@@ -12,27 +12,26 @@ void setup()
   //------------------------------------------------------  Get system information
   hwi.info();
 #endif
-
-  //------------------------------------------------------  Инициализируем встроенную файловую систему LittleFS
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  fs_setup();
-  DBG_OUT_PORT.println(F("file system started"));
+  //------------------------------------------------------  Запускаем LittleFileSystem
+  lfs.begin();
+  DBG_OUT_PORT.println(F("LittleFS started"));
 
   //------------------------------------------------------  Загружаем конфигурацию
 
-  //------------------------------------------------------  Читаем установки из EEPROM
+  //------------------------------------------------------  Читаем установки WiFi из конфиг файла
   conf_f = "/conf_wifi.json";
-  wifi_data = wifi.loadConfig(conf_f);
+  from_client = lfs.readFile(conf_f);
+  wifi_data = wifi_cfg.from_json(from_client);
 
-  //wifi_data = defaultConfig();
-  //wifi.saveConfig(conf_f, wifi_data);
+  //wifi_data = wifi_cfg.def_conf();
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 
   //--------------------------------------------------------  Запускаем основные сетевые сервисы
   //--------------------------------------------------------  Запускаем WiFi
   wifi_data_cur = wifi.begin(wifi_data);
-  myIP = wifi_data_cur.addr;
+
   if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
     //------------------------------------------------------  Переопределяем консоль
@@ -60,21 +59,22 @@ void setup()
   strcpy(tstr, "Safe Mode");
 #endif
 
-  //------------------------------------------------------  Загружаем настройки RTC
+  //------------------------------------------------------  Читаем установки RTC из конфиг файла
   conf_f = "/conf_rtc.json";
-  rtc_cfg = myrtccfg.loadConfig(conf_f);
+  from_client = lfs.readFile(conf_f);
+  rtc_cfg = myrtccfg.from_json(from_client);
 
-  //rtc_cfg = myrtccfg.defaultConfig();
-  //myrtccfg.saveConfig(conf_f, rtc_cfg);
+  //rtc_cfg = myrtccfg.def_conf();
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 
+
   //------------------------------------------------------  Загружаем настройки датчиков
   conf_f = "/conf_snr.json";
-  snr_cfg_data = mysnrcfg.loadCfgSnr(conf_f);
+  from_client = lfs.readFile(conf_f);
+  snr_cfg_data = mysnrcfg.from_json(from_client);
 
-  //snr_cfg_data = mysnrcfg.defaultCfgSnr();
-  //mysnrcfg.saveCfg(conf_f, snr_cfg_data);
+  //snr_cfg_data = mysnrcfg.def_conf();
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 

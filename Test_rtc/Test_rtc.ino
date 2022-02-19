@@ -57,7 +57,7 @@ void setup()
   from_client = lfs.readFile(conf_f);
   rtc_cfg = myrtccfg.from_json(from_client);
 
-  //rtc_cfg = wifi_cfg.def_conf();
+  //rtc_cfg = myrtccfg.def_conf();
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 
@@ -145,12 +145,12 @@ void loop()
       }
       wasAlarm = true;
       alarm_time = millis() + 2000;
+      rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
     }
   }
 
   if (wasAlarm & (millis() > alarm_time)) //Перезапуск будильников
   {
-    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
     wasAlarm = false;
   }
   //------------------------------------------------------  Верифицируем ночной режим

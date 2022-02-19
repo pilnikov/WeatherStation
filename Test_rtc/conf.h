@@ -66,7 +66,7 @@ Synt Buzz;               //Конструктор пищалки
 // ---------------------------------------------------- Global Variable
 
 const char *conf_f = "/conf_rtc.json";  // config file name
-bool save_data_req;
+
 String from_client = String();
 
 char tstr[25];

@@ -169,6 +169,8 @@
 //#include "..\lib\MyLib_Udt\Udt.h"
 
 #include <Udt.h>
+
+#include <My_LFS.h>
 #include <myrtc.h>
 #include <Sysfn.h>
 #include <Snd.h>
@@ -279,24 +281,8 @@ udp_cons print_console_udp;
     PWM_OUT     = PD_4,
 ********************************************************
 */
-
 #endif
 
-// ----------------------------------- Typedef
-snr_data_t snr_data;
-snr_cfg_t snr_cfg_data;
-conf_data_t conf_data;
-hw_data_t hw_data;
-rtc_hw_data_t  rtc_hw;
-rtc_cfg_data_t rtc_cfg;
-rtc_time_data_t rtc_time;
-rtc_alm_data_t rtc_alm;
-wf_data_t wf_data_cur;
-wf_data_t wf_data;
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-wifi_cfg_data_t wifi_data;
-wifi_cur_data_t wifi_data_cur;
-#endif
 
 // ----------------------------------- Internal header files
 #include "disp.h"
@@ -306,8 +292,6 @@ wifi_cur_data_t wifi_data_cur;
 #endif
 
 // ----------------------------------- Force define func name
-void printFile(const char*);
-void fs_setup();
 conf_data_t loadConfig(const char*);
 void saveConfig(const char*, conf_data_t);
 conf_data_t defaultConfig();
@@ -327,7 +311,6 @@ String ts_rcv (unsigned long, char*);
 String ts_snd (String);
 void put_to_es(char*, uint8_t, snr_data_t);
 
-String formatBytes(uint32_t);
 void hw_accept(hw_data_t, snr_cfg_t*, uint8_t*, uint8_t*);
 
 #if defined(ESP8266)
@@ -348,28 +331,49 @@ static void ISR_ATTR isr0();
 static void ISR_ATTR isr0();
 #endif
 
+// ---------------------------------------------------- Constructors
+
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+ES e_srv;
+NF nsys;
+WF wifi;
+WFJS wifi_cfg;
+LFS lfs;
+#endif
 
 // ----------------------------------- Web server
 #if defined(ESP8266)
 static ESP8266WebServer server(80);
 static ESP8266HTTPUpdateServer httpUpdater;
+// ---------------------------------------------------- HW info
+ESP8266HWInfo hwi;
+
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 static WebServer server(80);
 HTTPUpdateServer httpUpdater;
 #endif
 
-// ---------------------------------------------------- HW info
-#if defined(ESP8266)
-ESP8266HWInfo hwi;
-#endif
-
 // ---------------------------------------------------- LM
 BH1750 lightMeter;
+
+// ---------------------------------------------------- Other
+Synt Buzz;               //Конструктор пищалки
+
+CT myrtc; //For RTC Common
+RTCJS myrtccfg; //For RTC Config
+SF hw_chk; //For HW Check
+SNR sens; //For Sensor Common
+SNRJS mysnrcfg; //For Sensor Config
+FD f_dsp; //For Display
+HT h_dsp; //For Display
+MSG dmsg; //For Messages
 
 // ---------------------------------------------------- Common
 
 const char *conf_f = "/config.json";  // config file name
 char tstr[25];
+
+String from_client = String();
 
 int                boot_mode = 1;
 
@@ -388,28 +392,25 @@ static bool tmr_started = false, btn_released = false;
 volatile bool btn_state_flag = false;
 volatile bool _wasAlarmed_int = false;
 
-// ---------------------------------------------------- Constructors
-Synt Buzz;               //Конструктор пищалки
+snr_data_t snr_data;
+snr_cfg_t snr_cfg_data;
+conf_data_t conf_data;
+hw_data_t hw_data;
+wf_data_t wf_data_cur;
+wf_data_t wf_data;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+wifi_cfg_data_t wifi_data;
+wifi_cur_data_t wifi_data_cur;
+#endif
+rtc_hw_data_t  rtc_hw;
+rtc_cfg_data_t rtc_cfg;
+rtc_time_data_t rtc_time;
+rtc_alm_data_t rtc_alm;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-
-IPAddress myIP;
-
-ES e_srv;
-NF nsys;
-WF wifi;
 // ---------------------------------------------------- News Client
 NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
 #endif
-
-CT myrtc;
-CfgCT myrtccfg;
-SF hw_chk;
-SNR sens;
-CfgSNR mysnrcfg;
-FD f_dsp;
-HT h_dsp;
-MSG dmsg;
 
 // ---------------------------------------------------- Variant of config
 #define _dacha

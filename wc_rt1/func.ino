@@ -741,93 +741,12 @@ void alarm1_action()
   }
 }
 
-//------------------------------------------------------  Внутренняя флэшка LittleFS
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-
-void printFile(const char* filename) {
-  // Open file for reading
-  File file = LittleFS.open(filename, "r");
-
-  if (!file)
-  {
-    DBG_OUT_PORT.println(F("Failed to read file"));
-    return;
-  }
-
-  // Extract each characters by one by one
-  while (file.available()) DBG_OUT_PORT.print((char)file.read());
-  DBG_OUT_PORT.println();
-
-  // Close the file
-  file.close();
-}
-
-void fs_setup()
-{
-#if defined(ESP8266)
-  if (!LittleFS.begin())
-  {
-    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    LittleFS.format();
-  }
-  else
-  {
-    Dir dir = LittleFS.openDir("/");
-    while (dir.next())
-    {
-      String fileName = dir.fileName();
-      size_t fileSize = dir.fileSize();
-      DBG_OUT_PORT.printf(" FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
-    }
-  }
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-  if (!LittleFS.begin())
-  {
-    DBG_OUT_PORT.print("\n Failed to mount file system, try format it!\n");
-    LittleFS.format();
-  }
-  else
-  {
-    File root = LittleFS.open("/");
-
-    String output = "[";
-    if (root.isDirectory()) {
-      File file = root.openNextFile();
-      while (file) {
-        if (output != "[") output += ',';
-        output += "{\"type\":\"";
-        output += (file.isDirectory()) ? "dir" : "file";
-        output += "\",\"name\":\"";
-        output += String(file.name());
-        output += "\"}";
-        file = root.openNextFile();
-      }
-      DBG_OUT_PORT.println(output);
-    }
-  }
-# endif
-}
-
-String formatBytes(uint32_t bytes)
-{
-  if (bytes < 1024) {
-    return String(bytes) + "B";
-  } else if (bytes < (1024 * 1024)) {
-    return String(bytes / 1024.0) + "KB";
-  } else if (bytes < (1024 * 1024 * 1024)) {
-    return String(bytes / 1024.0 / 1024.0) + "MB";
-  } else {
-    return String(bytes / 1024.0 / 1024.0 / 1024.0) + "GB";
-  }
-}
-
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void hard_restart() {
   esp_task_wdt_init(1, true);
   esp_task_wdt_add(NULL);
   while (true);
 }
-#endif
 #endif
 
 void hw_accept(hw_data_t hd, snr_cfg_t *snr_cfg, uint8_t *vd_typ, uint8_t *rt_typ)

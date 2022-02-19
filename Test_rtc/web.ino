@@ -5,7 +5,6 @@ void web_setup()
   server.on("/ntp", handleNTP);
   server.on("/set_time1", handleSetTime1);
   server.on("/set_time2", handleSetTime2);
-  server.on("/set_alarm", handleSetAlarm);
   server.on("/set_wifi",  handleSetWiFi);
   server.on("/set_ip1",   handleSetIp1);
   server.on("/set_ip2",   handleSetIp2);
@@ -107,43 +106,50 @@ void handlejTime2()
 //-------------------------------------------------------------- handleSetTime1
 void handleSetTime1()
 {
-  //url='/set_time1?h='+h+'&m='+m+'&d='+d+'&mm='+mm+'&y='+y;
+  char buf[100] = {0};
 
-  uint8_t  hr = server.arg("h").toInt();
-  uint8_t  mn = server.arg("m").toInt();
-  uint8_t  dy = server.arg("d").toInt();
-  uint8_t  mo = server.arg("mm").toInt();
-  uint16_t yr = server.arg("y").toInt();
+  strcpy(buf, server.arg("in").c_str());
 
-  RtcDateTime dt1 = RtcDateTime(constrain(yr, 2021, 2036), constrain(mo, 1, 12), constrain(dy, 1, 31), constrain(hr, 0, 23), constrain(mn, 0, 59), 0);
+  // Allocate the document on the stack.
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/assistant to compute the capacity.
+  DynamicJsonDocument doc(100);
 
-  if (debug_level == 14) DBG_OUT_PORT.printf("set time = %02d.%02d.%04d %02d:%02d:%02d\n",
-        dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, buf);
+  if (error)
+  {
+    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
+    DBG_OUT_PORT.println(error.c_str());
+  }
+  else
+  {
+    DBG_OUT_PORT.println(buf);
+    uint8_t  hr = doc["h"];
+    uint8_t  mn = doc["m"];
+    uint8_t  dy = doc["d"];
+    uint8_t  mo = doc["mm"];
+    uint16_t yr = doc["y"];
+    RtcDateTime dt1 = RtcDateTime(constrain(yr, 2021, 2036), constrain(mo, 1, 12), constrain(dy, 1, 31), constrain(hr, 0, 23), constrain(mn, 0, 59), 0);
 
-  rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    if (debug_level == 14) DBG_OUT_PORT.printf("set time = %02d.%02d.%04d %02d:%02d:%02d\n",
+          dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
 
-  server.send(200, "text/html", "OK!");
+    rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
+
+    server.send(200, "text/html", "OK!");
+  }
 }
 
 //-------------------------------------------------------------- handleSetTime2
 void handleSetTime2()
 {
   from_client = server.arg("in");
-  server.send(200, "text/html", "OK!");
-
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
-}
-
-//-------------------------------------------------------------- handleSetAlarm
-void handleSetAlarm()
-{
-  from_client += server.arg("in");
-  from_client.replace("}{", ",");
 
   conf_f = "/conf_rtc.json";
   lfs.writeFile(conf_f, from_client.c_str());
   rtc_cfg = myrtccfg.from_json(from_client);
+  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
   server.send(200, "text/html", "OK!");
 }
 
@@ -205,6 +211,7 @@ void handlejActT()
   DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
+  json["actw"] = wasAlarm;
   json["tstr"] = tstr;
 
   String st = String();
@@ -217,8 +224,9 @@ void handlejActT()
 //-------------------------------------------------------------- handlejActA
 void handlejActA()
 {
-  DynamicJsonDocument jsonBuffer(100);
+  DynamicJsonDocument jsonBuffer(300);
   JsonObject json = jsonBuffer.to<JsonObject>();
+  json["actn"] = rtc_alm.num;
   json["acth"] = rtc_alm.hour;
   json["actm"] = rtc_alm.min;
 

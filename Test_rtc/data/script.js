@@ -2,26 +2,61 @@ let _from = 'none';
 let req_done = true;
 let nIntervId;
 let sti = 0;
+let al;
+var numaa = 7;
 
 //---------------------------------------------------------------------------------Time.htm
 			function loadVal_Time()
 			{
-				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jtime1", true);
-				xh.send(null);
-				xh.onreadystatechange = function()
+				var xht = new XMLHttpRequest();
+				xht.open("GET", "/jtime1", true);
+				xht.send(null);
+				xht.onreadystatechange = function()
+				{
+					if (xht.readyState == 4 && xht.status == 200) 
+					{
+						var rest = JSON.parse(xht.responseText);
+						document.getElementById('hour').value = rest.hour;
+						document.getElementById('min').value  = rest.min;
+						document.getElementById('day').value  = rest.day;
+						document.getElementById('mon').value  = rest.month;
+						document.getElementById('year').value = rest.year;
+						loadVal_Time1();
+					}
+				};
+      }
+			
+			function loadVal_Time1()
+			{
+				var xh1 = new XMLHttpRequest();
+				xh1.open("GET", "/jacta", true);
+				xh1.send(null);
+				xh1.onreadystatechange = function()
 				{
 					if (this.readyState == 4 && this.status == 200) 
 					{
-						var res = JSON.parse(xh.responseText);
-						document.getElementById('hour').value = res.hour;
-						document.getElementById('min').value  = res.min;
-						document.getElementById('day').value  = res.day;
-						document.getElementById('mon').value  = res.month;
-						document.getElementById('year').value = res.year;
+						var res1 = JSON.parse(xh1.responseText);
+
+    				numaa = res1.actn;
+
+						if (res1.acth < 24 && res1.actm < 59) 
+						{
+							document.getElementById('act_hour').value = res1.acth;
+							document.getElementById('act_min' ).value = res1.actm;
+						}
+						else 
+						{
+							document.getElementById('act_hour').value = "--";
+							document.getElementById('act_min' ).value = "--";
+							numaa = 7;
+						}
+					loadVal_Time2();
 					}
 				};
-
+      }
+      
+			function loadVal_Time2()
+			{
 				var xh2 = new XMLHttpRequest();
 				xh2.open("GET", "/jtime2", true);
 				xh2.send(null);
@@ -30,38 +65,29 @@ let sti = 0;
 					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh2.responseText);
-						document.getElementById('tzone').value = res.tzon;
-						document.getElementById('acorr').checked = res.acor;
-						document.getElementById('upm').checked = res.uspm;
-						document.getElementById('nmstart').value = res.nstr;
-						document.getElementById('nmstop').value = res.nend;
-						document.getElementById('ehb').checked = res.evhb;
-						document.getElementById('rtyp').value = res.trts;
-						document.getElementById('antp1').value = res.antp1;
-						document.getElementById('antp2').value = res.antp2;
-						document.getElementById('antp3').value = res.antp3;
-					}
-				}; 
+						document.getElementById('tzone').value = res.tzo;
+						document.getElementById('acorr').checked = res.auto_corr;
+						document.getElementById('upm').checked = res.upm;
+						document.getElementById('nmstart').value = res.nm_start;
+						document.getElementById('nmstop').value = res.nm_stop;
+						document.getElementById('ehb').checked = res.e_h_b;
+						document.getElementById('rtyp').value = res.rtc_t;
+						document.getElementById('antp1').value = res.ntp1;
+						document.getElementById('antp2').value = res.ntp2;
+						document.getElementById('antp3').value = res.ntp3;
 
-				var xh1 = new XMLHttpRequest();
-				xh1.open("GET", "/jalarm", true);
-				xh1.send(null);
-				xh1.onreadystatechange = function()
-				{
-					if (this.readyState == 4 && this.status == 200) 
-					{
-						var res1 = JSON.parse(xh1.responseText);
-						var num = res1.actn;
-						document.getElementById('anum'  ).value = num;
+    				al = res.al;
 
-						if  (num < 7)
+            document.getElementById('anum').value = numaa;
+
+            if (numaa < 7)
 						{
-							document.getElementById('atyp'  ).value = res1.al[num][0];
-							document.getElementById('ahour' ).value = res1.al[num][1];
-							document.getElementById('amin'  ).value = res1.al[num][2];
-							document.getElementById('amel'  ).value = res1.al[num][3];
-							document.getElementById('aon'   ).value = res1.al[num][4];
-      				sel_atyp();
+						  document.getElementById('atyp'  ).value = al[numaa][0];
+						  document.getElementById('ahour' ).value = al[numaa][1];
+						  document.getElementById('amin'  ).value = al[numaa][2];
+						  document.getElementById('amel'  ).value = al[numaa][3];
+						  document.getElementById('aon'   ).value = al[numaa][4];
+    				  sel_atyp();
 						}
 					}
 				};
@@ -69,15 +95,33 @@ let sti = 0;
 			}
 /////////////////////////////////////////////////////////////////////////////////////////			
 
+			function sel_anum()
+			{
+				numaa = document.getElementById('anum').value;
+
+				if  (numaa < 7)
+				{
+					document.getElementById('atyp'  ).value = al[numaa][0];
+					document.getElementById('ahour' ).value = al[numaa][1];
+					document.getElementById('amin'  ).value = al[numaa][2];
+					document.getElementById('amel'  ).value = al[numaa][3];
+					document.getElementById('aon'   ).value = al[numaa][4];
+				}
+				sel_atyp();
+			}
+
 			function sel_atyp()
 			{
 				let satyp = document.getElementById('atyp').value;
 			  let saon  = document.getElementById('aon').value;
-			  let anum  = document.getElementById('anum').value;
 
-				if (anum > 6) 
+				if (numaa > 6) 
 				{
 				  showHide('atyp',  false);
+					showHide('ahour', false);
+					showHide('amin',  false);
+					showHide('aon',   false);
+					showHide('amel',  false);
 				}
 				else
 				{
@@ -108,38 +152,22 @@ let sti = 0;
         }
 			}
 
-			function sel_anum()
-			{
-				var num = document.getElementById('anum').value;
-				if  (num < 7)
+			function set_alm()
+      {
+				if  (numaa < 7)
 				{
-					var xh = new XMLHttpRequest();
-					xh.open("GET", "/jalarm", true);
-					xh.send();
-					xh.onreadystatechange = function()
-					{
-						if (this.readyState == 4 && this.status == 200) 
-						{
-							var res = JSON.parse(xh.responseText);
-							document.getElementById('atyp'  ).value = res.al[num][0];
-							document.getElementById('ahour' ).value = res.al[num][1];
-							document.getElementById('amin'  ).value = res.al[num][2];
-							document.getElementById('amel'  ).value = res.al[num][3];
-							document.getElementById('aon'   ).value = res.al[num][4];
-      				sel_atyp();
-						}
-					};
+  				al[numaa][0] = document.getElementById('atyp' ).value;
+  				al[numaa][1] = document.getElementById('ahour').value;
+  				al[numaa][2] = document.getElementById('amin' ).value;
+  				al[numaa][3] = document.getElementById('amel' ).value;
+  				al[numaa][4] = document.getElementById('aon'  ).value;
 				}
-				else
-				{
-  				sel_atyp();
-  			}
 			}
-		  
-			function time_ntp()
+      
+			function time_ntp(url)
 			{
 				var xh = new XMLHttpRequest();
-				xh.open('GET', '/ntp', true);
+				xh.open('GET', url, true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
@@ -187,49 +215,22 @@ let sti = 0;
 				var antp3 = document.getElementById('antp3').value;
 
 				let urlc = {
-                     tzone: tzone,
-                     acorr: acorr,
+                       tzo: tzone,
+                 auto_corr: acorr,
                        upm: upm,
-                   nmstart: nmstart,
-                    nmstop: nmstop,
-                       ehb: ehb,
-                     srtyp: srtyp,
-                     antp1: antp1,
-                     antp2: antp2,
-                     antp3: antp3
+                  nm_start: nmstart,
+                   nm_stop: nmstop,
+                     e_h_b: ehb,
+                     rtc_t: srtyp,
+                      ntp1: antp1,
+                      ntp2: antp2,
+                      ntp3: antp3,
+                        al: al
                     };
 
 				let url = '/set_time2?in=' + JSON.stringify(urlc);
-
-				var xh1 = new XMLHttpRequest();
-				xh1.open('GET', url, true);
-				xh1.send(null);
-
-				var sanum = document.getElementById('anum').value;
-				if  (sanum < 7)
-				{
-					var satyp = document.getElementById('atyp').value;
-					var ahour = document.getElementById('ahour').value;
-					var amin  = document.getElementById('amin').value;
-					var samel = document.getElementById('amel').value;
-					var saon  = document.getElementById('aon').value;
-							
-				  urlc   = {
-                     sanum: sanum,
-                     satyp: satyp,
-                       upm: upm,
-                     ahour: ahour,
-                      amin: amin,
-                     samel: samel,
-                      saon: saon
-                    };
-
-				  url = '/set_alarm?in=' + JSON.stringify(urlc);
-					
-					var xh = new XMLHttpRequest();
-					xh.open('GET', url, true);
-					xh.send(null);
-				}
+        console.log(url);
+        time_ntp(url);				
 			}
 
 			function process_Time()
@@ -242,30 +243,12 @@ let sti = 0;
 					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh.responseText);
-						document.getElementById('cur_time').value = res.tstr;
-					}
-				};
-
-				var xh1 = new XMLHttpRequest();
-				xh1.open("GET", "/jacta", true);
-				xh1.send(null);
-				xh1.onreadystatechange = function()
-				{
-					if (this.readyState == 4 && this.status == 200) 
-					{
-						var res1 = JSON.parse(xh1.responseText);
-
-						if (res1.acth < 24 && res1.actm < 59) 
+						if (res.actw) 
 						{
-							document.getElementById('act_hour').value = res1.acth;
-							document.getElementById('act_min' ).value = res1.actm;
+						  document.getElementById('cur_time').value = "Алярма!!!!!!!!";
+						  loadVal_Time();
 						}
-						else 
-						{
-							document.getElementById('act_hour').value = "--";
-							document.getElementById('act_min' ).value = "--";
-						}
-						if (res1.actw) sel_anum();
+						else document.getElementById('cur_time').value = res.tstr;
 					}
 				};
 			}

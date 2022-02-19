@@ -45,7 +45,7 @@
 				<td colspan='2'></td>
 			</tr>
 			<tr>
-				<td  colspan='2' ><button onclick='time_ntp();'>Время по интернету</button></td>
+				<td  colspan='2' ><button onclick='time_ntp("/ntp";'>Время по интернету</button></td>
 			</tr>
 			<tr>
 				<td colspan='2'></td>
@@ -64,7 +64,7 @@
 					<option value = '4'>4</option>
 					<option value = '5'>5</option>
 					<option value = '6'>6</option>
-					<option value = '7'>--</option>
+					<option value = '7' selected>--</option>
 				</select>
 				&nbsp; Когда: &nbsp;
 				<select style='display: none;' id='atyp' name='atyp' onchange='sel_atyp();'>
@@ -97,7 +97,7 @@
 					<option value = '2' >Entertainer</option>
 					<option value = '3' >Looney</option>
 					<option value = '4' >Bond</option>
-					<option value = '5 '>MASH</option>
+					<option value = '5' >MASH</option>
 					<option value = '6' >StarWars</option>
 					<option value = '7' >GoodBad</option>
 					<option value = '8' >TopGun</option>
@@ -108,6 +108,12 @@
 					<option value = '13'>MissionImpossible</option>
 					<option value = '14'>KnightRider</option>
 				</select></td>
+			</tr>
+			<tr>
+				<td  colspan='2' ><button onclick='set_alm();'>Установить</button></td>
+			</tr>
+			<tr>
+				<td colspan='2'></td>
 			</tr>
 			<tr>
 				<td  colspan='2' class='h'>Актуальный будильник&nbsp;

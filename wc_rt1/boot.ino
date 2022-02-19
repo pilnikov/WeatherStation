@@ -84,7 +84,7 @@ void runing_string_start() // ---------------------------- Запуск бегу
   static uint8_t newsIndex;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  local_ip = myIP.toString();
+  local_ip = wifi_data_cur.addr.toString();
 #endif
   memset(st1, 0, 254);
   memset(st2, 0, 20);
