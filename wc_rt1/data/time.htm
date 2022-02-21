@@ -31,28 +31,17 @@
 			  <td  colspan='2' class='h'><output id='cur_time'></output></td>
 			</tr>
 			<tr>
-				<td colspan='2'>Время
-					<input type='time' id='time' name='time'/>
-				</td>
+				<td>Время</td>
+				<td><input type='time' id='time' name='time'/></td>
 			</tr>
 			<tr>
-				<td colspan='2'>Дата
-					<input type='date' id='date'  name='date'/>
-				</td>
+				<td>Дата</td>
+				<td><input type='date' id='date'  name='date'/></td>
 			</tr>
 			<tr>
-				<td  colspan='2' ><button onclick='set_time();'>Установить</button></td>
+				<td><button onclick='time_ntp("/ntp");'>Время по интернету</button></td>
+				<td><button onclick='set_time();'>Установить</button></td>
 			</tr>
-			<tr>
-				<td colspan='2'></td>
-			</tr>
-			<tr>
-				<td  colspan='2' ><button onclick='time_ntp("/ntp");'>Время по интернету</button></td>
-			</tr>
-			<tr>
-				<td colspan='2'></td>
-			</tr>
-
 			<tr>
 				<td  colspan='2' class='h'>Настройки будильников</td>
 			</tr>
@@ -77,9 +66,7 @@
 					<option value = '4'>Разово</option>
 				</select>
 				&nbsp; Сработает в: &nbsp;
-				<input type='number' size='2' maxlength='2' min='0' max='23' style='display: none;' id='ahour' name='ahour' />
-				&nbsp;:&nbsp;
-				<input type='number' size='2' maxlength='2' min='0' max='59' style='display: none;' id='amin'  name='amin'/></td>
+					<input type='time' style='display: none;' id='atime' name='atime'/>
 			</tr>
 			<tr>
 				<td colspan='2'>&nbsp; Экшн: &nbsp;

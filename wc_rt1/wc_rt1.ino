@@ -221,7 +221,7 @@ void setup()
 #endif
 
     //------------------------------------------------------  Инициализируем RTC
-    RtcDateTime c_time = RtcDateTime(__DATE__, __TIME__);
+    RtcDateTime c_time = RtcDateTime(__DATE__, __TIME__) + 946684800;
 
     DBG_OUT_PORT.print(F("Type of rtc = "));
     DBG_OUT_PORT.println(rtc_hw.a_type);

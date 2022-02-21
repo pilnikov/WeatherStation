@@ -2,13 +2,13 @@
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
-  server.on("/ntp", handleNTP);
-  server.on("/set_time1", handleSetTime1);
-  server.on("/set_time2", handleSetTime2);
-  server.on("/set_wifi",  handleSetWiFi);
-  server.on("/set_ip1",   handleSetIp1);
-  server.on("/set_ip2",   handleSetIp2);
-  server.on("/end_set_wifi",  handleEndSetWiFi);
+  server.on("/ntp",         handleNTP);
+  server.on("/set_time",    handleSetTime);
+  server.on("/set_part",    handleSetPart);
+  server.on("/set_wifi",    handleSetWiFi);
+  server.on("/set_ip1",     handleSetIp1);
+  server.on("/set_ip2",     handleSetIp2);
+  server.on("/end_set_wifi", handleEndSetWiFi);
   server.on("/exit",        handleExit);
 # ifdef MATRIX
   server.on("/set_font",    handleSetFont);
@@ -22,11 +22,10 @@ void web_setup()
   server.on("/set_partrm",  handleSetPartrm);
   server.on("/set_news",    handleSetNews);
 
-  server.on("/jactt",     handlejActT);
-  server.on("/jacta",     handlejActA);
-  server.on("/jtime1",    handlejTime1);
-  server.on("/jtime2",    handlejTime2);
-  server.on("/jwifi",     handlejWiFi);
+  server.on("/jactt",       handlejActT);
+  server.on("/jacta",       handlejActA);
+  server.on("/jtime",       handlejTime);
+  server.on("/jwifi",       handlejWiFi);
   server.on("/jactb",       handlejActB);
   server.on("/jdisp",       handlejPard);
   server.on("/jsens",       handlejPars);
@@ -98,73 +97,27 @@ void stop_serv()
   wifi.end(wifi_data_cur);
 }
 
-//-------------------------------------------------------------- handlejTime1
-void handlejTime1()
-{
-  DynamicJsonDocument jsonBuffer(512);
-  JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["hour"]  = rtc_time.hour;
-  json["min"]   = rtc_time.min;
-  json["day"]   = rtc_time.day;
-  json["month"] = rtc_time.month;
-  json["year"]  = rtc_time.year;
-
-  String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
-
-  server.send(200, "text/json", st);
-  st = String();
-}
-
-//-------------------------------------------------------------- handlejTime2
-void handlejTime2()
+//-------------------------------------------------------------- handlejTime
+void handlejTime()
 {
   from_client = myrtccfg.to_json(rtc_cfg);
   server.send(200, "text/json", from_client);
 }
 
 
-//-------------------------------------------------------------- handleSetTime1
-void handleSetTime1()
+//-------------------------------------------------------------- handleSetTime
+void handleSetTime()
 {
-  char buf[100] = {0};
+  rtc_time.ct = server.arg("in").toInt();
+  DBG_OUT_PORT.print(F("Time from web...."));
+  DBG_OUT_PORT.println(rtc_time.ct);
 
-  strcpy(buf, server.arg("in").c_str());
-
-  // Allocate the document on the stack.
-  // Don't forget to change the capacity to match your requirements.
-  // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument doc(100);
-
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(doc, buf);
-  if (error)
-  {
-    DBG_OUT_PORT.print(F("deserializeJson() failed: "));
-    DBG_OUT_PORT.println(error.c_str());
-  }
-  else
-  {
-    DBG_OUT_PORT.println(buf);
-    uint8_t  hr = doc["h"];
-    uint8_t  mn = doc["m"];
-    uint8_t  dy = doc["d"];
-    uint8_t  mo = doc["mm"];
-    uint16_t yr = doc["y"];
-    RtcDateTime dt1 = RtcDateTime(constrain(yr, 2021, 2036), constrain(mo, 1, 12), constrain(dy, 1, 31), constrain(hr, 0, 23), constrain(mn, 0, 59), 0);
-
-    if (debug_level == 14) DBG_OUT_PORT.printf("set time = %02d.%02d.%04d %02d:%02d:%02d\n",
-          dt1.Day(), dt1.Month(), dt1.Year(), dt1.Hour(), dt1.Minute(), dt1.Second());
-
-    rtc_time.ct = myrtc.man_set_time(rtc_hw, dt1);
-
-    server.send(200, "text/html", "OK!");
-  }
+  server.send(200, "text/html", "OK!");
 }
 
-//-------------------------------------------------------------- handleSetTime2
-void handleSetTime2()
+//-------------------------------------------------------------- handleSetPart
+void handleSetPart()
 {
   from_client = server.arg("in");
 
@@ -235,6 +188,7 @@ void handlejActT()
 
   json["actw"] = wasAlarm;
   json["tstr"] = tstr;
+  json["ct"]   = rtc_time.ct;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));

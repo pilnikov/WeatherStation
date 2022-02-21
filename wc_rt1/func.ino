@@ -491,7 +491,7 @@ void keyb_read()
     else
     {
       serv_ms = millis() + 60000L;
-      stop_serv();  //Останавливаем web морду
+      //stop_serv();  //Останавливаем web морду
       if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? HIGH : LOW); // Выключаем светодиод
     }
   }
