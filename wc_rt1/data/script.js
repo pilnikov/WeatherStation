@@ -8,22 +8,19 @@ var numaa = 7;
 //---------------------------------------------------------------------------------Time.htm
 			function loadVal_Time()
 			{
-				var xht = new XMLHttpRequest();
-				xht.open("GET", "/jtime1", true);
-				xht.send(null);
-				xht.onreadystatechange = function()
-				{
-					if (xht.readyState == 4 && xht.status == 200) 
-					{
-						var rest = JSON.parse(xht.responseText);
-						document.getElementById('hour').value = rest.hour;
-						document.getElementById('min').value  = rest.min;
-						document.getElementById('day').value  = rest.day;
-						document.getElementById('mon').value  = rest.month;
-						document.getElementById('year').value = rest.year;
-						loadVal_Time1();
-					}
-				};
+  			var d = new Date().toISOString().slice(0, 10);
+
+				let dateObj = new Date();
+				
+				var tz = dateObj.getTimezoneOffset() / 60;
+
+				dateObj.setHours(dateObj.getHours() - tz);
+
+				var t = dateObj.toISOString().slice(11, 16);
+				
+				document.getElementById('date').value  = d;
+				document.getElementById('time').value  = t;
+				loadVal_Time1();
       }
 			
 			function loadVal_Time1()
@@ -177,16 +174,19 @@ var numaa = 7;
 
 			function set_time()
 			{
-				h=document.getElementById('hour').value;
-				m=document.getElementById('min').value;
-				d=document.getElementById('day').value;
-				mm=document.getElementById('mon').value;
-				y=document.getElementById('year').value;
+				let dateObj = new Date(document.getElementById('date').value, document.getElementById('time').value);
+        console.log(dateObj);
+				
+				var h  = dateObj.getHours();
+				var m  = dateObj.getMinutes();
+				var dd = dateObj.getDay();
+				var mm = dateObj.getMonth();
+				var y  = dateObj.getFullYear();
 		  
 				let urlc  = {
                       h: h,
                       m: m,
-                      d: d,
+                      d: dd,
                      mm: mm,
                       y: y
                     };
@@ -249,6 +249,11 @@ var numaa = 7;
 						  loadVal_Time();
 						}
 						else document.getElementById('cur_time').value = res.tstr;
+						const event = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
+
+           //console.log(event.toLocaleDateString('ru-RU', options));
+
 					}
 				};
 			}
