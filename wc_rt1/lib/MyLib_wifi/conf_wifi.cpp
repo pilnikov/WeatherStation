@@ -94,20 +94,29 @@ String WFJS::to_json(wifi_cfg_data_t _data)
 		DBG_OUT_PORT.print(F("Start forming wifi_cfg_data to json string"));
 	}
 
-	if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0) strcpy( _data.ap_ssid, "My_WiFi");
-
 	DynamicJsonDocument doc(1000);
 	JsonObject json = doc.to<JsonObject>();
 
-	json["as"]  = _data.ap_ssid;
-	json["ap"]  = _data.ap_pass;
+	if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0 || _data.ap_ssid == "N/A") 
+	{	
+		strcpy(_data.ap_ssid, "My_WiFi");
+		strcpy(_data.ap_pass, "12345678");
+		strcpy(_data.ap_ip, "192.168.4.1");
+		strcpy(_data.ap_ma, "255.255.255.0");
+	}
+	else
+	{
+		json["as"]  = _data.ap_ssid;
+		json["ap"]  = _data.ap_pass;
+		json["iap"] = _data.ap_ip;
+		json["map"] = _data.ap_ma;
+	}
+
 	json["ss1"] = _data.sta_ssid1;
 	json["ss2"] = _data.sta_ssid2;
 	json["sp1"] = _data.sta_pass1;
 	json["sp2"] = _data.sta_pass2;
 
-	json["iap"] = _data.ap_ip;
-	json["map"] = _data.ap_ma;
 
 	json["st1"] = _data.st_ip1;
 	json["st2"] = _data.st_ip2;
