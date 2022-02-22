@@ -52,6 +52,7 @@ void setup()
   strcpy(tstr, "Safe Mode");
 #endif
 
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //------------------------------------------------------  Читаем установки RTC из конфиг файла
   conf_f = "/conf_rtc.json";
   from_client = lfs.readFile(conf_f);
@@ -60,6 +61,7 @@ void setup()
   //rtc_cfg = myrtccfg.def_conf();
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
+#endif
 
   //------------------------------------------------------  GPIO
 #if defined(ESP8266)
@@ -102,14 +104,15 @@ void setup()
   DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(rtc_hw.a_type);
 
-  RtcDateTime c_time;
-  c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
-  rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+  rtc_time.ct = myrtc.GetNtp(rtc_cfg, rtc_time);
+#endif
+  myrtc.man_set_time(rtc_hw, rtc_time.ct);
+  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time.ct);
 
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-  rtc_alm.muz = 15;
+  rtc_alm.act = 15;
   play_snd = true;
   DBG_OUT_PORT.println(F("End of setup"));
 
@@ -119,33 +122,33 @@ void loop()
 {
   // ----------------------------------------------------- Проигрываем звуки
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  Buzz.play(pgm_read_ptr(&songs[rtc_alm.muz ]), gpio_snd, play_snd, false);
+  Buzz.play(pgm_read_ptr(&songs[rtc_alm.act ]), gpio_snd, play_snd, false);
 #elif defined (__AVR__)
-  Buzz.play(pgm_read_word(&songs[rtc_alm.muz]), gpio_snd, play_snd, false);
+  Buzz.play(pgm_read_word(&songs[rtc_alm.act]), gpio_snd, play_snd, false);
 #endif
   play_snd = false;
 
 
   //-------------Refresh current time in rtc_cfg------------------
-  myrtc.GetTime(rtc_hw, &rtc_time);
+  rtc_time.ct = myrtc.GetTime(rtc_hw);
 
-  myrtc.cur_time_str(rtc_time, true, tstr);
+  myrtc.cur_time_str(rtc_time.ct, true, tstr);
 
   if (!wasAlarm) //Проверка будильников
   {
     bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
-    if (myrtc.Alarmed(aaaa, rtc_hw, &rtc_cfg, rtc_time, &rtc_alm))
+    if (myrtc.Alarmed(rtc_time.nm_is_on,aaaa, rtc_hw, rtc_time.ct, rtc_alm.time))
     {
       _wasAlarmed_int = false;
       if (rtc_alm.al1_on) alarm1_action();
       if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
       {
-        rtc_alm.muz = 15;
+        rtc_alm.act = 15;
         play_snd = true;
       }
       wasAlarm = true;
       alarm_time = millis() + 2000;
-      rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+      rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time.ct);
     }
   }
 
@@ -154,8 +157,9 @@ void loop()
     wasAlarm = false;
   }
   //------------------------------------------------------  Верифицируем ночной режим
-  if (rtc_cfg.nm_start <  rtc_cfg.nm_stop) rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start && rtc_time.hour < rtc_cfg.nm_stop);
-  else rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start || rtc_time.hour < rtc_cfg.nm_stop);
+ rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   server.handleClient();
   ArduinoOTA.handle();
+#endif
 }

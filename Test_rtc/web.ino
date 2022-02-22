@@ -156,12 +156,11 @@ void handleSetTime2()
 //-------------------------------------------------------------- handleNTP
 void handleNTP()
 {
-  RtcDateTime c_time;
   if (wifi_data_cur.cli)
   {
-    c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
-    rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
-    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    rtc_time.ct = myrtc.GetNtp(rtc_cfg);
+    myrtc.man_set_time(rtc_hw, rtc_time.ct);
+    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time.ct);
   }
   server.send(200, "text/html", "OK!");
 }

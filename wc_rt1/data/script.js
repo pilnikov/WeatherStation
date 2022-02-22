@@ -12,7 +12,7 @@ var numaa = 7;
 				document.getElementById('date').value  = event.toISOString().slice(0, 10);
 				document.getElementById('time').value  = event.toTimeString().slice(0, 8);
 				loadVal_Time1();
-      }
+			}
 			
 			function loadVal_Time1()
 			{
@@ -41,7 +41,7 @@ var numaa = 7;
 					loadVal_Time2();
 					}
 				};
-      }
+			}
       
 			function loadVal_Time2()
 			{
@@ -67,21 +67,21 @@ var numaa = 7;
 						document.getElementById('antp2').value = res.ntp2;
 						document.getElementById('antp3').value = res.ntp3;
 
-    				al = res.al;
+						al = res.al;
 
-            document.getElementById('anum').value = numaa;
+						document.getElementById('anum').value = numaa;
 
-            if (numaa < 7)
+						if (numaa < 7)
 						{
-						  document.getElementById('atyp'  ).value = al[numaa][0];
+							document.getElementById('atyp'  ).value = al[numaa][0];
 
-              dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
+							dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
 
-      				var t = dateObj.toISOString().slice(11, 16);
-  					  document.getElementById('atime' ).value = t;
-						  document.getElementById('amel'  ).value = al[numaa][3];
-						  document.getElementById('aon'   ).value = al[numaa][4];
-    				  sel_atyp();
+							var t = dateObj.toISOString().slice(11, 16);
+							document.getElementById('atime' ).value = t;
+							document.getElementById('amel'  ).value = al[numaa][3];
+							document.getElementById('aon'   ).value = al[numaa][4];
+							sel_atyp();
 						}
 					}
 				};
@@ -99,10 +99,10 @@ var numaa = 7;
 				{
 					document.getElementById('atyp'  ).value = al[numaa][0];
 
-          dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
+					dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
 
-  				var t = dateObj.toISOString().slice(11, 16);
-				  document.getElementById('atime' ).value = t;
+					var t = dateObj.toISOString().slice(11, 16);
+					document.getElementById('atime' ).value = t;
 					document.getElementById('amel'  ).value = al[numaa][3];
 					document.getElementById('aon'   ).value = al[numaa][4];
 				}
@@ -112,52 +112,52 @@ var numaa = 7;
 			function sel_atyp()
 			{
 				let satyp = document.getElementById('atyp').value;
-			  let saon  = document.getElementById('aon').value;
+				let saon  = document.getElementById('aon').value;
 
 				if (numaa > 6) 
 				{
-				  showHide('atyp',  false);
+					showHide('atyp',  false);
 					showHide('atime', false);
 					showHide('aon',   false);
 					showHide('amel',  false);
 				}
-				else
+				else  
 				{
-				  showHide('atyp',  true);
+					showHide('atyp',  true);
 
-  				if (saon > 0) 
-  				{
-  				  showHide('amel',  false);
-  				}
-  				else
-  				{
-  				  showHide('amel',  true);
-  				}
-  
-    			if (satyp > 0)
-  				{
-  					showHide('atime', true);
-  					showHide('aon',   true);
-  				}
-    			else
-  				{
-  					showHide('atime', false);
-  					showHide('aon',   false);
-  					showHide('amel',  false);
-  				}
-        }
+					if (saon > 0) 
+					{
+					  showHide('amel',  false);
+					}
+					else
+					{
+					  showHide('amel',  true);
+					}
+	  
+					if (satyp > 0)
+					{
+						showHide('atime', true);
+						showHide('aon',   true);
+					}
+					else
+					{
+						showHide('atime', false);
+						showHide('aon',   false);
+						showHide('amel',  false);
+					}
+				}
 			}
 
 			function set_alm()
-      {
+			{
 				if  (numaa < 7)
 				{
-  				al[numaa][0] = document.getElementById('atyp' ).value;
-          let dd = document.getElementById('atime').value.split(":");
- 				  al[numaa][1] = dd[0];
-  				al[numaa][2] = dd[1];
-  				al[numaa][3] = document.getElementById('amel' ).value;
-  				al[numaa][4] = document.getElementById('aon'  ).value;
+					al[numaa][0] = document.getElementById('atyp' ).value;
+					let dd = document.getElementById('atime').value.split(":");
+					al[numaa][1] = dd[0];
+					al[numaa][2] = dd[1];
+					al[numaa][3] = document.getElementById('amel' ).value;
+					al[numaa][4] = document.getElementById('aon'  ).value;
 				}
 			}
       
@@ -175,12 +175,9 @@ var numaa = 7;
 			function set_time()
 			{
 				let bb = document.getElementById('date').value.split("-");
-        //console.log(bb);
-        let dd = document.getElementById('time').value.split(":");
+				let dd = document.getElementById('time').value.split(":");
 				let dateObj = new Date(bb);
-        let timeNOW = dateObj.setHours(dd[0], dd[1], dd[2]) / 1000;
-				//dateObj.setTime(document.getElementById('time').value);
-        console.log(dateObj);
+				let timeNOW = dateObj.setHours(dd[0], dd[1], dd[2]) / 1000;
 				
 				let url = '/set_time?in='+timeNOW;
 
@@ -205,21 +202,21 @@ var numaa = 7;
 				var antp3 = document.getElementById('antp3').value;
 
 				let urlc = {
-                       tzo: tzone,
-                 auto_corr: acorr,
-                       upm: upm,
-                  nm_start: nmstart,
-                   nm_stop: nmstop,
-                     e_h_b: ehb,
-                     rtc_t: srtyp,
-                      ntp1: antp1,
-                      ntp2: antp2,
-                      ntp3: antp3,
-                        al: al
-                    };
+								   tzo: tzone,
+							 auto_corr: acorr,
+								   upm: upm,
+							  nm_start: nmstart,
+							   nm_stop: nmstop,
+								 e_h_b: ehb,
+								 rtc_t: srtyp,
+								  ntp1: antp1,
+								  ntp2: antp2,
+								  ntp3: antp3,
+									al: al
+							};
 
 				let url = '/set_part?in=' + JSON.stringify(urlc);
-        time_ntp(url);				
+				time_ntp(url);				
 			}
 
 			function process_Time()
@@ -234,19 +231,17 @@ var numaa = 7;
 						var res = JSON.parse(xh.responseText);
 						if (res.actw) 
 						{
-						  document.getElementById('cur_time').value = "Алярма!!!!!!!!";
-						  loadVal_Time(res.actw);
+							document.getElementById('cur_time').value = "Алярма!!!!!!!!";
+							loadVal_Time(res.actw);
 						}
 						else 
-  						//{document.getElementById('cur_time').value = res.tstr;
-  					{
-  						const event = new Date(res.ct * 1000);
-      				var tz = event.getTimezoneOffset() * 60000; 
-              event.setTime(event.getTime() + tz);
-              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
-              //console.log(event.toLocaleDateString('ru-RU', options));
-  						document.getElementById('cur_time').value = event.toLocaleDateString('ru-RU', options);
-            }
+  						{
+							const event = new Date(res.ct * 1000);
+							var tz = event.getTimezoneOffset() * 60000; 
+							event.setTime(event.getTime() + tz);
+							const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
+							document.getElementById('cur_time').value = event.toLocaleDateString('ru-RU', options);
+						}
 					}
 				};
 			}
@@ -745,18 +740,16 @@ var numaa = 7;
 						var res = JSON.parse(xh.responseText);
 						if (res.actw) 
 						{
-						  document.getElementById('cur_time').value = "Алярма!!!!!!!!";
+							document.getElementById('cur_time').value = "Алярма!!!!!!!!";
 						}
 						else 
-  					{
-  						//document.getElementById('cur_time').value = res.tstr;
-  						const event = new Date(res.ct * 1000);
-      				var tz = event.getTimezoneOffset() * 60000; 
-              event.setTime(event.getTime() + tz);
-              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
-              //console.log(event.toLocaleDateString('ru-RU', options));
-  						document.getElementById('cur_time').value = event.toLocaleDateString('ru-RU', options);
-            }
+  						{
+							const event = new Date(res.ct * 1000);
+							var tz = event.getTimezoneOffset() * 60000; 
+							event.setTime(event.getTime() + tz);
+							const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
+							document.getElementById('cur_time').value = event.toLocaleDateString('ru-RU', options);
+						}
 					}
 				};
 			}

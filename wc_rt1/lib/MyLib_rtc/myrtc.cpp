@@ -1,29 +1,5 @@
 
 #include "myrtc.h"
-#include <My_LFS.h>
-
-// ----------------------------------- Конструктор DS3231
-	static RtcDS3231<TwoWire> * ds3231;
-
-	// ----------------------------------- Конструктор DS1307
-	static RtcDS1307<TwoWire> * ds1307;
-
-	// ----------------------------------- Конструктор DS1302
-	static RtcDS1302<ThreeWire> * ds1302;
-	static ThreeWire * myTWire;
-
-	#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-	static NTPTime NTP_t;
-	#endif
-
-
-	static RTCJS conf;
-	
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-	static LFS lfs;
-#endif	
-
-	static uint32_t prev_ms;
 
 // CONNECTIONS:
 // DS3231 SDA --> SDA GPIO 4 D2
@@ -49,6 +25,8 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
     case 2:
       myTWire = new ThreeWire(hw_data.gpio_dio, hw_data.gpio_clk, hw_data.gpio_dcs); // IO, SCLK, CE
       ds1302 = new RtcDS1302<ThreeWire> (*myTWire);
+      ds1302 -> Begin();
+	  
       break;
 
     case 3:
@@ -59,13 +37,14 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
       break;
   }
 
-  if (debug_level == 13) DBG_OUT_PORT.print(F("compiled: "));
-  if (debug_level == 13) DBG_OUT_PORT.print(__DATE__);
-  if (debug_level == 13) DBG_OUT_PORT.println(__TIME__);
+  if (debug_level == 13)
+  {
+	  DBG_OUT_PORT.print(F("compiled: "));
+	  DBG_OUT_PORT.print(__DATE__);
+	  DBG_OUT_PORT.println(__TIME__);
+  }
 
-  RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
-
-  RtcDateTime _now = compiled;
+  unsigned long _now = compiled;
 
   if (debug_level == 13) DBG_OUT_PORT.println(F("Starting RTC check"));
 
@@ -116,21 +95,13 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
       }
 
       _now = ds3231 -> GetDateTime();
-      if (debug_level == 13)
+ 
+	  if (debug_level == 13)
       {
 	      char _buf[25];
 		  memset(_buf, 0, 25);
 
-		  rtc_time_data_t rt;
-		  rt.hour = _now.Hour();
-		  rt.min = _now.Minute();
-		  rt.sec = _now.Second();
-		  rt.wday = _now.DayOfWeek() + 1;
-		  rt.month = _now.Month();
-		  rt.day = _now.Day();
-		  rt.year = _now.Year(); //костыль
-		  
-		  cur_time_str(rt, false, _buf);
+		  cur_time_str(_now, false, _buf);
 		  DBG_OUT_PORT.println(_buf);
 	  }
 	  
@@ -205,19 +176,18 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
   // just clear them to your needed state
 }
 
-rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc_time_data_t time_data) //Устанавливаем будильник
+rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, unsigned long cur_time) //Устанавливаем актуальный будильник
 {
   rtc_alm_data_t  alm_data;
 
   alm_data.num  = 7;
-  alm_data.hour = 25;
-  alm_data.min  = 61;
-  alm_data.muz  = 0;
+  alm_data.time = 0;
+  alm_data.act  = 30;
 
   uint16_t 
   minut_sut = 24 * 60, // минут в сутках
-  minut_alm = (uint16_t) alm_data.hour * 60 +  alm_data.min, // актуальный будильник (в минутах)  
-  minut_cur = (uint16_t)time_data.hour * 60 + time_data.min; // текущее время (в минутах)
+  minut_alm = (uint16_t)alm_data.time % 86400 %3600 / 60, // актуальный будильник (в минутах)  
+  minut_cur = (uint16_t)cur_time      % 86400 %3600 / 60; // текущее время (в минутах)
   uint8_t  nmin = 7; // Номер актуального будильника (вычисляемый тут)
 
   bool new_alm_is_set = false; //Параметры для нового будильника найдены и установлены
@@ -229,7 +199,12 @@ rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc
       DBG_OUT_PORT.print(i); DBG_OUT_PORT.print(F(" alarm is...."));
       for (int n = 0; n <= 4; n++)
       {
-        DBG_OUT_PORT.print(cfg_data.alarms[i][n]); DBG_OUT_PORT.print(F(","));
+        DBG_OUT_PORT.print(cfg_data.alarms[i].type); 
+		DBG_OUT_PORT.print(F(","));
+        DBG_OUT_PORT.print(cfg_data.alarms[i].time); 
+		DBG_OUT_PORT.print(F(","));
+        DBG_OUT_PORT.print(cfg_data.alarms[i].act); 
+		DBG_OUT_PORT.print(F(","));
       }
       DBG_OUT_PORT.println();
     }
@@ -292,7 +267,7 @@ rtc_alm_data_t CT::set_alarm(rtc_hw_data_t hw_data, rtc_cfg_data_t cfg_data, rtc
   return alm_data;
 }
 
-bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_time_data_t time_data, rtc_alm_data_t* alm_data)
+bool CT::Alarmed(bool nm, bool irq, rtc_hw_data_t hw_data, unsigned long cur_time, unsigned long alm_time)
 {
   alm_data->al1_on = false;
   alm_data->al1_on = false;
@@ -340,9 +315,10 @@ bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_cfg_data_t* cfg_data, rtc_
   return (alm_data->al1_on || alm_data->al2_on);
 }
 
-long CT::man_set_time(rtc_hw_data_t hw_data, const RtcDateTime &dt)
+void CT::man_set_time(rtc_hw_data_t hw_data, unsigned long ct)
 {
-  long _ct = dt;
+  RtcDateTime dt = ct;
+  
   switch (hw_data.a_type)
   {
     case 1:
@@ -357,18 +333,14 @@ long CT::man_set_time(rtc_hw_data_t hw_data, const RtcDateTime &dt)
     default:
       break;
   }
-  return _ct;
+  cur_time = dt - millis() / 1000;
 }
 
-void CT::GetTime(rtc_hw_data_t hw_data, rtc_time_data_t* time_data)
+unsigned long CT::GetTime(rtc_hw_data_t hw_data)
 {
-  if (millis() >= prev_ms)
-  {
-    time_data->ct++;
-    prev_ms += 1000;
-  }
+  cur_time += millis() / 1000;
   
-  RtcDateTime dt = RtcDateTime(time_data->ct);
+  RtcDateTime dt = cur_time;
 
   switch (hw_data.a_type)
   {
@@ -381,19 +353,15 @@ void CT::GetTime(rtc_hw_data_t hw_data, rtc_time_data_t* time_data)
     case 3:
       dt = ds1307 -> GetDateTime();
       break;
+    default:
+      break;
   }
-
-  time_data->hour = dt.Hour();
-  time_data->min = dt.Minute();
-  time_data->sec = dt.Second();
-  time_data->wday = dt.DayOfWeek() + 1;
-  time_data->month = dt.Month();
-  time_data->day = dt.Day();
-  time_data->year = dt.Year(); //костыль
+  unsigned long ct = dt;
+  return ct;
 }
 
 //-------------------------------------------------------------- cur_time_str
-void CT::cur_time_str(rtc_time_data_t time_data, bool lng, char* in)
+void CT::cur_time_str(unsigned long ct, bool lng, char* in)
 {
   const char* sdnr_1 = PSTR("ВС");
   const char* sdnr_2 = PSTR("ПН");
@@ -452,11 +420,4 @@ RtcDateTime CT::GetNtp(rtc_cfg_data_t cfg_data, rtc_time_data_t time_data)
   out_time = RtcDateTime(c_time.Year() - 30, c_time.Month(), c_time.Day(), c_time.Hour(), c_time.Minute(), c_time.Second()); //Потому что макуна считает с 2000го, а тайм с 1970го
 #endif
   return out_time;
-}
-
-int CT::get_temperature()
-{
-  RtcTemperature t1 = ds3231 -> GetTemperature();
-  int temp = round(t1.AsFloatDegC());
-  return temp;   
 }

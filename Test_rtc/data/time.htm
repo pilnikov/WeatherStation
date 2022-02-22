@@ -26,31 +26,17 @@
 			  <td  colspan='2' class='h'><output id='cur_time'></output></td>
 			</tr>
 			<tr>
-				<td colspan='2'>Время
-					<input type='number' size='2' maxlength='2' min='0' max='23'  id='hour' name='hour'/>&nbsp;:&nbsp;
-					<input type='number' size='2' maxlength='2' min='0' max='59'  id='min'  name='min' />
-				</td>
+				<td>Время</td>
+				<td><input type='time' id='time' name='time'/></td>
 			</tr>
 			<tr>
-				<td colspan='2'>Дата
-					<input type='number' size='2' maxlength='2' min='1' max='31'  id='day'  name='day'  style='text-align:center;'  />&nbsp;/&nbsp;
-					<input type='number' size='2' maxlength='2' min='1' max='12'  id='mon'  name='mon'  style='text-align:center;'  />&nbsp;/&nbsp;
-					<input type='number' size='4' maxlength='4' min='2022' max='2047'  id='year' name='year' style='text-align:center;' />
-				</td>
+				<td>Дата</td>
+				<td><input type='date' id='date'  name='date'/></td>
 			</tr>
 			<tr>
-				<td  colspan='2' ><button onclick='set_time();'>Установить</button></td>
+				<td><button onclick='time_ntp("/ntp");'>Время по интернету</button></td>
+				<td><button onclick='set_time();'>Установить</button></td>
 			</tr>
-			<tr>
-				<td colspan='2'></td>
-			</tr>
-			<tr>
-				<td  colspan='2' ><button onclick='time_ntp("/ntp");'>Время по интернету</button></td>
-			</tr>
-			<tr>
-				<td colspan='2'></td>
-			</tr>
-
 			<tr>
 				<td  colspan='2' class='h'>Настройки будильников</td>
 			</tr>
@@ -75,20 +61,18 @@
 					<option value = '4'>Разово</option>
 				</select>
 				&nbsp; Сработает в: &nbsp;
-				<input type='number' size='2' maxlength='2' min='0' max='23' style='display: none;' id='ahour' name='ahour' />
-				&nbsp;:&nbsp;
-				<input type='number' size='2' maxlength='2' min='0' max='59' style='display: none;' id='amin'  name='amin'/></td>
+					<input type='time' style='display: none;' id='atime' name='atime'/>
 			</tr>
 			<tr>
 				<td colspan='2'>&nbsp; Экшн: &nbsp;
 				<select style='display: none;' id='aon' name='aon' onchange='sel_atyp();'>
-					<option value = '0'>Сыграет  мелодию</option>
-					<option value = '1'>Включит  ночной режим</option>
-					<option value = '2'>Выключит ночной режим</option>
-					<option value = '3'>Включит  дисплей</option>
-					<option value = '4'>Выключит дисплей</option>
-					<option value = '5'>Включит  радио</option>
-					<option value = '6'>Выключит радио</option>
+					<option value = '0' >Сыграет  мелодию</option>
+					<option value = '20'>Включит  ночной режим</option>
+					<option value = '21'>Выключит ночной режим</option>
+					<option value = '22'>Включит  дисплей</option>
+					<option value = '23'>Выключит дисплей</option>
+					<option value = '24'>Включит  радио</option>
+					<option value = '25'>Выключит радио</option>
 				</select>
 				&nbsp; Мелодия: &nbsp;
 				<select style='display: none;' id='amel' name='amel'>
@@ -126,7 +110,7 @@
 				<td colspan='2' class='h'>Опции для часов</td>
 			</tr>
  			<tr>
-				<td>Часовой пояс           </td><td><input type='number' size='2' maxlength='2' min='-23' max='23' id='tzone' name='tzone'/></td>
+				<td>Часовой пояс           </td><td><input type='number' size='2' maxlength='2' min='-12' max='12' id='tzone' name='tzone'/></td>
 			</tr>
 			<tr>
 				<td>Автокоррекция через NTP</td><td><input type='checkbox' id='acorr' name='acorr'/></td>
@@ -137,8 +121,8 @@
 				<tr><td>Сигнал каждый час  </td><td><input type='checkbox' id='ehb'   name='ehb'  /></td>
 			</tr>
 				<tr><td>Ночной режим</td>
-				<td>с&nbsp;   <input type='number' size='2' maxlength='2' min='0' max='23' id='nmstart' name='nmstart'/>
-				&nbsp;до&nbsp;<input type='number' size='2' maxlength='2' min='0' max='23' id='nmstop' name='nmstop' /></td>
+				<td>с&nbsp;   <input type='time' id='nmstart' name='nmstart'/>
+				&nbsp;до&nbsp;<input type='time' id='nmstop'  name='nmstop' /></td>
 			</tr>
 			<tr>
 				<td>Тип RTC</td>

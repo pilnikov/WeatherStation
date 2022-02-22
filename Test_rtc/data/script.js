@@ -8,23 +8,11 @@ var numaa = 7;
 //---------------------------------------------------------------------------------Time.htm
 			function loadVal_Time()
 			{
-				var xht = new XMLHttpRequest();
-				xht.open("GET", "/jtime1", true);
-				xht.send(null);
-				xht.onreadystatechange = function()
-				{
-					if (xht.readyState == 4 && xht.status == 200) 
-					{
-						var rest = JSON.parse(xht.responseText);
-						document.getElementById('hour').value = rest.hour;
-						document.getElementById('min').value  = rest.min;
-						document.getElementById('day').value  = rest.day;
-						document.getElementById('mon').value  = rest.month;
-						document.getElementById('year').value = rest.year;
-						loadVal_Time1();
-					}
-				};
-      }
+				const event = new Date();
+				document.getElementById('date').value  = event.toISOString().slice(0, 10);
+				document.getElementById('time').value  = event.toTimeString().slice(0, 8);
+				loadVal_Time1();
+			}
 			
 			function loadVal_Time1()
 			{
@@ -53,19 +41,22 @@ var numaa = 7;
 					loadVal_Time2();
 					}
 				};
-      }
+			}
       
 			function loadVal_Time2()
 			{
+  			let dateObj = new Date(0);
+				var tz = dateObj.getTimezoneOffset() / -60; 
+
 				var xh2 = new XMLHttpRequest();
-				xh2.open("GET", "/jtime2", true);
+				xh2.open("GET", "/jtime", true);
 				xh2.send(null);
 				xh2.onreadystatechange =  function()
 				{
 					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh2.responseText);
-						document.getElementById('tzone').value = res.tzo;
+						document.getElementById('tzone').value = tz;
 						document.getElementById('acorr').checked = res.auto_corr;
 						document.getElementById('upm').checked = res.upm;
 						document.getElementById('nmstart').value = res.nm_start;
@@ -76,18 +67,21 @@ var numaa = 7;
 						document.getElementById('antp2').value = res.ntp2;
 						document.getElementById('antp3').value = res.ntp3;
 
-    				al = res.al;
+						al = res.al;
 
-            document.getElementById('anum').value = numaa;
+						document.getElementById('anum').value = numaa;
 
-            if (numaa < 7)
+						if (numaa < 7)
 						{
-						  document.getElementById('atyp'  ).value = al[numaa][0];
-						  document.getElementById('ahour' ).value = al[numaa][1];
-						  document.getElementById('amin'  ).value = al[numaa][2];
-						  document.getElementById('amel'  ).value = al[numaa][3];
-						  document.getElementById('aon'   ).value = al[numaa][4];
-    				  sel_atyp();
+							document.getElementById('atyp'  ).value = al[numaa][0];
+
+							dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
+
+							var t = dateObj.toISOString().slice(11, 16);
+							document.getElementById('atime' ).value = t;
+							document.getElementById('amel'  ).value = al[numaa][3];
+							document.getElementById('aon'   ).value = al[numaa][4];
+							sel_atyp();
 						}
 					}
 				};
@@ -97,13 +91,18 @@ var numaa = 7;
 
 			function sel_anum()
 			{
+  			let dateObj = new Date(0);
+				var tz = dateObj.getTimezoneOffset() / -60; 
 				numaa = document.getElementById('anum').value;
 
 				if  (numaa < 7)
 				{
 					document.getElementById('atyp'  ).value = al[numaa][0];
-					document.getElementById('ahour' ).value = al[numaa][1];
-					document.getElementById('amin'  ).value = al[numaa][2];
+
+					dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
+
+					var t = dateObj.toISOString().slice(11, 16);
+					document.getElementById('atime' ).value = t;
 					document.getElementById('amel'  ).value = al[numaa][3];
 					document.getElementById('aon'   ).value = al[numaa][4];
 				}
@@ -113,54 +112,52 @@ var numaa = 7;
 			function sel_atyp()
 			{
 				let satyp = document.getElementById('atyp').value;
-			  let saon  = document.getElementById('aon').value;
+				let saon  = document.getElementById('aon').value;
 
 				if (numaa > 6) 
 				{
-				  showHide('atyp',  false);
-					showHide('ahour', false);
-					showHide('amin',  false);
+					showHide('atyp',  false);
+					showHide('atime', false);
 					showHide('aon',   false);
 					showHide('amel',  false);
 				}
-				else
+				else  
 				{
-				  showHide('atyp',  true);
+					showHide('atyp',  true);
 
-  				if (saon > 0) 
-  				{
-  				  showHide('amel',  false);
-  				}
-  				else
-  				{
-  				  showHide('amel',  true);
-  				}
-  
-    			if (satyp > 0)
-  				{
-  					showHide('ahour', true);
-  					showHide('amin',  true);
-  					showHide('aon',   true);
-  				}
-    			else
-  				{
-  					showHide('ahour', false);
-  					showHide('amin',  false);
-  					showHide('aon',   false);
-  					showHide('amel',  false);
-  				}
-        }
+					if (saon > 0) 
+					{
+					  showHide('amel',  false);
+					}
+					else
+					{
+					  showHide('amel',  true);
+					}
+	  
+					if (satyp > 0)
+					{
+						showHide('atime', true);
+						showHide('aon',   true);
+					}
+					else
+					{
+						showHide('atime', false);
+						showHide('aon',   false);
+						showHide('amel',  false);
+					}
+				}
 			}
 
 			function set_alm()
-      {
+			{
 				if  (numaa < 7)
 				{
-  				al[numaa][0] = document.getElementById('atyp' ).value;
-  				al[numaa][1] = document.getElementById('ahour').value;
-  				al[numaa][2] = document.getElementById('amin' ).value;
-  				al[numaa][3] = document.getElementById('amel' ).value;
-  				al[numaa][4] = document.getElementById('aon'  ).value;
+					al[numaa][0] = document.getElementById('atyp' ).value;
+					let dd = document.getElementById('atime').value.split(":");
+					al[numaa][1] = dd[0];
+					al[numaa][2] = dd[1];
+					al[numaa][3] = document.getElementById('amel' ).value;
+					al[numaa][4] = document.getElementById('aon'  ).value;
 				}
 			}
       
@@ -177,23 +174,13 @@ var numaa = 7;
 
 			function set_time()
 			{
-				h=document.getElementById('hour').value;
-				m=document.getElementById('min').value;
-				d=document.getElementById('day').value;
-				mm=document.getElementById('mon').value;
-				y=document.getElementById('year').value;
-		  
-				let urlc  = {
-                      h: h,
-                      m: m,
-                      d: d,
-                     mm: mm,
-                      y: y
-                    };
+				let bb = document.getElementById('date').value.split("-");
+				let dd = document.getElementById('time').value.split(":");
+				let dateObj = new Date(bb);
+				let timeNOW = dateObj.setHours(dd[0], dd[1], dd[2]) / 1000;
+				
+				let url = '/set_time?in='+timeNOW;
 
-				let url = '/set_time1?in=' + JSON.stringify(urlc);
-
-		  
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
 				xh.send(null);
@@ -215,22 +202,21 @@ var numaa = 7;
 				var antp3 = document.getElementById('antp3').value;
 
 				let urlc = {
-                       tzo: tzone,
-                 auto_corr: acorr,
-                       upm: upm,
-                  nm_start: nmstart,
-                   nm_stop: nmstop,
-                     e_h_b: ehb,
-                     rtc_t: srtyp,
-                      ntp1: antp1,
-                      ntp2: antp2,
-                      ntp3: antp3,
-                        al: al
-                    };
+								   tzo: tzone,
+							 auto_corr: acorr,
+								   upm: upm,
+							  nm_start: nmstart,
+							   nm_stop: nmstop,
+								 e_h_b: ehb,
+								 rtc_t: srtyp,
+								  ntp1: antp1,
+								  ntp2: antp2,
+								  ntp3: antp3,
+									al: al
+							};
 
-				let url = '/set_time2?in=' + JSON.stringify(urlc);
-        console.log(url);
-        time_ntp(url);				
+				let url = '/set_part?in=' + JSON.stringify(urlc);
+				time_ntp(url);				
 			}
 
 			function process_Time()
@@ -245,15 +231,22 @@ var numaa = 7;
 						var res = JSON.parse(xh.responseText);
 						if (res.actw) 
 						{
-						  document.getElementById('cur_time').value = "Алярма!!!!!!!!";
-						  loadVal_Time();
+							document.getElementById('cur_time').value = "Алярма!!!!!!!!";
+							loadVal_Time(res.actw);
 						}
-						else document.getElementById('cur_time').value = res.tstr;
+						else 
+  						{
+							const event = new Date(res.ct * 1000);
+							var tz = event.getTimezoneOffset() * 60000; 
+							event.setTime(event.getTime() + tz);
+							const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
+							document.getElementById('cur_time').value = event.toLocaleDateString('ru-RU', options);
+						}
 					}
 				};
 			}
 
-///-----------------------------------------------------------------------------WiFi.htm
+//-----------------------------------------------------------------------------WiFi.htm
 			function loadVal_WiFi()
 			{
 				let url = '/jwifi';
@@ -495,11 +488,6 @@ var numaa = 7;
 			}
 
 //------------------------------------------------------------------------------Main
-			function loadVal_Main()
-			{
-				_from = 'main';
-			}
-
 			function process_Main()
 			{
 				var xh = new XMLHttpRequest();
@@ -510,8 +498,19 @@ var numaa = 7;
 					if (this.readyState == 4 && this.status == 200) 
 					{
 						var res = JSON.parse(xh.responseText);
-						document.getElementById('cur_time').value = res.tstr;
-					}	
+						if (res.actw) 
+						{
+							document.getElementById('cur_time').value = "Алярма!!!!!!!!";
+						}
+						else 
+  						{
+							const event = new Date(res.ct * 1000);
+							var tz = event.getTimezoneOffset() * 60000; 
+							event.setTime(event.getTime() + tz);
+							const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
+							document.getElementById('cur_time').value = event.toLocaleDateString('ru-RU', options);
+						}
+					}
 				};
 			}
 

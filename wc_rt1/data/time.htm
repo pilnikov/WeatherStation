@@ -71,13 +71,13 @@
 			<tr>
 				<td colspan='2'>&nbsp; Экшн: &nbsp;
 				<select style='display: none;' id='aon' name='aon' onchange='sel_atyp();'>
-					<option value = '0'>Сыграет  мелодию</option>
-					<option value = '1'>Включит  ночной режим</option>
-					<option value = '2'>Выключит ночной режим</option>
-					<option value = '3'>Включит  дисплей</option>
-					<option value = '4'>Выключит дисплей</option>
-					<option value = '5'>Включит  радио</option>
-					<option value = '6'>Выключит радио</option>
+					<option value = '0' >Сыграет  мелодию</option>
+					<option value = '20'>Включит  ночной режим</option>
+					<option value = '21'>Выключит ночной режим</option>
+					<option value = '22'>Включит  дисплей</option>
+					<option value = '23'>Выключит дисплей</option>
+					<option value = '24'>Включит  радио</option>
+					<option value = '25'>Выключит радио</option>
 				</select>
 				&nbsp; Мелодия: &nbsp;
 				<select style='display: none;' id='amel' name='amel'>
@@ -115,7 +115,7 @@
 				<td colspan='2' class='h'>Опции для часов</td>
 			</tr>
  			<tr>
-				<td>Часовой пояс           </td><td><input type='number' size='2' maxlength='2' min='-23' max='23' id='tzone' name='tzone'/></td>
+				<td>Часовой пояс           </td><td><input type='number' size='2' maxlength='2' min='-12' max='12' id='tzone' name='tzone'/></td>
 			</tr>
 			<tr>
 				<td>Автокоррекция через NTP</td><td><input type='checkbox' id='acorr' name='acorr'/></td>
@@ -126,8 +126,8 @@
 				<tr><td>Сигнал каждый час  </td><td><input type='checkbox' id='ehb'   name='ehb'  /></td>
 			</tr>
 				<tr><td>Ночной режим</td>
-				<td>с&nbsp;   <input type='number' size='2' maxlength='2' min='0' max='23' id='nmstart' name='nmstart'/>
-				&nbsp;до&nbsp;<input type='number' size='2' maxlength='2' min='0' max='23' id='nmstop' name='nmstop' /></td>
+				<td>с&nbsp;   <input type='time' id='nmstart' name='nmstart'/>
+				&nbsp;до&nbsp;<input type='time' id='nmstop'  name='nmstop' /></td>
 			</tr>
 			<tr>
 				<td>Тип RTC</td>

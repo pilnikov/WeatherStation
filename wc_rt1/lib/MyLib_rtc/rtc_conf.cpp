@@ -166,48 +166,20 @@ rtc_cfg_data_t RTCJS::def_conf()
 
 	for (uint8_t i = 0; i <= 6; i++)
 	{
-		for (uint8_t j = 0; j <= 4; j++)
-		{
-			_data.alarms[i][j] = 0;
-		}
+		_data.alarms[i].type = 0;
+		_data.alarms[i].time = 0;
+		_data.alarms[i].act = 0;
 	}
 
 #if defined _dacha
-	_data.alarms[0][0] = 2;
-	_data.alarms[0][1] = 06;
-	_data.alarms[0][2] = 30;
-	_data.alarms[0][3] = 13;
-	_data.alarms[0][4] = 0;
+	_data.alarms[0].type = 2;
+	_data.alarms[0].time = 06;
+	_data.alarms[0].act = 13;
 
 #elif defined _work
-	_data.alarms[0][0] = 2;
-	_data.alarms[0][1] = 16;
-	_data.alarms[0][2] = 30;
-	_data.alarms[0][3] = 13;
-	_data.alarms[0][4] = 0;
-
-	_data.alarms[1][0] = 2;
-	_data.alarms[1][1] = 16;
-	_data.alarms[1][2] = 38;
-	_data.alarms[1][3] = 7;
-	_data.alarms[1][4] = 0;
-
-	_data.alarms[2][0] = 2;
-	_data.alarms[2][1] = 11;
-	_data.alarms[2][2] = 59;
-	_data.alarms[2][3] = 8;
-	_data.alarms[2][4] = 0;
-	_data.alarms[3][0] = 2;
-	_data.alarms[3][1] = 7;
-	_data.alarms[3][2] = 30;
-	_data.alarms[3][3] = 8;
-	_data.alarms[3][4] = 3;
-
-	_data.alarms[4][0] = 1;
-	_data.alarms[4][1] = 16;
-	_data.alarms[4][2] = 50;
-	_data.alarms[4][3] = 8;
-	_data.alarms[4][4] = 4;
+	_data.alarms[0].type = 2;
+	_data.alarms[0].time = 06;
+	_data.alarms[0].act = 13;
 #endif
 	return _data;
 }

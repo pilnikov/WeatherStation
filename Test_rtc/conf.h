@@ -24,11 +24,14 @@
 #include <esp_task_wdt.h>
 #endif
 
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
 #include <My_LFS.h>
 #include <my_wifi.h>
+#endif
+
 #include <myrtc.h>
 #include <Snd.h>
 
@@ -55,9 +58,11 @@ static WebServer server(80);
 HTTPUpdateServer httpUpdater;
 #endif
 
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 WF wifi;
 WFJS wifi_cfg;
 LFS lfs;
+#endif
 
 CT myrtc;
 RTCJS myrtccfg;
@@ -79,8 +84,10 @@ uint8_t gpio_sda = 255;
 uint8_t gpio_scl = 255;
 uint8_t gpio_snd = 255;
 
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 wifi_cfg_data_t wifi_data;
 wifi_cur_data_t wifi_data_cur;
+#endif
 
 rtc_hw_data_t  rtc_hw;
 rtc_cfg_data_t rtc_cfg;
