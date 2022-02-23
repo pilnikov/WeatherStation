@@ -104,11 +104,13 @@ void setup()
   DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(rtc_hw.a_type);
 
+  unsigned long ttm = RtcDateTime(__DATE__, __TIME__) - (millis() / 1000);
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  rtc_time.ct = myrtc.GetNtp(rtc_cfg, rtc_time);
+  ttm = myrtc.GetNtp(rtc_cfg, ttm);
 #endif
-  myrtc.man_set_time(rtc_hw, rtc_time.ct);
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time.ct);
+  myrtc.man_set_time(rtc_hw, ttm);
+  rtc_time.ct = myrtc.GetTime(rtc_hw);
+  rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
 
 
   //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
@@ -137,7 +139,7 @@ void loop()
   if (!wasAlarm) //Проверка будильников
   {
     bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
-    if (myrtc.Alarmed(rtc_time.nm_is_on,aaaa, rtc_hw, rtc_time.ct, rtc_alm.time))
+    if (myrtc.Alarmed(aaaa, rtc_hw, &rtc_alm, rtc_time.ct))
     {
       _wasAlarmed_int = false;
       if (rtc_alm.al1_on) alarm1_action();
@@ -148,7 +150,7 @@ void loop()
       }
       wasAlarm = true;
       alarm_time = millis() + 2000;
-      rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time.ct);
+      rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
     }
   }
 
@@ -157,7 +159,7 @@ void loop()
     wasAlarm = false;
   }
   //------------------------------------------------------  Верифицируем ночной режим
- rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
+  rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   server.handleClient();
   ArduinoOTA.handle();

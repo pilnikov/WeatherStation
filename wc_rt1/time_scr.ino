@@ -11,9 +11,7 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
 
   memset (buf, 0, 16);
 
-  uint16_t minute_ala = (uint16_t) rtc_alm.hour  * 60 + rtc_alm.min;
-  uint16_t minute_cur = (uint16_t) rtc_time.hour * 60 + rtc_time.min;
-  bool _alarmed = ((minute_ala > minute_cur) & (rtc_alm.hour < 24));
+  bool _alarmed = rtc_alm.num < 7;
 
 
 
@@ -63,8 +61,9 @@ void time_view(uint8_t type_disp, uint8_t type_vdrv)
       // 2LINEx16D
       if (_alarmed)
       {
-        if (conf_data.rus_lng) sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d\355"), h, rtc_time.min, rtc_time.sec, rtc_alm.hour, rtc_alm.min);
-        else sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d"), h, rtc_time.min, rtc_time.sec, rtc_alm.hour, rtc_alm.min);
+        rtc_hms_t alt = myrtc.unix_to_hms(rtc_alm.time);
+        if (conf_data.rus_lng) sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d\355"), h, rtc_time.min, rtc_time.sec, alt.h, alt.m);
+        else sprintf_P(buf, PSTR("%3d:%02d:%02d %2d:%02d"), h, rtc_time.min, rtc_time.sec, alt.h, alt.m);
       }
       else  sprintf_P(buf, PSTR("%3d:%02d:%02d --:-- "), h, rtc_time.min, rtc_time.sec);
       break;

@@ -59,7 +59,7 @@ class Print
     }
 
     // default to zero, meaning "a single write may block"
-    // should be overriden by subclasses with buffering
+    // should be overridden by subclasses with buffering
     virtual int availableForWrite() { return 0; }
 
     size_t print(const __FlashStringHelper *);
@@ -88,7 +88,7 @@ class Print
     size_t println(void);
 
     virtual void flush() { /* Empty implementation for backward compatibility */ }
-	
+
 	FILE oStream; //жрёт 12байт ОЗУ. Конечно, можно вынести в print, но быстродействие упадёт.
 	size_t printf (const char *szFormat, ...);
 	size_t printf (const __FlashStringHelper  *szFormat, ...);

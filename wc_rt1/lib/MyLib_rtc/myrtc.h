@@ -147,21 +147,23 @@ class RTCJS
 
 class CT
 {
+  private:
   public:
 	void 
 	rtc_init(rtc_hw_data_t),
-	cur_time_str(unsigned long, bool, char*),
-	man_set_time(rtc_hw_data_t, unsigned long);
+	cur_time_str(rtc_time_data_t, bool, char*),
+	man_set_time(rtc_hw_data_t, unsigned long),
+	dt_from_unix(rtc_time_data_t*);
 	
 	unsigned long
 	GetTime(rtc_hw_data_t),
 	GetNtp(rtc_cfg_data_t, unsigned long);
 	
-	inline unsigned long trunc_to_hour (unsigned long in){unsigned long out = in % 86400; return out;}
+	inline unsigned long trunc_to_one_day(unsigned long in){unsigned long out = in % 86400; return out;}
     inline unsigned long hms_to_unix(rtc_hms_t in){unsigned long out = in.s + in.m * 60 + in.h * 3600; return out;}
 	
 	bool
-	Alarmed(bool, bool, rtc_hw_data_t, unsigned long, unsigned long);
+	Alarmed(bool, rtc_hw_data_t, rtc_alm_data_t*, unsigned long);
 
 	inline bool nm_act(unsigned long cur_time, unsigned long nm_start, unsigned long nm_stop){
 	bool nm_is_on = false;
@@ -170,7 +172,7 @@ class CT
 	return nm_is_on;}
 	
 	rtc_alm_data_t
-	set_alarm(rtc_hw_data_t, rtc_cfg_data_t, unsigned long);
+	set_alarm(rtc_cfg_data_t, unsigned long, bool);
 
 	inline rtc_hms_t unix_to_hms(unsigned long in){
 	rtc_hms_t out;
@@ -179,34 +181,8 @@ class CT
 	out.s = in % 3600 % 60 / 60;
 	return out;}
 
-	inline int get_temperature() {
-	RtcTemperature t1 = ds3231 -> GetTemperature();
-	int temp = round(t1.AsFloatDegC());
-	return temp;}
-// ----------------------------------- interrupt
-  private:
-// ----------------------------------- Конструктор DS3231
-	static RtcDS3231<TwoWire> * ds3231;
-
-	// ----------------------------------- Конструктор DS1307
-	static RtcDS1307<TwoWire> * ds1307;
-
-	// ----------------------------------- Конструктор DS1302
-	static RtcDS1302<ThreeWire> * ds1302;
-	static ThreeWire * myTWire;
-
-	#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-	static NTPTime NTP_t;
-	#endif
-
-
-	static RTCJS conf;
-	
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-	static LFS lfs;
-#endif	
-	const  unsigned long compiled = RtcDateTime(__DATE__, __TIME__);
-	static unsigned long cur_time;
+	int 
+	get_temperature();
   protected:
 };
 

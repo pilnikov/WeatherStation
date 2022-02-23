@@ -22,7 +22,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdarg.h>
 #include <string.h>
 #include <math.h>
 #include "Arduino.h"
@@ -266,7 +265,6 @@ size_t Print::printFloat(double number, uint8_t digits)
   return n;
 }
 
-                           
 //non class member function for callback from stdio.FILE steam.
 //in field FILE.udata  passed class->this
 static int dummy_putchar(char c, FILE *stream  ) 

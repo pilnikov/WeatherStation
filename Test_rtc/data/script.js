@@ -1,4 +1,4 @@
-let _from = 'none';
+let _from = 'main';
 let req_done = true;
 let nIntervId;
 let sti = 0;
@@ -27,16 +27,17 @@ var numaa = 7;
 
     				numaa = res1.actn;
 
-						if (res1.acth < 24 && res1.actm < 59) 
+						if (numaa < 7) 
 						{
-							document.getElementById('act_hour').value = res1.acth;
-							document.getElementById('act_min' ).value = res1.actm;
+        			let dateObj = new Date(0);
+      				tz = dateObj.getTimezoneOffset() * 60; 
+              dateObj.setTime((res1.acta + tz) * 1000);
+	  					document.getElementById('cur_atime').value = dateObj.toTimeString().slice(0, 8);
 						}
 						else 
 						{
-							document.getElementById('act_hour').value = "--";
-							document.getElementById('act_min' ).value = "--";
-							numaa = 7;
+							document.getElementById('cur_atime').value = "--:--";
+							sel_atyp();
 						}
 					loadVal_Time2();
 					}
@@ -59,8 +60,10 @@ var numaa = 7;
 						document.getElementById('tzone').value = tz;
 						document.getElementById('acorr').checked = res.auto_corr;
 						document.getElementById('upm').checked = res.upm;
-						document.getElementById('nmstart').value = res.nm_start;
-						document.getElementById('nmstop').value = res.nm_stop;
+            dateObj.setTime(res.nm_start * 1000);
+						document.getElementById('nmstart').value = dateObj.toTimeString().slice(0, 8);
+            dateObj.setTime(res.nm_stop * 1000);
+						document.getElementById('nmstop' ).value = dateObj.toTimeString().slice(0, 8);
 						document.getElementById('ehb').checked = res.e_h_b;
 						document.getElementById('rtyp').value = res.rtc_t;
 						document.getElementById('antp1').value = res.ntp1;
@@ -74,13 +77,19 @@ var numaa = 7;
 						if (numaa < 7)
 						{
 							document.getElementById('atyp'  ).value = al[numaa][0];
-
-							dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
-
-							var t = dateObj.toISOString().slice(11, 16);
-							document.getElementById('atime' ).value = t;
-							document.getElementById('amel'  ).value = al[numaa][3];
-							document.getElementById('aon'   ).value = al[numaa][4];
+      				tz = dateObj.getTimezoneOffset() * 60; 
+              dateObj.setTime((al[numaa][1] + tz) * 1000);
+							document.getElementById('atime' ).value = dateObj.toTimeString().slice(0, 8);
+							if(al[numaa][2] < 20)
+							{
+							  document.getElementById('amel'  ).value = al[numaa][2];
+  							document.getElementById('aon'   ).value = 0;
+							}
+							else
+							{
+							  document.getElementById('amel'  ).value = 0;
+  							document.getElementById('aon'   ).value = al[numaa][2];
+							}
 							sel_atyp();
 						}
 					}
@@ -92,28 +101,30 @@ var numaa = 7;
 			function sel_anum()
 			{
   			let dateObj = new Date(0);
-				var tz = dateObj.getTimezoneOffset() / -60; 
 				numaa = document.getElementById('anum').value;
 
 				if  (numaa < 7)
 				{
 					document.getElementById('atyp'  ).value = al[numaa][0];
-
-					dateObj.setHours(al[numaa][1] + tz, al[numaa][2]);
-
-					var t = dateObj.toISOString().slice(11, 16);
-					document.getElementById('atime' ).value = t;
-					document.getElementById('amel'  ).value = al[numaa][3];
-					document.getElementById('aon'   ).value = al[numaa][4];
+  				let tz = dateObj.getTimezoneOffset() * 60; 
+          dateObj.setTime((al[numaa][1] + tz) * 1000);
+					document.getElementById('atime' ).value = dateObj.toTimeString().slice(0, 8);
+					if(al[numaa][2] < 20)
+					{
+					  document.getElementById('amel'  ).value = al[numaa][2];
+						document.getElementById('aon'   ).value = 0;
+					}
+					else
+					{
+					  document.getElementById('amel'  ).value = 0;
+						document.getElementById('aon'   ).value = al[numaa][2];
+					}
 				}
 				sel_atyp();
 			}
 
 			function sel_atyp()
 			{
-				let satyp = document.getElementById('atyp').value;
-				let saon  = document.getElementById('aon').value;
-
 				if (numaa > 6) 
 				{
 					showHide('atyp',  false);
@@ -123,6 +134,9 @@ var numaa = 7;
 				}
 				else  
 				{
+  				let satyp = document.getElementById('atyp').value;
+	  			let saon  = document.getElementById('aon').value;
+		
 					showHide('atyp',  true);
 
 					if (saon > 0) 
@@ -154,10 +168,18 @@ var numaa = 7;
 				{
 					al[numaa][0] = document.getElementById('atyp' ).value;
 					let dd = document.getElementById('atime').value.split(":");
-					al[numaa][1] = dd[0];
-					al[numaa][2] = dd[1];
-					al[numaa][3] = document.getElementById('amel' ).value;
-					al[numaa][4] = document.getElementById('aon'  ).value;
+  				let dateObj = new Date(0);
+  				let tz = dateObj.getTimezoneOffset() * 60; 
+	  			al[numaa][1] = dateObj.setHours(dd[0], dd[1]) / 1000 - tz;
+
+					if(document.getElementById('aon').value < 20)
+					{
+					  al[numaa][2] = document.getElementById('amel').value;
+					}
+					else
+					{
+					  al[numaa][2] = document.getElementById('aon').value;
+					}
 				}
 			}
       
@@ -168,7 +190,7 @@ var numaa = 7;
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (this.readyState == 4 && this.status == 200) loadVal_Time();
+					if (this.readyState === 4 && this.status === 200) loadVal_Time();
 				};     
 			}
 
@@ -177,14 +199,14 @@ var numaa = 7;
 				let bb = document.getElementById('date').value.split("-");
 				let dd = document.getElementById('time').value.split(":");
 				let dateObj = new Date(bb);
-				let timeNOW = dateObj.setHours(dd[0], dd[1], dd[2]) / 1000;
-				
-				let url = '/set_time?in='+timeNOW;
+				let tz = dateObj.getTimezoneOffset() * 60; 
 
-				var xh = new XMLHttpRequest();
-				xh.open('GET', url, true);
-				xh.send(null);
-			}
+				let timeNOW = dateObj.setHours(dd[0], dd[1], dd[2]) / 1000 - tz;
+				
+				let url = '/set_time?in=' + timeNOW;
+
+        time_ntp(url);
+      }
 			
 			function set_time_2()
 			{
@@ -193,8 +215,11 @@ var numaa = 7;
 				var tzone   = document.getElementById('tzone').value;
 				if (document.getElementById('acorr').checked) acorr = 1;
 				if (document.getElementById('upm').checked) upm = 1;
-				var nmstart = document.getElementById('nmstart').value;
-				var nmstop  = document.getElementById('nmstop').value;
+				let dateObj = new Date(0);
+				let dd = document.getElementById('nmstart').value.split(":");
+				var nmstart = dateObj.setHours(dd[0], dd[1]) / 1000;
+				    dd = document.getElementById('nmstop').value.split(":");
+				var nmstop  = dateObj.setHours(dd[0], dd[1]) / 1000;
 				if (document.getElementById('ehb').checked) ehb = 1;
 				var srtyp = document.getElementById('rtyp').value;
 				var antp1 = document.getElementById('antp1').value;
@@ -216,6 +241,7 @@ var numaa = 7;
 							};
 
 				let url = '/set_part?in=' + JSON.stringify(urlc);
+        console.log(url);
 				time_ntp(url);				
 			}
 
@@ -232,11 +258,11 @@ var numaa = 7;
 						if (res.actw) 
 						{
 							document.getElementById('cur_time').value = "Алярма!!!!!!!!";
-							loadVal_Time(res.actw);
+							loadVal_Time();
 						}
 						else 
-  						{
-							const event = new Date(res.ct * 1000);
+						{
+							const event = new Date(res.ct *1000);
 							var tz = event.getTimezoneOffset() * 60000; 
 							event.setTime(event.getTime() + tz);
 							const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
@@ -490,6 +516,7 @@ var numaa = 7;
 //------------------------------------------------------------------------------Main
 			function process_Main()
 			{
+				_from = 'main';
 				var xh = new XMLHttpRequest();
 				xh.open("GET", "/jactt", true);
 				xh.send(null);
@@ -504,7 +531,7 @@ var numaa = 7;
 						}
 						else 
   						{
-							const event = new Date(res.ct * 1000);
+							const event = new Date(res.ct *1000);
 							var tz = event.getTimezoneOffset() * 60000; 
 							event.setTime(event.getTime() + tz);
 							const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};

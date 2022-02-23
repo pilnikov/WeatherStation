@@ -588,8 +588,7 @@ String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_time_data_t rt, 
   json["X"] = sn.h1;
   json["Y"] = sn.h2;
   json["Z"] = sn.p;
-  json["M"] = rta.hour;
-  json["N"] = rta.min;
+  json["M"] = rta.time;
 
   if (cf.use_pp > 0)
   {
@@ -668,20 +667,30 @@ void Thermo(snr_data_t sn, conf_data_t cf)
 void alarm1_action()
 {
   //  dmsg.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
+  // Сбрасываем разовый будильник (при необходимости)
+  if (rtc_cfg.alarms[rtc_alm.num].type == 4)
+  {
+    rtc_cfg.alarms[rtc_alm.num].type = 0;
+    from_client = myrtccfg.to_json(rtc_cfg);
+    conf_f = "/conf_rtc.json";
+    lfs.writeFile(conf_f, from_client.c_str());
+    rtc_cfg = myrtccfg.from_json(from_client);
+    rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
+  }
 
-  switch (rtc_cfg.alarms[rtc_alm.num][4])     // Выполняем экшн
+  switch (rtc_cfg.alarms[rtc_alm.num].act)     // Выполняем экшн
   {
     case 0:
       play_snd = true;
       break;
 
-    case 1:
+    case 20:
       rtc_time.nm_is_on = true;                       // Включаем ночной режим
       break;
-    case 2:
+    case 21:
       rtc_time.nm_is_on = false;                      // Выключаем ночной режим
       break;
-    case 3:
+    case 22:
       disp_on = true;
       if (conf_data.type_vdrv == 12)
       {
@@ -694,7 +703,7 @@ void alarm1_action()
         m7219->write();
       }
       break;
-    case 4:
+    case 23:
       disp_on = false;
       cur_br = 0;
       snr_data.f = 0;
@@ -728,12 +737,12 @@ void alarm1_action()
           break;
       }
       break;
-    case 5:
+    case 24:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
       radio_snd("cli.start");
 #endif
       break;
-    case 6:
+    case 25:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
       radio_snd("cli.stop");
 #endif

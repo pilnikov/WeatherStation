@@ -41,16 +41,27 @@ rtc_cfg_data_t RTCJS::from_json(String message)
 
 		//---Alarm.html----------------------------------------
 		//---Options for alarms--------------------------------
-		for (uint8_t j = 0; j <= 4; j++)
-		{
-			_data.alarms[0][j] = doc["al"]["0"][j];
-			_data.alarms[1][j] = doc["al"]["1"][j];
-			_data.alarms[2][j] = doc["al"]["2"][j];
-			_data.alarms[3][j] = doc["al"]["3"][j];
-			_data.alarms[4][j] = doc["al"]["4"][j];
-			_data.alarms[5][j] = doc["al"]["5"][j];
-			_data.alarms[6][j] = doc["al"]["6"][j];
-		}
+		_data.alarms[0].type = doc["al"]["0"][0];
+		_data.alarms[0].time = doc["al"]["0"][1];
+		_data.alarms[0].act  = doc["al"]["0"][2];
+		_data.alarms[1].type = doc["al"]["1"][0];
+		_data.alarms[1].time = doc["al"]["1"][1];
+		_data.alarms[1].act  = doc["al"]["1"][2];
+		_data.alarms[2].type = doc["al"]["2"][0];
+		_data.alarms[2].time = doc["al"]["2"][1];
+		_data.alarms[2].act  = doc["al"]["2"][2];
+		_data.alarms[3].type = doc["al"]["3"][0];
+		_data.alarms[3].time = doc["al"]["3"][1];
+		_data.alarms[3].act  = doc["al"]["3"][2];
+		_data.alarms[4].type = doc["al"]["4"][0];
+		_data.alarms[4].time = doc["al"]["4"][1];
+		_data.alarms[4].act  = doc["al"]["4"][2];
+		_data.alarms[5].type = doc["al"]["5"][0];
+		_data.alarms[5].time = doc["al"]["5"][1];
+		_data.alarms[5].act  = doc["al"]["5"][2];
+		_data.alarms[6].type = doc["al"]["6"][0];
+		_data.alarms[6].time = doc["al"]["6"][1];
+		_data.alarms[6].act  = doc["al"]["6"][2];
     }
 	return _data;
 }
@@ -92,16 +103,28 @@ String RTCJS::to_json(rtc_cfg_data_t _data)
 	JsonArray al4 = json2.createNestedArray("4");
 	JsonArray al5 = json2.createNestedArray("5");
 	JsonArray al6 = json2.createNestedArray("6");
-	for (uint8_t j = 0; j <= 4; j++)
-	{
-		al0.add(_data.alarms[0][j]);
-		al1.add(_data.alarms[1][j]);
-		al2.add(_data.alarms[2][j]);
-		al3.add(_data.alarms[3][j]);
-		al4.add(_data.alarms[4][j]);
-		al5.add(_data.alarms[5][j]);
-		al6.add(_data.alarms[6][j]);
-	}
+
+	al0.add(_data.alarms[0].type);
+	al0.add(_data.alarms[0].time);
+	al0.add(_data.alarms[0].act);
+	al1.add(_data.alarms[1].type);
+	al1.add(_data.alarms[1].time);
+	al1.add(_data.alarms[1].act);
+	al2.add(_data.alarms[2].type);
+	al2.add(_data.alarms[2].time);
+	al2.add(_data.alarms[2].act);
+	al3.add(_data.alarms[3].type);
+	al3.add(_data.alarms[3].time);
+	al3.add(_data.alarms[3].act);
+	al4.add(_data.alarms[4].type);
+	al4.add(_data.alarms[4].time);
+	al4.add(_data.alarms[4].act);
+	al5.add(_data.alarms[5].type);
+	al5.add(_data.alarms[5].time);
+	al5.add(_data.alarms[5].act);
+	al6.add(_data.alarms[6].type);
+	al6.add(_data.alarms[6].time);
+	al6.add(_data.alarms[6].act);
 
 	JsonObject alarms = json.createNestedObject("al");
 	alarms["0"] = al0;
@@ -138,8 +161,11 @@ rtc_cfg_data_t RTCJS::def_conf()
 	strcpy(_data.ntp_srv[2], "88.212.196.95");
 
 	for (uint8_t i = 0; i <= 6; i++)
-	for (uint8_t j = 0; j <= 4; j++) _data.alarms[i][j] = 0;
-
+	{
+		_data.alarms[i].type = 0;
+		_data.alarms[i].time = 0;
+		_data.alarms[i].act  = 0;
+	}
 	return _data;
 }
 

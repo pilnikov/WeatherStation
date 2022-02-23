@@ -105,40 +105,50 @@ void handlejTime()
   server.send(200, "text/json", from_client);
 }
 
-
 //-------------------------------------------------------------- handleSetTime
 void handleSetTime()
 {
-  rtc_time.ct = server.arg("in").toInt();
-  DBG_OUT_PORT.print(F("Time from web...."));
-  DBG_OUT_PORT.println(rtc_time.ct);
-
+  unsigned long ttm = server.arg("in").toInt();
   server.send(200, "text/html", "OK!");
+
+  DBG_OUT_PORT.print(F("Time from web...."));
+  DBG_OUT_PORT.println(ttm);
+
+  myrtc.man_set_time(rtc_hw, ttm);
+  rtc_time.ct = myrtc.GetTime(rtc_hw);
+  rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
+
+  DBG_OUT_PORT.print(F("Current Time...."));
+  DBG_OUT_PORT.println(rtc_time.ct);
 }
 
 //-------------------------------------------------------------- handleSetPart
 void handleSetPart()
 {
   from_client = server.arg("in");
+  server.send(200, "text/html", "OK!");
 
   conf_f = "/conf_rtc.json";
   lfs.writeFile(conf_f, from_client.c_str());
   rtc_cfg = myrtccfg.from_json(from_client);
-  rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
-  server.send(200, "text/html", "OK!");
+  rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
 }
 
 //-------------------------------------------------------------- handleNTP
 void handleNTP()
 {
-  RtcDateTime c_time;
+  server.send(200, "text/html", "OK!");
   if (wifi_data_cur.cli)
   {
-    c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
-    rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
-    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    unsigned long ttm = myrtc.GetNtp(rtc_cfg, rtc_time.ct);
+    DBG_OUT_PORT.print(F("Time after NTP...."));
+    DBG_OUT_PORT.println(ttm);
+    myrtc.man_set_time(rtc_hw, ttm);
+    rtc_time.ct = myrtc.GetTime(rtc_hw);
+    rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
+    DBG_OUT_PORT.print(F("Current Time...."));
+    DBG_OUT_PORT.println(rtc_time.ct);
   }
-  server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handlejWiFi
@@ -186,10 +196,10 @@ void handlejActT()
   DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
+  json["boot"] = boot_mode;
   json["actw"] = wasAlarm;
-  json["tstr"] = tstr;
   json["ct"]   = rtc_time.ct;
-
+  
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
@@ -203,8 +213,7 @@ void handlejActA()
   DynamicJsonDocument jsonBuffer(300);
   JsonObject json = jsonBuffer.to<JsonObject>();
   json["actn"] = rtc_alm.num;
-  json["acth"] = rtc_alm.hour;
-  json["actm"] = rtc_alm.min;
+  json["acta"] = rtc_alm.time;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));

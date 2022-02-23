@@ -221,19 +221,19 @@ void setup()
 #endif
 
     //------------------------------------------------------  Инициализируем RTC
-    RtcDateTime c_time = RtcDateTime(__DATE__, __TIME__) + 946684800;
+    unsigned long ttm = RtcDateTime(__DATE__, __TIME__) + 946684800;
 
     DBG_OUT_PORT.print(F("Type of rtc = "));
     DBG_OUT_PORT.println(rtc_hw.a_type);
 
     if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
-    else rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
+    myrtc.man_set_time(rtc_hw, ttm);
 
     //-------------------------------------------------------- Устанавливаем будильники
-    myrtc.GetTime(rtc_hw, &rtc_time);
+    rtc_time.ct = myrtc.GetTime(rtc_hw);
     myrtc.cur_time_str(rtc_time, conf_data.rus_lng, tstr);
     DBG_OUT_PORT.println(tstr);
-    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
 
     //-------------------------------------------------------- Запускаем дополнительные сетевые сервисы
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -242,8 +242,10 @@ void setup()
       //------------------------------------------------------ Синхронизируем время с NTP
       if (wifi_data_cur.cli & rtc_cfg.auto_corr)
       {
-        c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
-        rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
+        ttm = myrtc.GetNtp(rtc_cfg, rtc_time.ct);
+        myrtc.man_set_time(rtc_hw, ttm);
+        rtc_time.ct = myrtc.GetTime(rtc_hw);
+        rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
       }
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
       if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
@@ -295,7 +297,7 @@ void setup()
       }
     }
     //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
-    rtc_alm.muz = 15;
+    rtc_alm.act = 15;
     play_snd = true;
     DBG_OUT_PORT.println(F("End of setup"));
 
@@ -321,10 +323,12 @@ void loop()
   if (boot_mode == 1)
   {
     // ----------------------------------------------------- Проигрываем звуки
+    uint8_t muz_n = 15;
+    if  (rtc_alm.act < 20)  muz_n = rtc_alm.act;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    Buzz.play(pgm_read_ptr(&songs[rtc_alm.muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
+    Buzz.play(pgm_read_ptr(&songs[ muz_n]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #elif defined (__AVR__)
-    Buzz.play(pgm_read_word(&songs[rtc_alm.muz]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
+    Buzz.play(pgm_read_word(&songs[muz_n]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
 #endif
     play_snd = false;
 
@@ -335,8 +339,7 @@ void loop()
     keyb_read();
 
     //------------------------------------------------------  Верифицируем ночной режим
-    if (rtc_cfg.nm_start <  rtc_cfg.nm_stop) rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start && rtc_time.hour < rtc_cfg.nm_stop);
-    else rtc_time.nm_is_on = (rtc_time.hour >= rtc_cfg.nm_start || rtc_time.hour < rtc_cfg.nm_stop);
+    rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
   }
   else //-------------------------------------------------- Minimal boot
   {

@@ -129,8 +129,10 @@ void firq0() // 1 hour
   {
     if (hour_cnt % 12 && rtc_cfg.auto_corr)
     {
-      RtcDateTime c_time = myrtc.GetNtp(rtc_cfg, rtc_time);
-      rtc_time.ct = myrtc.man_set_time(rtc_hw, c_time);
+      unsigned long ttm = myrtc.GetNtp(rtc_cfg, rtc_time.ct);
+      myrtc.man_set_time(rtc_hw, ttm);
+      rtc_time.ct = myrtc.GetTime(rtc_hw);
+      rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
     }
 
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
@@ -176,11 +178,9 @@ void firq2()
 void firq5() // 0.5 sec main cycle
 {
   //-------------Refresh current time in rtc_data------------------
-  myrtc.GetTime(rtc_hw, &rtc_time);
-
+  rtc_time.ct = myrtc.GetTime(rtc_hw);
+  myrtc.dt_from_unix(&rtc_time);
   //-------------Forming string version of current time ------------------
-  memset (tstr, 0, 25);
-  myrtc.cur_time_str(rtc_time, conf_data.rus_lng, tstr);
   if (disp_on)
   {
     //-------------Brigthness------------------
@@ -205,13 +205,13 @@ void firq5() // 0.5 sec main cycle
   if (!wasAlarm) //Проверка будильников
   {
     bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
-    if (myrtc.Alarmed(aaaa, rtc_hw, &rtc_cfg, rtc_time, &rtc_alm))
+    if (myrtc.Alarmed(aaaa, rtc_hw, &rtc_alm, rtc_time.ct))
     {
       _wasAlarmed_int = false;
       if (rtc_alm.al1_on) alarm1_action();
       if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
       {
-        rtc_alm.muz = 15;
+        rtc_alm.act = 15;
         play_snd = true;
       }
       wasAlarm = true;
@@ -221,7 +221,7 @@ void firq5() // 0.5 sec main cycle
 
   if (wasAlarm & (millis() > alarm_time)) //Перезапуск будильников
   {
-    rtc_alm = myrtc.set_alarm(rtc_hw, rtc_cfg, rtc_time);
+    rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
     wasAlarm = false;
   }
 

@@ -93,14 +93,10 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
 
   char buf[254];
 
-  uint16_t minute_ala = (uint16_t) rta.hour * 60 + rta.min;
-  uint16_t minute_cur = (uint16_t) rt.hour *  60 + rt.min;
-  uint8_t ala_h = trunc((minute_ala - minute_cur) / 60);
-  ala_h = ala_h % 100;
-  uint8_t ala_m = (minute_ala - minute_cur - (ala_h * 60)) % 100;
-  bool alarmed = ((minute_ala > minute_cur) & (rta.hour < 24));
-
-  bool _repeat = true;
+  rtc_hms_t alt = myrtc.unix_to_hms(rta.time),
+            alp = myrtc.unix_to_hms(myrtc.trunc_to_one_day(rta.time) - myrtc.trunc_to_one_day(rt.ct));
+  
+  bool _repeat = true, alarmed = rta.num < 7;
 
   do
   {
@@ -182,8 +178,8 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 4:
           if (alarmed)
           {
-            if (ala_h > 0) sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %d:%02d"), ala_h, ala_m, rta.hour, rta.min);
-            else sprintf_P(out, PSTR(" Alarm after %dmin. on %d:%02d"), ala_m, rta.hour, rta.min);
+            if (alt.h > 0) sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %d:%02d"), alp.h, alp.m, alt.h, alt.m);
+            else sprintf_P(out, PSTR(" Alarm after %dmin. on %d:%02d"), alp.m, alt.h, alt.m);
             _repeat = false;
           }
           break;
@@ -196,7 +192,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
             news_s = (String)cf.news_source + ": " + newsClient;
 # endif
             strcpy(out, news_s.c_str());
-           _repeat = false;
+            _repeat = false;
           }
           break;
         case 6:
@@ -252,7 +248,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
             _repeat = false;
           }
           break;
-       case 3:
+        case 3:
           switch (cf.use_pp)
           {
             case 1:
@@ -286,8 +282,8 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
         case 4:
           if (alarmed)
           {
-            if (ala_h > 0) sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), ala_h, ala_m, rta.hour, rta.min);
-            else sprintf_P(out, PSTR(" Будильник зазвонит через %dмин. в %2d:%02d"), ala_m, rta.hour, rta.min);
+            if (alt.h > 0) sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), alp.h, alp.m, alt.h, alt.m);
+            else sprintf_P(out, PSTR(" Будильник зазвонит через %dмин. в %2d:%02d"), alp.m, alt.h, alt.m);
             _repeat = false;
           }
           break;
