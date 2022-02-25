@@ -667,23 +667,9 @@ void Thermo(snr_data_t sn, conf_data_t cf)
 void alarm1_action()
 {
   //  dmsg.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
-  // Сбрасываем разовый будильник (при необходимости)
-  if (rtc_cfg.alarms[rtc_alm.num].type == 4)
-  {
-    rtc_cfg.alarms[rtc_alm.num].type = 0;
-    from_client = myrtccfg.to_json(rtc_cfg);
-    conf_f = "/conf_rtc.json";
-    lfs.writeFile(conf_f, from_client.c_str());
-    rtc_cfg = myrtccfg.from_json(from_client);
-    rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
-  }
 
   switch (rtc_cfg.alarms[rtc_alm.num].act)     // Выполняем экшн
   {
-    case 0:
-      play_snd = true;
-      break;
-
     case 20:
       rtc_time.nm_is_on = true;                       // Включаем ночной режим
       break;
@@ -747,6 +733,19 @@ void alarm1_action()
       radio_snd("cli.stop");
 #endif
       break;
+    default:
+      rtc_alm.act = rtc_cfg.alarms[rtc_alm.num].act;
+      play_snd = true;
+      break;
+  }
+  // Сбрасываем разовый будильник (при необходимости)
+  if (rtc_cfg.alarms[rtc_alm.num].type == 4)
+  {
+    rtc_cfg.alarms[rtc_alm.num].type = 0;
+    from_client = myrtccfg.to_json(rtc_cfg);
+    conf_f = "/conf_rtc.json";
+    lfs.writeFile(conf_f, from_client.c_str());
+    rtc_cfg = myrtccfg.from_json(from_client);
   }
 }
 

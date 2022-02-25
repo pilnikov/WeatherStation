@@ -227,10 +227,11 @@ void setup()
     DBG_OUT_PORT.println(rtc_hw.a_type);
 
     if (rtc_hw.a_type > 0) myrtc.rtc_init(rtc_hw);
-    myrtc.man_set_time(rtc_hw, ttm);
+    else myrtc.man_set_time(rtc_hw, ttm);
 
     //-------------------------------------------------------- Устанавливаем будильники
     rtc_time.ct = myrtc.GetTime(rtc_hw);
+    myrtc.dt_from_unix(&rtc_time);
     myrtc.cur_time_str(rtc_time, conf_data.rus_lng, tstr);
     DBG_OUT_PORT.println(tstr);
     rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);

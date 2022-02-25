@@ -113,7 +113,7 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
       }
 
       _now = ds3231 -> GetDateTime();
-	  break;
+  	  break;
 
     case 2:
       if (!ds1302 -> GetIsRunning())
@@ -392,17 +392,17 @@ unsigned long CT::GetNtp(rtc_cfg_data_t cfg_data, unsigned long ct)
 
   myip.fromString(cfg_data.ntp_srv[0]);
   c_time = NTP_t.getTime(myip, cfg_data.time_zone);
-  if (c_time <= cur_time)
+  if (c_time <= compiled)
   {
 	myip.fromString(cfg_data.ntp_srv[1]);
     c_time = NTP_t.getTime(myip, cfg_data.time_zone);
   }
-  if (c_time <= cur_time)
+  if (c_time <= compiled)
   {
     myip.fromString(cfg_data.ntp_srv[2]);
 	c_time = NTP_t.getTime(myip, cfg_data.time_zone);
   }
-  if (c_time <= cur_time)
+  if (c_time <= compiled)
   {
 	  DBG_OUT_PORT.println(F("Failed !!!"));
 	  return out_time;
@@ -455,7 +455,7 @@ void CT::dt_from_unix(rtc_time_data_t* out)
         out -> year = c;
         out -> month = e;
         out -> day = f;
-
+/*
         if (e <= 2) {
             e += 12;
             c -= 1;
@@ -463,5 +463,6 @@ void CT::dt_from_unix(rtc_time_data_t* out)
         j = c / 100;
         k = c % 100;
         h = f + (26 * (e + 1) / 10) + k + (k / 4) + (5 * j) + (j / 4);  // Уравнение Зеллера
-        out -> wday = ((h + 5) % 7) + 1;
+*/
+        out -> wday = (out -> ct / 86400 + 4) % 7 + 1;
 }

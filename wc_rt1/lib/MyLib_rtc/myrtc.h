@@ -165,10 +165,11 @@ class CT
 	bool
 	Alarmed(bool, rtc_hw_data_t, rtc_alm_data_t*, unsigned long);
 
-	inline bool nm_act(unsigned long cur_time, unsigned long nm_start, unsigned long nm_stop){
+	inline bool nm_act(unsigned long c_time, unsigned long nm_start, unsigned long nm_stop){
+	c_time %= 86400;
 	bool nm_is_on = false;
-	if (nm_start <  nm_stop) nm_is_on = (cur_time >= nm_start && cur_time < nm_stop);
-    else nm_is_on = (cur_time >= nm_start || cur_time < nm_stop);
+	if (nm_start <  nm_stop) nm_is_on = (c_time >= nm_start && c_time < nm_stop);
+    else nm_is_on = (c_time >= nm_start || c_time < nm_stop);
 	return nm_is_on;}
 	
 	rtc_alm_data_t
