@@ -6,7 +6,6 @@ let al;
 var numaa = 7;
 
 //---------------------------------------------------------------------------------Time.htm
-//---------------------------------------------------------------------------------Time.htm
 			function loadVal_Time()
 			{
 				const event = new Date();
@@ -61,9 +60,10 @@ var numaa = 7;
 						document.getElementById('tzone').value = tz;
 						document.getElementById('acorr').checked = res.auto_corr;
 						document.getElementById('upm').checked = res.upm;
-            dateObj.setTime(res.nm_start * 1000);
+    				tz = dateObj.getTimezoneOffset() * 60; 
+            dateObj.setTime((res.nm_start + tz) * 1000);
 						document.getElementById('nmstart').value = dateObj.toTimeString().slice(0, 8);
-            dateObj.setTime(res.nm_stop * 1000);
+            dateObj.setTime((res.nm_stop + tz) * 1000);
 						document.getElementById('nmstop' ).value = dateObj.toTimeString().slice(0, 8);
 						document.getElementById('ehb').checked = res.e_h_b;
 						document.getElementById('rtyp').value = res.rtc_t;
@@ -217,10 +217,11 @@ var numaa = 7;
 				if (document.getElementById('acorr').checked) acorr = 1;
 				if (document.getElementById('upm').checked) upm = 1;
 				let dateObj = new Date(0);
+				let tz = dateObj.getTimezoneOffset() * 60; 
 				let dd = document.getElementById('nmstart').value.split(":");
-				var nmstart = dateObj.setHours(dd[0], dd[1]) / 1000;
+				var nmstart = dateObj.setHours(dd[0], dd[1]) / 1000 - tz;
 				    dd = document.getElementById('nmstop').value.split(":");
-				var nmstop  = dateObj.setHours(dd[0], dd[1]) / 1000;
+				var nmstop  = dateObj.setHours(dd[0], dd[1]) / 1000 - tz;
 				if (document.getElementById('ehb').checked) ehb = 1;
 				var srtyp = document.getElementById('rtyp').value;
 				var antp1 = document.getElementById('antp1').value;

@@ -425,7 +425,7 @@ void CT::dt_from_unix(rtc_time_data_t* out)
 {
 
 		uint32_t a, b, c, d, e, f;
-        int h, j, k;
+//        int h, j, k;
 
 		uint32_t in = out -> ct;
         

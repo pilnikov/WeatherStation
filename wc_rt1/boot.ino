@@ -88,12 +88,11 @@ void runing_string_start() // ---------------------------- Запуск бегу
 #endif
   memset(st1, 0, 254);
   memset(st2, 0, 20);
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, wifi_data_cur.cli, newsClient.getTitle(newsIndex));
-#else
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, false, "");
-#endif
+    #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, wifi_data_cur.cli, newsClient.getTitle(newsIndex));
+    #else
+    pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, false, "");
+    #endif
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);

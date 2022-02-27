@@ -145,6 +145,15 @@ class RTCJS
   protected:
 };
 
+class RTCMSG
+{
+  public:
+    void 
+	rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data_t rta, char out[]);
+  private:
+  protected:
+};
+
 class CT
 {
   private:

@@ -38,26 +38,6 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
                                sprcr_7, sprcr_8, sprcr_9, sprcr_10, sprcr_16, sprcr_17, sprcr_18
                               };
 
-  const char* sdnr_1 = PSTR("воскресенье");
-  const char* sdnr_2 = PSTR("понедельник");
-  const char* sdnr_3 = PSTR("вторник");
-  const char* sdnr_4 = PSTR("среда");
-  const char* sdnr_5 = PSTR("четверг");
-  const char* sdnr_6 = PSTR("пятница");
-  const char* sdnr_7 = PSTR("суббота");
-
-  const char* const sdnr[] = {sdnr_1, sdnr_2, sdnr_3, sdnr_4, sdnr_5, sdnr_6, sdnr_7};
-
-  const char* sdne_1 = PSTR("Sunday");
-  const char* sdne_2 = PSTR("Monday");
-  const char* sdne_3 = PSTR("Tuesday");
-  const char* sdne_4 = PSTR("Wednesday");
-  const char* sdne_5 = PSTR("Thursday");
-  const char* sdne_6 = PSTR("Friday");
-  const char* sdne_7 = PSTR("Saturday");
-
-  const char* const sdne[] = {sdne_1, sdne_2, sdne_3, sdne_4, sdne_5, sdne_6, sdne_7};
-
   const char* smnr_01 = PSTR("января");
   const char* smnr_02 = PSTR("февраля");
   const char* smnr_03 = PSTR("марта");
@@ -93,10 +73,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
 
   char buf[254];
 
-  rtc_hms_t alt = myrtc.unix_to_hms(rta.time),
-            alp = myrtc.unix_to_hms(myrtc.trunc_to_one_day(rta.time) - myrtc.trunc_to_one_day(rt.ct));
-  
-  bool _repeat = true, alarmed = rta.num < 7;
+  bool _repeat = true;
 
   do
   {
@@ -107,7 +84,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
       switch (num)
       {
         case 1:
-          sprintf_P(out, PSTR("Today is %S %d %S %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
+          myrtcmsg.rtc_str(num, cf.rus_lng, rt, rta, out);
           _repeat = false;
           break;
         case 2:
@@ -154,7 +131,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
                 if ((wf.prec == 7) & (wf.rpower == 0)) wf.prec = 12;
                 if ((wf.prec == 8) & (wf.spower == 0)) wf.prec = 13;
                 sprintf_P(out, PSTR(" Weather forecast from GM on %S %d %S: temp from %d to %d%cC wind %S %S %d - %dm/s %S humid. %d%% press %dmm.m."),
-                          stdr[wf.tod], wf.day, smnr[wf.month - 1],
+                          stdr[wf.tod], wf.day, smne[wf.month - 1],
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.cloud], sprcr[wf.prec],
                           wf.hum_max, wf.press_max);
                 _repeat = false;
@@ -166,7 +143,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
               if (wf.temp_min > -99)
               {
                 sprintf_P(out, PSTR(" Weather forecast from OWM on %d %S: %s temp from %d to %d%cC wind %S %dm/s humid %d%% press %dmm.m."),
-                          wf.day, smnr[wf.month - 1], buf,
+                          wf.day, smne[wf.month - 1], buf,
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
                 _repeat = false;
               }
@@ -176,10 +153,9 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 4:
-          if (alarmed)
+          if (rta.num < 7)
           {
-            if (alt.h > 0) sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %d:%02d"), alp.h, alp.m, alt.h, alt.m);
-            else sprintf_P(out, PSTR(" Alarm after %dmin. on %d:%02d"), alp.m, alt.h, alt.m);
+            myrtcmsg.rtc_str(num, cf.rus_lng, rt, rta, out);
             _repeat = false;
           }
           break;
@@ -209,7 +185,7 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
       switch (num)
       {
         case 1:
-          sprintf_P(out, PSTR("Сегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
+          myrtcmsg.rtc_str(num, cf.rus_lng, rt, rta, out);
           _repeat = false;
           break;
         case 2:
@@ -280,10 +256,9 @@ void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t
           }
           break;
         case 4:
-          if (alarmed)
+          if (rta.num < 7)
           {
-            if (alt.h > 0) sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), alp.h, alp.m, alt.h, alt.m);
-            else sprintf_P(out, PSTR(" Будильник зазвонит через %dмин. в %2d:%02d"), alp.m, alt.h, alt.m);
+            myrtcmsg.rtc_str(num, cf.rus_lng, rt, rta, out);
             _repeat = false;
           }
           break;

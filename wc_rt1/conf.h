@@ -360,6 +360,7 @@ BH1750 lightMeter;
 Synt Buzz;               //Конструктор пищалки
 
 CT myrtc; //For RTC Common
+RTCMSG myrtcmsg; //For RTC Messages
 RTCJS myrtccfg; //For RTC Config
 SF hw_chk; //For HW Check
 SNR sens; //For Sensor Common
