@@ -26,6 +26,7 @@ void web_setup()
   server.on("/jacta",       handlejActA);
   server.on("/jtime",       handlejTime);
   server.on("/jwifi",       handlejWiFi);
+  server.on("/jclock",      handlejParc);
   server.on("/jactb",       handlejActB);
   server.on("/jdisp",       handlejPard);
   server.on("/jsens",       handlejPars);

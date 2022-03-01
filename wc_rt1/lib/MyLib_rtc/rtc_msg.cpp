@@ -54,10 +54,16 @@ void RTCMSG::rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data
 
   const char* const smne[] = {smne_01, smne_02, smne_03, smne_04, smne_05, smne_06, smne_07, smne_08, smne_09, smne_10, smne_11, smne_12};
 
+  bool alarmed = rta.num < 7, tmw = false;
+
   rtc_hms_t alt = myrtc1.unix_to_hms(rta.time),
             alp = myrtc1.unix_to_hms(myrtc1.trunc_to_one_day(rta.time) - myrtc1.trunc_to_one_day(rt.ct));
 
-  bool alarmed = rta.num < 7;
+  if (myrtc1.trunc_to_one_day(rt.ct) > myrtc1.trunc_to_one_day(rta.time))
+  {
+	  alp = myrtc1.unix_to_hms(86400 - myrtc1.trunc_to_one_day(rt.ct) + myrtc1.trunc_to_one_day(rta.time));
+	  tmw = true;
+  }
  
   if (!rus_lng)
   {
@@ -67,12 +73,20 @@ void RTCMSG::rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data
         sprintf_P(out, PSTR("Today is %S %d %S %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
         break;
       case 4:
-        if (alarmed)
-        {
-          if (alt.h > 0) sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %d:%02d"), alp.h, alp.m, alt.h, alt.m);
-          else sprintf_P(out, PSTR(" Alarm after %dmin. on %d:%02d"), alp.m, alt.h, alt.m);
-        }
-        break;
+		if (alarmed)
+		{
+			if (tmw)
+			{
+				if (alt.h > 0) sprintf_P(out, PSTR(" Alarm tommorow after %2dh. %2dmin. on %d:%02d"), alp.h, alp.m, alt.h, alt.m);
+				else sprintf_P(out, PSTR(" Alarm tommorow after %dmin. on %d:%02d"), alp.m, alt.h, alt.m);
+			}
+			else
+			{
+				if (alt.h > 0) sprintf_P(out, PSTR(" Alarm after %2dh. %2dmin. on %d:%02d"), alp.h, alp.m, alt.h, alt.m);
+				else sprintf_P(out, PSTR(" Alarm after %dmin. on %d:%02d"), alp.m, alt.h, alt.m);
+			}
+		}
+		break;
       default:
         break;
     }
@@ -87,9 +101,17 @@ void RTCMSG::rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data
       case 4:
         if (alarmed)
         {
-          if (alt.h > 0) sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), alp.h, alp.m, alt.h, alt.m);
-          else sprintf_P(out, PSTR(" Будильник зазвонит через %dмин. в %2d:%02d"), alp.m, alt.h, alt.m);
-        }
+			if (tmw)
+			{
+				if (alt.h > 0) sprintf_P(out, PSTR(" Будильник зазвонит завтра через %2dч. %2dмин. в %2d:%02d"), alp.h, alp.m, alt.h, alt.m);
+				else sprintf_P(out, PSTR(" Будильник зазвонит завтра через %dмин. в %2d:%02d"), alp.m, alt.h, alt.m);
+			}
+			else			
+			{
+				if (alt.h > 0) sprintf_P(out, PSTR(" Будильник зазвонит через %2dч. %2dмин. в %2d:%02d"), alp.h, alp.m, alt.h, alt.m);
+				else sprintf_P(out, PSTR(" Будильник зазвонит через %dмин. в %2d:%02d"), alp.m, alt.h, alt.m);
+			}
+		}
         break;
       default:
         break;
