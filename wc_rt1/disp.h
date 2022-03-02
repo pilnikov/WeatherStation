@@ -1,4 +1,15 @@
 
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
+#include <Udt.h>
+#include <Snr.h>
+#include <myrtc.h>
+#include <Fdsp.h>
+
 #include <Adafruit_GFX.h>
 #include <LiquidCrystal_I2C.h>
 /*
@@ -15,8 +26,8 @@
 
 
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <Adafruit_Protomatter.h>
 #endif
 
@@ -25,73 +36,38 @@
 #include <RGBmatrixPanel.h> // Hardware-specific library
 #endif
 
+//---------------------------------------------------------------------------HT1621
+#include <HT1621.h>
 
-void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_time_data_t, rtc_alm_data_t, String, uint8_t, char, bool, String);
+//---------------------------------------------------------------------------ILI9341
+#include "Adafruit_ILI9341.h"
+
+//----------------------------------------------------------------------------------------------------------------------------------function prototype
+void pr_str(uint8_t&, uint8_t, conf_data_t, snr_data_t, wf_data_t, wf_data_t, rtc_time_data_t, rtc_alm_data_t, String, uint8_t, char*, bool, String);
+void time_view(uint8_t, uint8_t);
+uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t, conf_data_t, snr_data_t, rtc_time_data_t,  rtc_alm_data_t, uint8_t, bool);
 
 void pcf8574_init();
 void lcd_time(char*, bool);
 void m7219_init();
 void m7219_ramFormer(byte*);
+void m7219_ramFormer2(byte*, uint8_t, uint8_t);
+void ht1621_init();
 void ht1632_init();
 void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
-
+void tm1637_init();
 void a595_init();
 void m3216_ramFormer(byte*, uint8_t, uint8_t);
+void m7adopt(byte*, uint8_t, uint8_t);
+void ili9341_init();
+void ili_time(void);
+void ht1633_init(void);
+void ht1633_ramFormer(byte*, uint8_t, uint8_t);
+void ht1633_ramFormer2(byte*, uint8_t, uint8_t);
+void drawWifiQuality();
+int8_t getWifiQuality();
 
-//----------------------------------------------------------------------------TM1637
-
-static TM1637 * tm1637;
-
-//----------------------------------------------------------------------------HT1633
-
-static HT16K33 * ht1633;
-
-
-//---------------------------------------------------------------------------LCD1602
-static LiquidCrystal_I2C * lcd;
-
-//---------------------------------------------------------------------------MAX7219 4 x 8 x 8 Matrix Display
-
+//----------------------------------------------------------------------------------------------------------------------------------define
 #define new_max
 //#define font4pt
 //#define font5pt
-
-static Max72 * m7219;
-
-const uint8_t q_dig = 6;  // количество цифр на дисплее
-uint8_t  max_st = 6;      // макс кол-во прокручиваемых строк
-uint8_t  text_size = 1;   // размер текста
-
-static bool d_notequal[q_dig];
-const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
-static unsigned char oldDigit[q_dig];                   // убегающая цифра
-static uint16_t buffud[64];
-
-
-static bool end_run_st = false, m32_8time_act = false, blinkColon = false;
-
-static byte screen[64]; // display buffer
-static char st1[254];
-static char st2[20];
-
-//---------------------------------------------------------------------------HT1621
-#include <HT1621.h>
-
-// refere to Macduino website for pin connections and their meaning
-static HT1621 * ht21;
-
-//---------------------------------------------------------------------------HT1632
-
-static HT1632C * m1632;
-
-//---------------------------------------------------------------------------Matrix
-#if defined(__AVR_ATmega2560__)
-static RGBmatrixPanel * m3216;
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
-static Adafruit_Protomatter * m3216;
-#endif
-
-//---------------------------------------------------------------------------ILI9341
-#include "Adafruit_ILI9341.h"
-
-static Adafruit_ILI9341 * tft;

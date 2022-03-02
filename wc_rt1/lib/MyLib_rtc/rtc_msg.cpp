@@ -77,8 +77,7 @@ void RTCMSG::rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data
 		{
 			if (tmw)
 			{
-				if (alt.h > 0) sprintf_P(out, PSTR(" Alarm tommorow after %2dh. %2dmin. on %d:%02d"), alp.h, alp.m, alt.h, alt.m);
-				else sprintf_P(out, PSTR(" Alarm tommorow after %dmin. on %d:%02d"), alp.m, alt.h, alt.m);
+				sprintf_P(out, PSTR(" Alarm tommorow on %d:%02d"), alt.h, alt.m);
 			}
 			else
 			{
@@ -103,8 +102,7 @@ void RTCMSG::rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data
         {
 			if (tmw)
 			{
-				if (alt.h > 0) sprintf_P(out, PSTR(" Будильник зазвонит завтра через %2dч. %2dмин. в %2d:%02d"), alp.h, alp.m, alt.h, alt.m);
-				else sprintf_P(out, PSTR(" Будильник зазвонит завтра через %dмин. в %2d:%02d"), alp.m, alt.h, alt.m);
+				sprintf_P(out, PSTR(" Будильник зазвонит завтра в %2d:%02d"), alt.h, alt.m);
 			}
 			else			
 			{

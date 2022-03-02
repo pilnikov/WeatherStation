@@ -1,10 +1,9 @@
 //#include ".\headers\fonts.h"
+//#include "conf.h"
 #include "fonts.h"
-
 
 static uint8_t cur_sym_pos[3] = {0, 0, 0};
 static uint8_t  num_st = 1;
-
 
 void irq_set()
 {
@@ -89,7 +88,7 @@ void runing_string_start() // ---------------------------- Запуск бегу
   memset(st1, 0, 254);
   memset(st2, 0, 20);
     #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, wifi_data_cur.cli, newsClient.getTitle(newsIndex));
+    pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, wifi_data_cur.cli, newsClient -> getTitle(newsIndex));
     #else
     pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, false, "");
     #endif
@@ -141,8 +140,8 @@ void firq0() // 1 hour
     }
     if (conf_data.news_en)
     {
-      newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
-      newsClient.updateNews();
+      newsClient -> updateNewsClient(conf_data.news_api_key, conf_data.news_source);
+      newsClient -> updateNews();
     }
   }
 #endif

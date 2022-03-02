@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 //#include ".\headers\conf.h"
 #include "conf.h"
+#include "cfg.h"
+#include "global_var.h"
 
 void setup()
 {
@@ -61,7 +63,9 @@ void setup()
 
   //------------------------------------------------------  Читаем установки RTC из конфиг файла
   conf_f = "/conf_rtc.json";
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   from_client = lfs.readFile(conf_f);
+#endif
   rtc_cfg = myrtccfg.from_json(from_client);
 
   //rtc_cfg = myrtccfg.def_conf();
@@ -71,7 +75,9 @@ void setup()
 
   //------------------------------------------------------  Загружаем настройки датчиков
   conf_f = "/conf_snr.json";
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   from_client = lfs.readFile(conf_f);
+#endif
   snr_cfg_data = mysnrcfg.from_json(from_client);
 
   //snr_cfg_data = mysnrcfg.def_conf();
@@ -260,8 +266,8 @@ void setup()
       //------------------------------------------------------ Получаем новости от NewsApi
       if (conf_data.news_en & wifi_data_cur.cli)
       {
-        newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
-        newsClient.updateNews();
+        newsClient = new NewsApiClient(conf_data.news_api_key, conf_data.news_source);
+        newsClient -> updateNews();
       }
     }
 # endif

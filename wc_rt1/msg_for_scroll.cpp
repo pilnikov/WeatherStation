@@ -1,3 +1,6 @@
+#include "disp.h"
+
+RTCMSG myrtcmsg; //For RTC Messages
 
 void pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[], bool cur_cli, String newsClient)
 {

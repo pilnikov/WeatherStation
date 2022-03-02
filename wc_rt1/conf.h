@@ -168,9 +168,20 @@
 // ------------------------------------------------------------- Include
 //#include "..\lib\MyLib_Udt\Udt.h"
 
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
 #include <Udt.h>
 
+#include "disp.h"
+#include "web.h"
+
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include <My_LFS.h>
+#endif
 #include <myrtc.h>
 #include <Sysfn.h>
 #include <Snd.h>
@@ -180,17 +191,13 @@
 #include <BH1750.h>
 
 
-#if defined(__AVR_ATmega2560__)
-#include <EEPROM.h>
-#endif
-
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
 #include <WiFi.h>
 #include <OTA.h>
 #include <HttpClient.h>
 #include <WiFiClient.h>
 
-#include "Netwf_rt.h"
+#include <Netwf_rt.h>
 
 #endif
 
@@ -283,18 +290,15 @@ udp_cons print_console_udp;
 */
 #endif
 
-
-// ----------------------------------- Internal header files
-#include "disp.h"
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include "web.h"
-#endif
-
 // ----------------------------------- Force define func name
-conf_data_t loadConfig(const char*);
-void saveConfig(const char*, conf_data_t);
-conf_data_t defaultConfig();
+void irq_set();
+void firq0();
+void firq2();
+void firq5();
+void firq6();
+void firq7();
+void firq8();
+void runing_string_start();
 
 snr_data_t GetSnr(snr_cfg_t, conf_data_t, uint8_t);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
@@ -304,12 +308,18 @@ inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String tvoday(String);
 void Thermo(snr_data_t, conf_data_t);
+void alarm1_action();
 
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 String gs_rcv (unsigned long);
 String es_rcv (char*);
 String ts_rcv (unsigned long, char*);
 String ts_snd (String);
 void put_to_es(char*, uint8_t, snr_data_t);
+
+wf_data_t getOWM_forecast(unsigned long, char*);
+wf_data_t getOWM_current(unsigned long, char*);
+#endif
 
 void hw_accept(hw_data_t, snr_cfg_t*, uint8_t*, uint8_t*);
 
@@ -332,7 +342,6 @@ static void ISR_ATTR isr0();
 #endif
 
 // ---------------------------------------------------- Constructors
-
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 ES e_srv;
 NF nsys;
@@ -360,7 +369,6 @@ BH1750 lightMeter;
 Synt Buzz;               //Конструктор пищалки
 
 CT myrtc; //For RTC Common
-RTCMSG myrtcmsg; //For RTC Messages
 RTCJS myrtccfg; //For RTC Config
 SF hw_chk; //For HW Check
 SNR sens; //For Sensor Common
@@ -369,48 +377,40 @@ FD f_dsp; //For Display
 HT h_dsp; //For Display
 MSG dmsg; //For Messages
 
-// ---------------------------------------------------- Common
+//----------------------------------------------------------------------------------------------------------------------------------consructors
+// ---------------------------------------------------- Display drivers
 
-const char *conf_f = "/config.json";  // config file name
-char tstr[25];
+//---------------------------------------------------------------------------TM1637
+TM1637 *tm1637;
 
-String from_client = String();
+//---------------------------------------------------------------------------HT1633
+HT16K33 *ht1633;
 
-int                boot_mode = 1;
+//---------------------------------------------------------------------------LCD1602
+LiquidCrystal_I2C *lcd;
 
-unsigned long   serv_ms = 60000, alarm_time = millis();
+//---------------------------------------------------------------------------MAX7219 4 x 8 x 8 Matrix Display
+Max72 *m7219;
 
-bool  play_snd  = false, wasAlarm = false;
+//---------------------------------------------------------------------------HT1621
+HT1621 *ht21;
 
-bool                disp_on  = true;
+//---------------------------------------------------------------------------HT1632
+HT1632C *m1632;
 
-uint8_t            hour_cnt  = 0;
-uint8_t           disp_mode  = 0;
-uint16_t             cur_br  = 0;
-
-static unsigned long setting_ms = millis();
-static bool tmr_started = false, btn_released = false;
-volatile bool btn_state_flag = false;
-volatile bool _wasAlarmed_int = false;
-
-snr_data_t snr_data;
-snr_cfg_t snr_cfg_data;
-conf_data_t conf_data;
-hw_data_t hw_data;
-wf_data_t wf_data_cur;
-wf_data_t wf_data;
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-wifi_cfg_data_t wifi_data;
-wifi_cur_data_t wifi_data_cur;
+//---------------------------------------------------------------------------Matrix
+#if defined(__AVR_ATmega2560__)
+RGBmatrixPanel *m3216;
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
+Adafruit_Protomatter *m3216;
 #endif
-rtc_hw_data_t  rtc_hw;
-rtc_cfg_data_t rtc_cfg;
-rtc_time_data_t rtc_time;
-rtc_alm_data_t rtc_alm;
+
+//---------------------------------------------------------------------------ILI9341
+Adafruit_ILI9341 *tft;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 // ---------------------------------------------------- News Client
-NewsApiClient newsClient(conf_data.news_api_key, conf_data.news_source);
+NewsApiClient *newsClient;
 #endif
 
 // ---------------------------------------------------- Variant of config

@@ -1,4 +1,13 @@
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
+#include <Udt.h>
+#include <ArduinoJson.h>
+#include <Snr.h>
+#include <myrtc.h>
 
 void web_setup();
 
@@ -6,26 +15,40 @@ void start_serv();
 void  stop_serv();
 
 void handleNTP();
-void handlejTime();
 void handleSetTime();
-void handlejWiFi();
+void handleSetPart();
 void handleSetWiFi();
 void handleSetIp1();
 void handleSetIp2();
+void handleEndSetWiFi();
+void handleExit();
+# ifdef MATRIX
+void handleSetFont();
+# endif //MATRIX
+void handleSetPard();
+void handleSetPars1();
+void handleSetPars2();
+void handleSetPars3();
+void handleRcvSnr();
+void handleSetParc();
+void handleSetPartrm();
+void handleSetNews();
 
+void handlejActT();
+void handlejActA();
+void handlejTime();
+void handlejWiFi();
+void handlejParc();
+void handlejActB();
 void handlejPard();
 void handlejPars();
-void handlejParc();
-void handlejAlarm();
-void handleSetFont();
-void handleSetAlarm();
+void handlejTS();
+void handlejSnr();
+void handleUpdSnr();
 void handlejUart();
 void handlejTrm();
-void handleSetPartrm();
-
-void handlejActA();
-void handlejActB();
-void handlejActT();
+void handlejNews();
+void handlejNewsT();
 
 String getContentType(String filename);
 bool handleFileRead(String path);
@@ -33,6 +56,3 @@ void handleFileUpload();
 void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
-
-File fsUploadFile; //Should be placed here as global
-# endif

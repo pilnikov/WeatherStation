@@ -1,4 +1,9 @@
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+//#include "conf.h"
+#include "cfg.h"
+
+File fsUploadFile; //Should be placed here as global
+
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
@@ -814,8 +819,8 @@ void handleSetNews()
 
   if (conf_data.news_en)
   {
-    newsClient.updateNewsClient(conf_data.news_api_key, conf_data.news_source);
-    newsClient.updateNews();
+    newsClient -> updateNewsClient(conf_data.news_api_key, conf_data.news_source);
+    newsClient -> updateNews();
   }
   server.send(200, "text/html", "Ok!");
   serv_ms = millis();
@@ -845,44 +850,44 @@ void handlejNewsT()
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   uint8_t inx = 0;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_1"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_2"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_3"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_4"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_5"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_6"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_7"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_8"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_9"] = st;
   inx++;
-  st = newsClient.getUrl(inx) + newsClient.getTitle(inx);
-  st += newsClient.getDescription(inx);
+  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
+  st += newsClient -> getDescription(inx);
   json["st_10"] = st;
 
   String st1 = String();

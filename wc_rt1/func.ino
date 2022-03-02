@@ -1,3 +1,5 @@
+//#include "conf.h"
+
 //------------------------------------------------------  Получаем данные с датчиков
 snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc)
 {
@@ -744,7 +746,9 @@ void alarm1_action()
     rtc_cfg.alarms[rtc_alm.num].type = 0;
     from_client = myrtccfg.to_json(rtc_cfg);
     conf_f = "/conf_rtc.json";
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     lfs.writeFile(conf_f, from_client.c_str());
+#endif
     rtc_cfg = myrtccfg.from_json(from_client);
   }
 }

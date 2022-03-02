@@ -95,7 +95,7 @@ snr_cfg_t SNRJS::from_json(String message)
   return _data;
 }
 
-snr_cfg_t SNRJ::def_conf()
+snr_cfg_t SNRJS::def_conf()
 {
   snr_cfg_t _data;
   if (debug_level == 3)

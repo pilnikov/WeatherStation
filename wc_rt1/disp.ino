@@ -1,9 +1,8 @@
-
-void m7adopt(byte*, uint8_t, uint8_t);
+//#include "conf.h"
+#include "fonts.h"
 
 const uint8_t lcd_row = 2;
 const uint8_t lcd_col = 16;
-
 
 void m7219_init()
 {
@@ -337,9 +336,6 @@ void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
 /*
    Function prototypes
 */
-void ht1633_init(void);
-void ht1633_ramFormer(byte*, uint8_t, uint8_t);
-void ht1633_ramFormer2(byte*, uint8_t, uint8_t);
 
 
 void ht1633_init()

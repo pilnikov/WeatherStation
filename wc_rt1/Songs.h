@@ -1,6 +1,12 @@
 #ifndef Songs_h
 #define Songs_h
 
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
 #ifdef __AVR__
 #include <avr/io.h>
 #include <avr/pgmspace.h>

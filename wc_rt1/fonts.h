@@ -29,6 +29,18 @@
 #ifndef FONTS_H
 #define FONTS_H
 
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
+
+#ifndef DBG_OUT_PORT
+#define DBG_OUT_PORT Serial
+#endif
+
+
 #ifdef __AVR__
 #include <avr/io.h>
 #include <avr/pgmspace.h>
