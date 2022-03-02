@@ -1,8 +1,8 @@
 #include "disp.h"
 #include "fonts.h"
 
-CT rtc; //For RTC Common
-FD dsp; //For Display
+CT rtc_f; //For RTC Common
+FD dsp_f; //For Display
 
 uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf_data_t cf, snr_data_t sn, rtc_time_data_t rt,  rtc_alm_data_t rta, uint8_t c_br, bool pm)
 {
@@ -19,7 +19,7 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
   const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
   char tStr[25];
 
-  rtc_hms_t alt = rtc.unix_to_hms(rta.time);
+  rtc_hms_t alt = rtc_f.unix_to_hms(rta.time);
 
   uint8_t h = pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;
   h = h % 100;
@@ -299,8 +299,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
   //  DBG_OUT_PORT.print(F("test string"));
   //  DBG_OUT_PORT.println(tStr);
 
-  dsp.utf8rus(tStr);
-  dsp.print_(tStr, strlen(tStr), in, _offset, font14s, 2, 0);
+  dsp_f.utf8rus(tStr);
+  dsp_f.print_(tStr, strlen(tStr), in, _offset, font14s, 2, 0);
   return strlen(tStr);
 }
 //#endif

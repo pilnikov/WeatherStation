@@ -1,22 +1,52 @@
-//#include "conf.h"
+#include "disp.h"
 #include "fonts.h"
 
-const uint8_t lcd_row = 2;
-const uint8_t lcd_col = 16;
+// ---------------------------------------------------- Display drivers
 
-void m7219_init()
+//---------------------------------------------------------------------------TM1637
+TM1637 *tm1637;
+
+//---------------------------------------------------------------------------HT1633
+HT16K33 *ht1633;
+
+//---------------------------------------------------------------------------LCD1602
+LiquidCrystal_I2C *lcd;
+
+//---------------------------------------------------------------------------MAX7219 4 x 8 x 8 Matrix Display
+Max72 *m7219;
+
+//---------------------------------------------------------------------------HT1621
+HT1621 *ht21;
+
+//---------------------------------------------------------------------------HT1632
+HT1632C *m1632;
+
+//---------------------------------------------------------------------------Matrix
+#if defined(__AVR_ATmega2560__)
+RGBmatrixPanel *m3216;
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
+Adafruit_Protomatter *m3216;
+#endif
+
+//---------------------------------------------------------------------------ILI9341
+Adafruit_ILI9341 *tft;
+
+FD f_dsp; //For Display
+HT h_dsp; //For Display
+
+void m7219_init(byte type_disp, byte gpio_dcs, byte *screen)
 {
-  if (conf_data.type_disp < 10) m7219 = new Max72(conf_data.gpio_dcs, 1, 1);
+  if (type_disp < 10) m7219 = new Max72(gpio_dcs, 1, 1);
   else
   {
-    if (conf_data.type_disp == 20) m7219 = new Max72(conf_data.gpio_dcs, 4, 1);
-    if (conf_data.type_disp == 21) m7219 = new Max72(conf_data.gpio_dcs, 4, 2);
+    if (type_disp == 20) m7219 = new Max72(gpio_dcs, 4, 1);
+    if (type_disp == 21) m7219 = new Max72(gpio_dcs, 4, 2);
   }
 
   m7219 -> begin();
   f_dsp.CLS(screen, sizeof screen);
 
-  if (conf_data.type_disp > 0 && conf_data.type_disp < 10)
+  if (type_disp > 0 && type_disp < 10)
   {
     char Tstr[25];
     memset (Tstr, 0, 25);
@@ -24,7 +54,6 @@ void m7219_init()
     f_dsp.print_(Tstr, 5, screen, 0, font14s, 2, 0);
     m7adopt(screen, 0, 4);
   }
-
   m7219 -> write();
 }
 
@@ -235,55 +264,56 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 }
 
 //////////////////////////////////////////lcd//////////////////////////////////////////////////////////////////////
-void pcf8574_init()
+void pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_lng)
 {
+  static char st1[16];
+
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  lcd = new LiquidCrystal_I2C(hw_data.lcd_addr, lcd_col, lcd_row);
+  lcd = new LiquidCrystal_I2C(addr, lcd_col, lcd_row);
   lcd -> init();
 #endif
 
 #if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
-  lcd = new LiquidCrystal_I2C(hw_data.lcd_addr);
+  lcd = new LiquidCrystal_I2C(addr);
   lcd -> begin(lcd_col, lcd_row);               // initialize the lcd
 #endif
 
   lcd -> backlight(); //Включаем подсветку
 
   strcpy(st1, "Hello");
-  if (conf_data.rus_lng) strcpy(st1, "Привет");
+  if (rus_lng) strcpy(st1, "Привет");
   lcd -> setCursor(5, 0);
   f_dsp.lcd_rus(st1);
   lcd -> print (st1);
   strcpy(st1, "World");
-  if (conf_data.rus_lng) strcpy(st1, "Мир!!!");
+  if (rus_lng) strcpy(st1, "Мир!!!");
   lcd -> setCursor(5, 1);
   f_dsp.lcd_rus(st1);
   lcd -> print (st1);
 }
 
-void lcd_time(char *buf, bool t_up)
+void lcd_time(byte *buf, bool t_up)
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
   if (t_up) lcd -> setCursor(0, 0);
   else lcd -> setCursor(0, 1);
-  lcd -> print(buf);
+  lcd -> print((char*)buf);
 }
 
 
 
 ///////////////////////////////////////////////////7seg////////////////////////////////////////////////////////////
-void tm1637_init()
+void tm1637_init(byte gpio_clk, byte gpio_dio)
 {
-  tm1637 = new TM1637(conf_data.gpio_clk, conf_data.gpio_dio);
+  tm1637 = new TM1637(gpio_clk, gpio_dio);
   tm1637->clear();
   tm1637->set_br(7);
 }
 
-
-void ht1621_init()
+void ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio, byte* screen)
 {
-  ht21 = new HT1621(conf_data.gpio_dcs, conf_data.gpio_clk, conf_data.gpio_dio); // ss, rw, data
+  ht21 = new HT1621(gpio_dcs, gpio_clk, gpio_dio); // ss, rw, data
   ht21->begin();
 
   ht21->sendCommand(HT1621::RC256K);
@@ -313,9 +343,9 @@ void ht1621_init()
 
 ////////////////////////////////////ht1632//////////////////////////////////////////////////////////////////
 
-void ht1632_init()
+void ht1632_init(byte gpio_dwr, byte gpio_dcs)
 {
-  m1632 = new HT1632C(conf_data.gpio_dwr, /*clk*/ conf_data.gpio_dcs /*cs*/);
+  m1632 = new HT1632C(gpio_dwr, /*clk*/ gpio_dcs /*cs*/);
 }
 
 void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
@@ -338,10 +368,10 @@ void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
 */
 
 
-void ht1633_init()
+void ht1633_init(byte addr)
 {
   ht1633 = new HT16K33;
-  ht1633->init(hw_data.ht_addr);
+  ht1633->init(addr);
   ht1633->setBrightness(14);
   ht1633->clear();
   ht1633->write();
@@ -433,7 +463,7 @@ const char* dstAbbrev = "RTZ+5";
 const uint16_t SCREEN_WIDTH = 240;
 const uint16_t SCREEN_HEIGHT = 320;
 
-void ili_time(void)
+void ili_time(bool rus_lng, bool use_pm)
 {
   char time_str[11];
 
@@ -444,7 +474,7 @@ void ili_time(void)
   tft -> setTextColor(ILI9341_WHITE);
   char date[30];
 
-  if (conf_data.rus_lng)
+  if (rus_lng)
   {
     //    snprintf(date, 20, "%s %2d %s %4dг.", sdnr[rtc_data.wday], rtc_data.day, smnr[rtc_data.month], rtc_data.year);
   }
@@ -457,7 +487,7 @@ void ili_time(void)
 
   tft -> setTextSize(5);
 
-  if (rtc_cfg.use_pm)
+  if (use_pm)
   {
     //uint8_t h = (rtc_data.hour + 11) % 12 + 1; // take care of noon and midnight
     //snprintf(time_str, "%2d:%02d:%02d\n", h, rtc_data.min, rtc_data.sec);
@@ -473,7 +503,7 @@ void ili_time(void)
   //  tft -> setTextAlignment(TEXT_ALIGN_LEFT);
   tft -> setTextSize(2);
   tft -> setTextColor(ILI9341_BLUE);
-  if (rtc_cfg.use_pm)
+  if (use_pm)
   {
     //    snprintf(time_str, "%s\n%s", dstAbbrev, rtc_data.hour >= 12 ? "PM" : "AM");
     tft -> setCursor(195, 27);
@@ -509,10 +539,95 @@ int8_t getWifiQuality()
   int32_t dbm = -200;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  dbm = WiFi.RSSI();
+  //  dbm = WiFi.RSSI();
 #endif
 
   if (dbm <= -100) return 0;
   else if (dbm >= -50) return 100;
   else return 2 * (dbm + 100);
+}
+
+
+void write_dsp(uint8_t type_vdrv, uint8_t type_disp, uint8_t br, bool time_up, byte* screen)
+{
+  switch (type_vdrv)
+  {
+    case 0:
+      //SERIAL
+      break;
+    case 1:
+      //TM1637
+      tm1637->set_br(br);
+      for (uint8_t a = 0; a < 4; a++) tm1637->display(a, screen[a]);
+      break;
+    case 2:
+      //MAX7219
+      if (type_disp < 10)
+      {
+        m7adopt(screen, 0, 8);
+        m7219 -> setIntensity(br); // Use a value between 0 and 15 for brightness
+        m7219 -> write();
+      }
+      break;
+    case 3:
+      //595
+      break;
+    case 4:
+      //HT1621
+      break;
+    case 5:
+      //HT1632
+      break;
+    case 6:
+      //ILI9341
+      break;
+    case 11:
+      //HT16K33
+      if (type_disp != 31 && type_disp != 11)
+      {
+        if (type_disp == 13) ht1633_ramFormer2(screen, 0, 7);
+        else ht1633_ramFormer2(screen, 0, 3);
+        ht1633->setBrightness(br);
+        ht1633->write();
+      }
+      break;
+    case 12:
+      //PCF8574
+      lcd_time(screen, time_up);
+      break;
+    default:
+      break;
+  }
+}
+void display_off(byte type_vdrv, byte type_disp, byte br, byte* screen, uint8_t text_size)
+{
+  f_dsp.CLS(screen, sizeof screen);
+  switch (type_vdrv)
+  {
+    case 1:
+      tm1637->set_br(0);
+      tm1637->clear();
+      break;
+    case 2:
+      m7219->shutdown(true);
+      m7219->write();
+      break;
+    case 3:
+      if (type_disp == 23 || type_disp == 24 || type_disp == 25)
+      {
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
+        m3216_ramFormer(screen, br, text_size);
+#endif
+      }
+      break;
+    case 12:
+      lcd->noBacklight();
+      lcd->noDisplay();
+      break;
+    case 11:
+      ht1633->clear();
+      ht1633->setBrightness(0);
+      ht1633->write();
+      break;
+  }
 }

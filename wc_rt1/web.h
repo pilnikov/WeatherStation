@@ -9,6 +9,12 @@
 #include <Snr.h>
 #include <myrtc.h>
 
+#if defined(ESP8266)
+#include <ESP8266HTTPUpdateServer.h>
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#include <HTTPUpdateServer.h>
+#endif
+
 void web_setup();
 
 void start_serv();

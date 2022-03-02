@@ -176,118 +176,12 @@
 
 #include <Udt.h>
 
-#include "disp.h"
-#include "web.h"
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include <My_LFS.h>
-#endif
-#include <myrtc.h>
-#include <Sysfn.h>
-#include <Snd.h>
-#include "Songs.h"
-#include <Snr.h>
-#include <Fdsp.h>
-#include <BH1750.h>
-
-
-#if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
-#include <WiFi.h>
-#include <OTA.h>
-#include <HttpClient.h>
-#include <WiFiClient.h>
-
-#include <Netwf_rt.h>
-
-#endif
-
-#if defined(ESP8266)
-#include <WiFiClient.h>
-#include <ESP8266HTTPClient.h>
-#include <ESP8266mDNS.h>
-#include <ESP8266SSDP.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
-#include <hw.h>
-
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-#include <ESPmDNS.h>
-#include <WiFiClient.h>
-#include <HTTPClient.h>
-#include <WebServer.h>
-#include <HTTPUpdateServer.h>
-#include <ESP32SSDP.h>
-
-#include <esp_int_wdt.h>
-#include <esp_task_wdt.h>
-#endif
-
-
-#define ARDUINOJSON_USE_LONG_LONG 1
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include <pgmspace.h>
-#include <ArduinoJson.h>
-#include <Wire.h>
-#include <SPI.h>
-
-#include <my_wifi.h>
-#include <Netwf.h>
-#include <FS.h>
-#include <WiFiUdp.h>
-#include <LittleFS.h>
-#include <ArduinoOTA.h>
-#endif
-/*
-  #include "..\lib\MyLib_sf2\src\Sysf2.h"
-  #include "..\lib\MyLib_snd\src\Snd.h"
-  #include "..\lib\MyLib_ntp\src\ntp.h"
-  #include "..\lib\MyLib_es\src\Exts.h"
-  #include "..\lib\MyLib_snr\src\Snr.h"
-  #include "..\lib\MyLib_fdsp\src\Fdsp.h"
-  #include "..\lib\BH1750-master\BH1750.h"
-*/
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include <ntp.h>
-#include <Exts.h>
-
-// ------------------------------------------------------ ConsoleUDP
-#include <udp_cons.h>
-udp_cons print_console_udp;
-#endif
-
-
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
 
 #ifndef debug_level
 #define debug_level 0
-#endif
-
-// ------------------------------------------------------ GPIO
-#if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
-
-/*
-********************************************************
-    LED1        = PB_4,
-    LED2        = PB_5,
-    LED3        = PB_6,
-    LED4        = PB_7,
-    USER_BUTTON = PA_3,
-    SERIAL_TX   = PA_7,
-    SERIAL_RX   = PA_6,
-    USBTX       = PA_7,
-    USBRX       = PA_6,
-    I2C_SCL     = PC_5,
-    I2C_SDA     = PC_4,
-    SPI_MOSI    = PC_2,
-    SPI_MISO    = PC_3,
-    SPI_SCK     = PC_1,
-    SPI_CS      = PC_0,
-    PWM_OUT     = PD_4,
-********************************************************
-*/
 #endif
 
 // ----------------------------------- Force define func name
@@ -339,78 +233,6 @@ static void IRAM_ATTR isr0();
 static void ISR_ATTR isr0();
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 static void ISR_ATTR isr0();
-#endif
-
-// ---------------------------------------------------- Constructors
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-ES e_srv;
-NF nsys;
-WF wifi;
-WFJS wifi_cfg;
-LFS lfs;
-#endif
-
-// ----------------------------------- Web server
-#if defined(ESP8266)
-static ESP8266WebServer server(80);
-static ESP8266HTTPUpdateServer httpUpdater;
-// ---------------------------------------------------- HW info
-ESP8266HWInfo hwi;
-
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-static WebServer server(80);
-HTTPUpdateServer httpUpdater;
-#endif
-
-// ---------------------------------------------------- LM
-BH1750 lightMeter;
-
-// ---------------------------------------------------- Other
-Synt Buzz;               //Конструктор пищалки
-
-CT myrtc; //For RTC Common
-RTCJS myrtccfg; //For RTC Config
-SF hw_chk; //For HW Check
-SNR sens; //For Sensor Common
-SNRJS mysnrcfg; //For Sensor Config
-FD f_dsp; //For Display
-HT h_dsp; //For Display
-MSG dmsg; //For Messages
-
-//----------------------------------------------------------------------------------------------------------------------------------consructors
-// ---------------------------------------------------- Display drivers
-
-//---------------------------------------------------------------------------TM1637
-TM1637 *tm1637;
-
-//---------------------------------------------------------------------------HT1633
-HT16K33 *ht1633;
-
-//---------------------------------------------------------------------------LCD1602
-LiquidCrystal_I2C *lcd;
-
-//---------------------------------------------------------------------------MAX7219 4 x 8 x 8 Matrix Display
-Max72 *m7219;
-
-//---------------------------------------------------------------------------HT1621
-HT1621 *ht21;
-
-//---------------------------------------------------------------------------HT1632
-HT1632C *m1632;
-
-//---------------------------------------------------------------------------Matrix
-#if defined(__AVR_ATmega2560__)
-RGBmatrixPanel *m3216;
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
-Adafruit_Protomatter *m3216;
-#endif
-
-//---------------------------------------------------------------------------ILI9341
-Adafruit_ILI9341 *tft;
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-// ---------------------------------------------------- News Client
-NewsApiClient *newsClient;
 #endif
 
 // ---------------------------------------------------- Variant of config

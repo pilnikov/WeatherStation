@@ -10,6 +10,7 @@
 
 #include <Udt.h>
 
+#include <Sysfn.h>
 #include <myrtc.h>
 #include <Snr.h>
 
@@ -55,7 +56,6 @@ static uint16_t buffud[64];
 static bool end_run_st = false, m32_8time_act = false, blinkColon = false;
 
 static byte screen[64]; // display buffer
-static char st1[254];
 static char st2[20];
 
 //---------------------------------------------------------------------------------------------------

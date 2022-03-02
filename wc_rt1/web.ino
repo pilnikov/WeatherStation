@@ -4,6 +4,13 @@
 
 File fsUploadFile; //Should be placed here as global
 
+// ----------------------------------- Web updater
+#if defined(ESP8266)
+ESP8266HTTPUpdateServer httpUpdater;
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+HTTPUpdateServer httpUpdater;
+#endif
+
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {

@@ -1,8 +1,22 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 //#include ".\headers\conf.h"
-#include "conf.h"
 #include "cfg.h"
+#include "global_construct.h"
 #include "global_var.h"
+#include "disp.h"
+#include "web.h"
+#include "conf.h"
+
+#if defined(ESP8266)
+#include <ESP8266mDNS.h>
+#include <ESP8266SSDP.h>
+
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#include <ESPmDNS.h>
+#include <ESP32SSDP.h>
+#endif
+
+FD f_dsp3; //For Display
 
 void setup()
 {
@@ -126,7 +140,7 @@ void setup()
 #endif
         break;
       case 1:
-        tm1637_init();
+        tm1637_init(conf_data.gpio_clk, conf_data.gpio_dio);
         break;
       case 2:
 #if defined(ESP8266)
@@ -137,13 +151,13 @@ void setup()
 #else
         SPI.begin();
 #endif
-        m7219_init();
+        m7219_init(conf_data.type_disp, conf_data.gpio_dcs, screen);
         break;
       case 3:
         a595_init();
         break;
       case 4:
-        ht1621_init();
+        ht1621_init(conf_data.gpio_dcs, conf_data.gpio_clk, conf_data.gpio_dio, screen);
         break;
       case 5:
 #if defined(ESP8266)
@@ -154,7 +168,7 @@ void setup()
 #else
         SPI.begin();
 #endif
-        ht1632_init();
+        ht1632_init(conf_data.gpio_dwr, /*clk*/ conf_data.gpio_dcs /*cs*/);
         break;
       case 6:
 #if defined(ESP8266)
@@ -168,10 +182,10 @@ void setup()
         ili9341_init();
         break;
       case 11:
-        ht1633_init();
+        ht1633_init(hw_data.ht_addr);
         break;
       case 12:
-        pcf8574_init();
+        pcf8574_init(hw_data.lcd_addr, 16, 2, conf_data.rus_lng);
         break;
     }
     DBG_OUT_PORT.print(F("Type chip driver of display = "));
@@ -281,8 +295,8 @@ void setup()
     //-------------------------------------------------------- Регулируем яркость дисплея
     if (conf_data.auto_br)
     {
-      snr_data.f = f_dsp.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
-      cur_br = f_dsp.auto_br(snr_data.f, conf_data);
+      snr_data.f = f_dsp3.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      cur_br = f_dsp3.auto_br(snr_data.f, conf_data);
     }
     else
     {

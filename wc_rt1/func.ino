@@ -665,7 +665,6 @@ void Thermo(snr_data_t sn, conf_data_t cf)
   }
 }
 
-
 void alarm1_action()
 {
   //  dmsg.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
@@ -695,35 +694,7 @@ void alarm1_action()
       disp_on = false;
       cur_br = 0;
       snr_data.f = 0;
-      f_dsp.CLS(screen, sizeof screen);
-      switch (conf_data.type_vdrv)
-      {
-        case 1:
-          tm1637->set_br(0);
-          tm1637->clear();
-          break;
-        case 2:
-          m7219->shutdown(true);
-          m7219->write();
-          break;
-        case 3:
-          if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
-          {
-#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
-            m3216_ramFormer(screen, cur_br, text_size);
-#endif
-          }
-          break;
-        case 12:
-          lcd->noBacklight();
-          lcd->noDisplay();
-          break;
-        case 11:
-          ht1633->clear();
-          ht1633->setBrightness(0);
-          ht1633->write();
-          break;
-      }
+      display_off(conf_data_type_vdrv, conf_data.type_disp, cur_br, screen, text_size);
       break;
     case 24:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
