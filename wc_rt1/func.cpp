@@ -583,17 +583,17 @@ void ARDUINO_ISR_ATTR isr1() //Отпускаем кнопку
 
 
 #if defined(ESP8266)
-static void IRAM_ATTR isr0()
+void IRAM_ATTR isr0()
 {
   _wasAlarmed_int = true;
 }
 #elif defined(__AVR__)
-static void ISR_ATTR isr0()
+void ISR_ATTR isr0()
 {
   _wasAlarmed_int = true;
 }
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-static void ISR_ATTR isr0()
+void ISR_ATTR isr0()
 {
   _wasAlarmed_int = true;
 }
@@ -692,7 +692,7 @@ void wasAlm_reset()
 }
 
 void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, rtc_cfg_data_t *rtc_cfg, uint8_t a_type, bool &nmon, byte type_vdrv,
-                   byte type_disp, bool &disp_on, bool &play_snd, byte &br, uint16_t &snrf, byte *screen, uint8_t text_size, char *radio_addr)
+                   byte type_disp, bool &disp_on, bool &play_snd, uint16_t &br, uint16_t &snrf, byte *screen, uint8_t text_size, char *radio_addr)
 {
   //  dmsg1.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
 
