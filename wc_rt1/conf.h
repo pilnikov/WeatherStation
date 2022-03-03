@@ -213,8 +213,8 @@ String remove_sb(String);
 String tvoday(String);
 void Thermo(snr_data_t, conf_data_t);
 void wasAlm_reset();
-void alarm1_action(bool, uint8_t, uint8_t, uint8_t, rtc_cfg_data_t*, uint8_t, bool, byte,
-                   byte, bool, bool, byte, uint16_t, byte*, uint8_t, char*);
+void alarm1_action(bool, uint8_t, uint8_t &, uint8_t, rtc_cfg_data_t *, uint8_t, bool &, byte,
+                   byte, bool &, bool &, uint16_t &, uint16_t &, byte *, uint8_t, char *);
 String radio_snd(String, bool, char*);
 
 
