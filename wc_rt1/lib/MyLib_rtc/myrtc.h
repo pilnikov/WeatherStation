@@ -42,7 +42,6 @@
 #elif defined(__AVR__)
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-#include <EEPROM.h>
 #endif
 
 //**********************************************************HW Config

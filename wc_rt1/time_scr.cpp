@@ -108,6 +108,5 @@ unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buffud, const 
     default:
       break;
   }
- write_dsp(cf.type_vdrv, cf.type_disp, br, cf.time_up, screen);
  return m32_8time_act;
 }

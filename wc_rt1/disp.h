@@ -50,7 +50,7 @@ void ht1621_init(byte, byte, byte, byte*);
 void ht1632_init(byte, byte);
 void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 void tm1637_init(byte, byte);
-void a595_init();
+void a595_init(byte);
 void m3216_ramFormer(byte*, uint8_t, uint8_t);
 void m7adopt(byte*, uint8_t, uint8_t);
 void ili9341_init();
@@ -60,8 +60,9 @@ void ht1633_ramFormer(byte*, uint8_t, uint8_t);
 void ht1633_ramFormer2(byte*, uint8_t, uint8_t);
 void drawWifiQuality();
 int8_t getWifiQuality();
-void write_dsp(uint8_t, uint8_t, uint8_t, bool, byte*);
+void write_dsp(bool, uint8_t, uint8_t, uint8_t, bool, byte*);
 void display_off(byte, byte, byte, byte*, uint8_t);
+void display_on(byte);
 
 //----------------------------------------------------------------------------------------------------------------------------------define
 #define new_max

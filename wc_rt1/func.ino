@@ -679,22 +679,13 @@ void alarm1_action()
       break;
     case 22:
       disp_on = true;
-      if (conf_data.type_vdrv == 12)
-      {
-        lcd->backlight();
-        lcd->display();
-      }
-      if (conf_data.type_vdrv == 2)
-      {
-        m7219->shutdown(false);
-        m7219->write();
-      }
+      display_on(conf_data.type_vdrv);
       break;
     case 23:
       disp_on = false;
       cur_br = 0;
       snr_data.f = 0;
-      display_off(conf_data_type_vdrv, conf_data.type_disp, cur_br, screen, text_size);
+      display_off(conf_data.type_vdrv, conf_data.type_disp, cur_br, screen, text_size);
       break;
     case 24:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3

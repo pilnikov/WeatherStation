@@ -127,11 +127,11 @@ void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 }
 
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
-void a595_init()
+void a595_init(byte type_disp)
 {
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 
-  if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
+  if (type_disp == 23 || type_disp == 24 || type_disp == 25)
   {
 #if defined(__AVR_ATmega2560__)
     //G1  R1 | 12 04
@@ -146,7 +146,7 @@ void a595_init()
     uint8_t A_PIN =  54, //A0 Пин A
             B_PIN =  55, //A1 Пин B
             C_PIN =  56, //A2 Пин C
-            D_PIN =  57, //A3 Пин D
+            //            D_PIN =  57, //A3 Пин D
 
             CLK_PIN =  11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
             LAT_PIN =  10,  // Пин LAT
@@ -548,7 +548,7 @@ int8_t getWifiQuality()
 }
 
 
-void write_dsp(uint8_t type_vdrv, uint8_t type_disp, uint8_t br, bool time_up, byte* screen)
+void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint8_t br, bool time_up, byte* screen)
 {
   switch (type_vdrv)
   {
@@ -562,12 +562,16 @@ void write_dsp(uint8_t type_vdrv, uint8_t type_disp, uint8_t br, bool time_up, b
       break;
     case 2:
       //MAX7219
-      if (type_disp < 10)
+      if (from_time)
       {
-        m7adopt(screen, 0, 8);
-        m7219 -> setIntensity(br); // Use a value between 0 and 15 for brightness
-        m7219 -> write();
+        if (type_disp < 10)
+        {
+          m7adopt(screen, 0, 8);
+          m7219 -> setIntensity(br); // Use a value between 0 and 15 for brightness
+          m7219 -> write();
+        }
       }
+      else m7219 -> setIntensity(br); // Use a value between 0 and 15 for brightness
       break;
     case 3:
       //595
@@ -577,23 +581,33 @@ void write_dsp(uint8_t type_vdrv, uint8_t type_disp, uint8_t br, bool time_up, b
       break;
     case 5:
       //HT1632
+      m1632 -> pwm(br);
+      m1632 -> sendFrame();
       break;
     case 6:
       //ILI9341
       break;
     case 11:
       //HT16K33
-      if (type_disp != 31 && type_disp != 11)
+      if (from_time)
       {
-        if (type_disp == 13) ht1633_ramFormer2(screen, 0, 7);
-        else ht1633_ramFormer2(screen, 0, 3);
-        ht1633->setBrightness(br);
-        ht1633->write();
+        if (type_disp != 31 && type_disp != 11)
+        {
+          if (type_disp == 13) ht1633_ramFormer2(screen, 0, 7);
+          else ht1633_ramFormer2(screen, 0, 3);
+        }
       }
+      ht1633->setBrightness(br);
+      ht1633->write();
       break;
     case 12:
       //PCF8574
-      lcd_time(screen, time_up);
+      if (from_time) lcd_time(screen, time_up);
+      else
+      {
+        lcd -> setCursor(0, br/*as x1*/);
+        lcd -> print((char*)screen/*as st2*/);
+      }
       break;
     default:
       break;
@@ -628,6 +642,25 @@ void display_off(byte type_vdrv, byte type_disp, byte br, byte* screen, uint8_t 
       ht1633->clear();
       ht1633->setBrightness(0);
       ht1633->write();
+      break;
+    default:
+      break;
+  }
+}
+
+void display_on(byte type_vdrv)
+{
+  switch (type_vdrv)
+  {
+    case 12:
+      lcd->backlight();
+      lcd->display();
+      break;
+    case 2:
+      m7219->shutdown(false);
+      m7219->write();
+      break;
+    default:
       break;
   }
 }

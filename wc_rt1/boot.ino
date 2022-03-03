@@ -85,15 +85,16 @@ void runing_string_start() // ---------------------------- Запуск бегу
 {
   String local_ip = "192.168.0.0", ns = String();
   static uint8_t newsIndex;
-
+  bool cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   local_ip = wifi_data_cur.addr.toString();
   if (conf_data.news_en & wifi_data_cur.cli) ns = newsClient -> getTitle(newsIndex);
+  cli = wifi_data_cur.cli;
 #endif
   memset(st1, 0, 254);
   memset(st2, 0, 20);
 
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, wifi_data_cur.cli, ns);
+  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, cli, ns);
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
@@ -199,8 +200,11 @@ void firq5() // 0.5 sec main cycle
     // run slowely time displays here
     m32_8time_act = false;
     if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on))
+    {
       m32_8time_act = time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, conf_data, snr_data, cur_br,
                                 oldDigit, digPos_x, d_notequal, buffud, q_dig); // break time view while string is running
+      write_dsp(true, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
+    }
   }
   else cur_br = 0;
 
@@ -280,8 +284,7 @@ void firq6() // 0.180 sec Communications with server
       }
       ht1633_ramFormer(screen, 0, 13);
     }
-    ht1633->setBrightness(cur_br);
-    ht1633->write();
+    write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
   }
   if (conf_data.type_vdrv == 12)
   {
@@ -295,8 +298,7 @@ void firq6() // 0.180 sec Communications with server
         if (end_run_st) runing_string_start(); // перезапуск бегущей строки
         else
         {
-          lcd -> setCursor(0, x1);
-          lcd -> print(st2);
+          write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, x1, conf_data.time_up, (byte*)st2);
         }
       }
     }
@@ -342,7 +344,7 @@ void firq8() //0.030 sec running string is out switch to time view
     case 2:
       if (conf_data.type_disp == 20 || conf_data.type_disp == 21)
       {
-        m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
+        write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
         if (conf_data.type_disp == 20) m7219_ramFormer(screen);
         if (conf_data.type_disp == 21) m7219_ramFormer2(screen, 4, 2);
       }
@@ -361,8 +363,7 @@ void firq8() //0.030 sec running string is out switch to time view
       {
         //ORANGE = 3 GREEN = 1
         ht1632_ramFormer(screen, conf_data.color_up, conf_data.color_dwn);
-        m1632 -> pwm(cur_br);
-        m1632 -> sendFrame();
+        write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
       }
       break;
   }

@@ -1,5 +1,9 @@
 #include "myrtc.h"
 
+#if defined(__AVR__)
+#include <EEPROM.h>
+#endif
+
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
 rtc_cfg_data_t RTCJS::from_json(String message)
