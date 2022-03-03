@@ -176,6 +176,16 @@
 
 #include <Udt.h>
 
+#include <Sysfn.h>
+#include <myrtc.h>
+#include <Snr.h>
+
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#include <My_LFS.h>
+#include <Netwf.h>
+#include <Exts.h>
+#endif
+
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
@@ -194,22 +204,26 @@ void firq7();
 void firq8();
 void runing_string_start();
 
-snr_data_t GetSnr(snr_cfg_t, conf_data_t, uint8_t);
+snr_data_t GetSnr(snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t*);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
-void send_uart();
-void keyb_read();
+void send_uart(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
+void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, unsigned long&, conf_data_t *);
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String tvoday(String);
 void Thermo(snr_data_t, conf_data_t);
-void alarm1_action();
+void wasAlm_reset();
+void alarm1_action(bool, uint8_t, uint8_t, uint8_t, rtc_cfg_data_t*, uint8_t, bool, byte,
+                   byte, bool, bool, byte, uint16_t, byte*, uint8_t, char*);
+String radio_snd(String, bool, char*);
+
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-String gs_rcv (unsigned long);
-String es_rcv (char*);
-String ts_rcv (unsigned long, char*);
-String ts_snd (String);
-void put_to_es(char*, uint8_t, snr_data_t);
+String gs_rcv (unsigned long, bool);
+String es_rcv (char*, bool);
+String ts_rcv (unsigned long, char*, bool);
+String ts_snd (String, bool);
+void put_to_es(char*, uint8_t, snr_data_t, bool);
 
 wf_data_t getOWM_forecast(unsigned long, char*);
 wf_data_t getOWM_current(unsigned long, char*);

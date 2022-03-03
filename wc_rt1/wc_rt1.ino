@@ -1,4 +1,4 @@
-//------------------------------------------------------ 
+//------------------------------------------------------
 //#include ".\headers\conf.h"
 #include "cfg.h"
 #include "global_construct.h"
@@ -131,66 +131,7 @@ void setup()
     hw_data = hw_chk.hw_present();
     hw_accept(hw_data, &snr_cfg_data, &conf_data.type_vdrv, &rtc_hw.a_type);
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
-
-    switch (conf_data.type_vdrv)
-    {
-      case 0:
-#if defined(ESP8266)
-        pinMode(conf_data.gpio_uar, INPUT_PULLUP);
-#endif
-        break;
-      case 1:
-        tm1637_init(conf_data.gpio_clk, conf_data.gpio_dio);
-        break;
-      case 2:
-#if defined(ESP8266)
-        SPI.pins(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
-        SPI.begin();
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-        SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
-#else
-        SPI.begin();
-#endif
-        m7219_init(conf_data.type_disp, conf_data.gpio_dcs, screen);
-        break;
-      case 3:
-        a595_init(conf_data.type_disp, conf_data.type_vdrv, text_size);
-        break;
-      case 4:
-        ht1621_init(conf_data.gpio_dcs, conf_data.gpio_clk, conf_data.gpio_dio, screen);
-        break;
-      case 5:
-#if defined(ESP8266)
-        SPI.pins(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
-        SPI.begin();
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-        SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
-#else
-        SPI.begin();
-#endif
-        ht1632_init(conf_data.gpio_dwr, /*clk*/ conf_data.gpio_dcs /*cs*/);
-        break;
-      case 6:
-#if defined(ESP8266)
-        SPI.pins(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
-        SPI.begin();
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-        SPI.begin(conf_data.gpio_clk, -1, conf_data.gpio_dio, conf_data.gpio_dcs);
-#else
-        SPI.begin();
-#endif
-        ili9341_init();
-        break;
-      case 11:
-        ht1633_init(hw_data.ht_addr);
-        break;
-      case 12:
-        pcf8574_init(hw_data.lcd_addr, 16, 2, conf_data.rus_lng);
-        break;
-    }
-    DBG_OUT_PORT.print(F("Type chip driver of display = "));
-    DBG_OUT_PORT.println(conf_data.type_vdrv);
-
+    disp_init(conf_data.type_vdrv, conf_data.type_disp, conf_data.gpio_uar, conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs, conf_data.gpio_dwr, hw_data.ht_addr, hw_data.lcd_addr, screen, text_size, conf_data.rus_lng);
     //------------------------------------------------------  Инициализируем датчики
     if (hw_data.bh1750_present) lightMeter.begin();
 
@@ -269,7 +210,7 @@ void setup()
         rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
       }
       //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
-      if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+      if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
 
       //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
       if ((conf_data.use_pp == 2) & wifi_data_cur.cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
@@ -286,7 +227,7 @@ void setup()
     }
 # endif
     //-------------------------------------------------------  Опрашиваем датчики
-    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type);
+    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli, &wf_data_cur);
 
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
@@ -314,7 +255,7 @@ void setup()
       {
         DBG_OUT_PORT.end();
         DBG_OUT_PORT.begin(19200);
-        send_uart();
+        send_uart(snr_data, wf_data, conf_data, rtc_time, rtc_alm, cur_br);
       }
     }
     //------------------------------------------------------ Радостно пищим по окончаниии подготовки к запуску
@@ -357,7 +298,8 @@ void loop()
     irq_set();
 
     // ----------------------------------------------------- Обрабатываем клавиатуру
-    keyb_read();
+   // keyb_read(wifi_data_cur.cli, wifi_data_cur.ap, conf_data.gpio_btn, disp_mode, max_st,
+   //           conf_data.type_thermo, conf_data.type_vdrv, conf_data.gpio_led, conf_data.led_pola, blinkColon, serv_ms, &conf_data);
 
     //------------------------------------------------------  Верифицируем ночной режим
     rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);

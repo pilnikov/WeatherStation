@@ -41,6 +41,7 @@ bool time_view(bool, bool, bool, rtc_time_data_t, rtc_alm_data_t, byte*, conf_da
                unsigned char*, const uint8_t*, bool*, uint16_t*, const uint8_t);
 uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t, conf_data_t, snr_data_t, rtc_time_data_t,  rtc_alm_data_t, uint8_t, bool);
 
+void disp_init(byte type_vdrv, byte type_disp, byte gpio_uart, byte gpio_dio, byte gpio_clk, byte gpio_dcs, byte gpio_dwr, byte ht_addr, byte lcd_addr, byte *screen, uint8_t &text_size, bool rus_lng);
 void pcf8574_init(byte, uint8_t, uint8_t, bool);
 void lcd_time(byte*, bool);
 void m7219_init(byte, byte, byte*);

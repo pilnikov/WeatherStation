@@ -37,11 +37,6 @@ uint8_t            hour_cnt  = 0;
 uint8_t           disp_mode  = 0;
 uint16_t             cur_br  = 0;
 
-static unsigned long setting_ms = millis();
-static bool tmr_started = false, btn_released = false;
-volatile bool btn_state_flag = false;
-volatile bool _wasAlarmed_int = false;
-
 
 //----------------------------------------------------------------------------------------------Global variables for displays
 const uint8_t q_dig = 6;  // количество цифр на дисплее

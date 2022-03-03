@@ -34,6 +34,69 @@ Adafruit_ILI9341 *tft;
 FD f_dsp; //For Display
 HT h_dsp; //For Display
 
+void disp_init(byte type_vdrv, byte type_disp, byte gpio_uart, byte gpio_dio, byte gpio_clk, byte gpio_dcs, byte gpio_dwr, byte ht_addr, byte lcd_addr, byte *screen, uint8_t &text_size, bool rus_lng)
+{
+  switch (type_vdrv)
+  {
+    case 0:
+#if defined(ESP8266)
+      pinMode(gpio_uart, INPUT_PULLUP);
+#endif
+      break;
+    case 1:
+      tm1637_init(gpio_clk, gpio_dio);
+      break;
+    case 2:
+#if defined(ESP8266)
+      SPI.pins(gpio_clk, -1, gpio_dio, gpio_dcs);
+      SPI.begin();
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+      SPI.begin(gpio_clk, -1, gpio_dio, gpio_dcs);
+#else
+      SPI.begin();
+#endif
+      m7219_init(type_disp, gpio_dcs, screen);
+      break;
+    case 3:
+      a595_init(type_disp, type_vdrv, text_size);
+      break;
+    case 4:
+      ht1621_init(gpio_dcs, gpio_clk, gpio_dio, screen);
+      break;
+    case 5:
+#if defined(ESP8266)
+      SPI.pins(gpio_clk, -1, gpio_dio, gpio_dcs);
+      SPI.begin();
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+      SPI.begin(gpio_clk, -1, gpio_dio, gpio_dcs);
+#else
+      SPI.begin();
+#endif
+      ht1632_init(gpio_dwr, /*clk*/ gpio_dcs /*cs*/);
+      break;
+    case 6:
+#if defined(ESP8266)
+      SPI.pins(gpio_clk, -1, gpio_dio, gpio_dcs);
+      SPI.begin();
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+      SPI.begin(gpio_clk, -1, gpio_dio, gpio_dcs);
+#else
+      SPI.begin();
+#endif
+      ili9341_init();
+      break;
+    case 11:
+      ht1633_init(ht_addr);
+      break;
+    case 12:
+      pcf8574_init(lcd_addr, 16, 2, rus_lng);
+      break;
+  }
+  DBG_OUT_PORT.print(F("Type chip driver of display = "));
+  DBG_OUT_PORT.println(type_vdrv);
+}
+
+
 void m7219_init(byte type_disp, byte gpio_dcs, byte *screen)
 {
   if (type_disp < 10) m7219 = new Max72(gpio_dcs, 1, 1);

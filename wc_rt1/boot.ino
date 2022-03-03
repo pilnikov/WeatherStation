@@ -136,7 +136,7 @@ void firq0() // 1 hour
       rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
     }
 
-    if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id));
+    if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 2)
     {
       wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
@@ -154,7 +154,7 @@ void firq0() // 1 hour
 void firq2()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type);
+  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli, &wf_data_cur);
   if (snr_cfg_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
@@ -213,8 +213,12 @@ void firq5() // 0.5 sec main cycle
     bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
     if (myrtc.Alarmed(aaaa, rtc_hw, &rtc_alm, rtc_time.ct))
     {
-      _wasAlarmed_int = false;
-      if (rtc_alm.al1_on) alarm1_action();
+      wasAlm_reset();
+      if (rtc_alm.al1_on)
+      {
+        //alarm1_action(wifi_data_cur.cli, rtc_cfg.alarms[rtc_alm.num].act, rtc_alm.act, rtc_alm.num, &rtc_cfg, rtc_cfg.alarms[rtc_alm.num].type, rtc_time.nm_is_on,
+        //              conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, cur_br, snr_data.f, screen, text_size, conf_data.radio_addr);
+      }
       if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
       {
         rtc_alm.act = 15;
@@ -236,7 +240,7 @@ void firq5() // 0.5 sec main cycle
 
   //------------------------------------------------------ Отправляем данные через UART
 #if defined(ESP8266)
-  if (conf_data.type_disp == 50 && !digitalRead(conf_data.gpio_uar)) send_uart();
+  if (conf_data.type_disp == 50 && !digitalRead(conf_data.gpio_uar)) send_uart(snr_data, wf_data, conf_data, rtc_time, rtc_alm, cur_br);
 #endif
 }
 
