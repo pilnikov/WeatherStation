@@ -127,7 +127,7 @@ void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 }
 
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
-void a595_init(byte type_disp)
+void a595_init(byte type_disp, byte &type_vdrv, uint8_t &text_size)
 {
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 
@@ -161,13 +161,13 @@ void a595_init(byte type_disp)
                                      oePin      = 33,
                                      naddr_pin  = 3,
                                      wide       = 32;
-    if (conf_data.type_disp != 23) wide = 64;
-    if (conf_data.type_disp == 24)
+    if (type_disp != 23) wide = 64;
+    if (type_disp == 24)
     {
       naddr_pin = 4;
       text_size = 2;
     }
-    if (conf_data.type_disp == 25)
+    if (type_disp == 25)
     {
       naddr_pin = 5;
       text_size = 4;
@@ -189,13 +189,13 @@ void a595_init(byte type_disp)
                                      oePin      = 21,
                                      naddr_pin  = 3,
                                      wide       = 32;
-    if (conf_data.type_disp != 23) wide = 64;
-    if (conf_data.type_disp == 24)
+    if (type_disp != 23) wide = 64;
+    if (type_disp == 24)
     {
       naddr_pin = 4;
       text_size = 2;
     }
-    if (conf_data.type_disp == 25)
+    if (type_disp == 25)
     {
       naddr_pin = 5;
       text_size = 4;
@@ -221,7 +221,7 @@ void a595_init(byte type_disp)
 
     if (status != PROTOMATTER_OK)
     {
-      conf_data.type_vdrv = 0;
+      type_vdrv = 0;
       DBG_OUT_PORT.print(F("Failed initialize display - set it to 0..."));
     }
 #endif

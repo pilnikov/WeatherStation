@@ -154,7 +154,7 @@ void setup()
         m7219_init(conf_data.type_disp, conf_data.gpio_dcs, screen);
         break;
       case 3:
-        a595_init(conf_data.type_disp);
+        a595_init(conf_data.type_disp, conf_data.type_vdrv, text_size);
         break;
       case 4:
         ht1621_init(conf_data.gpio_dcs, conf_data.gpio_clk, conf_data.gpio_dio, screen);

@@ -50,7 +50,7 @@ void ht1621_init(byte, byte, byte, byte*);
 void ht1632_init(byte, byte);
 void ht1632_ramFormer(byte*, const uint8_t, const uint8_t);
 void tm1637_init(byte, byte);
-void a595_init(byte);
+void a595_init(byte, byte&, uint8_t&);
 void m3216_ramFormer(byte*, uint8_t, uint8_t);
 void m7adopt(byte*, uint8_t, uint8_t);
 void ili9341_init();
