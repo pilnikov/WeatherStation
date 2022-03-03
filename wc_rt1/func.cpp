@@ -6,12 +6,14 @@
 
 CT myrtc5; //For RTC Common
 RTCJS myrtccfg1; //For RTC Config
-ES e_srv1;
 MSG dmsg1; //For Messages
 SNR sens1; //For Sensor Common
+
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+ES e_srv1;
 NF nsys1;
 LFS lfs1;
-
+#endif
 
 static unsigned long setting_ms = millis();
 static bool tmr_started = false, btn_released = false;

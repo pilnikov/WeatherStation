@@ -153,8 +153,13 @@ void firq0() // 1 hour
 
 void firq2()
 {
+  bool cli = false;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+  cli = wifi_data_cur.cli;
+#endif
+
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli, &wf_data_cur);
+  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli, &wf_data_cur);
   if (snr_cfg_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
@@ -216,8 +221,12 @@ void firq5() // 0.5 sec main cycle
       wasAlm_reset();
       if (rtc_alm.al1_on)
       {
-        //alarm1_action(wifi_data_cur.cli, rtc_cfg.alarms[rtc_alm.num].act, rtc_alm.act, rtc_alm.num, &rtc_cfg, rtc_cfg.alarms[rtc_alm.num].type, rtc_time.nm_is_on,
-        //              conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, cur_br, snr_data.f, screen, text_size, conf_data.radio_addr);
+        bool cli = false;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+        cli = wifi_data_cur.cli;
+#endif
+        alarm1_action(cli, rtc_cfg.alarms[rtc_alm.num].act, rtc_alm.act, rtc_alm.num, &rtc_cfg, rtc_cfg.alarms[rtc_alm.num].type, rtc_time.nm_is_on,
+                      conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, cur_br, snr_data.f, screen, text_size, conf_data.radio_addr);
       }
       if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
       {

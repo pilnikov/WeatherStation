@@ -227,7 +227,12 @@ void setup()
     }
 # endif
     //-------------------------------------------------------  Опрашиваем датчики
-    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli, &wf_data_cur);
+    bool cli = false;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    cli = wifi_data_cur.cli;
+#endif
+
+    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli, &wf_data_cur);
 
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
@@ -298,8 +303,15 @@ void loop()
     irq_set();
 
     // ----------------------------------------------------- Обрабатываем клавиатуру
-   // keyb_read(wifi_data_cur.cli, wifi_data_cur.ap, conf_data.gpio_btn, disp_mode, max_st,
-   //           conf_data.type_thermo, conf_data.type_vdrv, conf_data.gpio_led, conf_data.led_pola, blinkColon, serv_ms, &conf_data);
+    bool cli = false;
+    bool ap  = false;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    cli = wifi_data_cur.cli;
+    ap  = wifi_data_cur.ap;
+#endif
+
+    keyb_read(cli, ap, conf_data.gpio_btn, disp_mode, max_st,
+              conf_data.type_thermo, conf_data.type_vdrv, conf_data.gpio_led, conf_data.led_pola, blinkColon, serv_ms, &conf_data);
 
     //------------------------------------------------------  Верифицируем ночной режим
     rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);

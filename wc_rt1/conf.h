@@ -242,11 +242,11 @@ void ARDUINO_ISR_ATTR isr1();
 #endif
 
 #if defined(ESP8266)
-static void IRAM_ATTR isr0();
+void IRAM_ATTR isr0();
 #elif defined(__AVR__)
-static void ISR_ATTR isr0();
+void ISR_ATTR isr0();
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-static void ISR_ATTR isr0();
+void ISR_ATTR isr0();
 #endif
 
 // ---------------------------------------------------- Variant of config
