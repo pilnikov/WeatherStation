@@ -227,7 +227,7 @@ void firq5() // 0.5 sec main cycle
 #endif
         alarm1_action(cli, rtc_cfg.alarms[rtc_alm.num].act, rtc_alm.act, rtc_alm.num, &rtc_cfg, rtc_cfg.alarms[rtc_alm.num].type, rtc_time.nm_is_on,
                       conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, cur_br, snr_data.f, screen, text_size, conf_data.radio_addr);
-      }
+      } 
       if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
       {
         rtc_alm.act = 15;
