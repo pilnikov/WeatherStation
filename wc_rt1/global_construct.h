@@ -44,11 +44,6 @@
 #include <udp_cons.h>
 #endif
 
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-#include <esp_int_wdt.h>
-#include <esp_task_wdt.h>
-#endif
-
 
 // ---------------------------------------------------- Constructors
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3

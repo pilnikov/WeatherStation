@@ -57,9 +57,9 @@ void SNR::init(snr_cfg_t* _data)
 				//DBG_OUT_PORT.print  (F("Delay:   ")); DBG_OUT_PORT.print(delayMS); DBG_OUT_PORT.println(F(" ms"));
 				break;
 			case 6:
-				if (!si.begin(0x40, &Wire))
+				if (!si.begin())
 				{
-					DBG_OUT_PORT.println(F("Couldn't find a valid Si7021 sensor, check wiring!"));
+					DBG_OUT_PORT.println(F("Couldn't find a valid HTU21 sensor, check wiring!"));
 					type_snr = 0;
 				}
 				break;
@@ -149,7 +149,12 @@ float SNR::humi_read(uint8_t type_snr)
 			#endif
 			break;
 		case 6:
-			ret = si.readHumidity();
+			si.requestHumidity();            // Запрашиваем преобразование
+			delay(100);                      // Ждем окончания (см. доку)
+			if (si.readHumidity()) 
+			{				                 // Читаем влажность из датчика и проверяем
+				ret = si.getHumidity();    	 // В случае успеха выводим влажность
+			}
 			#ifdef _debug
 				DBG_OUT_PORT.print(F("Si7021 Humidity: "));
 			# endif //_debug 
@@ -224,7 +229,13 @@ float SNR::temp_read(uint8_t type_snr)
 			#endif
 			break;
 		case 6:
-			ret = si.readTemperature();
+  // Читаем температуру
+			si.requestTemperature();            // Запрашиваем преобразование
+			delay(100);                         // Ждем окончания (см. доку)
+			if (si.readTemperature()) 
+			{									// Читаем температуру из датчика и проверяем
+				ret = si.getTemperature();     	// В случае успеха выводим температуру
+			}
 			#ifdef _debug
 				DBG_OUT_PORT.print(F("Si7021 Temperature: "));
 			# endif //_debug 

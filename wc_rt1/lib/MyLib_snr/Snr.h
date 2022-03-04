@@ -9,8 +9,10 @@
 #include <WProgram.h>
 #endif
 
+#include <Wire.h>
+#
 #include <Adafruit_Sensor.h>
-#include <Adafruit_Si7021.h>
+#include <GyverHTU21D.h>
 #include <Adafruit_BMP085_U.h>
 #include <Adafruit_BMP280.h>
 #include <AM2320.h>
@@ -88,7 +90,7 @@ private:
 	AM2320 am23;
 
 	//----------------------------------------------------------htu
-	Adafruit_Si7021 si = Adafruit_Si7021();
+	GyverHTU21D si;
 
 	//----------------------------------------------------------bmp
 	Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);

@@ -186,6 +186,11 @@
 #include <Exts.h>
 #endif
 
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#include <esp_int_wdt.h>
+#include <esp_task_wdt.h>
+#endif
+
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
