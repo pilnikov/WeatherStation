@@ -32,6 +32,8 @@ void handleExit();
 void handleSetFont();
 # endif //MATRIX
 void handleSetPard();
+void handleUpdSnr();
+void handleUpdForeCast();
 void handleSetPars1();
 void handleSetPars2();
 void handleSetPars3();
@@ -39,6 +41,7 @@ void handleRcvSnr();
 void handleSetParc();
 void handleSetPartrm();
 void handleSetNews();
+void handleUpdNews();
 
 void handlejActT();
 void handlejActA();
@@ -50,7 +53,6 @@ void handlejPard();
 void handlejPars();
 void handlejTS();
 void handlejSnr();
-void handleUpdSnr();
 void handlejUart();
 void handlejTrm();
 void handlejNews();

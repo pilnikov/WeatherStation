@@ -26,13 +26,15 @@ void web_setup()
   server.on("/set_font",    handleSetFont);
 # endif //MATRIX
   server.on("/set_pard",    handleSetPard);
+  server.on("/upd_snr",     handleUpdSnr);
+  server.on("/upd_wfc",     handleUpdForeCast);
   server.on("/set_pars1",   handleSetPars1);
   server.on("/set_pars2",   handleSetPars2);
   server.on("/set_pars3",   handleSetPars3);
-  server.on("/rcv_snr",     handleRcvSnr);
   server.on("/set_parc",    handleSetParc);
   server.on("/set_partrm",  handleSetPartrm);
   server.on("/set_news",    handleSetNews);
+  server.on("/upd_news",    handleUpdNews);
 
   server.on("/jactt",       handlejActT);
   server.on("/jacta",       handlejActA);
@@ -44,7 +46,7 @@ void web_setup()
   server.on("/jsens",       handlejPars);
   server.on("/jts",         handlejTS);
   server.on("/jsnr",        handlejSnr);
-  server.on("/updS",        handleUpdSnr);
+  server.on("/rcv_snr",     handleRcvSnr);
   server.on("/juart",       handlejUart);
   server.on("/jtrm",        handlejTrm);
   server.on("/jnews",       handlejNews);
@@ -212,7 +214,7 @@ void handlejActT()
   json["boot"] = boot_mode;
   json["actw"] = wasAlarm;
   json["ct"]   = rtc_time.ct;
-  
+
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
 
@@ -429,31 +431,25 @@ void handlejSnr()
 void handleUpdSnr()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli);
-  if (snr_cfg_data.type_snr1 == 12)
-  {
-    snr_data.t1 = sb.t1;
-    snr_data.h1 = sb.h1;
-  }
-  if (snr_cfg_data.type_snr2 == 12)
-  {
-    snr_data.t2 = sb.t2;
-    snr_data.h2 = sb.h2;
-  }
-  if (snr_cfg_data.type_snr3 == 12)
-  {
-    snr_data.t3 = sb.t3;
-    snr_data.h3 = sb.h3;
-  }
-  if (snr_cfg_data.type_snrp == 12)
-  {
-    snr_data.p = sb.p;
-  }
-
-  if (conf_data.use_pp == 2) wf_data = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);
+  snr_data = GetSnr(sb, snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli, wf_data_cur);
 
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
+}
+
+void handleUpdForeCast()
+{
+  //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
+  if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
+
+  //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
+  if ((conf_data.use_pp == 2) & wifi_data_cur.cli)
+  {
+    wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+
+    //------------------------------------------------------ Получаем прогноз погоды на сегодня от OpenWeatherMap
+    wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);
+  }
 }
 
 //-------------------------------------------------------------- handler Set Parameter for sensor part one
@@ -518,7 +514,7 @@ void handleSetPars2()
 
   server.send(200, "text/html", "OK!");
 
-  sens.init(&snr_cfg_data);
+  sens_f.init(&snr_cfg_data);
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor part tree
@@ -814,6 +810,8 @@ String getContentType(String filename)
 void handleSetNews()
 {
   //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
+  char src_buff[17];
+  strcpy(src_buff, conf_data.news_source);
 
   conf_data.news_en = (server.arg("displaynews") == "1");
 
@@ -823,14 +821,20 @@ void handleSetNews()
   conf_f = "/config.json";
   saveConfig(conf_f, conf_data);
 
+  if (strcmp(src_buff, conf_data.news_source) != 0) handleUpdNews();
+  server.send(200, "text/html", "Ok!");
+  serv_ms = millis();
+}
+
+void handleUpdNews()
+{
   if (conf_data.news_en)
   {
     newsClient -> updateNewsClient(conf_data.news_api_key, conf_data.news_source);
     newsClient -> updateNews();
   }
-  server.send(200, "text/html", "Ok!");
-  serv_ms = millis();
 }
+
 
 //-------------------------------------------------------------- handler Get Parameter from sensor
 void handlejNews()

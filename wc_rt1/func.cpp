@@ -4,24 +4,49 @@
 #include "disp.h"
 #include "cfg.h"
 
-CT myrtc5; //For RTC Common
-RTCJS myrtccfg1; //For RTC Config
-MSG dmsg1; //For Messages
-SNR sens1; //For Sensor Common
+MSG dmsg_ff; //For Messages
+FD f_dsp_ff; //For Display
+
+CT myrtc_ff; //For RTC Common
+RTCJS myrtccfg_ff; //For RTC Config
+SNR sens_ff; //For Sensor Common
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-ES e_srv1;
-NF nsys1;
-LFS lfs1;
+ES e_srv_ff;
+NF nsys_ff;
+LFS lfs_ff;
 #endif
+
 
 static unsigned long setting_ms = millis();
 static bool tmr_started = false, btn_released = false;
 volatile bool btn_state_flag = false, _wasAlarmed_int = false;
 
+void sensor_init(snr_cfg_t *cf)
+{
 
+  if (cf -> type_snr1 > 0 || cf -> type_snr2 > 0 || cf -> type_snr3 > 0)
+  {
+    if (cf -> type_snr1 == 4 || cf -> type_snr2 == 4 || cf -> type_snr3 == 4)
+    {
+      sens_ff.dht_preset(cf -> gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
+    }
+
+    sens_ff.init(cf);
+
+    DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
+    DBG_OUT_PORT.println(cf -> type_snr1);
+    DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
+    DBG_OUT_PORT.println(cf -> type_snr2);
+    DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
+    DBG_OUT_PORT.println(cf -> type_snr3);
+    DBG_OUT_PORT.print("Snr type on pressure = ");
+    DBG_OUT_PORT.println(cf -> type_snrp);
+    DBG_OUT_PORT.println(F("sensor inital"));
+  }
+}
 //------------------------------------------------------  Получаем данные с датчиков
-snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli)
+snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli, wf_data_t wfc)
 {
   snr_data_t td;
   snr_data_t ed1;
@@ -41,7 +66,7 @@ snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli)
 
   if ((rd.type_snr1 == 5 || rd.type_snr2 == 5 || rd.type_snr3 == 5) && type_rtc == 1)
   {
-    temp_rtc = myrtc5.get_temperature();
+    temp_rtc = myrtc_ff.get_temperature();
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -49,25 +74,24 @@ snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli)
   {
     if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1)
     {
-      dmsg1.callback(cf.type_disp, 2, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
+      dmsg_ff.callback(cf.type_disp, 2, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
       String ts_str = ts_rcv(cf.ts_ch_id, cf.AKey_r, cli);  // Получаем строчку данных от TS
-      td = e_srv1.get_ts(ts_str); // Парсим строчку от TS
-      dmsg1.callback(cf.type_disp, 2, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
+      td = e_srv_ff.get_ts(ts_str); // Парсим строчку от TS
+      dmsg_ff.callback(cf.type_disp, 2, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
-    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv1.get_es(es_rcv(cf.esrv1_addr, cli)); // Получаем данные от внешнего сервера1
-    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv1.get_es(es_rcv(cf.esrv2_addr, cli)); // Получаем данные от внешнего сервера2
+    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv_ff.get_es(es_rcv(cf.esrv1_addr, cli)); // Получаем данные от внешнего сервера1
+    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv_ff.get_es(es_rcv(cf.esrv2_addr, cli)); // Получаем данные от внешнего сервера2
 
     if (cf.use_pp == 2) {
-      wf_data_t wf_cur = getOWM_current(cf.pp_city_id, cf.owm_key);// Получаем данные на сегодня от OWM
-      wd.h1 = wf_cur.hum_min;
-      wd.t1 = wf_cur.temp_min;
-      wd.p  = wf_cur.press_min;
+      wd.h1 = wfc.hum_min;
+      wd.t1 = wfc.temp_min;
+      wd.p  = wfc.press_min;
     }
   }
 #endif
   if ((rd.type_snr1 > 0 && rd.type_snr1 < 14) || (rd.type_snr2 > 0 && rd.type_snr2 < 14) || (rd.type_snr3 > 0 && rd.type_snr3 < 14) || (rd.type_snrp > 0 && rd.type_snrp < 14))
   {
-    sd = sens1.read_snr(rd, temp_rtc, td, ed1, ed2, wd); // Заполняем матрицу данных с датчиков
+    sd = sens_ff.read_snr(rd, temp_rtc, td, ed1, ed2, wd); // Заполняем матрицу данных с датчиков
   }
 
 # if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -75,14 +99,35 @@ snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli)
   {
     if (cf.use_ts > 0)
     {
-      dmsg1.callback(cf.type_disp, 1, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
-      ts_snd(e_srv1.put_ts(cf.AKey_w, cf.use_ts, sd), cli); // Отправляем инфу на TS
-      dmsg1.callback(cf.type_disp, 1, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
+      dmsg_ff.callback(cf.type_disp, 1, 0, cf.rus_lng); // сообщение на индикатор о начале обмена с TS
+      ts_snd(e_srv_ff.put_ts(cf.AKey_w, cf.use_ts, sd), cli); // Отправляем инфу на TS
+      dmsg_ff.callback(cf.type_disp, 1, 1, cf.rus_lng); // сообщение на индикатор о результатах обмена с TS
     }
 
     if (cf.use_es > 0)put_to_es(cf.esrv1_addr, cf.use_es, sd, cli); //отправляем показания датчиков на внешний сервер 1
   }
 #endif
+
+  if (rd.type_snr1 == 12)
+  {
+    sd.t1 = sb.t1;
+    sd.h1 = sb.h1;
+  }
+  if (rd.type_snr2 == 12)
+  {
+    sd.t2 = sb.t2;
+    sd.h2 = sb.h2;
+  }
+  if (rd.type_snr3 == 12)
+  {
+    sd.t3 = sb.t3;
+    sd.h3 = sb.h3;
+  }
+  if (rd.type_snrp == 12)
+  {
+    sd.p = sb.p;
+  }
+
   return sd;
 }
 
@@ -101,7 +146,7 @@ String gs_rcv(unsigned long city_id, bool cli)
     String addr = "http://informer.gismeteo.ru/xml/";
     addr += String(city_id);
     addr += ".xml";
-    out = nsys1.http_client(addr);
+    out = nsys_ff.http_client(addr);
   }
   if (debug_level == 10) DBG_OUT_PORT.println(out);
   return out;
@@ -128,7 +173,7 @@ wf_data_t getOWM_current(unsigned long cityID, char *weatherKey)
   addr += "&lang=ru&cnt=1";
   DBG_OUT_PORT.println(addr);
 
-  out = nsys1.http_client(addr);
+  out = nsys_ff.http_client(addr);
   //DBG_OUT_PORT.println(F(out);
 
   String line = remove_sb(out);
@@ -203,7 +248,7 @@ wf_data_t getOWM_forecast(unsigned long cityID, char *weatherKey)
   //if (debug_level == 10)
   DBG_OUT_PORT.println(addr);
 
-  out = nsys1.http_client(addr);
+  out = nsys_ff.http_client(addr);
   if (debug_level == 10) DBG_OUT_PORT.println(out);
 
   String tempz = tvoday(out);
@@ -315,7 +360,7 @@ String es_rcv(char *es_addr, bool cli)
     addr += String(es_addr);
     addr += "/jsnr";
     if (debug_level == 10) DBG_OUT_PORT.println(addr);
-    out = nsys1.http_client(addr);
+    out = nsys_ff.http_client(addr);
   }
   if (debug_level == 10) DBG_OUT_PORT.println(out);
   return out;
@@ -414,7 +459,7 @@ String ts_rcv(unsigned long id, char *api, bool cli)
     addr += String(id);
     addr += "/feed/last?key=";
     addr += String(api);
-    out = nsys1.http_client(addr);
+    out = nsys_ff.http_client(addr);
   }
   //if (debug_level == 10)
   DBG_OUT_PORT.print(F("TS<-R response from ts "));
@@ -691,9 +736,9 @@ void wasAlm_reset()
 }
 
 void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, rtc_cfg_data_t *rtc_cfg, uint8_t a_type, bool &nmon, byte type_vdrv,
-                   byte type_disp, bool &disp_on, bool &play_snd, uint16_t &br, uint16_t &snrf, byte *screen, uint8_t text_size, char *radio_addr)
+                   byte type_disp, bool &disp_on, bool &play_snd, byte *screen, char *radio_addr)
 {
-  //  dmsg1.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
+  //  dmsg_ff.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
 
   switch (a_act)     // Выполняем экшн
   {
@@ -709,9 +754,8 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, r
       break;
     case 23:
       disp_on = false;
-      br = 0;
-      snrf = 0;
-      display_off(type_vdrv, type_disp, br, screen, text_size);
+      f_dsp_ff.CLS(screen, sizeof screen);
+      display_off(type_vdrv);
       break;
     case 24:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -732,12 +776,12 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, r
   if (a_type == 4)
   {
     rtc_cfg -> alarms[a_num].type = 0;
-    String from_client = myrtccfg1.to_json(*rtc_cfg);
+    String from_client = myrtccfg_ff.to_json(*rtc_cfg);
     const char *conf_f = "/conf_rtc.json";
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    lfs1.writeFile(conf_f, from_client.c_str());
+    lfs_ff.writeFile(conf_f, from_client.c_str());
 #endif
-    *rtc_cfg = myrtccfg1.from_json(from_client);
+    *rtc_cfg = myrtccfg_ff.from_json(from_client);
   }
 }
 

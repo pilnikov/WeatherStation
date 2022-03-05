@@ -55,8 +55,11 @@ wifi_cfg_data_t WFJS::from_json(String message)
 		strcpy(_data.ap_ip, doc["iap"] | "N/A");
 		strcpy(_data.ap_ma, doc["map"] | "N/A");
 
+		char nastr[20];
+		strcpy(nastr, "N/A");
+
 		if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0 
-		|| (_data.ap_ssid[0] == 'N' && _data.ap_ssid[1] == '/' && _data.ap_ssid[2] == 'A')) 
+		|| (strcmp(_data.ap_ssid, nastr) == 0)) 
 		{	
 			strcpy(_data.ap_ssid, "My_WiFi");
 			strcpy(_data.ap_pass, "12345678");
@@ -106,8 +109,11 @@ String WFJS::to_json(wifi_cfg_data_t _data)
 	DynamicJsonDocument doc(1000);
 	JsonObject json = doc.to<JsonObject>();
 
+	char nastr[20];
+	strcpy(nastr, "N/A");
+
 	if ( _data.ap_ssid[0] == ' ' || _data.ap_ssid[0] ==  0 
-	|| (_data.ap_ssid[0] == 'N' && _data.ap_ssid[1] == '/' && _data.ap_ssid[2] == 'A')) 
+	|| (strcmp(_data.ap_ssid, nastr) == 0)) 
 	{	
 		strcpy(_data.ap_ssid, "My_WiFi");
 		strcpy(_data.ap_pass, "12345678");

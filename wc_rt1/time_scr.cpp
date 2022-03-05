@@ -4,8 +4,8 @@
 FD dsp; //For Display
 CT rtc; //For RTC Common
 
-bool time_view(bool use_pm, bool blinkColon, bool end_run_st, rtc_time_data_t rt, rtc_alm_data_t rta, byte *screen, conf_data_t cf, snr_data_t sn, byte br,
-unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buffud, const uint8_t q_dig)
+bool time_view(bool use_pm, bool blinkColon, bool end_run_st, rtc_time_data_t rt, rtc_alm_data_t rta, byte *screen, conf_data_t cf, snr_data_t sn,
+unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buffud, const uint8_t q_dig, uint16_t br)
 {
 
   uint8_t h = use_pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;

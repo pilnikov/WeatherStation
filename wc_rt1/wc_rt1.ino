@@ -1,11 +1,11 @@
 //------------------------------------------------------
 //#include ".\headers\conf.h"
+#include "constr.h"
 #include "cfg.h"
-#include "global_construct.h"
-#include "global_var.h"
 #include "disp.h"
 #include "web.h"
 #include "conf.h"
+#include "global_var.h"
 
 #if defined(ESP8266)
 #include <ESP8266mDNS.h>
@@ -16,7 +16,7 @@
 #include <ESP32SSDP.h>
 #endif
 
-FD f_dsp3; //For Display
+char            tstr[25];
 
 void setup()
 {
@@ -136,26 +136,7 @@ void setup()
     if (hw_data.bh1750_present) lightMeter.begin();
 
     snr_cfg_data.gpio_dht = conf_data.gpio_dht;
-
-    if (snr_cfg_data.type_snr1 > 0 || snr_cfg_data.type_snr2 > 0 || snr_cfg_data.type_snr3 > 0)
-    {
-      if (snr_cfg_data.type_snr1 == 4 || snr_cfg_data.type_snr2 == 4 || snr_cfg_data.type_snr3 == 4)
-      {
-        sens.dht_preset(snr_cfg_data.gpio_dht, 22); //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
-      }
-
-      sens.init(&snr_cfg_data);
-
-      DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
-      DBG_OUT_PORT.println(snr_cfg_data.type_snr1);
-      DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
-      DBG_OUT_PORT.println(snr_cfg_data.type_snr2);
-      DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
-      DBG_OUT_PORT.println(snr_cfg_data.type_snr3);
-      DBG_OUT_PORT.print("Snr type on pressure = ");
-      DBG_OUT_PORT.println(snr_cfg_data.type_snrp);
-      DBG_OUT_PORT.println(F("sensor inital"));
-    }
+    sensor_init(&snr_cfg_data);
 
     //------------------------------------------------------  Инициализируем GPIO
 
@@ -209,17 +190,8 @@ void setup()
         rtc_time.ct = myrtc.GetTime(rtc_hw);
         rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
       }
-      //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
-      if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
-
-      //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
-      if ((conf_data.use_pp == 2) & wifi_data_cur.cli)
-      {
-        wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
-
-        //------------------------------------------------------ Получаем прогноз погоды на сегодня от OpenWeatherMap
-        wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);
-      }
+      //------------------------------------------------------ Получаем прогноз погоды
+      handleUpdForeCast();
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
 
@@ -227,7 +199,7 @@ void setup()
       if (conf_data.news_en & wifi_data_cur.cli)
       {
         newsClient = new NewsApiClient(conf_data.news_api_key, conf_data.news_source);
-        newsClient -> updateNews();
+        handleUpdNews();
       }
     }
 # endif
@@ -237,7 +209,8 @@ void setup()
     cli = wifi_data_cur.cli;
 #endif
 
-    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli);
+    snr_data_t sb = snr_data;
+    snr_data = GetSnr(sb, snr_cfg_data, conf_data, rtc_hw.a_type, cli, wf_data_cur);
 
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);
@@ -246,8 +219,8 @@ void setup()
     //-------------------------------------------------------- Регулируем яркость дисплея
     if (conf_data.auto_br)
     {
-      snr_data.f = f_dsp3.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
-      cur_br = f_dsp3.auto_br(snr_data.f, conf_data);
+      snr_data.f = ff_dsp.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      cur_br = ff_dsp.auto_br(snr_data.f, conf_data);
     }
     else
     {
@@ -294,32 +267,8 @@ void loop()
 {
   if (boot_mode == 1)
   {
-    // ----------------------------------------------------- Проигрываем звуки
-    uint8_t muz_n = 15;
-    if  (rtc_alm.act < 20)  muz_n = rtc_alm.act;
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    Buzz.play(pgm_read_ptr(&songs[ muz_n]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
-#elif defined (__AVR__)
-    Buzz.play(pgm_read_word(&songs[muz_n]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
-#endif
-    play_snd = false;
-
     //------------------------------------------------------ Распределяем системные ресурсы
-    irq_set();
-
-    // ----------------------------------------------------- Обрабатываем клавиатуру
-    bool cli = false;
-    bool ap  = false;
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    cli = wifi_data_cur.cli;
-    ap  = wifi_data_cur.ap;
-#endif
-
-    keyb_read(cli, ap, conf_data.gpio_btn, disp_mode, max_st,
-              conf_data.type_thermo, conf_data.type_vdrv, conf_data.gpio_led, conf_data.led_pola, blinkColon, serv_ms, &conf_data);
-
-    //------------------------------------------------------  Верифицируем ночной режим
-    rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
+    main_loop();
   }
   else //-------------------------------------------------- Minimal boot
   {

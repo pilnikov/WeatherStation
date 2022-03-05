@@ -163,7 +163,7 @@
 #ifndef conf_h
 #define conf_h
 
-#define FW_Ver 1.0 //16.05.17 added udp debug console
+#define FW_Ver 2.0 //05.03.22 structure modified
 
 // ------------------------------------------------------------- Include
 //#include "..\lib\MyLib_Udt\Udt.h"
@@ -182,6 +182,7 @@
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include <My_LFS.h>
+#include <my_wifi.h>
 #include <Netwf.h>
 #include <Exts.h>
 #endif
@@ -200,7 +201,7 @@
 #endif
 
 // ----------------------------------- Force define func name
-void irq_set();
+void main_loop();
 void firq0();
 void firq2();
 void firq5();
@@ -209,7 +210,8 @@ void firq7();
 void firq8();
 void runing_string_start();
 
-snr_data_t GetSnr(snr_cfg_t, conf_data_t, uint8_t, bool);
+void sensor_init(snr_cfg_t*);
+snr_data_t GetSnr(snr_data_t, snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void send_uart(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, unsigned long&, conf_data_t *);
@@ -219,7 +221,7 @@ String tvoday(String);
 void Thermo(snr_data_t, conf_data_t);
 void wasAlm_reset();
 void alarm1_action(bool, uint8_t, uint8_t &, uint8_t, rtc_cfg_data_t *, uint8_t, bool &, byte,
-                   byte, bool &, bool &, uint16_t &, uint16_t &, byte *, uint8_t, char *);
+                   byte, bool &, bool &, byte *, char *);
 String radio_snd(String, bool, char*);
 
 

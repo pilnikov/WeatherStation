@@ -8,9 +8,6 @@
 #include <WProgram.h>
 #endif
 
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include <My_LFS.h>
-#endif
 #include <myrtc.h>
 #include <Sysfn.h>
 #include <Snd.h>
@@ -34,6 +31,7 @@
 #endif
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#include <My_LFS.h>
 #include <my_wifi.h>
 #include <Netwf.h>
 #include <FS.h>
@@ -43,7 +41,6 @@
 #include <Exts.h>
 #include <udp_cons.h>
 #endif
-
 
 // ---------------------------------------------------- Constructors
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -72,16 +69,16 @@ ESP8266HWInfo hwi;
 BH1750 lightMeter;
 
 // ---------------------------------------------------- Other
+FD ff_dsp; //For Display
+
 Synt Buzz;               //Конструктор пищалки
 
 CT myrtc; //For RTC Common
 RTCJS myrtccfg; //For RTC Config
 SF hw_chk; //For HW Check
-SNR sens; //For Sensor Common
+SNR sens_f; //For Sensor Common
 SNRJS mysnrcfg; //For Sensor Config
-MSG dmsg; //For Messages
 
-//----------------------------------------------------------------------------------------------------------------------------------consructors
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 // ---------------------------------------------------- News Client
 NewsApiClient *newsClient;

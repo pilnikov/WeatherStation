@@ -611,7 +611,7 @@ int8_t getWifiQuality()
 }
 
 
-void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint8_t br, bool time_up, byte* screen)
+void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint16_t br, bool time_up, byte* screen)
 {
   switch (type_vdrv)
   {
@@ -676,37 +676,41 @@ void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint8_t br,
       break;
   }
 }
-void display_off(byte type_vdrv, byte type_disp, byte br, byte* screen, uint8_t text_size)
+void display_off(byte type_vdrv)
 {
-  f_dsp.CLS(screen, sizeof screen);
   switch (type_vdrv)
   {
     case 1:
-      tm1637->set_br(0);
-      tm1637->clear();
+      tm1637 -> set_br(0);
+      tm1637 -> clear();
       break;
     case 2:
-      m7219->shutdown(true);
-      m7219->write();
+      m7219 -> shutdown(true);
+      m7219 -> write();
       break;
     case 3:
-      if (type_disp == 23 || type_disp == 24 || type_disp == 25)
-      {
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32
-        m3216_ramFormer(screen, br, text_size);
+      m3216 -> fillScreen(0);
+#if defined(__AVR_ATmega2560__)
+      m3216 -> swapBuffers(true);
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
+      m3216 -> show();
 #endif
-      }
+#endif
       break;
     case 5:
-      ht1632_ramFormer(screen, 0, 0);
+      m1632 -> pwm(0);
+      m1632 -> clear();
+      m1632 -> sendFrame();
+      break;
     case 12:
       lcd->noBacklight();
       lcd->noDisplay();
       break;
     case 11:
-      ht1633->clear();
-      ht1633->setBrightness(0);
-      ht1633->write();
+      ht1633 -> clear();
+      ht1633 -> setBrightness(0);
+      ht1633 -> write();
       break;
     default:
       break;
@@ -718,8 +722,8 @@ void display_on(byte type_vdrv)
   switch (type_vdrv)
   {
     case 12:
-      lcd->backlight();
-      lcd->display();
+      lcd -> backlight();
+      lcd -> display();
       break;
     case 2:
       m7219->shutdown(false);

@@ -1,4 +1,5 @@
 #include <Snr.h>
+#include <Wire.h>
 
 #define _debug
 
@@ -18,10 +19,26 @@ void setup() {
   Serial.begin(115200);
   Serial.println("start");
 
-  snr_cfg_data.type_snr1 = 13;
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+    uint8_t gpio_sda = 21, gpio_scl = 22;
+# elif defined(ESP8266)
+    uint8_t gpio_sda = 4, gpio_scl = 5;
+# endif
+
+
+
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+    Wire.setPins(gpio_sda, gpio_scl);
+# elif defined(ESP8266)
+    Wire.begin(gpio_sda, gpio_scl);
+# else
+    Wire.begin();
+# endif
+
+  snr_cfg_data.type_snr1 = 10;
   snr_cfg_data.type_snr2 = 0;
   snr_cfg_data.type_snr3 = 0;
-  snr_cfg_data.type_snrp = 0;
+  snr_cfg_data.type_snrp = 10;
 
   sd.t1 = 99;
   sd.t2 = 99;

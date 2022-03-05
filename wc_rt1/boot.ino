@@ -4,13 +4,30 @@
 
 FD f_dsp2; //For Display
 
-static uint8_t cur_sym_pos[3] = {0, 0, 0};
+static uint8_t  cur_sym_pos[3] = {0, 0, 0};
 static uint8_t  num_st = 1;
-static char st1[254];
+static char     st1[254];
+static char     st2[20];
 
-static bool end_run_st = false, m32_8time_act = false;
+const uint8_t   q_dig = 6;                              // количество цифр на дисплее
+static uint8_t  max_st = 6;                             // макс кол-во прокручиваемых строк
 
-void irq_set()
+static bool     d_notequal[q_dig];
+const uint8_t   digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
+static unsigned char oldDigit[q_dig];                   // убегающая цифра
+static uint16_t buffud[64];
+static uint8_t  disp_mode  = 0;
+
+static bool     end_run_st = false,
+                m32_8time_act = false,
+                disp_on  = true,
+                blinkColon = false;
+
+static uint8_t  hour_cnt  = 0;
+static unsigned long alarm_time = millis();
+
+
+void main_loop()
 {
   //------------------------------------------------------ interrupts
   unsigned long t3 = conf_data.period * 2000L;
@@ -80,6 +97,30 @@ void irq_set()
     default: // no IRQ
       break;
   }
+
+  // ----------------------------------------------------- Проигрываем звуки
+  uint8_t muz_n = 15;
+  if  (rtc_alm.act < 20)  muz_n = rtc_alm.act;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+  Buzz.play(pgm_read_ptr(&songs[ muz_n]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
+#elif defined (__AVR__)
+  Buzz.play(pgm_read_word(&songs[muz_n]), conf_data.gpio_snd, play_snd, conf_data.snd_pola);
+#endif
+  play_snd = false;
+
+  // ----------------------------------------------------- Обрабатываем клавиатуру
+  bool cli = false;
+  bool ap  = false;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+  cli = wifi_data_cur.cli;
+  ap  = wifi_data_cur.ap;
+#endif
+
+  keyb_read(cli, ap, conf_data.gpio_btn, disp_mode, max_st,
+            conf_data.type_thermo, conf_data.type_vdrv, conf_data.gpio_led, conf_data.led_pola, blinkColon, serv_ms, &conf_data);
+
+  //------------------------------------------------------  Верифицируем ночной режим
+  rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
 }
 
 void runing_string_start() // ---------------------------- Запуск бегущей строки
@@ -164,26 +205,7 @@ void firq2()
 #endif
 
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli);
-  if (snr_cfg_data.type_snr1 == 12)
-  {
-    snr_data.t1 = sb.t1;
-    snr_data.h1 = sb.h1;
-  }
-  if (snr_cfg_data.type_snr2 == 12)
-  {
-    snr_data.t2 = sb.t2;
-    snr_data.h2 = sb.h2;
-  }
-  if (snr_cfg_data.type_snr3 == 12)
-  {
-    snr_data.t3 = sb.t3;
-    snr_data.h3 = sb.h3;
-  }
-  if (snr_cfg_data.type_snrp == 12)
-  {
-    snr_data.p = sb.p;
-  }
+  snr_data = GetSnr(sb, snr_cfg_data, conf_data, rtc_hw.a_type, cli, wf_data_cur);
 }
 
 void firq5() // 0.5 sec main cycle
@@ -206,13 +228,16 @@ void firq5() // 0.5 sec main cycle
       else cur_br = conf_data.man_br;
       snr_data.f = cur_br;
     }
+    uint16_t ddd = cur_br;
     //-----------------------------------------
     // run slowely time displays here
     m32_8time_act = false;
     if (!((conf_data.type_disp == 20) & !end_run_st))
     {
-      m32_8time_act = time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, conf_data, snr_data, cur_br,
-                                oldDigit, digPos_x, d_notequal, buffud, q_dig); // break time view while string is running
+      m32_8time_act = time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, conf_data, snr_data,
+                                oldDigit, digPos_x, d_notequal, buffud, q_dig, cur_br); // break time view while string is running
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      cur_br = ddd;
       write_dsp(true, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
     }
   }
@@ -231,7 +256,7 @@ void firq5() // 0.5 sec main cycle
         cli = wifi_data_cur.cli;
 #endif
         alarm1_action(cli, rtc_cfg.alarms[rtc_alm.num].act, rtc_alm.act, rtc_alm.num, &rtc_cfg, rtc_cfg.alarms[rtc_alm.num].type, rtc_time.nm_is_on,
-                      conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, cur_br, snr_data.f, screen, text_size, conf_data.radio_addr);
+                      conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, screen, conf_data.radio_addr);
       }
       if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
       {
@@ -376,7 +401,7 @@ void firq8() //0.030 sec running string is out switch to time view
         //ORANGE = 3 GREEN = 1
         ht1632_ramFormer(screen, conf_data.color_up, conf_data.color_dwn);
         write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
-      }
+}
       break;
   }
 }

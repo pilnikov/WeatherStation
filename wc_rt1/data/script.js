@@ -861,6 +861,17 @@ var numaa = 7;
 				}
 			}
 
+			function update_news()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open('GET', '/upd_news', true);
+				xh.send(null);
+				xh.onreadystatechange = function()
+				{
+				  if (this.readyState==4 && this.status==200) loadVal_News();
+				};      
+			}
+
 //------------------------------------------------------------------------------Sens.htm
 			function loadVal_Snr()
 			{
@@ -948,10 +959,21 @@ var numaa = 7;
 				};
 			}
 
-			function up_date()
+			function update_snr()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open('GET', '/updS', true);
+				xh.open('GET', '/upd_snr', true);
+				xh.send(null);
+				xh.onreadystatechange = function()
+				{
+				  if (this.readyState==4 && this.status==200) loadSnr();
+				};      
+			}
+
+			function update_wfc()
+			{
+				var xh = new XMLHttpRequest();
+				xh.open('GET', '/upd_wfc', true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
