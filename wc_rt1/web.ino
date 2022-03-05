@@ -429,7 +429,7 @@ void handlejSnr()
 void handleUpdSnr()
 {
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli, &wf_data_cur);
+  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli);
   if (snr_cfg_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
@@ -450,8 +450,7 @@ void handleUpdSnr()
     snr_data.p = sb.p;
   }
 
-  if (conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
-  if (conf_data.use_pp == 2) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+  if (conf_data.use_pp == 2) wf_data = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);
 
   server.send(200, "text/html", "OK!");
   serv_ms = millis();

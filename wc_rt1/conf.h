@@ -209,7 +209,7 @@ void firq7();
 void firq8();
 void runing_string_start();
 
-snr_data_t GetSnr(snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t*);
+snr_data_t GetSnr(snr_cfg_t, conf_data_t, uint8_t, bool);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void send_uart(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, unsigned long&, conf_data_t *);

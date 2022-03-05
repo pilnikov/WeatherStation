@@ -4,10 +4,11 @@
 
 FD f_dsp2; //For Display
 
-
 static uint8_t cur_sym_pos[3] = {0, 0, 0};
 static uint8_t  num_st = 1;
 static char st1[254];
+
+static bool end_run_st = false, m32_8time_act = false;
 
 void irq_set()
 {
@@ -52,7 +53,7 @@ void irq_set()
 
     case 3: // 55 sec
       max_st = 6;
-      if (end_run_st) runing_string_start(); //Запуск бегущей строки;
+      if ((conf_data.type_disp == 20) & end_run_st & !rtc_time.nm_is_on) runing_string_start(); // запуск бегущей строки для однострочных дисплеев
       break;
 
     case 4: // 5 sec
@@ -126,7 +127,7 @@ void firq0() // 1 hour
     //myIP = start_wifi(conf_data.sta_ssid, conf_data.sta_pass, conf_data.ap_ssid, conf_data.ap_pass);
   }
 
-  if (wifi_data_cur.cli )
+  if (wifi_data_cur.cli)
   {
     if (hour_cnt % 12 && rtc_cfg.auto_corr)
     {
@@ -139,7 +140,11 @@ void firq0() // 1 hour
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 1) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
     if (hour_cnt % 6 == 0 && conf_data.use_pp == 2)
     {
+      //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
       wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+
+      //------------------------------------------------------ Получаем прогноз погоды на сегодня от OpenWeatherMap
+      wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);
     }
     if (conf_data.news_en)
     {
@@ -159,7 +164,7 @@ void firq2()
 #endif
 
   snr_data_t sb = snr_data;
-  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli, &wf_data_cur);
+  snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli);
   if (snr_cfg_data.type_snr1 == 12)
   {
     snr_data.t1 = sb.t1;
@@ -204,7 +209,7 @@ void firq5() // 0.5 sec main cycle
     //-----------------------------------------
     // run slowely time displays here
     m32_8time_act = false;
-    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on))
+    if (!((conf_data.type_disp == 20) & !end_run_st))
     {
       m32_8time_act = time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, conf_data, snr_data, cur_br,
                                 oldDigit, digPos_x, d_notequal, buffud, q_dig); // break time view while string is running
@@ -227,7 +232,7 @@ void firq5() // 0.5 sec main cycle
 #endif
         alarm1_action(cli, rtc_cfg.alarms[rtc_alm.num].act, rtc_alm.act, rtc_alm.num, &rtc_cfg, rtc_cfg.alarms[rtc_alm.num].type, rtc_time.nm_is_on,
                       conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, cur_br, snr_data.f, screen, text_size, conf_data.radio_addr);
-      } 
+      }
       if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
       {
         rtc_alm.act = 15;
@@ -275,7 +280,7 @@ void firq6() // 0.180 sec Communications with server
   {
     if (conf_data.type_disp == 11)
     {
-      if  (!rtc_time.nm_is_on & !end_run_st)
+      if  (!end_run_st)
       {
         uint8_t x1 = 8, x2 = 15;
         if (!conf_data.time_up)
@@ -284,16 +289,14 @@ void firq6() // 0.180 sec Communications with server
           x2 = 7;
         }
         end_run_st = f_dsp2.scroll_String(x1, x2, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
       }
       ht1633_ramFormer2(screen, 0, 7);
     }
     if (conf_data.type_disp == 31)
     {
-      if  (!rtc_time.nm_is_on & !end_run_st)
+      if  (!end_run_st)
       {
         end_run_st = f_dsp2.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
       }
       ht1633_ramFormer(screen, 0, 13);
     }
@@ -303,16 +306,12 @@ void firq6() // 0.180 sec Communications with server
   {
     if (conf_data.type_disp == 19)
     {
-      if  (!rtc_time.nm_is_on & !end_run_st & divider)
+      if  (!end_run_st & divider)
       {
         uint8_t x1 = 0;
         if (conf_data.time_up) x1 = 1;
         end_run_st = f_dsp2.lcd_mov_str(16, cur_sym_pos[0], st1, st2);
-        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
-        else
-        {
-          write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, x1, conf_data.time_up, (byte*)st2);
-        }
+        write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, x1, conf_data.time_up, (byte*)st2);
       }
     }
   }
@@ -340,7 +339,7 @@ void firq7() // 0.060 sec
 
 void firq8() //0.030 sec running string is out switch to time view
 {
-  if (conf_data.type_disp > 19 && conf_data.type_disp < 29 && !rtc_time.nm_is_on && !end_run_st)
+  if (conf_data.type_disp > 19 && conf_data.type_disp < 29 && !end_run_st)
   {
     uint8_t x1 = 32, x2 = 63;
     if (!conf_data.time_up)
@@ -349,8 +348,8 @@ void firq8() //0.030 sec running string is out switch to time view
       x2 = 31;
     }
     end_run_st = f_dsp2.scroll_String(x1, x2, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
   }
+  if ((conf_data.type_disp != 20) & end_run_st & !rtc_time.nm_is_on) runing_string_start(); // перезапуск бегущей строки
 
   switch (conf_data.type_vdrv)
   {

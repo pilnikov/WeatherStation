@@ -21,7 +21,7 @@ volatile bool btn_state_flag = false, _wasAlarmed_int = false;
 
 
 //------------------------------------------------------  Получаем данные с датчиков
-snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli, wf_data_t *wf_cur)
+snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli)
 {
   snr_data_t td;
   snr_data_t ed1;
@@ -58,10 +58,10 @@ snr_data_t GetSnr(snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli, wf_d
     if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv1.get_es(es_rcv(cf.esrv2_addr, cli)); // Получаем данные от внешнего сервера2
 
     if (cf.use_pp == 2) {
-      *wf_cur = getOWM_current(cf.pp_city_id, cf.owm_key);// Получаем данные от OWM
-      wd.h1 = wf_cur -> hum_min;
-      wd.t1 = wf_cur -> temp_min;
-      wd.p  = wf_cur -> press_min;
+      wf_data_t wf_cur = getOWM_current(cf.pp_city_id, cf.owm_key);// Получаем данные на сегодня от OWM
+      wd.h1 = wf_cur.hum_min;
+      wd.t1 = wf_cur.temp_min;
+      wd.p  = wf_cur.press_min;
     }
   }
 #endif
@@ -112,12 +112,10 @@ String gs_rcv(unsigned long city_id, bool cli)
   Берем текущую погоду с сайта openweathermap.org
   =======================================================================
 */
-const char* owmHost = "api.openweathermap.org";
-
-
 wf_data_t getOWM_current(unsigned long cityID, char *weatherKey)
 {
   wf_data_t prog;
+  const char* owmHost = "api.openweathermap.org";
 
   String out = "No connect to network";
   DBG_OUT_PORT.print(F("\n Current weather from ")); DBG_OUT_PORT.println(owmHost);
@@ -191,6 +189,7 @@ wf_data_t getOWM_current(unsigned long cityID, char *weatherKey)
 wf_data_t getOWM_forecast(unsigned long cityID, char *weatherKey)
 {
   wf_data_t prog;
+  const char* owmHost = "api.openweathermap.org";
 
   String out = "No connect to network";
   DBG_OUT_PORT.print(F("\n Weather forecast for tomorrow from ")); DBG_OUT_PORT.println(owmHost);

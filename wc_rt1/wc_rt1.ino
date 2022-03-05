@@ -213,8 +213,13 @@ void setup()
       if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
 
       //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
-      if ((conf_data.use_pp == 2) & wifi_data_cur.cli) wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
+      if ((conf_data.use_pp == 2) & wifi_data_cur.cli)
+      {
+        wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 
+        //------------------------------------------------------ Получаем прогноз погоды на сегодня от OpenWeatherMap
+        wf_data_cur = getOWM_current(conf_data.pp_city_id, conf_data.owm_key);
+      }
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
 
@@ -232,7 +237,7 @@ void setup()
     cli = wifi_data_cur.cli;
 #endif
 
-    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli, &wf_data_cur);
+    snr_data = GetSnr(snr_cfg_data, conf_data, rtc_hw.a_type, cli);
 
     //-------------------------------------------------------- Гасим светодиод
     if ((conf_data.type_thermo == 0) & (conf_data.type_vdrv != 5)) digitalWrite(conf_data.gpio_led, conf_data.led_pola ? LOW : HIGH);

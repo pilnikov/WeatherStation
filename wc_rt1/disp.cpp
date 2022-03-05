@@ -697,6 +697,8 @@ void display_off(byte type_vdrv, byte type_disp, byte br, byte* screen, uint8_t 
 #endif
       }
       break;
+    case 5:
+      ht1632_ramFormer(screen, 0, 0);
     case 12:
       lcd->noBacklight();
       lcd->noDisplay();

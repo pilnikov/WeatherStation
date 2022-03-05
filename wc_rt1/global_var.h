@@ -48,8 +48,7 @@ const uint8_t digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции циф
 static unsigned char oldDigit[q_dig];                   // убегающая цифра
 static uint16_t buffud[64];
 
-static bool end_run_st = false, m32_8time_act = false, blinkColon = false;
-
+static bool blinkColon = false;
 static byte screen[64]; // display buffer
 static char st2[20];
 
