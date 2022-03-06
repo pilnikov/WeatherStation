@@ -34,6 +34,16 @@ Adafruit_ILI9341 *tft;
 FD f_dsp; //For Display
 HT h_dsp; //For Display
 
+
+	uint8_t   		q_dig = 6,                              	// количество цифр на дисплее
+					cur_sym_pos[3] = {0, 0, 0};
+	bool     		d_notequal[q_dig];
+	const uint8_t	digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; 	// позиции цифр на экране по оси x
+	unsigned char 	oldDigit[q_dig];                   			// убегающая цифра
+	uint16_t 		buffud[64];
+
+
+
 void disp_init(byte type_vdrv, byte type_disp, byte gpio_uart, byte gpio_dio, byte gpio_clk, byte gpio_dcs, byte gpio_dwr, byte ht_addr, byte lcd_addr, byte *screen, uint8_t &text_size, bool rus_lng)
 {
   switch (type_vdrv)
@@ -731,5 +741,21 @@ void display_on(byte type_vdrv)
       break;
     default:
       break;
+  }
+}
+void scroll_disp()
+{
+  uint8_t font_wdt = 5;
+  byte nbuf[64];
+
+  for (uint8_t i = 0; i < q_dig; i++)
+  {
+    if (i > 3) font_wdt = 3;
+
+    if (d_notequal[i])
+    {
+      f_dsp2.shift_ud(true, false, pos, screen,  font_wdt); // запуск вертушка для изменившихся позиций
+      //     f_dsp2.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
+    }
   }
 }

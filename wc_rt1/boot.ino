@@ -4,19 +4,19 @@
 
 FD f_dsp2; //For Display
 
-static uint8_t  cur_sym_pos[3] = {0, 0, 0};
 static uint8_t  num_st = 1;
 static char     st1[254];
 static char     st2[20];
 
-const uint8_t   q_dig = 6;                              // количество цифр на дисплее
 static uint8_t  max_st = 6;                             // макс кол-во прокручиваемых строк
-
-static bool     d_notequal[q_dig];
-const uint8_t   digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
-static unsigned char oldDigit[q_dig];                   // убегающая цифра
-static uint16_t buffud[64];
 static uint8_t  disp_mode  = 0;
+
+//const uint8_t   q_dig = 6;                              // количество цифр на дисплее
+//static uint8_t  cur_sym_pos[3] = {0, 0, 0};
+//static bool     d_notequal[q_dig];
+//const uint8_t   digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; // позиции цифр на экране по оси x
+//static unsigned char oldDigit[q_dig];                   // убегающая цифра
+//static uint16_t buffud[64];
 
 static bool     end_run_st = false,
                 m32_8time_act = false,
@@ -348,18 +348,7 @@ void firq7() // 0.060 sec
   uint8_t pos = 0;
   if (conf_data.type_disp > 20 && conf_data.type_disp < 29 && !conf_data.time_up) pos = 32;
 
-  uint8_t font_wdt = 5;
-  byte nbuf[64];
-
-  for (uint8_t i = 0; i < q_dig; i++)
-  {
-    if (i > 3) font_wdt = 3;
-
-    if (d_notequal[i])
-    {
-      f_dsp2.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
-    }
-  }
+  f_dsp2.shift_ud(true, false, pos, screen,  font_wdt); // запуск вертушка для изменившихся позиций
 }
 
 void firq8() //0.030 sec running string is out switch to time view
@@ -372,7 +361,7 @@ void firq8() //0.030 sec running string is out switch to time view
       x1 = 0;
       x2 = 31;
     }
-    end_run_st = f_dsp2.scroll_String(x1, x2, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
+    end_run_st = f_dsp2.scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1);
   }
   if ((conf_data.type_disp != 20) & end_run_st & !rtc_time.nm_is_on) runing_string_start(); // перезапуск бегущей строки
 
@@ -401,7 +390,7 @@ void firq8() //0.030 sec running string is out switch to time view
         //ORANGE = 3 GREEN = 1
         ht1632_ramFormer(screen, conf_data.color_up, conf_data.color_dwn);
         write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
-}
+      }
       break;
   }
 }
