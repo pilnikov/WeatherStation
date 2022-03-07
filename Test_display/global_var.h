@@ -14,29 +14,14 @@
 #include <myrtc.h>
 #include <Snr.h>
 
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include <my_wifi.h>
-#endif
 
 // ---------------------------------------------------- Common
-const char      *conf_f = "/config.json";  // config file name
-
-String          from_client = String();
-
-int             boot_mode = 1;
-
-unsigned long   serv_ms = 60000;
-
-static bool     wasAlarm = false;
-static bool     play_snd  = false;
 
 static uint16_t cur_br  = 0;
 
 //---------------------------------------------------------------------------------------------------
 static byte     screen[64];       // display buffer
 static uint8_t  text_size = 1;    // размер текста
-static uint8_t  newsIndex;
-String local_ip = "192.168.0.0", ns = String();
 
 //---------------------------------------------------------------------------------------------------
 snr_data_t snr_data;

@@ -1,4 +1,4 @@
-#include "disp.h"
+#include "Fdisp.h"
 #include "fonts.h"
 
 // ---------------------------------------------------- Display drivers
@@ -35,16 +35,7 @@ FD f_dsp; //For Display
 HT h_dsp; //For Display
 
 
-	uint8_t   		q_dig = 6,                              	// количество цифр на дисплее
-					cur_sym_pos[3] = {0, 0, 0};
-	bool     		d_notequal[q_dig];
-	const uint8_t	digPos_x[q_dig] = {0, 6, 13, 19, 25, 29}; 	// позиции цифр на экране по оси x
-	unsigned char 	oldDigit[q_dig];                   			// убегающая цифра
-	uint16_t 		buffud[64];
-
-
-
-void disp_init(byte type_vdrv, byte type_disp, byte gpio_uart, byte gpio_dio, byte gpio_clk, byte gpio_dcs, byte gpio_dwr, byte ht_addr, byte lcd_addr, byte *screen, uint8_t &text_size, bool rus_lng)
+void MyDsp::MyDsp::disp_init(byte type_vdrv, byte type_disp, byte gpio_uart, byte gpio_dio, byte gpio_clk, byte gpio_dcs, byte gpio_dwr, byte ht_addr, byte lcd_addr, byte *screen, uint8_t &text_size, bool rus_lng)
 {
   switch (type_vdrv)
   {
@@ -107,7 +98,7 @@ void disp_init(byte type_vdrv, byte type_disp, byte gpio_uart, byte gpio_dio, by
 }
 
 
-void m7219_init(byte type_disp, byte gpio_dcs, byte *screen)
+void MyDsp::m7219_init(byte type_disp, byte gpio_dcs, byte *screen)
 {
   if (type_disp < 10) m7219 = new Max72(gpio_dcs, 1, 1);
   else
@@ -131,7 +122,7 @@ void m7219_init(byte type_disp, byte gpio_dcs, byte *screen)
 }
 
 
-void m7219_ramFormer(byte *ram_buff)
+void MyDsp::m7219_ramFormer(byte *ram_buff)
 {
   byte buff[32];
 
@@ -161,7 +152,7 @@ void m7219_ramFormer(byte *ram_buff)
   m7219 -> write();
 }
 
-void m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp)
+void MyDsp::m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp)
 {
   uint8_t qmatrix = vdisp * hdisp;
   uint8_t mSize  = qmatrix << 3;
@@ -189,7 +180,7 @@ void m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp)
   m7219 -> write();
 }
 
-void m7adopt(byte *in, uint8_t x1, uint8_t x2)
+void MyDsp::m7adopt(byte *in, uint8_t x1, uint8_t x2)
 {
   f_dsp.compressor7(in, x1, x2);
   for (uint8_t i = x1; i < x2; i++)
@@ -200,7 +191,7 @@ void m7adopt(byte *in, uint8_t x1, uint8_t x2)
 }
 
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
-void a595_init(byte type_disp, byte &type_vdrv, uint8_t &text_size)
+void MyDsp::a595_init(byte type_disp, byte &type_vdrv, uint8_t &text_size)
 {
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 
@@ -302,7 +293,7 @@ void a595_init(byte type_disp, byte &type_vdrv, uint8_t &text_size)
 #endif
 }
 
-void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
+void MyDsp::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 {
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
   for (uint8_t x = 0; x < 32; x++)
@@ -337,7 +328,7 @@ void m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 }
 
 //////////////////////////////////////////lcd//////////////////////////////////////////////////////////////////////
-void pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_lng)
+void MyDsp::pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_lng)
 {
   static char st1[16];
 
@@ -365,7 +356,7 @@ void pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_lng)
   lcd -> print (st1);
 }
 
-void lcd_time(byte *buf, bool t_up)
+void MyDsp::lcd_time(byte *buf, bool t_up)
 {
   // Displays the current date and time, and also an alarm indication
   //      22:59:10 16:30 A
@@ -377,14 +368,14 @@ void lcd_time(byte *buf, bool t_up)
 
 
 ///////////////////////////////////////////////////7seg////////////////////////////////////////////////////////////
-void tm1637_init(byte gpio_clk, byte gpio_dio)
+void MyDsp::tm1637_init(byte gpio_clk, byte gpio_dio)
 {
   tm1637 = new TM1637(gpio_clk, gpio_dio);
   tm1637->clear();
   tm1637->set_br(7);
 }
 
-void ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio, byte* screen)
+void MyDsp::ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio, byte* screen)
 {
   ht21 = new HT1621(gpio_dcs, gpio_clk, gpio_dio); // ss, rw, data
   ht21->begin();
@@ -416,12 +407,12 @@ void ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio, byte* screen)
 
 ////////////////////////////////////ht1632//////////////////////////////////////////////////////////////////
 
-void ht1632_init(byte gpio_dwr, byte gpio_dcs)
+void MyDsp::ht1632_init(byte gpio_dwr, byte gpio_dcs)
 {
   m1632 = new HT1632C(gpio_dwr, /*clk*/ gpio_dcs /*cs*/);
 }
 
-void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
+void MyDsp::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
 {
   for (uint8_t x = 0; x < 32; x++)
   {
@@ -441,7 +432,7 @@ void ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
 */
 
 
-void ht1633_init(byte addr)
+void MyDsp::ht1633_init(byte addr)
 {
   ht1633 = new HT16K33;
   ht1633->init(addr);
@@ -451,7 +442,7 @@ void ht1633_init(byte addr)
 }
 
 
-void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
+void MyDsp::ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 {
   /*
      seg  0 row 0 0x __xx 7seg upside down dp in top left  BIG byte in  0  1
@@ -508,7 +499,7 @@ void ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
   for (uint8_t i = 0; i < 8; i++) ht1633->setRow(i, _row[i]);
 }
 
-void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
+void MyDsp::ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 {
   uint16_t _row = 0;
   if  (x1 < 0 || x2 > 7) return;
@@ -524,7 +515,7 @@ void ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 
 ////////////////////////////////////////////ili9341/////////////////////////////////////////////////
 
-void ili9341_init()
+void MyDsp::ili9341_init()
 {
   //tft = new Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
   tft = new Adafruit_ILI9341(5, 16, 23, 18, 17, 19);
@@ -536,7 +527,7 @@ const char* dstAbbrev = "RTZ+5";
 const uint16_t SCREEN_WIDTH = 240;
 const uint16_t SCREEN_HEIGHT = 320;
 
-void ili_time(bool rus_lng, bool use_pm)
+void MyDsp::ili_time(bool rus_lng, bool use_pm)
 {
   char time_str[11];
 
@@ -591,7 +582,7 @@ void ili_time(bool rus_lng, bool use_pm)
   drawWifiQuality();
 }
 
-void drawWifiQuality()
+void MyDsp::drawWifiQuality()
 {
   int8_t quality = getWifiQuality();
   tft -> setTextColor(ILI9341_WHITE);
@@ -607,7 +598,7 @@ void drawWifiQuality()
 }
 
 // converts the dBm to a range between 0 and 100%
-int8_t getWifiQuality()
+int8_t MyDsp::getWifiQuality()
 {
   int32_t dbm = -200;
 
@@ -621,7 +612,7 @@ int8_t getWifiQuality()
 }
 
 
-void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint16_t br, bool time_up, byte* screen)
+void MyDsp::write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint16_t br, bool time_up, byte* screen, uint8_t text_size, uint8_t color_up, uint8_t color_dwn)
 {
   switch (type_vdrv)
   {
@@ -635,6 +626,7 @@ void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint16_t br
       break;
     case 2:
       //MAX7219
+
       if (from_time)
       {
         if (type_disp < 10)
@@ -644,16 +636,33 @@ void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint16_t br
           m7219 -> write();
         }
       }
-      else m7219 -> setIntensity(br); // Use a value between 0 and 15 for brightness
+      else 
+	  {
+		m7219 -> setIntensity(br); // Use a value between 0 and 15 for brightness
+        if (type_disp == 20 || type_disp == 21)
+		{
+			if (type_disp == 20) m7219_ramFormer(screen);
+			if (type_disp == 21) m7219_ramFormer2(screen, 4, 2);
+		}
+	  }
       break;
     case 3:
       //595
+      if (type_disp == 23 || type_disp == 24 || type_disp == 25)
+      {
+		#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32  || CONFIG_IDF_TARGET_ESP32S2
+			m3216_ramFormer(screen, br, text_size);
+		#endif
+      }
+
       break;
     case 4:
       //HT1621
       break;
     case 5:
       //HT1632
+        //ORANGE = 3 GREEN = 1
+      ht1632_ramFormer(screen, color_up, color_dwn);
       m1632 -> pwm(br);
       m1632 -> sendFrame();
       break;
@@ -686,7 +695,7 @@ void write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint16_t br
       break;
   }
 }
-void display_off(byte type_vdrv)
+void MyDsp::display_off(byte type_vdrv)
 {
   switch (type_vdrv)
   {
@@ -727,7 +736,7 @@ void display_off(byte type_vdrv)
   }
 }
 
-void display_on(byte type_vdrv)
+void MyDsp::display_on(byte type_vdrv)
 {
   switch (type_vdrv)
   {
@@ -743,7 +752,7 @@ void display_on(byte type_vdrv)
       break;
   }
 }
-void scroll_disp()
+void MyDsp::scroll_disp(uint8_t pos, byte *screen)
 {
   uint8_t font_wdt = 5;
   byte nbuf[64];
@@ -752,10 +761,92 @@ void scroll_disp()
   {
     if (i > 3) font_wdt = 3;
 
-    if (d_notequal[i])
+    if (old[i])
     {
-      f_dsp2.shift_ud(true, false, pos, screen,  font_wdt); // запуск вертушка для изменившихся позиций
-      //     f_dsp2.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
+      f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, dposx[i],  dposx[i] + font_wdt); // запуск вертушка для изменившихся позиций
     }
   }
+}
+
+void MyDsp::scroll_start(bool l_s, bool dvd, uint8_t type_vdrv, uint8_t type_disp, bool time_up, bool &end, char *st1, byte *screen) // ---------------------------- Запуск бегущей строки
+{
+ if (l_s)
+ {
+	  if (type_vdrv == 11)
+	  {
+		if (type_disp == 11)
+		{
+		  if  (!end)
+		  {
+			uint8_t x1 = 8, x2 = 15;
+			if (!time_up)
+			{
+			  x1 = 0;
+			  x2 = 7;
+			}
+			end = f_dsp.scroll_String(x1, x2, st1, screen, font14s, 2, 0, 2);
+		  }
+		  ht1633_ramFormer2(screen, 0, 7);
+		}
+		if (type_disp == 31)
+		{
+		  if  (!end)
+		  {
+			end = f_dsp.scroll_String(20, 25, st1, screen, font14s, 2, 0, 2);
+		  }
+		  ht1633_ramFormer(screen, 0, 13);
+		}
+	  }
+
+	  if (type_vdrv == 12)
+	  {
+		if (type_disp == 19)
+		{
+		  if  (!end & dvd)
+		  {
+			uint8_t x1 = 0;
+			if (time_up) x1 = 1;
+			end = f_dsp.lcd_mov_str(16, st1);
+			write_dsp(false, type_vdrv, type_disp, x1, time_up, (byte*)st1, 1, 0, 0);
+		  }
+		}
+	  }
+  }
+  else
+  {
+	  if (type_disp > 19 && type_disp < 29 && !end)
+	  {
+		uint8_t x1 = 32, x2 = 63;
+		if (!time_up)
+		{
+		  x1 = 0;
+		  x2 = 31;
+		}
+		end = f_dsp.scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1);                 // бегущая строка
+	  }
+  }
+}
+
+void MyDsp::runing_string_start(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint16_t c_br, bool cli, String ns, uint8_t &ni, bool &end, char *st1, byte* screen) // ---------------------------- Перезапуск бегущей строки
+{
+  memset(st1, 0, 254);
+ 
+  pr_str(num, _max, cf, sn, wf, wfc, rt, rta, local_ip, c_br, st1, cli, ns);
+
+  DBG_OUT_PORT.print(F("num_st = "));
+  DBG_OUT_PORT.println(num);
+  DBG_OUT_PORT.print(F("st1 = "));
+  DBG_OUT_PORT.println(st1);
+
+
+  if (cf.rus_lng & (cf.type_vdrv == 12)) f_dsp.lcd_rus(st1);
+  if (cf.rus_lng & (cf.type_vdrv != 12)) f_dsp.utf8rus(st1);
+
+  f_dsp.scroll_init();
+  end = false;
+  
+  if (cf.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
+
+  ni ++;
+  if (ni > 9) ni = 0;
 }

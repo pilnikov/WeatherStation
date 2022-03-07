@@ -290,8 +290,6 @@ bool FD::time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dp
 bool FD::scroll_String(int8_t x1, /*start_pos*/
                    int8_t x2, /*  end_pos*/
                    char* in,  /*in string*/
-                   uint8_t &icp,/*pointer to character in the input string*/
-                   uint8_t &fbp,/*pointer to byte in font*/
                    byte *out, /*out string*/
                    const byte *font, /*font*/
                    uint8_t font_wdt, /*font width in bytes*/
@@ -583,23 +581,28 @@ void HT::ala(uint8_t num, byte *in) //Будильник
    and scrolls left. This also includes a fade out where characters travel off the left
    display followed by blank space
 */
-bool FD::lcd_mov_str(uint8_t window_wdt, uint8_t &stringIndex, char *in, char *out)
+bool FD::lcd_mov_str(uint8_t window_wdt, char *in)
 {
-  stringIndex++;
-  
-  if (stringIndex > strlen(in) + window_wdt)
+  if (icp > strlen(in) + window_wdt)
   {
-    stringIndex = 0;
+    icp = 0;
 	return true;
   }
   else
   {
 	for (uint8_t posIdx = 0; posIdx < window_wdt; posIdx++)
 	{
-		uint8_t i = stringIndex + posIdx - window_wdt;
-		out[posIdx] = ' ';
-		if ((i >= 0) & (i < strlen(in))) out[posIdx] = in[i]; //front
+		uint8_t i = icp + posIdx - window_wdt;
+		in[posIdx] = ' ';
+		if ((i >= 0) & (i < strlen(in))) in[posIdx] = in[i]; //front
 	}
-	return false;
+    icp++;
+    return false;
   }
+}
+
+void FD::scroll_init()
+{
+   icp = 0;	/*pointer to character in the input string*/
+   fbp = 0;	/*pointer to byte in font*/
 }

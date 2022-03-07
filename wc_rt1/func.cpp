@@ -1,11 +1,15 @@
 #include <Udt.h>
 #include "conf.h"
 #include "web.h"
-#include "disp.h"
 #include "cfg.h"
+
+#include <Fdsp.h>
+#include <Fdisp.h>
 
 MSG dmsg_ff; //For Messages
 FD f_dsp_ff; //For Display
+
+MyDsp mydsp_ff;
 
 CT myrtc_ff; //For RTC Common
 RTCJS myrtccfg_ff; //For RTC Config
@@ -531,7 +535,7 @@ String radio_snd(String cmd, bool cli, char* radio_addr)
 
 //------------------------------------------------------  Обрабатываем клавиатуру
 void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t &disp_mode, uint8_t &max_st,
-               byte type_thermo, byte type_vdrv, byte gpio_led, bool led_pola, bool blinkColon, unsigned long &serv_ms, conf_data_t *conf_data)
+               byte type_thermo, byte type_vdrv, byte gpio_led, bool led_pola, bool blinkColon, unsigned long &serv_ms, conf_data_t *conf_data, bool &end_run_st)
 {
   btn_released = btn_state_flag & digitalRead(gpio_btn);
   if (btn_state_flag & !digitalRead(gpio_btn)) tmr_started = true;
@@ -543,7 +547,8 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t &disp_mode, uint8_t &ma
     disp_mode++; // меняем содержимое экрана на 7ми сегментных индикаторах
     if (disp_mode > 12) disp_mode = 0;
     max_st = 7;
-    runing_string_start(); //Запуск бегущей строки;
+    f_dsp_ff.scroll_init();
+    end_run_st = true;
   }
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -750,12 +755,12 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, r
       break;
     case 22:
       disp_on = true;
-      display_on(type_vdrv);
+      mydsp_ff.display_on(type_vdrv);
       break;
     case 23:
       disp_on = false;
       f_dsp_ff.CLS(screen, sizeof screen);
-      display_off(type_vdrv);
+      mydsp_ff.display_off(type_vdrv);
       break;
     case 24:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3

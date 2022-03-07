@@ -1,12 +1,23 @@
 //#include ".\headers\fonts.h"
+//#include "conf.h"
 #include "fonts.h"
 
-
-static uint8_t cur_sym_pos[3] = {0, 0, 0};
 static uint8_t  num_st = 1;
+static char     st1[254];
+
+static uint8_t  max_st = 6;                             // макс кол-во прокручиваемых строк
+static uint8_t  disp_mode  = 0;
+
+static bool     end_run_st = false,
+                m32_8time_act = false,
+                disp_on  = true,
+                blinkColon = false;
+
+static uint8_t  hour_cnt  = 0;
+static unsigned long alarm_time = millis();
 
 
-void irq_set()
+void main_loop()
 {
   //------------------------------------------------------ interrupts
   unsigned long t3 = conf_data.period * 2000L;
@@ -37,18 +48,19 @@ void irq_set()
   switch (irq)
   {
     case 0: // once per every hour
-      firq1();
+      firq0();
       break;
 
     case 1: // once per every 3 minute
       break;
 
     case 2: // conf_data.period * 1 minute
+      firq2();
       break;
 
     case 3: // 55 sec
       max_st = 6;
-      if (end_run_st) runing_string_start(); //Запуск бегущей строки;
+      if ((conf_data.type_disp == 20) & end_run_st & !rtc_time.nm_is_on) runing_string_start(); // запуск бегущей строки для однострочных дисплеев
       break;
 
     case 4: // 5 sec
@@ -57,19 +69,19 @@ void irq_set()
       break;
 
     case 5: // 0.5 sec
-      firq6();
+      firq5();
       break;
 
     case 6:
-      firq7();
+      firq6();
       break;
 
     case 7:
-      if (m32_8time_act) firq8();
+      if (m32_8time_act) firq7();
       break;
 
     case 8:
-      if (disp_on) firq9();
+      if (disp_on) firq8();
       break;
 
     default: // no IRQ
@@ -79,14 +91,17 @@ void irq_set()
 
 void runing_string_start() // ---------------------------- Запуск бегущей строки
 {
-  String local_ip = "192.168.0.0";
+  String local_ip = "192.168.0.0", ns = String();
+  static uint8_t newsIndex;
+  bool cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  //local_ip = myIP.toString();
+  local_ip = wifi_data_cur.addr.toString();
+  if (conf_data.news_en & wifi_data_cur.cli) ns = newsClient -> getTitle(newsIndex);
+  cli = wifi_data_cur.cli;
 #endif
   memset(st1, 0, 254);
-  memset(st2, 0, 20);
 
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, true);
+  mydsp.pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, cli, ns);
 
   DBG_OUT_PORT.print(F("num_st = "));
   DBG_OUT_PORT.println(num_st);
@@ -94,47 +109,54 @@ void runing_string_start() // ---------------------------- Запуск бегу
   DBG_OUT_PORT.println(st1);
 
 
-  if (conf_data.rus_lng & (ram_data.type_vdrv == 12)) f_dsp.lcd_rus(st1);
-  if (conf_data.rus_lng & (ram_data.type_vdrv != 12)) f_dsp.utf8rus(st1);
-
-  cur_sym_pos[0] = 0;
-  cur_sym_pos[1] = 0;
+  if (conf_data.rus_lng & (conf_data.type_vdrv == 12)) ff_dsp.lcd_rus(st1);
+  if (conf_data.rus_lng & (conf_data.type_vdrv != 12)) ff_dsp.utf8rus(st1);
 
   end_run_st = false;
-  if (conf_data.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
+  if (conf_data.type_disp == 20) ff_dsp.CLS(screen, sizeof screen);
+
+  newsIndex ++;
+  if (newsIndex > 9) newsIndex = 0;
 }
 
-void firq1() // 1 hour
+void firq0() // 1 hour
+{
+  if (hour_cnt > 23) hour_cnt = 0;
+  hour_cnt++;
+}
+
+void firq2()
 {
 }
 
-void firq6() // 0.5 sec main cycle
+void firq5() // 0.5 sec main cycle
 {
-  //-------------Refresh current time in rtc_data------------------
-  myrtc.GetTime(rtc_hw, &rtc_time);
-
   //-------------Forming string version of current time ------------------
-  memset (tstr, 0, 25);
-  myrtc.cur_time_str(rtc_time, conf_data.rus_lng, tstr);
   if (disp_on)
   {
     //-------------Brigthness------------------
     if (conf_data.auto_br)
     {
-      snr_data.f = f_dsp.ft_read(ram_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
-      cur_br = f_dsp.auto_br(snr_data.f, conf_data);
+      snr_data.f = ff_dsp.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      cur_br = ff_dsp.auto_br(snr_data.f, conf_data);
     }
     else
     {
-      if (nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
+      if (rtc_time.nm_is_on) cur_br = conf_data.nmd_br;  // Man brigthness
       else cur_br = conf_data.man_br;
       snr_data.f = cur_br;
     }
+    uint16_t ddd = cur_br;
     //-----------------------------------------
-
     // run slowely time displays here
-    m32_8time_act = false;
-    if (!((conf_data.type_disp == 20) & !end_run_st & !rtc_time.nm_is_on)) time_view(conf_data.type_disp, ram_data.type_vdrv); // break time view while string is running
+    bool m32_8time_act = false;
+    if (!((conf_data.type_disp == 20) & !end_run_st))
+    {
+      m32_8time_act = mydsp.time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, conf_data, snr_data, cur_br); // break time view while string is running
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      cur_br = ddd;
+      mydsp.write_dsp(true, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
+    }
   }
   else cur_br = 0;
 
@@ -142,93 +164,90 @@ void firq6() // 0.5 sec main cycle
 
 }
 
-void firq7() // 0.180 sec Communications with server
+void firq6() // 0.180 sec Communications with server
 {
-  if (ram_data.type_vdrv == 11)
+  static bool divider;
+
+  if (conf_data.type_vdrv == 11)
   {
     if (conf_data.type_disp == 11)
     {
-      if  (!nm_is_on & !end_run_st)
+      if  (!end_run_st)
       {
-        end_run_st = f_dsp.scroll_String(8, 15, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
+        uint8_t x1 = 8, x2 = 15;
+        if (!conf_data.time_up)
+        {
+          x1 = 0;
+          x2 = 7;
+        }
+        end_run_st = ff_dsp.scroll_String(x1, x2, st1, screen, font14s, 2, 0, 2);
       }
-      ht1633_ramFormer2(screen, 0, 8);
+      mydsp.ht1633_ramFormer2(screen, 0, 7);
     }
     if (conf_data.type_disp == 31)
     {
-      if  (!nm_is_on & !end_run_st)
+      if  (!end_run_st)
       {
-        end_run_st = f_dsp.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
+        end_run_st = ff_dsp.scroll_String(20, 25, st1, screen, font14s, 2, 0, 2);
       }
-      ht1633_ramFormer(screen, 0, 13);
+      mydsp.ht1633_ramFormer(screen, 0, 13);
     }
-    ht1633->setBrightness(cur_br);
-    ht1633->write();
+    mydsp.write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
   }
-
-  if (ram_data.type_vdrv == 12)
+  if (conf_data.type_vdrv == 12)
   {
     if (conf_data.type_disp == 19)
     {
-      if  (!nm_is_on & !end_run_st)
+      if  (!end_run_st & divider)
       {
-        end_run_st = f_dsp.lcd_mov_str(16, cur_sym_pos[0], st1, st2);
-        if (end_run_st) runing_string_start(); // перезапуск бегущей строки
-        else
-        {
-          lcd -> setCursor(0, 0);
-          lcd -> print(st2);
-        }
+        uint8_t x1 = 0;
+        if (conf_data.time_up) x1 = 1;
+        end_run_st = ff_dsp.lcd_mov_str(16, st1);
+        mydsp.write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, x1, conf_data.time_up, screen);
       }
     }
   }
+  divider = !divider;
 }
 
-void firq8() // 0.060 sec
+void firq7() // 0.060 sec
 {
   uint8_t pos = 0;
-  if (conf_data.type_disp > 20 && conf_data.type_disp < 29) pos = 32;
+  if (conf_data.type_disp > 20 && conf_data.type_disp < 29 && !conf_data.time_up) pos = 32;
 
-  uint8_t font_wdt = 5;
-  byte nbuf[64];
-
-  for (uint8_t i = 0; i < q_dig; i++)
-  {
-    if (i > 3) font_wdt = 3;
-
-    if (d_notequal[i])
-    {
-      f_dsp.shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, digPos_x[i],  digPos_x[i] + font_wdt); // запуск вертушка для изменившихся позиций
-    }
-  }
+  mydsp.scroll_disp(pos, screen);
 }
 
-void firq9() //0.030 sec running string is out switch to time view
+void firq8() //0.030 sec running string is out switch to time view
 {
-  if ((conf_data.type_disp > 19) & (conf_data.type_disp < 29) & !nm_is_on & !end_run_st)
+  if (conf_data.type_disp > 19 && conf_data.type_disp < 29 && !end_run_st)
   {
-    end_run_st = f_dsp.scroll_String(0, 31, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font5x7, 5, 1, 1);
-    if ((conf_data.type_disp != 20) & end_run_st) runing_string_start(); // перезапуск бегущей строки
+    uint8_t x1 = 32, x2 = 63;
+    if (!conf_data.time_up)
+    {
+      x1 = 0;
+      x2 = 31;
+    }
+    end_run_st = ff_dsp.scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1);
   }
+  if ((conf_data.type_disp != 20) & end_run_st & !rtc_time.nm_is_on) runing_string_start(); // перезапуск бегущей строки
 
-  switch (ram_data.type_vdrv)
+  switch (conf_data.type_vdrv)
   {
     case 2:
       if (conf_data.type_disp == 20 || conf_data.type_disp == 21)
       {
-        m7219 -> setIntensity(cur_br); // Use a value between 0 and 15 for brightness
-        if (conf_data.type_disp == 20) m7219_ramFormer(screen);
-        if (conf_data.type_disp == 21) m7219_ramFormer2(screen, 4, 2);
+        mydsp.write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
+        if (conf_data.type_disp == 20) mydsp.m7219_ramFormer(screen);
+        if (conf_data.type_disp == 21) mydsp.m7219_ramFormer2(screen, 4, 2);
       }
       break;
 
     case 3:
       if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
       {
-#if defined(__AVR_ATmega2560__) || defined(ARDUINO_ARCH_ESP32)
-        m3216_ramFormer(screen, cur_br, text_size);
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32  || CONFIG_IDF_TARGET_ESP32S2
+        mydsp.m3216_ramFormer(screen, cur_br, text_size);
 #endif
       }
       break;
@@ -236,9 +255,8 @@ void firq9() //0.030 sec running string is out switch to time view
       if (conf_data.type_disp == 22)
       {
         //ORANGE = 3 GREEN = 1
-        ht1632_ramFormer(screen, 1, 3);
-        m1632 -> pwm(cur_br);
-        m1632 -> sendFrame();
+        mydsp.ht1632_ramFormer(screen, conf_data.color_up, conf_data.color_dwn);
+        mydsp.write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
       }
       break;
   }

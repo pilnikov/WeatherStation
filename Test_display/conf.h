@@ -47,13 +47,6 @@
   snd_pola = false,
   led_pola = false,
   rus_lng = false,
-  use_tst1 = false,
-  use_tst2 = false,
-  use_tst3 = false,
-  use_tsh1 = false,
-  use_tsh2 = false,
-  use_tsh3 = false,
-  use_tsp = false,
   wifi_off = false,
   udp_mon = false,
   news_en = false;
@@ -68,6 +61,8 @@
 
   uint8_t
   use_pp = 0,
+  use_ts = 0,
+  use_es = 0,
   man_br = 0,
   nmd_br = 0,
   nm_start = 0,
@@ -110,10 +105,10 @@
   ch1_name[17],
   ch2_name[17],
   ch3_name[17],
-  sta_ssid[17],
-  sta_pass[17],
-  ap_ssid[17],
-  ap_pass[17],
+  sta_ssid[20],
+  sta_pass[20],
+  ap_ssid[20],
+  ap_pass[20],
   AKey_r[17],
   AKey_w[17],
   esrv1_addr[17],
@@ -126,7 +121,7 @@
   } conf_data_t;
 
 ********************************************************** Actual config
-  struct ram_data_t
+  struct hw_data_t
   {
   uint8_t   type_vdrv;      // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574
   uint8_t   type_disp;      // Тип дисплея 0 - Внешний, 1 - 7SEGx4D, 2 - 7SEGx6D, 3 - 7SEGx8D, 10 - 14SEGx4D, 11 - 14SEGx8D, 12 - 16SEGx4D, 13 - 16SEGx8D, 19 - 2Linex16D, 20 - M32x8Mono, 21 - M32x16Mono, 22 - M32x16BiColor, 23 - M32x16Color, 24 - M64x32Color, 25 - M64x64Color, 29 - 320x240Color, 30 - Custom_1, 31 - Custom_2
@@ -165,12 +160,25 @@
   };
 */
 
+#ifndef conf_h
+#define conf_h
+
+#define FW_Ver 2.0 //05.03.22 structure modified
 
 // ------------------------------------------------------------- Include
-#include "Udt.h"
-#include <Fdsp.h>
-#include <BH1750.h>
+//#include "..\lib\MyLib_Udt\Udt.h"
+
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
+#include <Udt.h>
+
+#include <Sysfn.h>
 #include <myrtc.h>
+#include <Snr.h>
 
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
@@ -180,40 +188,19 @@
 #define debug_level 0
 #endif
 
-// ------------------------------------------------------ GPIO
-
-
-// ----------------------------------- Typedef
-snr_data_t snr_data;
-conf_data_t conf_data;
-ram_data_t ram_data;
-rtc_hw_data_t  rtc_hw;
-rtc_cfg_data_t rtc_cfg;
-rtc_time_data_t rtc_time;
-rtc_alm_data_t rtc_alm;
-wf_data_t wf_data;
-wf_data_t wf_data_cur;
-
-// ----------------------------------- Internal header files
-#include "disp.h"
-#include <Sysf2.h>
-
 // ----------------------------------- Force define func name
-
-// ---------------------------------------------------- LM
-BH1750 lightMeter;
-
-char tstr[25];
-
-bool                disp_on  = true, nm_is_on = false;
-
-uint8_t           disp_mode  = 0;
-uint16_t             cur_br  = 0;
+void main_loop();
+void firq0();
+void firq2();
+void firq5();
+void firq6();
+void firq7();
+void firq8();
+void runing_string_start();
 
 
-// ---------------------------------------------------- Constructors
-CT myrtc;
-CfgCT myrtccfg;
-SF fsys;
-FD f_dsp;
-HT h_dsp;
+// ---------------------------------------------------- Variant of config
+#define _dacha
+//#define _work
+
+#endif /*conf_h*/

@@ -208,13 +208,12 @@ void firq5();
 void firq6();
 void firq7();
 void firq8();
-void runing_string_start();
 
 void sensor_init(snr_cfg_t*);
 snr_data_t GetSnr(snr_data_t, snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void send_uart(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
-void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, unsigned long&, conf_data_t *);
+void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, unsigned long&, conf_data_t*, bool&);
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String tvoday(String);

@@ -1,10 +1,11 @@
+#include "Fdisp.h"
+#include "fonts.h"
 
-uint8_t seg7_mode(uint8_t&, uint8_t, byte*, uint8_t, conf_data_t, snr_data_t, rtc_time_data_t,  rtc_alm_data_t, uint8_t, bool);
+CT rtc_f; //For RTC Common
+FD dsp_f; //For Display
 
-
-uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf_data_t cf, snr_data_t sn, rtc_time_data_t rt,  rtc_alm_data_t rta, uint8_t c_br, bool pm)
+uint8_t MyDsp::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf_data_t cf, snr_data_t sn, rtc_time_data_t rt,  rtc_alm_data_t rta, bool pm, uint16_t c_br)
 {
-
   const char* name_week_0 = PSTR("  ");
   const char* name_week_1 = PSTR("8c");
   const char* name_week_2 = PSTR("\357H");
@@ -16,6 +17,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
 
   const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
   char tStr[25];
+
+  rtc_hms_t alt = rtc_f.unix_to_hms(rta.time);
 
   uint8_t h = pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;
   h = h % 100;
@@ -108,10 +111,10 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 10: //Актуальный будильник
-            if (rta.hour == 62 && rta.min == 62) mod ++;
+            if (rta.num == 7) mod ++;
             else
             {
-              sprintf_P(tStr, PSTR("%2d%02d"), rta.hour, rta.min);
+              sprintf_P(tStr, PSTR("%2d%02d"), alt.h, alt.m);
               _repeat = false;
             }
             break;
@@ -204,10 +207,10 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 9: //Актуальный будильник
-            if (rta.hour == 62 && rta.min == 62) mod ++;
+            if (rta.num == 7) mod ++;
             else
             {
-              sprintf_P(tStr, PSTR("AL%2d.%02d"), rta.hour, rta.min);
+              sprintf_P(tStr, PSTR("AL%2d.%02d"), alt.h, alt.m);
               _repeat = false;
             }
             break;
@@ -274,8 +277,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
             break;
 
           case 6: //Актуальный будильник, текущая яркость
-            if (rta.hour == 62 && rta.min == 62) sprintf_P(tStr, PSTR("A----L%2d"), c_br % 100);
-            else sprintf_P(tStr, PSTR("A%2u.%02dL%2d"), rta.hour % 100, rta.min % 100, c_br % 100);
+            if (rta.num == 7) sprintf_P(tStr, PSTR("A----L%2d"), c_br % 100);
+            else sprintf_P(tStr, PSTR("A%2u.%02dL%2d"), alt.h, alt.m, c_br % 100);
             _repeat = false;
             break;
 
@@ -295,8 +298,8 @@ uint8_t seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, conf
   //  DBG_OUT_PORT.print(F("test string"));
   //  DBG_OUT_PORT.println(tStr);
 
-  f_dsp.utf8rus(tStr);
-  f_dsp.print_(tStr, strlen(tStr), in, _offset, font14s, 2, 0);
+  dsp_f.utf8rus(tStr);
+  dsp_f.print_(tStr, strlen(tStr), in, _offset, font14s, 2, 0);
   return strlen(tStr);
 }
 //#endif

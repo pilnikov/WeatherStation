@@ -13,6 +13,7 @@
 #include <Snd.h>
 #include "Songs.h"
 #include <Snr.h>
+#include <Fdisp.h>
 #include <Fdsp.h>
 #include <BH1750.h>
 
@@ -70,6 +71,7 @@ BH1750 lightMeter;
 
 // ---------------------------------------------------- Other
 FD ff_dsp; //For Display
+MyDsp mydsp;
 
 Synt Buzz;               //Конструктор пищалки
 

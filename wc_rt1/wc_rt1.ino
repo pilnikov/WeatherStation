@@ -2,7 +2,6 @@
 //#include ".\headers\conf.h"
 #include "constr.h"
 #include "cfg.h"
-#include "disp.h"
 #include "web.h"
 #include "conf.h"
 #include "global_var.h"
@@ -131,7 +130,7 @@ void setup()
     hw_data = hw_chk.hw_present();
     hw_accept(hw_data, &snr_cfg_data, &conf_data.type_vdrv, &rtc_hw.a_type);
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
-    disp_init(conf_data.type_vdrv, conf_data.type_disp, conf_data.gpio_uar, conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs, conf_data.gpio_dwr, hw_data.ht_addr, hw_data.lcd_addr, screen, text_size, conf_data.rus_lng);
+    mydsp.disp_init(conf_data.type_vdrv, conf_data.type_disp, conf_data.gpio_uar, conf_data.gpio_dio, conf_data.gpio_clk, conf_data.gpio_dcs, conf_data.gpio_dwr, hw_data.ht_addr, hw_data.lcd_addr, screen, text_size, conf_data.rus_lng);
     //------------------------------------------------------  Инициализируем датчики
     if (hw_data.bh1750_present) lightMeter.begin();
 

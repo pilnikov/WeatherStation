@@ -5,11 +5,9 @@
 FD f_dsp2; //For Display
 
 static uint8_t  num_st = 1;
-static char     st1[254];
-static char     st2[20];
-
 static uint8_t  max_st = 6;                             // макс кол-во прокручиваемых строк
 static uint8_t  disp_mode  = 0;
+static char     st1[254];
 
 //const uint8_t   q_dig = 6;                              // количество цифр на дисплее
 //static uint8_t  cur_sym_pos[3] = {0, 0, 0};
@@ -70,7 +68,16 @@ void main_loop()
 
     case 3: // 55 sec
       max_st = 6;
-      if ((conf_data.type_disp == 20) & end_run_st & !rtc_time.nm_is_on) runing_string_start(); // запуск бегущей строки для однострочных дисплеев
+      if ((conf_data.type_disp == 20) & end_run_st & !rtc_time.nm_is_on)
+      {
+        bool cli = false;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+        local_ip = wifi_data_cur.addr.toString();
+        if (conf_data.news_en & wifi_data_cur.cli) ns = newsClient -> getTitle(newsIndex);
+        cli = wifi_data_cur.cli;
+#endif
+        mydsp.runing_string_start(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen); // запуск бегущей строки для однострочных дисплеев
+      }
       break;
 
     case 4: // 5 sec
@@ -117,44 +124,10 @@ void main_loop()
 #endif
 
   keyb_read(cli, ap, conf_data.gpio_btn, disp_mode, max_st,
-            conf_data.type_thermo, conf_data.type_vdrv, conf_data.gpio_led, conf_data.led_pola, blinkColon, serv_ms, &conf_data);
+            conf_data.type_thermo, conf_data.type_vdrv, conf_data.gpio_led, conf_data.led_pola, blinkColon, serv_ms, &conf_data, end_run_st);
 
   //------------------------------------------------------  Верифицируем ночной режим
   rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
-}
-
-void runing_string_start() // ---------------------------- Запуск бегущей строки
-{
-  String local_ip = "192.168.0.0", ns = String();
-  static uint8_t newsIndex;
-  bool cli = false;
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  local_ip = wifi_data_cur.addr.toString();
-  if (conf_data.news_en & wifi_data_cur.cli) ns = newsClient -> getTitle(newsIndex);
-  cli = wifi_data_cur.cli;
-#endif
-  memset(st1, 0, 254);
-  memset(st2, 0, 20);
-
-  pr_str(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, st1, cli, ns);
-
-  DBG_OUT_PORT.print(F("num_st = "));
-  DBG_OUT_PORT.println(num_st);
-  DBG_OUT_PORT.print(F("st1 = "));
-  DBG_OUT_PORT.println(st1);
-
-
-  if (conf_data.rus_lng & (conf_data.type_vdrv == 12)) f_dsp2.lcd_rus(st1);
-  if (conf_data.rus_lng & (conf_data.type_vdrv != 12)) f_dsp2.utf8rus(st1);
-
-  cur_sym_pos[0] = 0;
-  cur_sym_pos[1] = 0;
-
-  end_run_st = false;
-  if (conf_data.type_disp == 20) f_dsp2.CLS(screen, sizeof screen);
-
-  newsIndex ++;
-  if (newsIndex > 9) newsIndex = 0;
 }
 
 void firq0() // 1 hour
@@ -228,21 +201,18 @@ void firq5() // 0.5 sec main cycle
       else cur_br = conf_data.man_br;
       snr_data.f = cur_br;
     }
-    uint16_t ddd = cur_br;
+    uint16_t ddd = cur_br; // костыль!!!!!!!!!!!
     //-----------------------------------------
     // run slowely time displays here
     m32_8time_act = false;
     if (!((conf_data.type_disp == 20) & !end_run_st))
     {
-      m32_8time_act = time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, conf_data, snr_data,
-                                oldDigit, digPos_x, d_notequal, buffud, q_dig, cur_br); // break time view while string is running
-      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      m32_8time_act = mydsp.time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, conf_data, snr_data, ddd); // break time view while string is running
       cur_br = ddd;
-      write_dsp(true, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
+      mydsp.write_dsp(true, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen, text_size, conf_data.color_up, conf_data.color_dwn);
     }
   }
   else cur_br = 0;
-
   if (!wasAlarm) //Проверка будильников
   {
     bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
@@ -301,45 +271,8 @@ void firq6() // 0.180 sec Communications with server
   }
 # endif
 
-  if (conf_data.type_vdrv == 11)
-  {
-    if (conf_data.type_disp == 11)
-    {
-      if  (!end_run_st)
-      {
-        uint8_t x1 = 8, x2 = 15;
-        if (!conf_data.time_up)
-        {
-          x1 = 0;
-          x2 = 7;
-        }
-        end_run_st = f_dsp2.scroll_String(x1, x2, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-      }
-      ht1633_ramFormer2(screen, 0, 7);
-    }
-    if (conf_data.type_disp == 31)
-    {
-      if  (!end_run_st)
-      {
-        end_run_st = f_dsp2.scroll_String(20, 25, st1, cur_sym_pos[0], cur_sym_pos[1], screen, font14s, 2, 0, 2);
-      }
-      ht1633_ramFormer(screen, 0, 13);
-    }
-    write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
-  }
-  if (conf_data.type_vdrv == 12)
-  {
-    if (conf_data.type_disp == 19)
-    {
-      if  (!end_run_st & divider)
-      {
-        uint8_t x1 = 0;
-        if (conf_data.time_up) x1 = 1;
-        end_run_st = f_dsp2.lcd_mov_str(16, cur_sym_pos[0], st1, st2);
-        write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, x1, conf_data.time_up, (byte*)st2);
-      }
-    }
-  }
+  mydsp.scroll_start(true, divider, conf_data.type_vdrv, conf_data.type_disp, conf_data.time_up, end_run_st, st1, screen);
+  if (conf_data.type_vdrv != 12) mydsp.write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen, text_size, conf_data.color_up, conf_data.color_dwn);
   divider = !divider;
 }
 
@@ -348,49 +281,21 @@ void firq7() // 0.060 sec
   uint8_t pos = 0;
   if (conf_data.type_disp > 20 && conf_data.type_disp < 29 && !conf_data.time_up) pos = 32;
 
-  f_dsp2.shift_ud(true, false, pos, screen,  font_wdt); // запуск вертушка для изменившихся позиций
+  mydsp.scroll_disp(pos, screen); // скроллинг вниз символов на экране
 }
 
 void firq8() //0.030 sec running string is out switch to time view
 {
-  if (conf_data.type_disp > 19 && conf_data.type_disp < 29 && !end_run_st)
+  mydsp.scroll_start(false, false, conf_data.type_vdrv, conf_data.type_disp, conf_data.time_up, end_run_st, st1, screen);
+  if ((conf_data.type_disp != 20) & end_run_st & !rtc_time.nm_is_on)
   {
-    uint8_t x1 = 32, x2 = 63;
-    if (!conf_data.time_up)
-    {
-      x1 = 0;
-      x2 = 31;
-    }
-    end_run_st = f_dsp2.scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1);
-  }
-  if ((conf_data.type_disp != 20) & end_run_st & !rtc_time.nm_is_on) runing_string_start(); // перезапуск бегущей строки
-
-  switch (conf_data.type_vdrv)
-  {
-    case 2:
-      if (conf_data.type_disp == 20 || conf_data.type_disp == 21)
-      {
-        write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
-        if (conf_data.type_disp == 20) m7219_ramFormer(screen);
-        if (conf_data.type_disp == 21) m7219_ramFormer2(screen, 4, 2);
-      }
-      break;
-
-    case 3:
-      if (conf_data.type_disp == 23 || conf_data.type_disp == 24 || conf_data.type_disp == 25)
-      {
-#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32  || CONFIG_IDF_TARGET_ESP32S2
-        m3216_ramFormer(screen, cur_br, text_size);
+    bool cli = false;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    local_ip = wifi_data_cur.addr.toString();
+    if (conf_data.news_en & wifi_data_cur.cli) ns = newsClient -> getTitle(newsIndex);
+    cli = wifi_data_cur.cli;
 #endif
-      }
-      break;
-    case 5:
-      if (conf_data.type_disp == 22)
-      {
-        //ORANGE = 3 GREEN = 1
-        ht1632_ramFormer(screen, conf_data.color_up, conf_data.color_dwn);
-        write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen);
-      }
-      break;
+    mydsp.runing_string_start(num_st, max_st, conf_data, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen); // перезапуск бегущей строки для двухстрочных дисплеев
   }
+  mydsp.write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen, text_size, conf_data.color_up, conf_data.color_dwn); // передача видеобуфера (screen) на физический уровень
 }
