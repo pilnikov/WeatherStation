@@ -2,8 +2,6 @@
 //#include "conf.h"
 #include "fonts.h"
 
-FD f_dsp2; //For Display
-
 static uint8_t  num_st = 1;
 static uint8_t  max_st = 6;                             // макс кол-во прокручиваемых строк
 static uint8_t  disp_mode  = 0;

@@ -12,6 +12,21 @@ void setup()
   //------------------------------------------------------  Определяем консоль
   DBG_OUT_PORT.begin(115200);
 
+# if defined(ESP8266)
+  conf_data.gpio_sda = 4;
+  conf_data.gpio_scl = 5;
+  conf_data.gpio_dio = 13;
+  conf_data.gpio_clk = 14;
+  conf_data.gpio_dcs = 16;
+  conf_data.gpio_dwr = 2;
+#endif
+
+  conf_data.type_vdrv = 2;  //MAX7219
+  conf_data.type_disp = 21; //M32x16MONO
+  conf_data.auto_br = false;
+  conf_data.nmd_br = 7;  // Man brigthness
+  conf_data.man_br = 7;
+
   //------------------------------------------------------  Начинаем инициализацию Hardware
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
   Wire.setPins(conf_data.gpio_sda, conf_data.gpio_scl);
@@ -44,8 +59,8 @@ void setup()
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (conf_data.auto_br)
   {
-    snr_data.f = ff_dsp.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
-    cur_br = ff_dsp.auto_br(snr_data.f, conf_data);
+    snr_data.f = f_dsp2.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+    cur_br = f_dsp2.auto_br(snr_data.f, conf_data);
   }
   else
   {

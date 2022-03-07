@@ -218,8 +218,8 @@ void setup()
     //-------------------------------------------------------- Регулируем яркость дисплея
     if (conf_data.auto_br)
     {
-      snr_data.f = ff_dsp.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
-      cur_br = ff_dsp.auto_br(snr_data.f, conf_data);
+      snr_data.f = f_dsp2.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), conf_data.gpio_ana);
+      cur_br = f_dsp2.auto_br(snr_data.f, conf_data);
     }
     else
     {

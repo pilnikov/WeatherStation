@@ -70,7 +70,7 @@ ESP8266HWInfo hwi;
 BH1750 lightMeter;
 
 // ---------------------------------------------------- Other
-FD ff_dsp; //For Display
+FD f_dsp2; //For Display
 MyDsp mydsp;
 
 Synt Buzz;               //Конструктор пищалки
