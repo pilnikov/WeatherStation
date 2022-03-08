@@ -829,24 +829,27 @@ void MyDsp::scroll_start(bool l_s, bool dvd, uint8_t type_vdrv, uint8_t type_dis
 
 void MyDsp::runing_string_start(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint16_t c_br, bool cli, String ns, uint8_t &ni, bool &end, char *st1, byte* screen) // ---------------------------- Перезапуск бегущей строки
 {
-  memset(st1, 0, 254);
- 
-  pr_str(num, _max, cf, sn, wf, wfc, rt, rta, local_ip, c_br, st1, cli, ns);
+  if (end)
+  {
+	  memset(st1, 0, 254);
+	 
+	  pr_str(num, _max, cf, sn, wf, wfc, rt, rta, local_ip, c_br, st1, cli, ns);
 
-  DBG_OUT_PORT.print(F("num_st = "));
-  DBG_OUT_PORT.println(num);
-  DBG_OUT_PORT.print(F("st1 = "));
-  DBG_OUT_PORT.println(st1);
+	  DBG_OUT_PORT.print(F("num_st = "));
+	  DBG_OUT_PORT.println(num);
+	  DBG_OUT_PORT.print(F("st1 = "));
+	  DBG_OUT_PORT.println(st1);
 
 
-  if (cf.rus_lng & (cf.type_vdrv == 12)) f_dsp.lcd_rus(st1);
-  if (cf.rus_lng & (cf.type_vdrv != 12)) f_dsp.utf8rus(st1);
+	  if (cf.rus_lng & (cf.type_vdrv == 12)) f_dsp.lcd_rus(st1);
+	  if (cf.rus_lng & (cf.type_vdrv != 12)) f_dsp.utf8rus(st1);
 
-  f_dsp.scroll_init();
-  end = false;
-  
-  if (cf.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
+	  f_dsp.scroll_init();
+	  end = false;
+	  
+	  if (cf.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
 
-  ni ++;
-  if (ni > 9) ni = 0;
+	  ni ++;
+	  if (ni > 9) ni = 0;
+  }
 }
