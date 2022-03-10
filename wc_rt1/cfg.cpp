@@ -1,4 +1,4 @@
-#include "cfg.h"
+#include "conf.h"
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 

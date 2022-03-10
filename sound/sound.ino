@@ -1,6 +1,5 @@
 
-#include "Snd.h"
-#include "Songs.h"
+#include <Snd.h>
 
 #define _debug
 
@@ -35,12 +34,7 @@ void loop() {
     DBG_OUT_PORT.print(F("Melody #..."));
     DBG_OUT_PORT.println(s_num);
   }
-
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   //inital sound card
-  is_played = Buzz.play(pgm_read_ptr(&songs[s_num]), BUZ_PIN, play_snd, snd_pola);
-#elif defined (__AVR__)
-  is_played = Buzz.play(pgm_read_word(&songs[s_num]), BUZ_PIN, play_snd, snd_pola);   //inital sound card
-#endif
+  is_played = Buzz.play(s_num, BUZ_PIN, play_snd, snd_pola);
   play_snd = false;
 }

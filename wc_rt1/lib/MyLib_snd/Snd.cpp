@@ -2,6 +2,7 @@
 
 #include "Snd.h"
 #include "TN.h"
+#include "Songs.h"
 
 // for debugging
 //#define _debug
@@ -46,12 +47,15 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
     digitalWrite(out, pola ? HIGH : LOW);
   }
 }
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-bool Synt::play(const void* _ptr, uint8_t out, bool set_up, bool pola)
-#elif defined (__AVR__)
-bool Synt::play(uint16_t _ptr, uint8_t out, bool set_up, bool pola)
-#endif
+bool Synt::play(uint8_t mel_n, uint8_t out, bool set_up, bool pola)
 {
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    const void *_ptr = pgm_read_ptr(&songs[mel_n]);
+#elif defined (__AVR__)
+    uint16_t _ptr = pgm_read_word(&songs[mel_n]);
+#endif
+
+
   static const uint16_t notes[] PROGMEM =
   { 0,
     NOTE_C4, NOTE_CS4, NOTE_D4, NOTE_DS4, NOTE_E4, NOTE_F4, NOTE_FS4, NOTE_G4, NOTE_GS4, NOTE_A4, NOTE_AS4, NOTE_B4,

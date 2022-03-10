@@ -1,6 +1,4 @@
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-//#include "conf.h"
-#include "cfg.h"
 
 File fsUploadFile; //Should be placed here as global
 

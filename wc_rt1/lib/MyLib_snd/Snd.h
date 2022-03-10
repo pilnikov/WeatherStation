@@ -35,11 +35,7 @@
 class Synt
 {
   public:
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    bool play(const void*, uint8_t, bool, bool);
-#elif defined (__AVR__)
-    bool play(uint16_t, uint8_t, bool, bool);
-#endif
+    bool play(uint8_t, uint8_t, bool, bool);
     void beep(uint8_t, bool);
   private:
    void soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola);

@@ -166,8 +166,6 @@
 #define FW_Ver 2.0 //05.03.22 structure modified
 
 // ------------------------------------------------------------- Include
-//#include "..\lib\MyLib_Udt\Udt.h"
-
 #if ARDUINO >= 100
 #include <Arduino.h>
 #else
@@ -175,39 +173,56 @@
 #endif
 
 #include <Udt.h>
-
-#include <Sysfn.h>
 #include <myrtc.h>
+#include <Sysfn.h>
+#include <Snd.h>
 #include <Snr.h>
+#include <Fdisp.h>
+#include <Fdsp.h>
+#include <BH1750.h>
+
+#if defined(ESP8266)
+#include <hw.h>
+#endif
+
+#if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
+#include <Netwf_rt.h>
+#endif
+
+#if defined(ESP8266)
+#include <ESP8266WebServer.h>
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#include <WebServer.h>
+#endif
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include <My_LFS.h>
 #include <my_wifi.h>
 #include <Netwf.h>
+#include <FS.h>
+#include <WiFiUdp.h>
+#include <LittleFS.h>
+#include <ntp.h>
 #include <Exts.h>
+#include <udp_cons.h>
 #endif
 
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-#include <esp_int_wdt.h>
-#include <esp_task_wdt.h>
+#if defined(ESP8266)
+#include <ESP8266mDNS.h>
+#include <ESP8266SSDP.h>
+
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#include <ESPmDNS.h>
+#include <ESP32SSDP.h>
 #endif
 
-#ifndef DBG_OUT_PORT
-#define DBG_OUT_PORT Serial
-#endif
-
-#ifndef debug_level
-#define debug_level 0
+#if defined(ESP8266)
+#include <ESP8266HTTPUpdateServer.h>
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#include <HTTPUpdateServer.h>
 #endif
 
 // ----------------------------------- Force define func name
-void main_loop();
-void firq0();
-void firq2();
-void firq5();
-void firq6();
-void firq7();
-void firq8();
 
 void sensor_init(snr_cfg_t*);
 snr_data_t GetSnr(snr_data_t, snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t);
@@ -254,6 +269,63 @@ void ISR_ATTR isr0();
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void ISR_ATTR isr0();
 #endif
+
+//-------------------------------------------------------------------------------------
+conf_data_t loadConfig(const char*);
+void saveConfig(const char*, conf_data_t);
+conf_data_t defaultConfig();
+
+
+//---------------------------------------------------------------------------------------
+void web_setup();
+
+void start_serv();
+void  stop_serv();
+
+void handleNTP();
+void handleSetTime();
+void handleSetPart();
+void handleSetWiFi();
+void handleSetIp1();
+void handleSetIp2();
+void handleEndSetWiFi();
+void handleExit();
+# ifdef MATRIX
+void handleSetFont();
+# endif //MATRIX
+void handleSetPard();
+void handleUpdSnr();
+void handleUpdForeCast();
+void handleSetPars1();
+void handleSetPars2();
+void handleSetPars3();
+void handleRcvSnr();
+void handleSetParc();
+void handleSetPartrm();
+void handleSetNews();
+void handleUpdNews();
+
+void handlejActT();
+void handlejActA();
+void handlejTime();
+void handlejWiFi();
+void handlejParc();
+void handlejActB();
+void handlejPard();
+void handlejPars();
+void handlejTS();
+void handlejSnr();
+void handlejUart();
+void handlejTrm();
+void handlejNews();
+void handlejNewsT();
+
+String getContentType(String filename);
+bool handleFileRead(String path);
+void handleFileUpload();
+void handleFileDelete();
+void handleFileCreate();
+void handleFileList();
 
 // ---------------------------------------------------- Variant of config
 #define _dacha
