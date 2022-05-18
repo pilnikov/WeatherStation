@@ -786,8 +786,8 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, r
 
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 void hard_restart() {
-  esp_task_wdt_init(1, true);
-  esp_task_wdt_add(NULL);
+//  esp_task_wdt_init(1, true);
+//  esp_task_wdt_add(NULL);
   while (true);
 }
 #endif

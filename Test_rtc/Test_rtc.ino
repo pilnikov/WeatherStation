@@ -123,18 +123,16 @@ void setup()
 void loop()
 {
   // ----------------------------------------------------- Проигрываем звуки
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-  Buzz.play(pgm_read_ptr(&songs[rtc_alm.act ]), gpio_snd, play_snd, false);
-#elif defined (__AVR__)
-  Buzz.play(pgm_read_word(&songs[rtc_alm.act]), gpio_snd, play_snd, false);
-#endif
+  uint8_t muz_n = 15;
+  if  (rtc_alm.act < 20)  muz_n = rtc_alm.act;
+  Buzz.play(muz_n, gpio_snd, play_snd, false);
   play_snd = false;
 
 
   //-------------Refresh current time in rtc_cfg------------------
   rtc_time.ct = myrtc.GetTime(rtc_hw);
 
-  myrtc.cur_time_str(rtc_time.ct, true, tstr);
+  myrtc.cur_time_str(rtc_time, true, tstr);
 
   if (!wasAlarm) //Проверка будильников
   {
@@ -150,12 +148,12 @@ void loop()
       }
       wasAlarm = true;
       alarm_time = millis() + 2000;
-      rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
     }
   }
 
   if (wasAlarm & (millis() > alarm_time)) //Перезапуск будильников
   {
+    rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
     wasAlarm = false;
   }
   //------------------------------------------------------  Верифицируем ночной режим
