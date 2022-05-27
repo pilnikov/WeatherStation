@@ -231,11 +231,11 @@ void send_uart(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data
 void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, unsigned long&, conf_data_t*, bool&);
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
-String tvoday(String);
+String lastday(String);
 void Thermo(snr_data_t, conf_data_t);
 void wasAlm_reset();
 void alarm1_action(bool, uint8_t, uint8_t &, uint8_t, rtc_cfg_data_t *, uint8_t, bool &, byte,
-                   byte, bool &, bool &, byte *, char *);
+                   bool &, bool &, byte *, char *);
 String radio_snd(String, bool, char*);
 
 

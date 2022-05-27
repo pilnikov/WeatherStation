@@ -495,7 +495,7 @@ void loop()
               cli = wifi_data_cur.cli;
 #endif
               alarm1_action(cli, rtc_cfg.alarms[rtc_alm.num].act, rtc_alm.act, rtc_alm.num, &rtc_cfg, rtc_cfg.alarms[rtc_alm.num].type, rtc_time.nm_is_on,
-                            conf_data.type_vdrv, conf_data.type_disp, disp_on, play_snd, screen, conf_data.radio_addr);
+                            conf_data.type_vdrv, disp_on, play_snd, screen, conf_data.radio_addr);
             }
             if (rtc_alm.al2_on & !rtc_time.nm_is_on & rtc_cfg.every_hour_beep)
             {

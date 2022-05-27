@@ -242,14 +242,14 @@ wf_data_t getOWM_forecast(unsigned long cityID, char *weatherKey)
   addr += cityID;
   addr += "&units=metric&appid=";
   addr += weatherKey;
-  addr += "&lang=ru&cnt=2";
+  addr += "&lang=ru&cnt=3";
   //if (debug_level == 10)
   DBG_OUT_PORT.println(addr);
 
   out = nsys_ff.http_client(addr);
   if (debug_level == 10) DBG_OUT_PORT.println(out);
 
-  String tempz = tvoday(out);
+  String tempz = lastday(out);
   DBG_OUT_PORT.println("\n" + tempz);
 
   DynamicJsonDocument jsonBuf(2048);
@@ -331,13 +331,11 @@ inline uint8_t rumb_conv(uint16_t dir)
   return w_dir;
 }
 
-// ------------------------------------------------------Вырезаем данные по прогнозу на один день (из 2х)
-String tvoday(String line) {
+// ------------------------------------------------------Вырезаем данные по прогнозу на последний день из 3х
+String lastday(String line) {
   String s = String();
-  int start_sym = line.indexOf(']'); // позиция первого искомого символа ('{' после '[')
 
-  start_sym = line.indexOf('{', start_sym + 1);
-
+  int start_sym = line.lastIndexOf("dt") - 2;
   int stop_sym = line.lastIndexOf(']');
   s = line.substring(start_sym, stop_sym);
 
@@ -735,7 +733,7 @@ void wasAlm_reset()
 }
 
 void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, rtc_cfg_data_t *rtc_cfg, uint8_t a_type, bool &nmon, byte type_vdrv,
-                   byte type_disp, bool &disp_on, bool &play_snd, byte *screen, char *radio_addr)
+                   bool &disp_on, bool &play_snd, byte *screen, char *radio_addr)
 {
   //  dmsg_ff.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
 
@@ -783,14 +781,6 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, r
     *rtc_cfg = myrtccfg_ff.from_json(from_client);
   }
 }
-
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-void hard_restart() {
-//  esp_task_wdt_init(1, true);
-//  esp_task_wdt_add(NULL);
-  while (true);
-}
-#endif
 
 void hw_accept(hw_data_t hd, snr_cfg_t *snr_cfg, uint8_t *vd_typ, uint8_t *rt_typ)
 {

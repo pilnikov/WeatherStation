@@ -152,8 +152,8 @@ void saveConfig(const char *filename, conf_data_t _data)
 {
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
 
-  if ( _data.type_vdrv    < 0  || _data.type_vdrv  >  20) _data.type_vdrv  = 0;
-  if ( _data.type_disp    < 0  || _data.type_disp  >  50) _data.type_disp  = 0;
+  if (_data.type_vdrv  >  20) _data.type_vdrv  = 0;
+  if (_data.type_disp  >  50) _data.type_disp  = 0;
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();
