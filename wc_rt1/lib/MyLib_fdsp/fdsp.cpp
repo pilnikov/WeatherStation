@@ -594,7 +594,7 @@ bool FD::lcd_mov_str(uint8_t window_wdt, char *in)
 	{
 		uint8_t i = icp + posIdx - window_wdt;
 		in[posIdx] = ' ';
-		if ((i >= 0) & (i < strlen(in))) in[posIdx] = in[i]; //front
+		if (i < strlen(in)) in[posIdx] = in[i]; //front
 	}
     icp++;
     return false;

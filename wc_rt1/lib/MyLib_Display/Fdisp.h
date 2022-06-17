@@ -59,8 +59,10 @@ class MyDsp
 	ht1632_init(byte, byte),
 	ht1632_ramFormer(byte*, const uint8_t, const uint8_t),
 	tm1637_init(byte, byte),
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 	a595_init(byte, byte&, uint8_t&),
 	m3216_ramFormer(byte*, uint8_t, uint8_t),
+#endif
 	m7adopt(byte*, uint8_t, uint8_t),
 	ili9341_init(),
 	ili_time(bool, bool),

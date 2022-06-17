@@ -274,7 +274,8 @@ rtc_alm_data_t CT::set_alarm(rtc_cfg_data_t cfg_data, unsigned long c_time, bool
 bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_alm_data_t * alm_data, unsigned long c_time)
 {
   alm_data -> al1_on = false, alm_data -> al2_on = false;
-  
+  rtc_hms_t sct = unix_to_hms(c_time);
+ 
   if (hw_data.a_type == 1)
   {
     if (irq)  // check our flag that gets sets in the interupt
@@ -291,7 +292,6 @@ bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_alm_data_t * alm_data, uns
   else
   {
     alm_data -> al1_on = (trunc_to_one_day(c_time) == trunc_to_one_day(alm_data -> time)); 	//Сработал будильник №1
-    rtc_hms_t sct = unix_to_hms(c_time);
 	alm_data -> al2_on = ((sct.m == 0) & (sct.s == 0));			                       		//Сработал будильник №2
   }
 

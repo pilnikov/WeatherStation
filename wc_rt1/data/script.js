@@ -281,7 +281,7 @@ var numaa = 7;
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -322,7 +322,7 @@ var numaa = 7;
 								document.getElementById('dns2st2').value = res.d22;
 							}
 							st_ip();
-							rec_done = true;
+							req_done = true;
 						}
 					};
 				}
@@ -389,7 +389,7 @@ var numaa = 7;
         
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);

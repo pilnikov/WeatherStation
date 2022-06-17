@@ -47,10 +47,10 @@ String SNRJS::to_json(snr_cfg_t _data)
     DBG_OUT_PORT.print(F("Start forming snr_cfg_data to json string"));
   }
 
-  if ( _data.type_snr1    < 0  || _data.type_snr1  >  13) _data.type_snr1  = 0;
-  if ( _data.type_snr2    < 0  || _data.type_snr2  >  13) _data.type_snr2  = 0;
-  if ( _data.type_snr3    < 0  || _data.type_snr3  >  13) _data.type_snr3  = 0;
-  if ( _data.type_snrp    < 0  || _data.type_snrp  >  12) _data.type_snrp  = 0;
+  if (_data.type_snr1  >  13) _data.type_snr1  = 0;
+  if (_data.type_snr2  >  13) _data.type_snr2  = 0;
+  if (_data.type_snr3  >  13) _data.type_snr3  = 0;
+  if (_data.type_snrp  >  12) _data.type_snrp  = 0;
 
   DynamicJsonDocument doc(3000);
   JsonObject json = doc.to<JsonObject>();

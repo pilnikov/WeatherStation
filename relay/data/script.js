@@ -7,7 +7,7 @@
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -20,7 +20,7 @@
 							document.getElementById('app' ).value   = res.ap;
 							document.getElementById('stas').value  = res.ss1;
 							document.getElementById('stap').value  = res.sp1;
-							rec_done = true;
+							req_done = true;
 							loadVal_Par();
 						}
 					};
@@ -33,7 +33,7 @@
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -50,7 +50,7 @@
 							document.getElementById('off2_code').value = res.off2_code;
 							document.getElementById('lim_l').value = res.lim_l;
 							document.getElementById('lim_h').value = res.lim_h;
-							rec_done = true;
+							req_done = true;
 						}
 					};
 				}
@@ -62,7 +62,7 @@
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -70,7 +70,7 @@
 					{
 						if (this.readyState == 4 && this.status == 200) 
 						{
-							rec_done = true;
+							req_done = true;
 						}
 					};
 				}
@@ -82,7 +82,7 @@
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -90,7 +90,7 @@
 					{
 						if (this.readyState == 4 && this.status == 200) 
 						{
-							rec_done = true;
+							req_done = true;
 						}
 					};
 				}
@@ -102,7 +102,7 @@
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -110,7 +110,7 @@
 					{
 						if (this.readyState == 4 && this.status == 200) 
 						{
-							rec_done = true;
+							req_done = true;
 						}
 					};
 				}
@@ -122,7 +122,7 @@
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -130,7 +130,7 @@
 					{
 						if (this.readyState == 4 && this.status == 200) 
 						{
-							rec_done = true;
+							req_done = true;
 						}
 					};
 				}
@@ -203,7 +203,7 @@
 			{
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -212,7 +212,7 @@
 						if (this.readyState == 4 && this.status == 200) 
 						{
 					    loadVal_WiFi();
-							rec_done = true;
+							req_done = true;
 						}
 					};
 				}
@@ -224,7 +224,7 @@
 
 				if (req_done)
 				{
-					rec_done = false;
+					req_done = false;
 					var xh = new XMLHttpRequest();
 					xh.open('GET', url, true);
 					xh.send(null);
@@ -253,7 +253,7 @@
   						d1 = document.getElementById('lim_l').value;
   						document.getElementById('rliml').value = d1;
     					
-    					rec_done = true;
+    					req_done = true;
   					}
   				};
   			}

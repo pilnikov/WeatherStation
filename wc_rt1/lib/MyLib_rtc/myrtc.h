@@ -186,8 +186,8 @@ class CT
 	inline rtc_hms_t unix_to_hms(unsigned long in){
 	rtc_hms_t out;
 	out.h = in / 3600;
-	out.m = in % 3600 / 60;
-	out.s = in % 3600 % 60 / 60;
+	out.m = (in - (out.h * 3600)) / 60 ;
+	out.s = in - (out.h * 3600) - (out.m * 60);
 	return out;}
 
 	int 

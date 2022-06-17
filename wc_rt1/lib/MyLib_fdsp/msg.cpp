@@ -106,6 +106,7 @@ String MSG::callback(uint8_t disp, uint8_t type, uint8_t stage, bool rus)
           {
             case 0:
               bstr = "<-NTP";
+              break;
             case 1:
               bstr = "TS ->";
               break;
@@ -193,6 +194,7 @@ String MSG::callback(uint8_t disp, uint8_t type, uint8_t stage, bool rus)
           {
             case 0:
               bstr = "<-NTP";
+              break;
             case 1:
               bstr = "TS ->";
               break;
@@ -403,6 +405,7 @@ String MSG::callback(uint8_t disp, uint8_t type, uint8_t stage, bool rus)
           {
             case 0:
               bstr = "<-NTP";
+              break;
             case 1:
               bstr = "TS ->";
               break;
@@ -525,6 +528,7 @@ String MSG::callback(uint8_t disp, uint8_t type, uint8_t stage, bool rus)
           {
             case 0:
               bstr = "NTP-F";
+              break;
             case 1:
               bstr = "F<-TS";
               break;
@@ -612,6 +616,7 @@ String MSG::callback(uint8_t disp, uint8_t type, uint8_t stage, bool rus)
           {
             case 0:
               bstr = "NTP-F";
+              break;
             case 1:
               bstr = "F<-TS";
               break;

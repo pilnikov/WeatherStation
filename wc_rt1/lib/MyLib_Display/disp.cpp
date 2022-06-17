@@ -59,7 +59,11 @@ void MyDsp::MyDsp::disp_init(byte type_vdrv, byte type_disp, byte gpio_uart, byt
       m7219_init(type_disp, gpio_dcs, screen);
       break;
     case 3:
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
       a595_init(type_disp, type_vdrv, text_size);
+#else
+	  DBG_OUT_PORT.print(F("This MSU does not support this chip as a video driver!!!"));
+#endif
       break;
     case 4:
       ht1621_init(gpio_dcs, gpio_clk, gpio_dio, screen);
@@ -191,10 +195,9 @@ void MyDsp::m7adopt(byte *in, uint8_t x1, uint8_t x2)
 }
 
 ////////////////////////////////////////////m3264///////////////////////////////////////////////////////////////
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 void MyDsp::a595_init(byte type_disp, byte &type_vdrv, uint8_t &text_size)
 {
-#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
-
   if (type_disp == 23 || type_disp == 24 || type_disp == 25)
   {
 #if defined(__AVR_ATmega2560__)
@@ -290,12 +293,10 @@ void MyDsp::a595_init(byte type_disp, byte &type_vdrv, uint8_t &text_size)
     }
 #endif
   }
-#endif
 }
 
 void MyDsp::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 {
-#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
   for (uint8_t x = 0; x < 32; x++)
   {
     uint8_t dt = 0b1;
@@ -324,8 +325,8 @@ void MyDsp::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
   m3216 -> show();
 #endif
-#endif
 }
+#endif
 
 //////////////////////////////////////////lcd//////////////////////////////////////////////////////////////////////
 void MyDsp::pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_lng)
@@ -463,7 +464,7 @@ void MyDsp::ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
   */
   //uint8_t d_r [8] = {9, 8, 15, 14, 10, 11, 12, 13};
 
-  if  (x1 < 0 || x2 > 13) return;
+  if  (x1 > x2 || x2 > 13) return;
 
   uint16_t _row[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -502,7 +503,7 @@ void MyDsp::ht1633_ramFormer(byte *in, uint8_t x1, uint8_t x2)
 void MyDsp::ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2)
 {
   uint16_t _row = 0;
-  if  (x1 < 0 || x2 > 7) return;
+  if  (x1 > x2 || x2 > 7) return;
 
   for (uint8_t i = x1, y = x1; i <= x2; i++, y++)
   {
@@ -650,8 +651,10 @@ void MyDsp::write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint
       //595
       if (type_disp == 23 || type_disp == 24 || type_disp == 25)
       {
-		#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32  || CONFIG_IDF_TARGET_ESP32S2
+		#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 			m3216_ramFormer(screen, br, text_size);
+		#else
+			  DBG_OUT_PORT.print(F("This MSU does not support this chip as a video driver!!!"));
 		#endif
       }
 
@@ -839,6 +842,8 @@ void MyDsp::runing_string_start(uint8_t &num, uint8_t _max, conf_data_t cf, snr_
 	  DBG_OUT_PORT.println(num);
 	  DBG_OUT_PORT.print(F("st1 = "));
 	  DBG_OUT_PORT.println(st1);
+	  DBG_OUT_PORT.print(F("ni = "));
+	  DBG_OUT_PORT.println(ni);
 
 
 	  if (cf.rus_lng & (cf.type_vdrv == 12)) f_dsp.lcd_rus(st1);
@@ -849,7 +854,8 @@ void MyDsp::runing_string_start(uint8_t &num, uint8_t _max, conf_data_t cf, snr_
 	  
 	  if (cf.type_disp == 20) f_dsp.CLS(screen, sizeof screen);
 
-	  ni ++;
+	  if (num == 6)	ni ++;
+		
 	  if (ni > 9) ni = 0;
   }
 }
