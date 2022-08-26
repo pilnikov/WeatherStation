@@ -367,12 +367,9 @@ void FD::printDot(uint8_t pos, byte *out) // Displays an dot  on a given display
 
 void FD::printCharacter(unsigned char character, uint8_t x, byte *out, const byte* font, uint8_t font_wdt)
 {
-  if (character >= 0 && character < 256) //characters must remain within ASCII printable characters defined in array
-  {
     memcpy_P (out + x,                   // цель
             font + character * font_wdt, // источник
             font_wdt);                   // объем
-  }
 }
 
 void FD::print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* font, uint8_t font_wdt, uint8_t spacer_wdt)
@@ -581,7 +578,7 @@ void HT::ala(uint8_t num, byte *in) //Будильник
    and scrolls left. This also includes a fade out where characters travel off the left
    display followed by blank space
 */
-bool FD::lcd_mov_str(uint8_t window_wdt, char *in)
+bool FD::lcd_mov_str(uint8_t window_wdt, char *in, byte *out)
 {
   if (icp > strlen(in) + window_wdt)
   {
@@ -593,8 +590,8 @@ bool FD::lcd_mov_str(uint8_t window_wdt, char *in)
 	for (uint8_t posIdx = 0; posIdx < window_wdt; posIdx++)
 	{
 		uint8_t i = icp + posIdx - window_wdt;
-		in[posIdx] = ' ';
-		if (i < strlen(in)) in[posIdx] = in[i]; //front
+		out[posIdx] = ' ';
+		if (i < strlen(in)) out[posIdx] = in[i]; //front
 	}
     icp++;
     return false;

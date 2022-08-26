@@ -331,7 +331,7 @@ void MyDsp::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size)
 //////////////////////////////////////////lcd//////////////////////////////////////////////////////////////////////
 void MyDsp::pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_lng)
 {
-  static char st1[16];
+  char st_in[16];
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   lcd = new LiquidCrystal_I2C(addr, lcd_col, lcd_row);
@@ -345,16 +345,16 @@ void MyDsp::pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_l
 
   lcd -> backlight(); //Включаем подсветку
 
-  strcpy(st1, "Hello");
-  if (rus_lng) strcpy(st1, "Привет");
+  strcpy(st_in, "Hello");
+  if (rus_lng) strcpy(st_in, "Привет");
   lcd -> setCursor(5, 0);
-  f_dsp.lcd_rus(st1);
-  lcd -> print (st1);
-  strcpy(st1, "World");
-  if (rus_lng) strcpy(st1, "Мир!!!");
+  f_dsp.lcd_rus(st_in);
+  lcd -> print (st_in);
+  strcpy(st_in, "World");
+  if (rus_lng) strcpy(st_in, "Мир!!!");
   lcd -> setCursor(5, 1);
-  f_dsp.lcd_rus(st1);
-  lcd -> print (st1);
+  f_dsp.lcd_rus(st_in);
+  lcd -> print (st_in);
 }
 
 void MyDsp::lcd_time(byte *buf, bool t_up)
@@ -654,7 +654,7 @@ void MyDsp::write_dsp(bool from_time, uint8_t type_vdrv, uint8_t type_disp, uint
 		#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 			m3216_ramFormer(screen, br, text_size);
 		#else
-			  DBG_OUT_PORT.print(F("This MSU does not support this chip as a video driver!!!"));
+			  DBG_OUT_PORT.print(F("This MSU does not support this type of display!!!"));
 		#endif
       }
 
@@ -773,8 +773,9 @@ void MyDsp::scroll_disp(uint8_t pos, byte *screen)
 
 void MyDsp::scroll_start(bool l_s, bool dvd, uint8_t type_vdrv, uint8_t type_disp, bool time_up, bool &end, char *st1, byte *screen) // ---------------------------- Запуск бегущей строки
 {
- if (l_s)
- {
+ 	byte bbuf[16];
+	if (l_s)
+	{
 	  if (type_vdrv == 11)
 	  {
 		if (type_disp == 11)
@@ -809,8 +810,8 @@ void MyDsp::scroll_start(bool l_s, bool dvd, uint8_t type_vdrv, uint8_t type_dis
 		  {
 			uint8_t x1 = 0;
 			if (time_up) x1 = 1;
-			end = f_dsp.lcd_mov_str(16, st1);
-			write_dsp(false, type_vdrv, type_disp, x1, time_up, (byte*)st1, 1, 0, 0);
+			end = f_dsp.lcd_mov_str(16, st1, bbuf);
+			write_dsp(false, type_vdrv, type_disp, x1, time_up, bbuf, 1, 0, 0);
 		  }
 		}
 	  }

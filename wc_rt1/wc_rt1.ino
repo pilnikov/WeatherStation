@@ -523,7 +523,7 @@ void loop()
         break;
 
       case 6:
-        static bool divider;
+        //bool divider = true;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
         if (wifi_data_cur.cli || wifi_data_cur.ap)
@@ -539,9 +539,9 @@ void loop()
         }
 # endif
 
-        mydsp.scroll_start(true, divider, conf_data.type_vdrv, conf_data.type_disp, conf_data.time_up, end_run_st, st1, screen);
+        mydsp.scroll_start(true, true, conf_data.type_vdrv, conf_data.type_disp, conf_data.time_up, end_run_st, st1, screen);
         if (conf_data.type_vdrv != 12) mydsp.write_dsp(false, conf_data.type_vdrv, conf_data.type_disp, cur_br, conf_data.time_up, screen, text_size, conf_data.color_up, conf_data.color_dwn);
-        divider = !divider;
+        //divider = !divider;
         break;
 
       case 7:
