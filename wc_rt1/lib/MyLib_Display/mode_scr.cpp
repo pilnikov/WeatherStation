@@ -101,7 +101,7 @@ uint8_t MyDsp::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offse
 
           case 8: //День недели, дата
 
-            sprintf_P(tStr, PSTR("%2S%2d"), name_week7[rt.wday], rt.day);
+            sprintf_P(tStr, PSTR("%2s%2d"), name_week7[rt.wday], rt.day);
             _repeat = false;
             break;
 
@@ -202,7 +202,7 @@ uint8_t MyDsp::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offse
             break;
 
           case 8: //День недели, дата месяц
-            sprintf_P(tStr, PSTR("%2S.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month);
+            sprintf_P(tStr, PSTR("%2s.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month);
             _repeat = false;
             break;
 
@@ -272,7 +272,7 @@ uint8_t MyDsp::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offse
             break;
 
           case 5: //День недели, дата, месяц, год
-            sprintf_P(tStr, PSTR("%2S.%02d.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
+            sprintf_P(tStr, PSTR("%2s.%02d.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
             _repeat = false;
             break;
 

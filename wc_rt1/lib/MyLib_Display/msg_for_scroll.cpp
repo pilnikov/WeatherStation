@@ -104,7 +104,7 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
             {
               wfc.descript.toCharArray(buf, wfc.descript.length() + 1);
               strcat(out, buf);
-              sprintf_P(buf, PSTR(" wind %S %dm/s"), swnr[wfc.wind_dir], wfc.wind_min);
+              sprintf_P(buf, PSTR(" wind %s %dm/s"), swnr[wfc.wind_dir], wfc.wind_min);
               strcat(out, buf);
             }
             sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
@@ -133,7 +133,7 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
                 if ((wf.prec == 6) & (wf.rpower == 0)) wf.prec = 11;
                 if ((wf.prec == 7) & (wf.rpower == 0)) wf.prec = 12;
                 if ((wf.prec == 8) & (wf.spower == 0)) wf.prec = 13;
-                sprintf_P(out, PSTR(" Weather forecast from GM on %S %d %S: temp from %d to %d%cC wind %S %S %d - %dm/s %S humid. %d%% press %dmm.m."),
+                sprintf_P(out, PSTR(" Weather forecast from GM on %s %d %s: temp from %d to %d%cC wind %s %d - %dm/s %s %s humid. %d%% press %dmm.m."),
                           stdr[wf.tod], wf.day, smne[wf.month - 1],
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.cloud], sprcr[wf.prec],
                           wf.hum_max, wf.press_max);
@@ -145,7 +145,7 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
 
               if (wf.temp_min > -99)
               {
-                sprintf_P(out, PSTR(" Weather forecast from OWM on %d %S: %s temp from %d to %d%cC wind %S %dm/s humid %d%% press %dmm.m."),
+                sprintf_P(out, PSTR(" Weather forecast from OWM on %d %s: %s temp from %d to %d%cC wind %s %dm/s humid %d%% press %dmm.m."),
                           wf.day, smne[wf.month - 1], buf,
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
                 _repeat = false;
@@ -206,7 +206,7 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
             {
               wfc.descript.toCharArray(buf, wfc.descript.length() + 1);
               strcat(out, buf);
-              sprintf_P(buf, PSTR(" ветер %S %dм/с"), swnr[wfc.wind_dir], wfc.wind_min);
+              sprintf_P(buf, PSTR(" ветер %s %dм/с"), swnr[wfc.wind_dir], wfc.wind_min);
               strcat(out, buf);
             }
             sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
@@ -236,7 +236,7 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
                 if ((wf.prec == 6) & (wf.rpower == 0)) wf.prec = 11;
                 if ((wf.prec == 7) & (wf.rpower == 0)) wf.prec = 12;
                 if ((wf.prec == 8) & (wf.spower == 0)) wf.prec = 13;
-                sprintf_P(out, PSTR(" Прогноз погоды от GM на %S %d %S: температура от %d до %d%cC ветер %S %d - %dм/с %S %S, oтн.влажность %d%%, давление %dмм.рт.ст."),
+                sprintf_P(out, PSTR(" Прогноз погоды от GM на %s %d %s: температура от %d до %d%cC ветер %s %d - %dм/с %s %s, oтн.влажность %d%%, давление %dмм.рт.ст."),
                           stdr[wf.tod], wf.day, smnr[wf.month - 1],
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_max, wf.wind_min, sprcr[wf.cloud], sprcr[wf.prec],
                           wf.hum_max, wf.press_max);
@@ -248,7 +248,7 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
 
               if (wf.temp_min > -99)
               {
-                sprintf_P(out, PSTR(" Прогноз погоды от OWM на %d %S: %s температура от %d до %d%cC ветер %S %dм/с, oтн.влажность %d%%, давление %dмм.рт.ст."),
+                sprintf_P(out, PSTR(" Прогноз погоды от OWM на %d %s: %s температура от %d до %d%cC ветер %s %dм/с, oтн.влажность %d%%, давление %dмм.рт.ст."),
                           wf.day, smnr[wf.month - 1], buf,
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
                 _repeat = false;

@@ -78,10 +78,8 @@ enum si_heatLevel {
  */
 class Adafruit_Si7021 {
 public:
-  Adafruit_Si7021();
-  ~Adafruit_Si7021(void);
-  bool begin(uint8_t addr = SI7021_DEFAULT_ADDRESS, TwoWire *theWire = &Wire);
-  bool init();
+  Adafruit_Si7021(TwoWire *theWire = &Wire);
+  bool begin();
 
   float readTemperature();
   void reset();

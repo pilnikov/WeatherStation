@@ -35,15 +35,12 @@
  *  @param  *theWire
  *          optional wire object
  */
-Adafruit_Si7021::Adafruit_Si7021() {
-   sernum_a = sernum_b = 0;
+Adafruit_Si7021::Adafruit_Si7021(TwoWire *theWire) {
+  i2c_dev = new Adafruit_I2CDevice(SI7021_DEFAULT_ADDRESS, theWire);
+
+  sernum_a = sernum_b = 0;
   _model = SI_UNKNOWN;
   _revision = 0;
-}
-
-
-Adafruit_Si7021::~Adafruit_Si7021(void) {
-     delete i2c_dev;
 }
 
 /*!
@@ -51,26 +48,13 @@ Adafruit_Si7021::~Adafruit_Si7021(void) {
  * revision.
  *  @return Returns true if set up is successful.
  */
-bool Adafruit_Si7021::begin(uint8_t addr, TwoWire *theWire) {
-    delete i2c_dev;
-    i2c_dev = new Adafruit_I2CDevice(addr, theWire);
-    if (!i2c_dev->begin())
-      return false;
-  return init();
-}
+bool Adafruit_Si7021::begin() {
+  if (!i2c_dev->begin())
+    return false;
 
-
-
-/*!
- *   @brief  Initialise sensor with given parameters / settings
- *   @returns true on success, false otherwise
- */
-bool Adafruit_Si7021::init() {
-  
+  reset();
   if (_readRegister8(SI7021_READRHT_REG_CMD) != 0x3A)
-	      _writeRegister8(SI7021_WRITERHT_REG_CMD, 0x3A);
-  
-  if (_readRegister8(SI7021_READRHT_REG_CMD) != 0x3A) return false;
+    return false;
 
   readSerialNumber();
   _readRevision();
@@ -188,7 +172,7 @@ void Adafruit_Si7021::readSerialNumber() {
   buffer[0] = (uint8_t)(SI7021_ID2_CMD >> 8);
   buffer[1] = (uint8_t)(SI7021_ID2_CMD & 0xFF);
   i2c_dev->write_then_read(buffer, 2, buffer, 6);
-  sernum_a = uint32_t(buffer[0]) << 24 | uint32_t(buffer[1]) << 16 |
+  sernum_b = uint32_t(buffer[0]) << 24 | uint32_t(buffer[1]) << 16 |
              uint32_t(buffer[4]) << 8 | uint32_t(buffer[5]);
 
   // Use SNB3 for device model version

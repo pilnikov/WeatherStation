@@ -70,7 +70,7 @@ void RTCMSG::rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data
     switch (num)
     {
       case 1:
-        sprintf_P(out, PSTR("Today is %S %d %S %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
+        sprintf_P(out, PSTR("Today is %s %d %s %d"), sdne[rt.wday - 1], rt.day, smne[rt.month - 1], rt.year);
         break;
       case 4:
 		if (alarmed)
@@ -95,7 +95,7 @@ void RTCMSG::rtc_str(uint8_t num, bool rus_lng, rtc_time_data_t rt, rtc_alm_data
     switch (num)
     {
       case 1:
-        sprintf_P(out, PSTR("Сегодня %S %d %S %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
+        sprintf_P(out, PSTR("Сегодня %s %d %s %dг."), sdnr[rt.wday - 1], rt.day, smnr[rt.month - 1], rt.year);
         break;
       case 4:
         if (alarmed)

@@ -373,8 +373,8 @@ void CT::cur_time_str(rtc_time_data_t time_data, bool lng, char* in)
 
   const char* const sdne[] = {sdne_1, sdne_2, sdne_3, sdne_4, sdne_5, sdne_6, sdne_7};
 
-  if (lng) sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdnr[time_data.wday - 1], time_data.day, time_data.month, time_data.year, time_data.hour, time_data.min, time_data.sec);
-  else sprintf_P(in, PSTR("%S %02u.%02u.%04u %02u:%02u:%02u"), sdne[time_data.wday - 1], time_data.day, time_data.month, time_data.year, time_data.hour, time_data.min, time_data.sec);
+  if (lng) sprintf_P(in, PSTR("%s %02u.%02u.%04u %02u:%02u:%02u"), sdnr[time_data.wday - 1], time_data.day, time_data.month, time_data.year, time_data.hour, time_data.min, time_data.sec);
+  else sprintf_P(in, PSTR("%s %02u.%02u.%04u %02u:%02u:%02u"), sdne[time_data.wday - 1], time_data.day, time_data.month, time_data.year, time_data.hour, time_data.min, time_data.sec);
 }
 
 //-------------------------------------------------------- Получаем точное время с НТП сервера
