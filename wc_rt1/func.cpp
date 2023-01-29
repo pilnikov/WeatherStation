@@ -411,7 +411,7 @@ void put_to_es(char *es_addr, uint8_t use_es, snr_data_t sd, bool cli)
       postStr += String(sd.h3);
     }
 
-    if ((use_es & 0b00100000) && sd.p > 700 && sd.p < 800)
+    if ((use_es & 0b01000000) && sd.p > 700 && sd.p < 800)
     {
       postStr += "&esp=";
       postStr += String(sd.p);
