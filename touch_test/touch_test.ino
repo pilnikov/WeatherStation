@@ -15,13 +15,26 @@
 #include <HTTPClient.h>
 #endif
 
+#if defined(ESP8266)
+#include <ESP8266WebServer.h>
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#include <WebServer.h>
+#endif
+
 #include "GyverButton.h"
 
-// аналоговая клавиатура подключена на А7. Схему смотри на странице библиотеки
+// объявляем кнопки
 GButton myButt1;
 GButton myButt2;
 GButton myButt3;
 GButton myButt4;
+
+// объявляем сервер
+#if defined(ESP8266)
+ESP8266WebServer server(80);
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+WebServer server(80);
+#endif
 
 uint8_t value1 = 0, value2 = 0, value3 = 0, val_buff1 = 0, val_buff2 = 0, val_buff3 = 0;
 
@@ -43,10 +56,12 @@ void setup() {
 
 void loop() {
 
+#if CONFIG_IDF_TARGET_ESP32
   myButt1.tick(touchRead(33) < 30 && touchRead(33) > 10);
   myButt2.tick(touchRead(32) < 30 && touchRead(32) > 10);
   myButt3.tick(touchRead(13) < 30 && touchRead(13) > 10);
   myButt4.tick(touchRead(27) < 30 && touchRead(27) > 10);
+#endif
   /*
     if (myButt1.isHolded()) {
       Serial.println("hold 1");
@@ -121,17 +136,17 @@ void put_to_es(char *es_addr, uint8_t data1, uint8_t data2, bool button1, bool b
   // debug_level = 10;
   Serial.print(F("\nTrue put data to ext server -> "));
 
-  String but1 = "false", but2 = "false";
-  
-  if (button1) but1 = "true";
-  if (button2) but2 = "true";
+  String but1 = "0", but2 = "0";
+
+  if (button1) but1 = "1";
+  if (button2) but2 = "1";
 
   String postStr = "http://";
   postStr += String(es_addr);
-  postStr += "/rcv_snr?";
-  postStr += "&data11=";
+  postStr += "/send_data?";
+  postStr += "&data1=";
   postStr += String(data1);
-  postStr += "&data12=";
+  postStr += "&data2=";
   postStr += String(data2);
   postStr += "&button1=";
   postStr += but1;
@@ -163,4 +178,53 @@ void put_to_es(char *es_addr, uint8_t data1, uint8_t data2, bool button1, bool b
 #endif
     http.end();
   }
+}
+
+
+//-------------------------------------------------------------- handler for receive data from remote controller
+void handleRemoteControlRcv()
+{
+  /*
+      url='/send_data?
+       + '&data1='  + data1_t
+       + '&data2='  + data2_t
+       + '&button1='  + btn1_t
+       + '&button2='  + btn2_t
+  */
+  uint8_t data1, data2; bool button1, button2;
+  data1 = 0;
+  data2 = 0;
+  button1 = false;
+  button2 = false;
+
+  if (server.arg("data1") != 0)
+  {
+    data1 = constrain(server.arg("data1").toInt(), 0, 255);
+  }
+
+  if (server.arg("data1") != 0)
+  {
+    data2 = constrain(server.arg("data2").toInt(), 0, 255);
+  }
+
+  button1 = server.arg("button1") == "1";
+  button2 = server.arg("button2") == "1";
+
+  server.send(200, "text/html", "OK!");
+
+  analogWrite(22, data1);         // для примера выведем в порт
+  analogWrite(22, data2);         // для примера выведем в порт
+  digitalWrite(22, button1);         // для примера выведем в порт
+  digitalWrite(22, button2);         // для примера выведем в порт
+
+#ifdef RGB_BUILTIN
+  //  digitalWrite(RGB_BUILTIN, HIGH);   // Turn the RGB LED white
+  digitalWrite(RGB_BUILTIN, LOW);    // Turn the RGB LED off
+
+  neopixelWrite(RGB_BUILTIN, data1, data2, 0); // Red
+  //  neopixelWrite(RGB_BUILTIN,0,0,RGB_BRIGHTNESS); // Blue/
+  //  neopixelWrite(RGB_BUILTIN,0,0,0); // Off / black
+  delay(1000);
+#endif
+
 }
