@@ -1,4 +1,22 @@
+
+// ------------------------------------------------------------- Include
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
+#if defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#elif defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <HTTPClient.h>
+#endif
+
 #include "GyverButton.h"
+
 // аналоговая клавиатура подключена на А7. Схему смотри на странице библиотеки
 GButton myButt1;
 GButton myButt2;
@@ -45,78 +63,104 @@ void loop() {
     }
     delay(10);
   */
-
-  if (myButt1.isClick()) {           // одиночное нажатие
-    if (value1 < 255) value1++;                       // инкремент
+  //Main Volume -----------------//////////////////////////////////////////////////////////////////////////////////////////////
+  if ((myButt2.isClick()) || (myButt2.isStep())) {  // одиночное нажатие или обработчик удержания с шагами
+    if (value1 < 255) value1++;                     // инкремент
+    if (value2 < 255) value2++;                     // инкремент
+    if (value3 < 255) value3++;                     // инкремент
   }
 
-  if (myButt2.isClick()) {           // одиночное нажатие
+  if ((myButt1.isClick()) || (myButt1.isStep())) {  // одиночное нажатие или обработчик удержания с шагами
     if (value1 > 0) value1--;                       // декремент
-  }
-
-  if (myButt1.isStep()) {            // обработчик удержания с шагами
-    if (value1 < 255) value1++;                       // увеличивать/уменьшать переменную value с шагом и интервалом!
-  }
-
-  if (myButt2.isStep()) {            // обработчик удержания с шагами
-    if (value1 > 0) value1--;                       // увеличивать/уменьшать переменную value с шагом и интервалом!
+    if (value2 > 0) value2--;                       // декремент
+    if (value3 > 0) value3--;                       // декремент
   }
 
   if (value1 != val_buff1)
   {
-    // analogWrite(22, value2);         // для примера выведем в порт
-    Serial.println(value1);         // для примера выведем в порт
+    Serial.println("Val1 Val2 Val3"); // для примера выведем в порт
+    Serial.print(value1);             // для примера выведем в порт
+    Serial.print("   ");              // для примера выведем в порт
+    Serial.print(value2);             // для примера выведем в порт
+    Serial.print("   ");              // для примера выведем в порт
+    Serial.println(value3);           // для примера выведем в порт
     val_buff1 = value1;
-    value2 = value1;
-    value3 = value1;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  if (myButt3.isClick()) {           // одиночное нажатие
-    if (value2 < value1) value2++;                       // инкремент
-  }
-
-  if (myButt4.isClick()) {           // одиночное нажатие
-    if (value2 > 0) value2--;                       // декремент
-  }
-
-  if (myButt3.isStep()) {            // обработчик удержания с шагами
-    if (value2 < value1) value2++;                       // увеличивать/уменьшать переменную value с шагом и интервалом!
-  }
-
-  if (myButt4.isStep()) {            // обработчик удержания с шагами
-    if (value2 > 0) value2--;                       // увеличивать/уменьшать переменную value с шагом и интервалом!
-  }
-
-  if (value2 != val_buff2)
-  {
-    analogWrite(22, value2);         // для примера выведем в порт
-    Serial.println(value2);         // для примера выведем в порт
     val_buff2 = value2;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  if (myButt3.isClick()) {           // одиночное нажатие
-    if (value2 < value1) value2++;                       // инкремент
-  }
-
-  if (myButt4.isClick()) {           // одиночное нажатие
-    if (value2 > 0) value2--;                       // декремент
-  }
-
-  if (myButt3.isStep()) {            // обработчик удержания с шагами
-    if (value2 < value1) value2++;                       // увеличивать/уменьшать переменную value с шагом и интервалом!
-  }
-
-  if (myButt4.isStep()) {            // обработчик удержания с шагами
-    if (value2 > 0) value2--;                       // увеличивать/уменьшать переменную value с шагом и интервалом!
-  }
-
-  if (value2 != val_buff2)
-  {
-//    analogWrite(22, value2);         // для примера выведем в порт
-    Serial.println(value3);         // для примера выведем в порт
     val_buff3 = value3;
   }
 
+  //Balance -------------/////////////////////////////////////////////////////////////////////////////////////////////////////////
+  if ((myButt3.isClick()) || (myButt3.isStep())) {           // одиночное нажатие или обработчик удержания с шагами
+    if ((value2 > 0) && (value3 == value1)) value2--;        // декремент
+    if ((value3 < value1) && (value2 == value1)) value3++;   // инкремент
+  }
+
+  if ((myButt4.isClick()) || (myButt4.isStep())) {           // одиночное нажатие или обработчик удержания с шагами
+    if ((value3 > 0) && (value2 == value1)) value3--;        // декремент
+    if ((value2 < value1) && (value3 == value1)) value2++;   // инкремент
+  }
+
+  if ((value2 != val_buff2) || (value3 != val_buff3))
+  {
+    Serial.println("Val1 Val2 Val3");         // для примера выведем в порт
+    Serial.print(value1);        // для примера выведем в порт
+    Serial.print("   ");         // для примера выведем в порт
+    Serial.print(value2);        // для примера выведем в порт
+    Serial.print("   ");         // для примера выведем в порт
+    Serial.println(value3);      // для примера выведем в порт
+    val_buff2 = value2;
+    val_buff3 = value3;
+  }
+  analogWrite(22, value2);         // для примера выведем в порт
+}
+
+//------------------------------------------------------  Отправляем показания датчиков на внешний сервер
+void put_to_es(char *es_addr, uint8_t data1, uint8_t data2, bool button1, bool button2)
+{
+  // uint8_t dl = debug_level;
+  // debug_level = 10;
+  Serial.print(F("\nTrue put data to ext server -> "));
+
+  String but1 = "false", but2 = "false";
+  
+  if (button1) but1 = "true";
+  if (button2) but2 = "true";
+
+  String postStr = "http://";
+  postStr += String(es_addr);
+  postStr += "/rcv_snr?";
+  postStr += "&data11=";
+  postStr += String(data1);
+  postStr += "&data12=";
+  postStr += String(data2);
+  postStr += "&button1=";
+  postStr += but1;
+  postStr += "&button2=";
+  postStr += but2;
+
+  //postStr += "\r\n";
+
+  Serial.println(postStr);
+
+  HTTPClient http;
+  bool beg;
+#if defined(ESP8266)
+  WiFiClient client;
+  beg = http.begin(client, postStr); //HTTP
+#else
+  beg = http.begin(postStr); //HTTP
+#endif
+  if (beg)
+  {
+    int httpCode = http.GET();
+    if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
+    {
+      postStr = http.getString();
+      Serial.println(postStr);
+    }
+#if defined(ESP8266)
+    delay(3000);
+#endif
+    http.end();
+  }
 }
