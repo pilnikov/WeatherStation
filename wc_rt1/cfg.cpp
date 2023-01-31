@@ -333,6 +333,8 @@ conf_data_t MAINJS::def_conf()
 
 #elif defined(__AVR_ATmega2560__)
 
+#include <EEPROM.h>
+
 conf_data_t MAINJS::from_json(String message)
 {
   conf_data_t _data;
@@ -416,5 +418,7 @@ conf_data_t MAINJS::def_conf()
 String MAINJS::to_json(conf_data_t _data)
 {
   EEPROM.put(0, _data);           // записали по адресу 0
+  String ret = "OK";
+  return ret;
 }
 #endif

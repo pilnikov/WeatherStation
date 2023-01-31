@@ -581,9 +581,10 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t &disp_mode, uint8_t &ma
   {
     if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot...")); //Cбрасываем усе на дефолт и перезагружаемся
     *conf_data = maincfg_ff.def_conf();
+    String from_client = maincfg_ff.to_json(*conf_data);
+
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     const char *conf_f = "/config.json";
-    String from_client = maincfg_ff.to_json(*conf_data);
     lfs_ff.writeFile(conf_f, from_client.c_str());
 
     stop_serv();
@@ -776,8 +777,8 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t &a_act_out, uint8_t a_num, r
   {
     rtc_cfg -> alarms[a_num].type = 0;
     String from_client = myrtccfg_ff.to_json(*rtc_cfg);
-    const char *conf_f = "/conf_rtc.json";
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    const char *conf_f = "/conf_rtc.json";
     lfs_ff.writeFile(conf_f, from_client.c_str());
 #endif
     *rtc_cfg = myrtccfg_ff.from_json(from_client);

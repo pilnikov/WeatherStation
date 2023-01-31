@@ -47,11 +47,12 @@ ES e_srv;
 NF nsys;
 WF wifi;
 WFJS wifi_cfg;
-MAINJS maincfg;
 LFS lfs;
 
 udp_cons print_console_udp;
 #endif
+
+MAINJS maincfg;
 
 // ----------------------------------- Web server
 #if defined(ESP8266)

@@ -23,7 +23,14 @@
 #define OCTAVE_OFFSET 0
 #define isdigit(n) (n >= '0' && n <= '9')
 #define cp(a) (pgm_read_byte(a))
+
+
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #define inc_p(a) ((char*)a + sizeof(char))
+
+#elif defined (__AVR__)
+#define inc_p(a) ((uint16_t)a + sizeof(char))
+#endif
 
 
 
