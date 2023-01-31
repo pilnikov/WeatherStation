@@ -47,6 +47,7 @@ ES e_srv;
 NF nsys;
 WF wifi;
 WFJS wifi_cfg;
+MAINJS maincfg;
 LFS lfs;
 
 udp_cons print_console_udp;
@@ -105,9 +106,17 @@ void setup()
   //------------------------------------------------------  Читаем установки WiFi из конфиг файла
   conf_f = "/conf_wifi.json";
   from_client = lfs.readFile(conf_f);
-  wifi_data = wifi_cfg.from_json(from_client);
-
-  //wifi_data = wifi_cfg.def_conf();
+  if (from_client == "Failed to open file for reading")
+  {
+    DBG_OUT_PORT.println(F("Failed to open conf_wifi.json for reading. Using default configuration!!!"));
+    wifi_data = wifi_cfg.def_conf();
+    from_client = wifi_cfg.to_json(wifi_data);
+    lfs.writeFile(conf_f, from_client.c_str());
+  }
+  else
+  {
+    wifi_data = wifi_cfg.from_json(from_client);
+  }
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 
@@ -121,10 +130,9 @@ void setup()
     if (conf_data.udp_mon)
     {
       //DBG_OUT_PORT.end();
-
-      //    DBG_OUT_PORT = *udp_cons;
+      //DBG_OUT_PORT = *udp_cons;
       //IP_Addr.fromString(conf_data.srudp_addr);
-      //    DBG_OUT_PORT.begin(4023, IP_Addr);
+      //DBG_OUT_PORT.begin(4023, IP_Addr);
       //DBG_OUT_PORT.setDebugOutput(true);
     }
 
@@ -146,31 +154,62 @@ void setup()
   conf_f = "/conf_rtc.json";
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   from_client = lfs.readFile(conf_f);
-#endif
+  if (from_client == "Failed to open file for reading")
+  {
+    DBG_OUT_PORT.println(F("Failed to open conf_rtc.json for reading. Using default configuration!!!"));
+    rtc_cfg = myrtccfg.def_conf();
+    from_client = myrtccfg.to_json(rtc_cfg);
+    lfs.writeFile(conf_f, from_client.c_str());
+  }
+  else
+  {
+    rtc_cfg = myrtccfg.from_json(from_client);
+  }
+#else
   rtc_cfg = myrtccfg.from_json(from_client);
-
-  //rtc_cfg = myrtccfg.def_conf();
+#endif
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
-
 
   //------------------------------------------------------  Загружаем настройки датчиков
   conf_f = "/conf_snr.json";
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   from_client = lfs.readFile(conf_f);
-#endif
+  if (from_client == "Failed to open file for reading")
+  {
+    DBG_OUT_PORT.println(F("Failed to open conf_snr.json for reading. Using default configuration!!!"));
+    snr_cfg_data = mysnrcfg.def_conf();
+    from_client = mysnrcfg.to_json(snr_cfg_data);
+    lfs.writeFile(conf_f, from_client.c_str());
+  }
+  else
+  {
+    snr_cfg_data = mysnrcfg.from_json(from_client);
+  }
+#else
   snr_cfg_data = mysnrcfg.from_json(from_client);
-
-  //snr_cfg_data = mysnrcfg.def_conf();
+#endif
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 
   //------------------------------------------------------  Загружаем общие настройки HW
   conf_f = "/config.json";
-  conf_data = loadConfig(conf_f);
-
-  //conf_data = defaultConfig();
-  //saveConfig(conf_f, conf_data);
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+  from_client = lfs.readFile(conf_f);
+  if (from_client == "Failed to open file for reading")
+  {
+    DBG_OUT_PORT.println(F("Failed to open config.json for reading. Using default configuration!!!"));
+    conf_data = maincfg.def_conf();
+    from_client = maincfg.to_json(conf_data);
+    lfs.writeFile(conf_f, from_client.c_str());
+  }
+  else
+  {
+    conf_data = maincfg.from_json(from_client);
+  }
+#else
+  conf_data = maincfg.from_json(from_client);
+#endif
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 

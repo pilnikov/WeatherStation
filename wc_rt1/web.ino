@@ -271,8 +271,11 @@ void handleSetFont()
   conf_data.type_font = server.arg("tfnt").toInt();
   if (debug_level == 14) DBG_OUT_PORT.printf("font is.... %u", conf_data.type_font);
 
+  from_client = maincfg.to_json(conf_data);
+
   conf_f = "/config.json";
-  saveConfig(conf_f, conf_data);
+  lfs.writeFile(conf_f, from_client.c_str());
+
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
@@ -301,8 +304,11 @@ void handleSetPard()
   conf_data.br_level[2] = server.arg("brd3").toInt();
   conf_data.br_level[3] = server.arg("brd4").toInt();
 
+  from_client = maincfg.to_json(conf_data);
+
   conf_f = "/config.json";
-  saveConfig(conf_f, conf_data);
+  lfs.writeFile(conf_f, from_client.c_str());
+
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
   if (vdrv_buf != conf_data.type_vdrv) handleExit();
@@ -497,10 +503,10 @@ void handleSetPars2()
   snr_cfg_data.type_snr3 = server.arg("snr3").toInt();
   snr_cfg_data.type_snrp = server.arg("snrp").toInt();
 
-  conf_f = "/conf_snr.json";
   from_client = mysnrcfg.to_json(snr_cfg_data);
+
+  conf_f = "/conf_snr.json";
   lfs.writeFile(conf_f, from_client.c_str());
-  snr_cfg_data = mysnrcfg.from_json(from_client);
 
   conf_data.period = constrain(server.arg("period").toInt(), 1, 59);
   conf_data.use_es = server.arg("ues").toInt();
@@ -530,8 +536,11 @@ void handleSetPars3()
   strcpy(conf_data.AKey_w, server.arg("tsapiw").c_str());
   conf_data.use_ts = server.arg("uts").toInt();
 
+  from_client = maincfg.to_json(conf_data);
+
   conf_f = "/config.json";
-  saveConfig(conf_f, conf_data);
+  lfs.writeFile(conf_f, from_client.c_str());
+
   server.send(200, "text/html", "OK!");
 
   handleExit();
@@ -593,8 +602,11 @@ void handleSetParc()
   conf_data.gpio_ana = constrain(server.arg("ana").toInt(), 0, 255);
   conf_data.gpio_uar = constrain(server.arg("uar").toInt(), 0, 255);
 
+  from_client = maincfg.to_json(conf_data);
+
   conf_f = "/config.json";
-  saveConfig(conf_f, conf_data);
+  lfs.writeFile(conf_f, from_client.c_str());
+
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
   handleExit();
@@ -816,8 +828,10 @@ void handleSetNews()
   strcpy(conf_data.news_api_key, server.arg("newsApiKey").c_str());
   strcpy(conf_data.news_source, server.arg("newssource").c_str());
 
+  from_client = maincfg.to_json(conf_data);
+
   conf_f = "/config.json";
-  saveConfig(conf_f, conf_data);
+  lfs.writeFile(conf_f, from_client.c_str());
 
   if (strcmp(src_buff, conf_data.news_source) != 0) handleUpdNews();
   server.send(200, "text/html", "Ok!");

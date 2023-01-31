@@ -1,154 +1,132 @@
+
 #include "conf.h"
+#include <ArduinoJson.h>
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#define ARDUINOJSON_USE_LONG_LONG 1
 
-conf_data_t loadConfig(const char *filename)
+conf_data_t MAINJS::from_json(String message)
 {
   conf_data_t _data;
 
-  File file = LittleFS.open(filename, "r");
+  // Allocate the document on the stack.
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/assistant to compute the capacity.
+  DynamicJsonDocument doc(3100);
 
-  if (!file)
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, message);
+  if (error)
   {
-    DBG_OUT_PORT.print(F("Failed to open "));
-    DBG_OUT_PORT.print(filename);
-    DBG_OUT_PORT.println(F(", using default configuration"));
-    _data = defaultConfig();
-    saveConfig(filename, _data);
+    DBG_OUT_PORT.print(F("deserializeJson() for configFile failed: "));
+    DBG_OUT_PORT.println(error.c_str());
+    DBG_OUT_PORT.println(F(". Using default configuration"));
+    _data = def_conf();
+    return _data;
   }
   else
   {
-    // Allocate the document on the stack.
-    // Don't forget to change the capacity to match your requirements.
-    // Use arduinojson.org/assistant to compute the capacity.
-    DynamicJsonDocument doc(3100);
+    DBG_OUT_PORT.println(F("Read msg sucsses!!!"));
 
-    // Deserialize the JSON document
-    DeserializationError error = deserializeJson(doc, file);
-    if (error)
-    {
-      DBG_OUT_PORT.print(F("deserializeJson() for configFile failed: "));
-      DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Using default configuration"));
-      _data = defaultConfig();
-      saveConfig(filename, _data);
-      return _data;
-    }
+    // Get the root object in the document
+    memset(_data.owm_key,    0, 33);
+    memset(_data.esrv1_addr, 0, 17);
+    memset(_data.esrv2_addr, 0, 17);
+    memset(_data.radio_addr, 0, 17);
+    memset(_data.srudp_addr, 0, 17);
+    memset(_data.ch1_name,   0, 17);
+    memset(_data.ch2_name,   0, 17);
+    memset(_data.ch3_name,   0, 17);
+    memset(_data.AKey_r,     0, 17);
+    memset(_data.AKey_w,     0, 17);
+    memset(_data.news_api_key, 0, 33);
+    memset(_data.news_source,   0, 17);
 
-    file.close();
+    //---gpio.html----------------------------------------
+    //---Options for HW---------------------------------
+    _data.snd_pola          = doc["snd_pola"];
+    _data.led_pola          = doc["led_pola"];
 
-    if (!error)
-    {
-      DBG_OUT_PORT.println(F("Read configFile sucsses!!!"));
+    //---GPIO-----------------------------------------------
+    _data.gpio_sda          = doc["sda"];
+    _data.gpio_scl          = doc["scl"];
+    _data.gpio_dio          = doc["dio"];
+    _data.gpio_clk          = doc["clk"];
+    _data.gpio_dcs          = doc["dcs"];
+    _data.gpio_dwr          = doc["dwr"];
+    _data.gpio_trm          = doc["trm"];
+    _data.gpio_sqw          = doc["sqw"];
+    _data.gpio_snd          = doc["snd"];
+    _data.gpio_led          = doc["led"];
+    _data.gpio_btn          = doc["btn"];
+    _data.gpio_dht          = doc["dht"];
+    _data.gpio_ana          = doc["ana"];
+    _data.gpio_uar          = doc["uar"];
 
-      // Get the root object in the document
-      memset(_data.owm_key,    0, 33);
-      memset(_data.esrv1_addr, 0, 17);
-      memset(_data.esrv2_addr, 0, 17);
-      memset(_data.radio_addr, 0, 17);
-      memset(_data.srudp_addr, 0, 17);
-      memset(_data.ch1_name,   0, 17);
-      memset(_data.ch2_name,   0, 17);
-      memset(_data.ch3_name,   0, 17);
-      memset(_data.AKey_r,     0, 17);
-      memset(_data.AKey_w,     0, 17);
-      memset(_data.news_api_key, 0, 33);
-      memset(_data.news_source,   0, 17);
+    //---Display.html--------------------------------------
+    //---Options for display-------------------------------
+    _data.type_vdrv         = doc["vdrv_t"];
+    _data.type_disp         = doc["disp_t"];
+    _data.rus_lng           = doc["rus_lng"];
+    _data.time_up           = doc["t_up"];
+    _data.color_up          = doc["colu"];
+    _data.color_dwn         = doc["cold"];
+    _data.type_font         = doc["type_font"];
 
-      //---gpio.html----------------------------------------
-      //---Options for HW---------------------------------
-      _data.snd_pola          = doc["snd_pola"];
-      _data.led_pola          = doc["led_pola"];
+    //---Brigthness----------------------------------------
+    _data.man_br            = doc["man_br"];
+    _data.nmd_br            = doc["nmd_br"];
+    _data.auto_br           = doc["auto_br"];
 
-      //---GPIO-----------------------------------------------
-      _data.gpio_sda          = doc["sda"];
-      _data.gpio_scl          = doc["scl"];
-      _data.gpio_dio          = doc["dio"];
-      _data.gpio_clk          = doc["clk"];
-      _data.gpio_dcs          = doc["dcs"];
-      _data.gpio_dwr          = doc["dwr"];
-      _data.gpio_trm          = doc["trm"];
-      _data.gpio_sqw          = doc["sqw"];
-      _data.gpio_snd          = doc["snd"];
-      _data.gpio_led          = doc["led"];
-      _data.gpio_btn          = doc["btn"];
-      _data.gpio_dht          = doc["dht"];
-      _data.gpio_ana          = doc["ana"];
-      _data.gpio_uar          = doc["uar"];
+    //---Brigthness levels---------------------------------
+    for (uint8_t i = 0; i <= 3; i++) _data.br_level[i]  = doc["br_level"][i];
 
-      //---Display.html--------------------------------------
-      //---Options for display-------------------------------
-      _data.type_vdrv         = doc["vdrv_t"];
-      _data.type_disp         = doc["disp_t"];
-      _data.rus_lng           = doc["rus_lng"];
-      _data.time_up           = doc["t_up"];
-      _data.color_up          = doc["colu"];
-      _data.color_dwn         = doc["cold"];
-      _data.type_font         = doc["type_font"];
+    //---Sensor.html---------------------------------------
+    //---Options for sensor--------------------------------
+    _data.pp_city_id        = doc["pp_city_id"];
+    strcpy(_data.owm_key,     doc["owm_key"]);
+    strcpy(_data.esrv1_addr,  doc["esrv1_a"]);
+    strcpy(_data.esrv2_addr,  doc["esrv2_a"]);
+    strcpy(_data.radio_addr,  doc["radio_a"]);
+    strcpy(_data.srudp_addr,  doc["srudp_a"]);
+    _data.udp_mon           = doc["udm"];
+    _data.use_pp            = doc["upp"];
 
-      //---Brigthness----------------------------------------
-      _data.man_br            = doc["man_br"];
-      _data.nmd_br            = doc["nmd_br"];
-      _data.auto_br           = doc["auto_br"];
+    //---Sensor type---------------------------------------
+    _data.period            = doc["period"]; // minutes
+    _data.use_es            = doc["ues"];
+    _data.esm               = doc["esm"];
 
-      //---Brigthness levels---------------------------------
-      for (uint8_t i = 0; i <= 3; i++) _data.br_level[i]  = doc["br_level"][i];
+    //---Sensor actual value-------------------------------
+    strcpy(_data.ch1_name,   doc["ch1_name"]);
+    strcpy(_data.ch2_name,   doc["ch2_name"]);
+    strcpy(_data.ch3_name,   doc["ch3_name"]);
 
-      //---Sensor.html---------------------------------------
-      //---Options for sensor--------------------------------
-      _data.pp_city_id        = doc["pp_city_id"];
-      strcpy(_data.owm_key,     doc["owm_key"]);
-      strcpy(_data.esrv1_addr,  doc["esrv1_a"]);
-      strcpy(_data.esrv2_addr,  doc["esrv2_a"]);
-      strcpy(_data.radio_addr,  doc["radio_a"]);
-      strcpy(_data.srudp_addr,  doc["srudp_a"]);
-      _data.udp_mon           = doc["udm"];
-      _data.use_pp            = doc["upp"];
+    //---TS Account----------------------------------------
+    _data.ts_ch_id          = doc["ts_ch_id"];
+    strcpy(_data.AKey_r,      doc["AKey_r"]);
+    strcpy(_data.AKey_w,      doc["AKey_w"]);
 
-      //---Sensor type---------------------------------------
-      _data.period            = doc["period"]; // minutes
-      _data.use_es            = doc["ues"];
-      _data.esm               = doc["esm"];
+    //---TS sender-----------------------------------------
+    _data.use_ts            = doc["uts"];
 
-      //---Sensor actual value-------------------------------
-      strcpy(_data.ch1_name,   doc["ch1_name"]);
-      strcpy(_data.ch2_name,   doc["ch2_name"]);
-      strcpy(_data.ch3_name,   doc["ch3_name"]);
+    //---Thermo.html---------------------------------------
+    //---Options for thermostat----------------------------
+    _data.type_thermo       = doc["trs_t"];
+    _data.src_thermo        = doc["src_trs"];
+    _data.lb_thermo         = doc["lb_trs"];
+    _data.hb_thermo         = doc["hb_trs"];
 
-      //---TS Account----------------------------------------
-      _data.ts_ch_id          = doc["ts_ch_id"];
-      strcpy(_data.AKey_r,      doc["AKey_r"]);
-      strcpy(_data.AKey_w,      doc["AKey_w"]);
-
-      //---TS sender-----------------------------------------
-      _data.use_ts            = doc["uts"];
-
-      //---Thermo.html---------------------------------------
-      //---Options for thermostat----------------------------
-      _data.type_thermo       = doc["trs_t"];
-      _data.src_thermo        = doc["src_trs"];
-      _data.lb_thermo         = doc["lb_trs"];
-      _data.hb_thermo         = doc["hb_trs"];
-
-      //---News.html---------------------------------------
-      //---Options for news----------------------------
-      _data.news_en            = doc["news_en"];
-      strcpy(_data.news_api_key, doc["news_api"]);
-      strcpy(_data.news_source,  doc["news_src"]);
-    }
-    else
-    {
-      DBG_OUT_PORT.print(F("deserializeJson() failed: "));
-      DBG_OUT_PORT.println(error.c_str());
-      DBG_OUT_PORT.println(F("Failed to read configFile, using default configuration"));
-      _data = defaultConfig();
-      saveConfig(filename, _data);
-    }
+    //---News.html---------------------------------------
+    //---Options for news----------------------------
+    _data.news_en            = doc["news_en"];
+    strcpy(_data.news_api_key, doc["news_api"]);
+    strcpy(_data.news_source,  doc["news_src"]);
   }
   return _data;
 }
 
-void saveConfig(const char *filename, conf_data_t _data)
+String MAINJS::to_json(conf_data_t _data)
 {
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
 
@@ -241,21 +219,12 @@ void saveConfig(const char *filename, conf_data_t _data)
   json["news_api"]            = _data.news_api_key;
   json["news_src"]            = _data.news_source;
 
-
-  // Delete existing file, otherwise the configuration is appended to the file
-  LittleFS.remove(filename);
-  File configFile = LittleFS.open(filename, "w"); //Open config file for writing
-  if (!configFile)
-  {
-    DBG_OUT_PORT.println(F("Failed to open config file for writing"));
-    return;
-  }
-  if (serializeJson(doc, configFile) == 0) DBG_OUT_PORT.println(F("Failed write to file"));
-  DBG_OUT_PORT.println(F("End write buffer to file"));
-  configFile.close();
+  String msg = String();
+  if (serializeJson(doc, msg) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  return msg;
 }
 
-conf_data_t defaultConfig()
+conf_data_t MAINJS::def_conf()
 {
   conf_data_t _data;
 
@@ -364,14 +333,14 @@ conf_data_t defaultConfig()
 
 #elif defined(__AVR_ATmega2560__)
 
-conf_data_t loadConfig(const char *filename)
+conf_data_t MAINJS::from_json(String message)
 {
   conf_data_t _data;
   EEPROM.get(0, _data);           // прочитали из адреса 0
   return _data;
 }
 
-conf_data_t defaultConfig()
+conf_data_t MAINJS::def_conf()
 {
   conf_data_t _data;
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
@@ -444,7 +413,7 @@ conf_data_t defaultConfig()
   return _data;
 }
 
-void saveConfig(const char *filename, conf_data_t _data)
+String MAINJS::to_json(conf_data_t _data)
 {
   EEPROM.put(0, _data);           // записали по адресу 0
 }

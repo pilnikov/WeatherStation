@@ -15,7 +15,7 @@ void setup()
   from_client = lfs.readFile(conf_f);
   if (from_client == "Failed to open file for reading")
   {
-    DBG_OUT_PORT.println(F("Failed to open file for reading. Using default configuration!!!"));
+    DBG_OUT_PORT.println(F("Failed to open conf_main.json for reading. Using default configuration!!!"));
     conf_data = main_cfg.def_conf();
     from_client = main_cfg.to_json(conf_data);
     lfs.writeFile(conf_f, from_client.c_str());
@@ -49,7 +49,7 @@ void setup()
   from_client = lfs.readFile(conf_f);
   if (from_client == "Failed to open file for reading")
   {
-    DBG_OUT_PORT.println(F("Failed to open file for reading. Using default configuration!!!"));
+    DBG_OUT_PORT.println(F("Failed to open conf_wifi.json for reading. Using default configuration!!!"));
     wifi_data = wifi_cfg.def_conf();
     from_client = wifi_cfg.to_json(wifi_data);
     lfs.writeFile(conf_f, from_client.c_str());

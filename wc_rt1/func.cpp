@@ -8,6 +8,7 @@ MyDsp mydsp_ff;
 CT myrtc_ff; //For RTC Common
 RTCJS myrtccfg_ff; //For RTC Config
 SNR sens_ff; //For Sensor Common
+MAINJS maincfg_ff;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 ES e_srv_ff;
@@ -579,11 +580,12 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t &disp_mode, uint8_t &ma
   if (btn_released & (millis() - setting_ms > 15000))                  //держим больше 15 сек
   {
     if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot...")); //Cбрасываем усе на дефолт и перезагружаемся
-    *conf_data = defaultConfig();
-    const char *conf_f = "/config.json";
-    saveConfig(conf_f, *conf_data);
-
+    *conf_data = maincfg_ff.def_conf();
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+    const char *conf_f = "/config.json";
+    String from_client = maincfg_ff.to_json(*conf_data);
+    lfs_ff.writeFile(conf_f, from_client.c_str());
+
     stop_serv();
     DBG_OUT_PORT.println(F("Reboot ESP..."));
     delay(200);

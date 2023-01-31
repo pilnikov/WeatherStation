@@ -223,7 +223,6 @@
 #endif
 
 // ----------------------------------- Force define func name
-
 void sensor_init(snr_cfg_t*);
 snr_data_t GetSnr(snr_data_t, snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
@@ -271,10 +270,19 @@ void ISR_ATTR isr0();
 #endif
 
 //-------------------------------------------------------------------------------------
-conf_data_t loadConfig(const char*);
-void saveConfig(const char*, conf_data_t);
-conf_data_t defaultConfig();
 
+class MAINJS
+{
+  public:
+    String
+    to_json(conf_data_t);
+
+    conf_data_t
+    from_json(String),
+    def_conf();
+  private:
+  protected:
+};
 
 //---------------------------------------------------------------------------------------
 void web_setup();
