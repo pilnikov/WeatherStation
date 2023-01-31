@@ -41,12 +41,21 @@ conf_data_t CFG::from_json(String message)
 
 uint8_t CFG::selector (uint8_t _pin)
 {
-  const uint8_t gpio[6] = {0, 2, 12, 13, 14, 15};
   bool valid = false;
+#if defined(ESP8266)
+  const uint8_t gpio[6] = {0, 2, 12, 13, 14, 15};
   for (uint8_t i = 0; i < 6; i++)
   {
     if (_pin == gpio[i]) valid = true;
   }
+#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+  const uint8_t gpio[18] = {0, 2, 4, 5, 12, 13, 14, 15, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33};
+  for (uint8_t i = 0; i < 18; i++)
+  {
+    if (_pin == gpio[i]) valid = true;
+  }
+#endif
+
   if (!valid) _pin = 255;
   return _pin;
 }

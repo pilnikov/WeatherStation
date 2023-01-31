@@ -12,6 +12,15 @@
 #endif
 
 #if defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#elif defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <HTTPClient.h>
+#endif
+
+#if defined(ESP8266)
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
@@ -39,6 +48,8 @@
 
 #include "cfg.h"
 #include "web.h"
+
+#include "GyverButton.h"
 
 // ----------------------------------- Typedef
 #ifndef DBG_OUT_PORT
@@ -68,6 +79,12 @@ WF wifi;
 WFJS wifi_cfg;
 LFS lfs;
 
+// объявляем кнопки
+GButton myButt1;
+GButton myButt2;
+GButton myButt3;
+GButton myButt4;
+
 // ----------------------------------- Variable
 
 conf_data_t conf_data;
@@ -87,5 +104,9 @@ bool bumpless = false;
 uint8_t ft = 0;
 
 static unsigned long setting_ms;
+
+uint8_t value1 = 0, value2 = 0, value3 = 0, val_buff1 = 0, val_buff2 = 0, val_buff3 = 0;
+
+char esrv1_addr[17];
 
 #endif /* conf_h */

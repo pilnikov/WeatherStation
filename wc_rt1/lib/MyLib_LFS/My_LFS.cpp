@@ -86,7 +86,8 @@ String LFS::readFile(const char* path)
   File file = LittleFS.open(path, "r");
   if (!file)
   {
-    DBG_OUT_PORT.println("Failed to open file for reading");
+	msg = "Failed to open file for reading";
+    DBG_OUT_PORT.println(msg);
   }
   else
   {

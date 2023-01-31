@@ -10,6 +10,7 @@ void web_setup()
   server.on("/jwifi", handlejWiFi);
   server.on("/jpar", handlejPar);
   server.on("/jact", handlejAct);
+  server.on("/rc_cmd", handleRCmd);
   server.on("/exit", handleExit);
 
   //-------------------------------------------------------------- for LittleFS
@@ -202,6 +203,44 @@ void handlejAct()
 
   server.send(200, "text/json", from_client);
 }
+
+//-------------------------------------------------------------- handler for receive data from remote controller
+void handleRCmd()
+{
+  /*
+      url='/send_data?
+       + '&data1='  + data1_t
+       + '&data2='  + data2_t
+       + '&button1='  + btn1_t
+       + '&button2='  + btn2_t
+  */
+  uint8_t data1, data2; bool button1, button2;
+  data1 = 0;
+  data2 = 0;
+  button1 = false;
+  button2 = false;
+
+  if (server.arg("data1") != 0)
+  {
+    data1 = constrain(server.arg("data1").toInt(), 0, 255);
+  }
+
+  if (server.arg("data2") != 0)
+  {
+    data2 = constrain(server.arg("data2").toInt(), 0, 255);
+  }
+
+  button1 = server.arg("button1") == "1";
+  button2 = server.arg("button2") == "1";
+
+  server.send(200, "text/html", "OK!");
+
+  analogWrite (4, data1);
+  analogWrite (5, data2);
+  digitalWrite (18, button1);
+  digitalWrite (19, button2);
+}
+
 
 
 //-------------------------------------------------------------- handleExit

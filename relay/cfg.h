@@ -9,6 +9,15 @@
 #include <WProgram.h>
 #endif
 
+#if defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#elif defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <HTTPClient.h>
+#endif
+
 #include <ArduinoJson.h>
 
 #ifndef DBG_OUT_PORT

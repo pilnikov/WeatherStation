@@ -226,5 +226,4 @@ void handleRemoteControlRcv()
   //  neopixelWrite(RGB_BUILTIN,0,0,0); // Off / black
   delay(1000);
 #endif
-
 }

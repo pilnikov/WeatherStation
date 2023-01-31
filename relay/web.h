@@ -14,6 +14,7 @@ void handleSetPar();
 void handlejWiFi();
 void handlejPar();
 void handlejAct();
+void handleRCmd();
 void handleExit();
 
 String getContentType(String filename);
