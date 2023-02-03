@@ -76,7 +76,7 @@ String from_client = String();
 
 char tstr[25];
 
-unsigned long alarm_time = millis();
+uint32_t alarm_time = millis();
 
 bool  play_snd  = false, wasAlarm = false, _wasAlarmed_int = false;;
 

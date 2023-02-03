@@ -15,8 +15,8 @@
 	static NTPTime NTP_t;
 	#endif
 
-	const  unsigned long compiled = RtcDateTime(__DATE__, __TIME__);
-	static unsigned long cur_time;
+	RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+	uint32_t cur_time;
 
 
 // CONNECTIONS:
@@ -62,7 +62,7 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
 	  DBG_OUT_PORT.println(__TIME__);
   }
 
-  unsigned long _now = compiled;
+  RtcDateTime _now = compiled;
 
   if (debug_level == 13) DBG_OUT_PORT.println(F("Starting RTC check"));
 
@@ -184,7 +184,7 @@ void CT::rtc_init(rtc_hw_data_t hw_data)
   // just clear them to your needed state
 }
 
-rtc_alm_data_t CT::set_alarm(rtc_cfg_data_t cfg_data, unsigned long c_time, bool ds3) //Устанавливаем актуальный будильник
+rtc_alm_data_t CT::set_alarm(rtc_cfg_data_t cfg_data, uint32_t c_time, bool ds3) //Устанавливаем актуальный будильник
 {
   uint32_t 
   one_day_in_sec 	  = 86400,// секунд в сутках
@@ -271,7 +271,7 @@ rtc_alm_data_t CT::set_alarm(rtc_cfg_data_t cfg_data, unsigned long c_time, bool
   return alm_data;
 }
 
-bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_alm_data_t * alm_data, unsigned long c_time)
+bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_alm_data_t * alm_data, uint32_t c_time)
 {
   alm_data -> al1_on = false, alm_data -> al2_on = false;
   rtc_hms_t sct = unix_to_hms(c_time);
@@ -307,7 +307,7 @@ bool CT::Alarmed(bool irq, rtc_hw_data_t hw_data, rtc_alm_data_t * alm_data, uns
   return (alm_data -> al1_on || alm_data -> al2_on);
 }
 
-void CT::man_set_time(rtc_hw_data_t hw_data, unsigned long ct)
+void CT::man_set_time(rtc_hw_data_t hw_data, uint32_t ct)
 {
   switch (hw_data.a_type)
   {
@@ -326,11 +326,13 @@ void CT::man_set_time(rtc_hw_data_t hw_data, unsigned long ct)
   cur_time = ct - (millis() / 1000);
 }
 
-unsigned long CT::GetTime(rtc_hw_data_t hw_data)
+uint32_t CT::GetTime(rtc_hw_data_t hw_data)
 {
-  unsigned long ct = cur_time + (millis() / 1000);
+  uint32_t ct = cur_time + (millis() / 1000);
   
-  unsigned long dt = ct;
+  RtcDateTime RTD;
+
+  RtcDateTime dt(ct - c_Epoch32OfOriginYear);
 
   switch (hw_data.a_type)
   {
@@ -346,7 +348,7 @@ unsigned long CT::GetTime(rtc_hw_data_t hw_data)
     default:
       break;
   }
-  ct = dt;
+  ct = RTD.Epoch32Time();
   return ct;
 }
 
@@ -378,16 +380,16 @@ void CT::cur_time_str(rtc_time_data_t time_data, bool lng, char* in)
 }
 
 //-------------------------------------------------------- Получаем точное время с НТП сервера
-unsigned long CT::GetNtp(rtc_cfg_data_t cfg_data, unsigned long ct)
+uint32_t CT::GetNtp(rtc_cfg_data_t cfg_data, uint32_t ct)
 {
 
-  unsigned long out_time = ct;
+ uint32_t out_time = ct;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
   DBG_OUT_PORT.println(F("True sync time with NTP"));
 
-  unsigned long c_time = ct;
+  uint32_t c_time = ct;
   IPAddress myip;
 
   myip.fromString(cfg_data.ntp_srv[0]);
@@ -410,6 +412,7 @@ unsigned long CT::GetNtp(rtc_cfg_data_t cfg_data, unsigned long ct)
   DBG_OUT_PORT.println(F("Sucsess !!!"));
   out_time = c_time;
 #endif
+  
   return out_time;
 }
 

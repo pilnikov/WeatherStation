@@ -270,7 +270,9 @@ void setup()
 #endif
 
     //------------------------------------------------------  Инициализируем RTC
-    unsigned long ttm = RtcDateTime(__DATE__, __TIME__) + 946684800;
+    RtcDateTime RTD;
+    RtcDateTime compileDateTime(__DATE__, __TIME__);
+    uint32_t ttm = RTD.Epoch32Time() - (millis() / 1000);
 
     DBG_OUT_PORT.print(F("Type of rtc = "));
     DBG_OUT_PORT.println(rtc_hw.a_type);

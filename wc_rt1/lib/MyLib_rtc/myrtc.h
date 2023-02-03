@@ -74,7 +74,7 @@ typedef struct
   use_pm = false,			// 12ти часовой формат представления времени.
   every_hour_beep = false; 	// Пищщать каждый час.
 
-  long
+  uint32_t
   nm_start  = 0, 			// Ночной режим. Время старта.
   nm_stop   = 0; 			// Ночной режим. Время окончания.
   alarm_t  
@@ -91,7 +91,7 @@ typedef struct
 
 typedef struct
 {
-  unsigned long
+  uint32_t
   ct        = 1630687234; 	// Текущее время (UNIX format)
 
   uint8_t
@@ -113,7 +113,7 @@ typedef struct
 {
   uint8_t
   num     = 7;         		// Номер активного будильника
-  long
+  uint32_t
   time    = 0;				// Время срабатывания активного будильника
   uint8_t
   act     = 0;        	  	// Действие для активного будильника
@@ -160,20 +160,20 @@ class CT
 	void 
 	rtc_init(rtc_hw_data_t),
 	cur_time_str(rtc_time_data_t, bool, char*),
-	man_set_time(rtc_hw_data_t, unsigned long),
+	man_set_time(rtc_hw_data_t, uint32_t),
 	dt_from_unix(rtc_time_data_t*);
 	
-	unsigned long
+	uint32_t
 	GetTime(rtc_hw_data_t),
-	GetNtp(rtc_cfg_data_t, unsigned long);
+	GetNtp(rtc_cfg_data_t, uint32_t);
 	
-	inline unsigned long trunc_to_one_day(unsigned long in){unsigned long out = in % 86400; return out;}
-    inline unsigned long hms_to_unix(rtc_hms_t in){unsigned long out = in.s + in.m * 60 + in.h * 3600; return out;}
+	inline uint32_t trunc_to_one_day(uint32_t in){uint32_t out = in % 86400; return out;}
+    inline uint32_t hms_to_unix(rtc_hms_t in){uint32_t out = in.s + in.m * 60 + in.h * 3600; return out;}
 	
 	bool
-	Alarmed(bool, rtc_hw_data_t, rtc_alm_data_t*, unsigned long);
+	Alarmed(bool, rtc_hw_data_t, rtc_alm_data_t*, uint32_t);
 
-	inline bool nm_act(unsigned long c_time, unsigned long nm_start, unsigned long nm_stop){
+	inline bool nm_act(uint32_t c_time, uint32_t nm_start, uint32_t nm_stop){
 	c_time %= 86400;
 	bool nm_is_on = false;
 	if (nm_start <  nm_stop) nm_is_on = (c_time >= nm_start && c_time < nm_stop);
@@ -181,9 +181,9 @@ class CT
 	return nm_is_on;}
 	
 	rtc_alm_data_t
-	set_alarm(rtc_cfg_data_t, unsigned long, bool);
+	set_alarm(rtc_cfg_data_t, uint32_t, bool);
 
-	inline rtc_hms_t unix_to_hms(unsigned long in){
+	inline rtc_hms_t unix_to_hms(uint32_t in){
 	rtc_hms_t out;
 	out.h = in / 3600;
 	out.m = (in - (out.h * 3600)) / 60 ;
