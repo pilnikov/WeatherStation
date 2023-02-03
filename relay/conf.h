@@ -109,4 +109,6 @@ uint8_t value1 = 0, value2 = 0, value3 = 0, val_buff1 = 0, val_buff2 = 0, val_bu
 
 char esrv1_addr[17];
 
+long time_tck;
+
 #endif /* conf_h */

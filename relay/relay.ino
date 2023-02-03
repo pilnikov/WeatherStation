@@ -30,19 +30,21 @@ void setup()
   pinMode(conf_data.pin1, OUTPUT);
   pinMode(conf_data.pin2, OUTPUT);
 
+#if CONFIG_IDF_TARGET_ESP32C3
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(18, OUTPUT);
   pinMode(19, OUTPUT);
 
-
+#elif CONFIG_IDF_TARGET_ESP32
   pinMode(36, INPUT);
   pinMode(39, INPUT);
   pinMode(33, INPUT);
   pinMode(32, INPUT);
   pinMode(13, INPUT);
   pinMode(27, INPUT);
+#endif
 
   //------------------------------------------------------  Загружаем конфигурацию WiFi
   conf_f = "/conf_wifi.json";
@@ -68,21 +70,22 @@ void setup()
   if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
     //------------------------------------------------------  Запускаем сервер, ОТА, MDNS
-    ArduinoOTA.setHostname(wifi_data.ap_ssid);
+    /*
+        ArduinoOTA.setHostname(wifi_data.ap_ssid);
 
-    // Authentication
-    ArduinoOTA.setPassword(wifi_data.ap_pass);
+        // Authentication
+        ArduinoOTA.setPassword(wifi_data.ap_pass);
 
-    ArduinoOTA.begin();
-    DBG_OUT_PORT.println("OTA Ready");
-    DBG_OUT_PORT.print("IP address: ");
-    DBG_OUT_PORT.println(WiFi.localIP());
+        ArduinoOTA.begin();
+        DBG_OUT_PORT.println("OTA Ready");
+        DBG_OUT_PORT.print("IP address: ");
+        DBG_OUT_PORT.println(WiFi.localIP());
 
-    MDNS.begin(wifi_data.ap_ssid);
-    DBG_OUT_PORT.print(F("Open http://"));
-    DBG_OUT_PORT.print(wifi_data.ap_ssid);
-    DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
-
+        MDNS.begin(wifi_data.ap_ssid);
+        DBG_OUT_PORT.print(F("Open http://"));
+        DBG_OUT_PORT.print(wifi_data.ap_ssid);
+        DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
+    */
     web_setup();
     start_serv();
   }
@@ -113,34 +116,36 @@ void setup()
 void loop()
 {
   //------------------------------------------------------ Распределяем системные ресурсы
+
+  time_tck = millis();
   server.handleClient();
-  ArduinoOTA.handle();
-  uint16_t lm = lightMeter.readLightLevel();
-  //DBG_OUT_PORT.print(F("Lux.."));
-  //DBG_OUT_PORT.println(lm);
+  //  ArduinoOTA.handle();
+  /*
+    uint16_t lm = lightMeter.readLightLevel();
+    //DBG_OUT_PORT.print(F("Lux.."));
+    //DBG_OUT_PORT.println(lm);
 
-  if  (lm < 512) ft = lm / 2;
+    if  (lm < 512) ft = lm / 2;
 
-  if ((ft > conf_data.lim_h) & pin1_a &  pin1_t) pin1_t = false;
-  if ((ft < conf_data.lim_l) & pin1_a & !pin1_t) pin1_t = true;
-  if ((ft > conf_data.lim_h) & pin2_a &  pin2_t) pin2_t = false;
-  if ((ft < conf_data.lim_l) & pin2_a & !pin2_t) pin2_t = true;
+    if ((ft > conf_data.lim_h) & pin1_a &  pin1_t) pin1_t = false;
+    if ((ft < conf_data.lim_l) & pin1_a & !pin1_t) pin1_t = true;
+    if ((ft > conf_data.lim_h) & pin2_a &  pin2_t) pin2_t = false;
+    if ((ft < conf_data.lim_l) & pin2_a & !pin2_t) pin2_t = true;
 
-  digitalWrite(conf_data.pin1, pin1_t);
-  digitalWrite(conf_data.pin2, pin2_t);
+    digitalWrite(conf_data.pin1, pin1_t);
+    digitalWrite(conf_data.pin2, pin2_t);
 
-  if (bumpless & (millis() > (setting_ms + 200))) bumpless = false;
-
+    if (bumpless & (millis() > (setting_ms + 200))) bumpless = false;
+  */
   //delay (100);
-
   //------------------------------------------------------ Тест RC
 #if CONFIG_IDF_TARGET_ESP32
   myButt1.tick(touchRead(33) < 30 && touchRead(33) > 10);
   myButt2.tick(touchRead(32) < 30 && touchRead(32) > 10);
   myButt3.tick(touchRead(13) < 30 && touchRead(13) > 10);
   myButt4.tick(touchRead(27) < 30 && touchRead(27) > 10);
-#endif
-  strcpy(esrv1_addr, "192.168.1.101");
+
+  strcpy(esrv1_addr, "192.168.1.112");
 
 
   //Main Volume -----------------//////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,6 +201,11 @@ void loop()
     put_to_es(esrv1_addr, value2, value3, digitalRead(36), digitalRead(39));
   }
   if (!digitalRead(36) || !digitalRead(39)) put_to_es(esrv1_addr, value2, value3, digitalRead(36), digitalRead(39));
+#endif
+  time_tck = millis() - time_tck;
+  //  DBG_OUT_PORT.print("time ->");      // для примера выведем в порт
+  //  DBG_OUT_PORT.println(time_tck);      // для примера выведем в порт
+  delay(2);
 }
 
 //------------------------------------------------------  Отправляем показания датчиков на внешний сервер

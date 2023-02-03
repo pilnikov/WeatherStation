@@ -12,7 +12,7 @@ String          from_client = String();
 
 int             boot_mode = 1;
 
-unsigned long   serv_ms = 60000;
+uint32_t        serv_ms = 60000;
 
 static bool     wasAlarm = false;
 static bool     play_snd  = false;
@@ -270,9 +270,8 @@ void setup()
 #endif
 
     //------------------------------------------------------  Инициализируем RTC
-    RtcDateTime RTD;
     RtcDateTime compileDateTime(__DATE__, __TIME__);
-    uint32_t ttm = RTD.Epoch32Time() - (millis() / 1000);
+    uint32_t ttm = compileDateTime.Epoch32Time();
 
     DBG_OUT_PORT.print(F("Type of rtc = "));
     DBG_OUT_PORT.println(rtc_hw.a_type);

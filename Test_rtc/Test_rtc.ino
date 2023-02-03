@@ -104,9 +104,8 @@ void setup()
   DBG_OUT_PORT.print(F("Type of rtc = "));
   DBG_OUT_PORT.println(rtc_hw.a_type);
 
-  RtcDateTime RTD;
   RtcDateTime compileDateTime(__DATE__, __TIME__);
-  uint32_t ttm = RTD.Epoch32Time() - (millis() / 1000);
+  uint32_t ttm = compileDateTime.Epoch32Time();
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   ttm = myrtc.GetNtp(rtc_cfg, ttm);
 #endif

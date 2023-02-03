@@ -98,8 +98,8 @@ conf_data_t CFG::def_conf()
   _data.str1_off = 20;
   _data.str2_on = 30;
   _data.str2_off = 40;
-  _data.pin1 = 13;
-  _data.pin2 = 12;
+  _data.pin1 = 0;
+  _data.pin2 = 2;
   _data.lim_l = 128;
   _data.lim_h = 128;
 
