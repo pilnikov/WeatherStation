@@ -1,0 +1,4 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/build",
+    "C_Cpp.dimInactiveRegions": false
+}
