@@ -2,14 +2,14 @@
 ********************************************************** Sensor
   struct snr_data_t
   {
-    int8_t   t1 =  99; //Температура. Канал 1
-    uint8_t  h1 =   0; //Влажность. Канал 1
-    int8_t   t2 =  99; //Температура. Канал 2
-    uint8_t  h2 =   0; //Влажность. Канал 2
-    int8_t   t3 =  99; //Температура. Канал 3
-    uint8_t  h3 =   0; //Влажность. Канал 3
-    uint16_t  p =   0; //Давление
-    uint16_t ft =   0; //Освещенность
+	int8_t   t1 =  99; //Температура. Канал 1
+	uint8_t  h1 =   0; //Влажность. Канал 1
+	int8_t   t2 =  99; //Температура. Канал 2
+	uint8_t  h2 =   0; //Влажность. Канал 2
+	int8_t   t3 =  99; //Температура. Канал 3
+	uint8_t  h3 =   0; //Влажность. Канал 3
+	uint16_t  p =   0; //Давление
+	uint16_t ft =   0; //Освещенность
   };
 
 ********************************************************** Prognoz
@@ -227,22 +227,22 @@ void sensor_init(snr_cfg_t*);
 snr_data_t GetSnr(snr_data_t, snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t);
 String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void send_uart(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
-void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, unsigned long&, conf_data_t*, bool&);
+void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, uint32_t&, conf_data_t*, bool&);
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String lastday(String);
 void Thermo(snr_data_t, conf_data_t);
 void wasAlm_reset();
-void alarm1_action(bool, uint8_t, uint8_t &, uint8_t, rtc_cfg_data_t *, uint8_t, bool &, byte,
-                   bool &, bool &, byte *, char *);
+void alarm1_action(bool, uint8_t, uint8_t&, uint8_t, rtc_cfg_data_t*, uint8_t, bool&, byte,
+	bool&, bool&, byte*, char*);
 String radio_snd(String, bool, char*);
 
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-String gs_rcv (unsigned long, bool);
-String es_rcv (char*, bool);
-String ts_rcv (unsigned long, char*, bool);
-String ts_snd (String, bool);
+String gs_rcv(unsigned long, bool);
+String es_rcv(char*, bool);
+String ts_rcv(unsigned long, char*, bool);
+String ts_snd(String, bool);
 void put_to_es(char*, uint8_t, snr_data_t, bool);
 
 wf_data_t getOWM_forecast(unsigned long, char*);
@@ -273,15 +273,15 @@ void ISR_ATTR isr0();
 
 class MAINJS
 {
-  public:
-    String
-    to_json(conf_data_t);
+public:
+	String
+		to_json(conf_data_t);
 
-    conf_data_t
-    from_json(String),
-    def_conf();
-  private:
-  protected:
+	conf_data_t
+		from_json(String),
+		def_conf();
+private:
+protected:
 };
 
 //---------------------------------------------------------------------------------------
