@@ -12,81 +12,109 @@
 			<tr>
 				<td class='h'></td>
 				<td class='h'>Точка доступа</td>
-				<td class='h'>Клиент</td>
+				<td class='h'>Клиент 1</td>
+				<td class='h'>Клиент 2</td>
 			</tr>
 			<tr>
 				<td>SSID</td>
 				<td><input type='text' size='20' id='aps'  name='aps' /></td>
-				<td><input type='text' size='20' id='stas' name='stas'/></td>
+				<td><input type='text' size='20' id='stas1' name='stas1'/></td>
+				<td><input type='text' size='20' id='stas2' name='stas2'/></td>
 			</tr>
 			<tr>
 				<td>Password</td>
 				<td><input type='password' size='20' id='app'  name='app' /></td>
-				<td><input type='password' size='20' id='stap' name='stap'/></td>
+				<td><input type='password' size='20' id='stap1' name='stap1'/></td>
+				<td><input type='password' size='20' id='stap2' name='stap2'/></td>
 			</tr>
 			<tr>
-				<td colspan='3' class='h'><button onclick='set_wifi();'>Записать</button></td>
+				<td colspan='4' class='h'><button onclick='set_wifi();'>Записать</button></td>
 			</tr>
+			
 			<tr>
-			  <td colspan='3'></td>
-			</tr>
-      <tr>
-				<td class='h'>Выходы</td>
+				<td class='h'>Канал</td>
 				<td class='h'>1</td>
 				<td class='h'>2</td>
+				<td class='h'></td>
 			</tr>
 			<tr>
 				<td>GPIO</td>
 				<td><input type='number' size='1' min=0 max=16 id='pin1' name='pin1'/></td>
 				<td><input type='number' size='1' min=0 max=16 id='pin2' name='pin2'/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>IN/OUT</td>
+				<td><input type='button' value='Output' onclick='c1_in();'   id='inout1'  name='inout1'/></td>
+				<td><input type='button' value='Output' onclick='c2_in();'   id='inout2'  name='inout2'/></td>
+				<td></td>
+			</tr>
+				<td>Digit/Analog</td>
+				<td><input type='button' value='Digit' onclick='c1_ad();'   id='ad1'  name='ad1'/></td>
+				<td><input type='button' value='Digit' onclick='c2_ad();'   id='ad2'  name='ad2'/></td>
+				<td></td>
 			</tr>
 			<tr>
 				<td>ON Code</td>
 				<td><input type='number' size='1' min=0 max=255 id='on1_code' name='on1_code'/></td>
 				<td><input type='number' size='1' min=0 max=255 id='on2_code' name='on2_code'/></td>
+				<td></td>
 			</tr>
 			<tr>
-				<td colspan='1'>OFF Code</td>
+				<td>OFF Code</td>
 				<td><input type='number' size='1' min=0 max=255 id='off1_code' name='off1_code'/></td>
 				<td><input type='number' size='1' min=0 max=255 id='off2_code' name='off2_code'/></td>
-			</tr>
-			<tr>
-				<td>ON/OFF</td>
-				<td><input type='button' value='Off'    onclick='Q1_On_Off();' id='on1'    name='on1'/></td>
-				<td><input type='button' value='Off'    onclick='Q2_On_Off();' id='on2'    name='on2'/></td>
+				<td></td>
 			</tr>
 			<tr>
 				<td>AUTO/MAN</td>
 				<td><input type='button' value='Manual' onclick='Q1_Auto();'   id='auto1'  name='auto1'/></td>
 				<td><input type='button' value='Manual' onclick='Q2_Auto();'   id='auto2'  name='auto2'/></td>
-			</tr>
-			<tr>
-				<td colspan='3' class='h'>Освещенность</td>
-			</tr>
-			<tr>
-				<td>Верхний предел </td><td><input type='range' min=0 max=255 id='lim_h' name='lim_h'/></td>
-				<td><output id='rlimh' name='rliml'></output></td>
-			</tr>
-			<tr>
-				<td> Нижний предел </td><td><input type='range' min=0 max=255 id='lim_l' name='lim_l'/></td>
-				<td><output id='rliml' name='rliml'></output></td>
-			</tr>
-			<tr>
-				<td>Текущее значение </td>
 				<td></td>
+			</tr>
+			<tr>
+				<td class='h'>Освещенность</td>
+				<td class='h'>Верхний предел </td>
+				<td class='h'>Нижний предел  </td>
+				<td class='h'>Текущее значение </td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type='range' min=0 max=255 id='lim_h' name='lim_h'/>
+				<output id='rlimh' name='rliml'></output></td>
+				<td><input type='range' min=0 max=255 id='lim_l' name='lim_l'/>
+				<output id='rliml' name='rliml'></output></td>
 				<td><output id='cur_br' name='cur_br'></output></td>
 			</tr>
+
 			<tr>
-				<td colspan='3' class='h'><button onclick='set_par();'>Записать</button></td>
+				<td colspan='4' class='h'><button onclick='set_par();'>Записать</button></td>
+			</tr>
+
+			<tr>
+				<td>ON/OFF</td>
+				<td><input type='button' value='Off'    onclick='Q1_On_Off();' id='on1'    name='on1'/></td>
+				<td><input type='button' value='Off'    onclick='Q2_On_Off();' id='on2'    name='on2'/></td>
+				<td></td>
+			</tr>
+
+			<tr>
+				<td>Val</td>
+				<td><input type='range' min=0 max=255 id='val_c1' name='val_c1'/>
+				<output id='rval1' name='rval1'></output></td>
+				<td><input type='range' min=0 max=255 id='lim_l' name='val_c2'/>
+				<output id='rval2' name='rval2'></output></td>
+				<td></td>
+			</tr>
+
+			<tr>
+				<td colspan='4'><a href='/update'>Обновление прошивки</a></td>
 			</tr>
 			<tr>
-				<td colspan='3'><a href='/update'>Обновление прошивки</a></td>
+				<td colspan='4' class='h'><a href='/edit'>Редактор</a></td>
 			</tr>
 			<tr>
-				<td colspan='3' class='h'><a href='/edit'>Редактор</a></td>
-			</tr>
-			<tr>
-				<td colspan='3'><a href='/exit'>Перезагрузка</a></td>
+				<td colspan='4'><a href='/exit'>Перезагрузка</a></td>
 			</tr>
 		</table>
 
