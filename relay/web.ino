@@ -1,12 +1,17 @@
 // ---------------------------------------------------------------------- setup
 void web_setup()
 {
-  server.on("/q1_set",  handleSET_1);
-  server.on("/q1_auto", handleAuto_1);
-  server.on("/q2_set",  handleSET_2);
-  server.on("/q2_auto", handleAuto_2);
+  server.on("/ch1_set",  handleSET_1);
+  server.on("/ch1_auto", handleAuto_1);
+  server.on("/ch2_set",  handleSET_2);
+  server.on("/ch2_auto", handleAuto_2);
+
+  server.on("/ch1_val",  handleVAL_1);
+  server.on("/ch2_val",  handleVAL_2);
+
   server.on("/set_wifi", handleSetWiFi);
   server.on("/set_par", handleSetPar);
+
   server.on("/jwifi", handlejWiFi);
   server.on("/jpar", handlejPar);
   server.on("/jact", handlejAct);
@@ -76,79 +81,93 @@ void stop_serv()
 //-------------------------------------------------------------- handleSET_1
 void handleSET_1()
 {
-  if (!pin1_t & !bumpless)
+  if (!ch1_set & !bumpless)
   {
-    pin1_t = true;    // turn ON the pin1
+    ch1_set = true;    // turn ON the ch1
     bumpless = true;
-    DBG_OUT_PORT.println(conf_data.str1_on);
+    DBG_OUT_PORT.println(conf_data.ch1_on_code);
   }
-  if (pin1_t & !bumpless)
+  if (ch1_set & !bumpless)
   {
-    pin1_t = false;    // turn OFF the pin1
+    ch1_set = false;    // turn OFF the ch1
     bumpless = true;
-    setting_ms = millis();
-    DBG_OUT_PORT.println(conf_data.str1_off);
+    DBG_OUT_PORT.println(conf_data.ch1_off_code);
   }
-  pin1_a = false;  // turn OFF the AUTO MODE for pin1
+  ch1_auto = false;  // turn OFF the AUTO MODE for ch1
   server.send(200, "text/html", "OK!");
+  setting_ms = millis();
 }
 
 //-------------------------------------------------------------- handleAuto_1
 void handleAuto_1()
 {
-  if (!pin1_a & !bumpless)
+  if (!ch1_auto & !bumpless)
   {
-    pin1_a = true;    // turn ON the AUTO MODE for pin1
+    ch1_auto = true;    // turn ON the AUTO MODE for ch1
     bumpless = true;
-    setting_ms = millis();
   }
-  if (pin1_a & !bumpless)
+  if (ch1_auto & !bumpless)
   {
-    pin1_a = false;    // turn OFF the AUTO MODE for pin1
+    ch1_auto = false;    // turn OFF the AUTO MODE for ch1
     bumpless = true;
-    setting_ms = millis();
   }
   server.send(200, "text/html", "OK!");
+  setting_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSET_2
 void handleSET_2()
 {
-  if (!pin2_t & !bumpless)
+  if (!ch2_set & !bumpless)
   {
-    pin2_t = true;    // turn ON the pin2
+    ch2_set = true;    // turn ON the ch2
     bumpless = true;
-    setting_ms = millis();
-    DBG_OUT_PORT.println(conf_data.str2_on);
+    DBG_OUT_PORT.println(conf_data.ch2_on_code);
   }
-  if (pin2_t & !bumpless)
+  if (ch2_set & !bumpless)
   {
-    pin2_t = false;    // turn OFF the pin2
+    ch2_set = false;    // turn OFF the ch2
     bumpless = true;
-    setting_ms = millis();
-    DBG_OUT_PORT.println(conf_data.str2_off);
+    DBG_OUT_PORT.println(conf_data.ch2_off_code);
   }
-  pin2_a = false;  // turn OFF the AUTO MODE for pin2
+  ch2_auto = false;  // turn OFF the AUTO MODE for ch2
   server.send(200, "text/html", "OK!");
+  setting_ms = millis();
 }
 
 //-------------------------------------------------------------- handleAuto_2
 void handleAuto_2()
 {
-  if (!pin2_a & !bumpless)
+  if (!ch2_auto & !bumpless)
   {
-    pin2_a = true;    // turn ON the AUTO MODE for pin2
+    ch2_auto = true;    // turn ON the AUTO MODE for ch2
     bumpless = true;
     setting_ms = millis();
   }
-  if (pin2_a & !bumpless)
+  if (ch2_auto & !bumpless)
   {
-    pin2_a = false;    // turn OFF the AUTO MODE for pin2
+    ch2_auto = false;    // turn OFF the AUTO MODE for ch2
     bumpless = true;
-    setting_ms = millis();
   }
   server.send(200, "text/html", "OK!");
+  setting_ms = millis();
 }
+
+//-------------------------------------------------------------- handleVAL_1
+void handleVAL_1()
+{
+  ch1_val = server.arg("val").toInt();
+  server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handleVAL_2
+void handleVAL_2()
+{
+  ch2_val = server.arg("val").toInt();
+  server.send(200, "text/html", "OK!");
+}
+
+
 //-------------------------------------------------------------- handlejWiFi
 void handlejWiFi()
 {
@@ -191,11 +210,14 @@ void handlejAct()
   DynamicJsonDocument jsonBuffer(200);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["out1_auto"] = pin1_a;
-  json["out2_auto"] = pin2_a;
+  json["ch1_auto"] = ch1_auto;
+  json["ch2_auto"] = ch2_auto;
 
-  json["out1_state"] = pin1_t;
-  json["out2_state"] = pin2_t;
+  json["ch1_state"] = ch1_set;
+  json["ch2_state"] = ch2_set;
+
+  json["ch1_value"] = ch1_val;
+  json["ch2_value"] = ch2_val;
 
   json["ana_code"] = ft;
 

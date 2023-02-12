@@ -7,7 +7,7 @@ conf_data_t CFG::from_json(String message)
   // Allocate the document on the stack.
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument doc(300);
+  DynamicJsonDocument doc(500);
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, message);
@@ -22,19 +22,22 @@ conf_data_t CFG::from_json(String message)
   else
   {
     DBG_OUT_PORT.println(F("Read msg sucsses!!!"));
-    uint8_t __pin = doc["p1"];
-    _data.pin1 = selector(__pin);
-    __pin = doc["p2"];
-    _data.pin2 = selector(__pin);
+    uint8_t __pin = doc["ch1_gpio"];
+    _data.ch1_gpio = selector(__pin);
+    _data.ch1_in = doc["ch1_type"];
+    _data.ch1_dig = doc["ch1_dig"];
+    _data.ch1_on_code  = doc["ch1_on_code"];
+    _data.ch1_off_code = doc["ch1_off_code"];
 
-    _data.str1_on  = doc["on1"];
-    _data.str1_off = doc["of1"];
+    __pin = doc["ch2_gpio"];
+    _data.ch2_gpio = selector(__pin);
+    _data.ch2_in = doc["ch2_type"];
+    _data.ch2_dig = doc["ch2_dig"];
+    _data.ch2_on_code  = doc["ch2_on_code"];
+    _data.ch2_off_code = doc["ch2_off_code"];
 
-    _data.str2_on  = doc["on2"];
-    _data.str2_off = doc["of2"];
-
-    _data.lim_l = doc["ll"];
-    _data.lim_h = doc["lh"];
+    _data.lim_l = doc["lim_l"];
+    _data.lim_h = doc["lim_h"];
   }
   return _data;
 }
@@ -67,16 +70,22 @@ String CFG::to_json(conf_data_t _data)
     DBG_OUT_PORT.print(F("Start forming conf_data to json string"));
   }
 
-  DynamicJsonDocument doc(300);
+  DynamicJsonDocument doc(500);
   JsonObject json = doc.to<JsonObject>();
 
-  json["pin1_name"] = _data.pin1;
-  json["pin2_name"] = _data.pin2;
+  json["ch1_gpio"]  = _data.ch1_gpio;
+  json["ch1_type"]  = _data.ch1_in;
+  json["ch1_dig"]   = _data.ch1_dig;
 
-  json["on1_code"] = _data.str1_on;
-  json["off1_code"] = _data.str1_off;
-  json["on2_code"] = _data.str2_on;
-  json["off2_code"] = _data.str2_off;
+  json["ch1_on_code"]  = _data.ch1_on_code;
+  json["ch1_off_code"] = _data.ch1_off_code;
+
+  json["ch2_gpio"]  = _data.ch2_gpio;
+  json["ch2_type"]  = _data.ch2_in;
+  json["ch2_dig"]   = _data.ch2_dig;
+
+  json["ch2_on_code"]  = _data.ch2_on_code;
+  json["ch2_off_code"] = _data.ch2_off_code;
 
   json["lim_l"] = _data.lim_l;
   json["lim_h"] = _data.lim_h;
@@ -94,14 +103,18 @@ conf_data_t CFG::def_conf()
 
   if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data"));
 
-  _data.str1_on = 10;
-  _data.str1_off = 20;
-  _data.str2_on = 30;
-  _data.str2_off = 40;
-  _data.pin1 = 0;
-  _data.pin2 = 2;
+  _data.ch1_on_code = 10;
+  _data.ch1_off_code = 20;
+  _data.ch2_on_code = 30;
+  _data.ch2_off_code = 40;
+  _data.ch1_gpio = 255;
+  _data.ch2_gpio = 255;
   _data.lim_l = 128;
   _data.lim_h = 128;
+  _data.ch1_in = false;
+  _data.ch2_in = false;
+  _data.ch1_dig = true;
+  _data.ch2_dig = true;
 
   return _data;
 }

@@ -31,14 +31,19 @@
 typedef struct
 {
   uint8_t
-  str1_on = 10,
-  str1_off = 20,
-  str2_on = 30,
-  str2_off = 40,
-  pin1 = 11,
-  pin2 = 12,
+  ch1_on_code = 10,
+  ch1_off_code = 20,
+  ch2_on_code = 30,
+  ch2_off_code = 40,
+  ch1_gpio = 255,
+  ch2_gpio = 255,
   lim_l = 128,
   lim_h = 128;
+  bool
+  ch1_in = false,
+  ch2_in = false,
+  ch1_dig = true,
+  ch2_dig = true;
 } conf_data_t;
 
 

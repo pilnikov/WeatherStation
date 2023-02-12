@@ -49,8 +49,6 @@
 #include "cfg.h"
 #include "web.h"
 
-#include "GyverButton.h"
-
 // ----------------------------------- Typedef
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
@@ -79,12 +77,6 @@ WF wifi;
 WFJS wifi_cfg;
 LFS lfs;
 
-// объявляем кнопки
-GButton myButt1;
-GButton myButt2;
-GButton myButt3;
-GButton myButt4;
-
 // ----------------------------------- Variable
 
 conf_data_t conf_data;
@@ -94,21 +86,22 @@ wifi_cur_data_t wifi_data_cur;
 const char *conf_f = "/conf_main.json";  // config file name
 String from_client = String();
 
-bool pin1_t   = false;
-bool pin2_t   = false;
-bool pin1_a   = true;
-bool pin2_a   = true;
+bool 
+ch1_set   = false,
+ch2_set   = false,
+ch1_auto   = true,
+ch2_auto   = true,
 
-bool bumpless = false;
+bumpless = false;
 
 uint8_t ft = 0;
 
-static unsigned long setting_ms;
+static uint32_t setting_ms;
 
-uint8_t value1 = 0, value2 = 0, value3 = 0, val_buff1 = 0, val_buff2 = 0, val_buff3 = 0;
+uint8_t 
+ch2_val = 0, 
+ch1_val = 0; 
 
-char esrv1_addr[17];
-
-long time_tck;
+uint32_t time_tck;
 
 #endif /* conf_h */

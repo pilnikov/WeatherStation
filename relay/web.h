@@ -9,6 +9,10 @@ void handleSET_1();
 void handleAuto_1();
 void handleSET_2();
 void handleAuto_2();
+
+void handleVAL_1();
+void handleVAL_2();
+
 void handleSetWiFi();
 void handleSetPar();
 void handlejWiFi();
