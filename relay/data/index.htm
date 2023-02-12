@@ -39,37 +39,38 @@
 			</tr>
 			<tr>
 				<td>GPIO</td>
-				<td><input type='number' size='1' min=0 max=16 id='pin1' name='pin1'/></td>
-				<td><input type='number' size='1' min=0 max=16 id='pin2' name='pin2'/></td>
+				<td><input type='number' size='1' min=0 max=16 id='ch1_gpio' name='ch1_gpio'/></td>
+				<td><input type='number' size='1' min=0 max=16 id='ch2_gpio' name='ch2_gpio'/></td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>IN/OUT</td>
-				<td><input type='button' value='Output' onclick='c1_in();'   id='inout1'  name='inout1'/></td>
-				<td><input type='button' value='Output' onclick='c2_in();'   id='inout2'  name='inout2'/></td>
+				<td><input type='button' value='Output' onclick='fCh1_in();'   id='ch1_in'  name='ch1_in'/></td>
+				<td><input type='button' value='Output' onclick='fCh2_in();'   id='ch2_in'  name='ch2_in'/></td>
 				<td></td>
 			</tr>
+			<tr>
 				<td>Digit/Analog</td>
-				<td><input type='button' value='Digit' onclick='c1_ad();'   id='ad1'  name='ad1'/></td>
-				<td><input type='button' value='Digit' onclick='c2_ad();'   id='ad2'  name='ad2'/></td>
+				<td><input type='button' value='Digital' onclick='fCh1_dig();'   id='ch1_dig'  name='ch1_dig'/></td>
+				<td><input type='button' value='Digital' onclick='fCh2_dig();'   id='ch2_dig'  name='ch1_dig'/></td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>ON Code</td>
-				<td><input type='number' size='1' min=0 max=255 id='on1_code' name='on1_code'/></td>
-				<td><input type='number' size='1' min=0 max=255 id='on2_code' name='on2_code'/></td>
+				<td><input type='number' size='1' min=0 max=255 id='ch1_on_code' name='ch1_on_code'/></td>
+				<td><input type='number' size='1' min=0 max=255 id='ch2_on_code' name='ch2_on_code'/></td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>OFF Code</td>
-				<td><input type='number' size='1' min=0 max=255 id='off1_code' name='off1_code'/></td>
-				<td><input type='number' size='1' min=0 max=255 id='off2_code' name='off2_code'/></td>
+				<td><input type='number' size='1' min=0 max=255 id='ch1_off_code' name='ch1_off_code'/></td>
+				<td><input type='number' size='1' min=0 max=255 id='ch2_off_code' name='ch2_off_code'/></td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>AUTO/MAN</td>
-				<td><input type='button' value='Manual' onclick='Q1_Auto();'   id='auto1'  name='auto1'/></td>
-				<td><input type='button' value='Manual' onclick='Q2_Auto();'   id='auto2'  name='auto2'/></td>
+				<td><input type='button' value='Manual' onclick='fCh1_auto();'   id='ch1_auto'  name='ch2_auto'/></td>
+				<td><input type='button' value='Manual' onclick='fCh2_auto();'   id='ch2_auto'  name='ch2_auto'/></td>
 				<td></td>
 			</tr>
 			<tr>
@@ -81,9 +82,9 @@
 			<tr>
 				<td></td>
 				<td><input type='range' min=0 max=255 id='lim_h' name='lim_h'/>
-				<output id='rlimh' name='rliml'></output></td>
+				<output id='rlim_h' name='rlim_h'></output></td>
 				<td><input type='range' min=0 max=255 id='lim_l' name='lim_l'/>
-				<output id='rliml' name='rliml'></output></td>
+				<output id='rlim_l' name='rlim_l'></output></td>
 				<td><output id='cur_br' name='cur_br'></output></td>
 			</tr>
 
@@ -93,17 +94,17 @@
 
 			<tr>
 				<td>ON/OFF</td>
-				<td><input type='button' value='Off'    onclick='Q1_On_Off();' id='on1'    name='on1'/></td>
-				<td><input type='button' value='Off'    onclick='Q2_On_Off();' id='on2'    name='on2'/></td>
+				<td><input type='button' value='Off'    onclick='fCh1_on();' id='ch1_on'    name='ch1_on'/></td>
+				<td><input type='button' value='Off'    onclick='fCh2_on();' id='ch2_on'    name='ch2_on'/></td>
 				<td></td>
 			</tr>
 
 			<tr>
-				<td>Val</td>
-				<td><input type='range' min=0 max=255 id='val_c1' name='val_c1'/>
-				<output id='rval1' name='rval1'></output></td>
-				<td><input type='range' min=0 max=255 id='lim_l' name='val_c2'/>
-				<output id='rval2' name='rval2'></output></td>
+				<td>Value</td>
+				<td><input type='range' min=0 max=255 id='ch1_value' name='ch1_value' onchange='fCh1_value()'/>
+				<output id='rch1_value' name='rch1_value'></output></td>
+				<td><input type='range' min=0 max=255 id='ch2_value' name='ch2_value' onchange='fCh2_value()'/>
+				<output id='rch2_value' name='rch2_value'></output></td>
 				<td></td>
 			</tr>
 
