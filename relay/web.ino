@@ -6,6 +6,9 @@ void web_setup()
   server.on("/ch2_set",  handleSET_2);
   server.on("/ch2_auto", handleAuto_2);
 
+  server.on("/ch1_val",  handleVAL_1);
+  server.on("/ch2_val",  handleVAL_2);
+
   server.on("/set_wifi", handleSetWiFi);
   server.on("/jwifi", handlejWiFi);
 
@@ -71,99 +74,110 @@ void stop_serv()
 //-------------------------------------------------------------- handleSET_1
 void handleSET_1()
 {
-  String ssta = String();
-  if (conf_data.ch1_dig)
+  if (!bumpless)
   {
-    if (!ch1_set & !bumpless)
-    {
-      ch1_set = true;    // turn ON the ch1
-      ssta = "ch1_on";
-      bumpless = true;
-      DBG_OUT_PORT.println(conf_data.ch1_on_code);
-    }
-    if (ch1_set & !bumpless)
+    if (ch1_set)
     {
       ch1_set = false;    // turn OFF the ch1
       ssta = "ch1_off";
-      bumpless = true;
       DBG_OUT_PORT.println(conf_data.ch1_off_code);
     }
+    else
+    {
+      ch1_set = true;    // turn ON the ch1
+      ssta = "ch1_on";
+      DBG_OUT_PORT.println(conf_data.ch1_on_code);
+    }
     ch1_auto = false;  // turn OFF the AUTO MODE for ch1
+
+    server.send(200, "text/html", ssta);
+    bumpless = true;
+    setting_ms = millis();
   }
-  else
-  {
-    ch1_val = server.arg("val").toInt();
-    ssta = String(ch1_val);
-  }
-  server.send(200, "text/html", ssta);
-  setting_ms = millis();
 }
 
 //-------------------------------------------------------------- handleAuto_1
 void handleAuto_1()
 {
-  if (!ch1_auto & !bumpless)
+  if (!bumpless)
   {
-    ch1_auto = true;    // turn ON the AUTO MODE for ch1
+    if (ch1_auto)
+    {
+      ch1_auto = false;    // turn OFF the AUTO MODE for ch1
+      ssta = "ch1_manual";
+    }
+    else
+    {
+      ch1_auto = true;    // turn ON the AUTO MODE for ch1
+      ssta = "ch1_auto";
+    }
+    server.send(200, "text/html", ssta);
     bumpless = true;
+    setting_ms = millis();
   }
-  if (ch1_auto & !bumpless)
-  {
-    ch1_auto = false;    // turn OFF the AUTO MODE for ch1
-    bumpless = true;
-  }
-  server.send(200, "text/html", "OK!");
-  setting_ms = millis();
 }
 
 //-------------------------------------------------------------- handleSET_2
 void handleSET_2()
 {
-  String ssta = String();
-
-  if (conf_data.ch2_dig)
+  if (!bumpless)
   {
-    if (!ch2_set & !bumpless)
-    {
-      ch2_set = true;    // turn ON the ch2
-      ssta = "ch2_on";
-      bumpless = true;
-      DBG_OUT_PORT.println(conf_data.ch2_on_code);
-    }
-    if (ch2_set & !bumpless)
+    if (ch2_set)
     {
       ch2_set = false;    // turn OFF the ch2
       ssta = "ch2_off";
-      bumpless = true;
       DBG_OUT_PORT.println(conf_data.ch2_off_code);
     }
+    else
+    {
+      ch2_set = true;    // turn ON the ch2
+      ssta = "ch2_on";
+      DBG_OUT_PORT.println(conf_data.ch2_on_code);
+    }
     ch2_auto = false;  // turn OFF the AUTO MODE for ch2
+
+    server.send(200, "text/html", ssta);
+    bumpless = true;
+    setting_ms = millis();
   }
-  else
-  {
-    ch2_val = server.arg("val").toInt();
-    ssta = String(ch2_val);
-  }
-  server.send(200, "text/html", ssta);
-  setting_ms = millis();
 }
 
 //-------------------------------------------------------------- handleAuto_2
 void handleAuto_2()
 {
-  if (!ch2_auto & !bumpless)
+  if (!bumpless)
   {
-    ch2_auto = true;    // turn ON the AUTO MODE for ch2
+    if (ch2_auto)
+    {
+      ch2_auto = false;    // turn OFF the AUTO MODE for ch2
+      ssta = "ch2_manual";
+    }
+    else
+    {
+      ch2_auto = true;    // turn ON the AUTO MODE for ch2
+      ssta = "ch2_auto";
+    }
+
+    server.send(200, "text/html", ssta);
     bumpless = true;
     setting_ms = millis();
   }
-  if (ch2_auto & !bumpless)
-  {
-    ch2_auto = false;    // turn OFF the AUTO MODE for ch2
-    bumpless = true;
-  }
-  server.send(200, "text/html", "OK!");
-  setting_ms = millis();
+}
+
+//-------------------------------------------------------------- handleVAL_1
+void handleVAL_1()
+{
+  ch1_val = server.arg("val").toInt();
+  ssta = String(ch1_val);
+  server.send(200, "text/html", ssta);
+}
+
+//-------------------------------------------------------------- handleVAL_2
+void handleVAL_2()
+{
+  ch2_val = server.arg("val").toInt();
+  ssta = String(ch2_val);
+  server.send(200, "text/html", ssta);
 }
 
 //-------------------------------------------------------------- handleSetWiFi
@@ -194,6 +208,9 @@ void handleSetPar()
   lfs.writeFile(conf_f, from_client.c_str());
   conf_data = main_cfg.from_json(from_client);
   server.send(200, "text/html", "OK!");
+
+  conf_data.ch1_in ? pinMode(conf_data.ch1_gpio, INPUT) : pinMode(conf_data.ch1_gpio, OUTPUT);
+  conf_data.ch2_in ? pinMode(conf_data.ch2_gpio, INPUT) : pinMode(conf_data.ch2_gpio, OUTPUT);
 }
 
 //-------------------------------------------------------------- handlejPar

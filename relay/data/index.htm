@@ -6,7 +6,7 @@
 		<style type='text/css'></style>
 	</head>
  
-	<body onload='loadVal_WiFi();'>
+	<body onload='loadVal();'>
 
 		<table border='1' align='left' class='t'>
 			<tr>
@@ -81,10 +81,13 @@
 			</tr>
 			<tr>
 				<td></td>
-				<td><input type='range' min=0 max=255 id='lim_h' name='lim_h'/>
-				<output id='rlim_h' name='rlim_h'></output></td>
-				<td><input type='range' min=0 max=255 id='lim_l' name='lim_l'/>
-				<output id='rlim_l' name='rlim_l'></output></td>
+
+				<td><input type='range' min=0 max=255 value=128 id='lim_h' name='lim_h'/>
+				<output value=128 id='rlim_h' name='rlim_h'></output></td>
+
+				<td><input type='range' min=0 max=255 value=128 id='lim_l' name='lim_l'/>
+				<output value=128 id='rlim_l' name='rlim_l'></output></td>
+
 				<td><output id='cur_br' name='cur_br'></output></td>
 			</tr>
 
@@ -94,17 +97,20 @@
 
 			<tr>
 				<td>ON/OFF</td>
-				<td><input type='button' value='Off'    onclick='fCh1_value();' id='ch1_on'    name='ch1_on'/></td>
-				<td><input type='button' value='Off'    onclick='fCh2_value();' id='ch2_on'    name='ch2_on'/></td>
+				<td><input type='button' value='Off'    onclick='fCh1_on();' id='ch1_on'    name='ch1_on'/></td>
+				<td><input type='button' value='Off'    onclick='fCh2_on();' id='ch2_on'    name='ch2_on'/></td>
 				<td></td>
 			</tr>
 
 			<tr>
 				<td>Value</td>
-				<td><input type='range' min=0 max=255 id='ch1_value' name='ch1_value' onchange='fCh1_value()'/>
-				<output id='rch1_value' name='rch1_value'></output></td>
-				<td><input type='range' min=0 max=255 id='ch2_value' name='ch2_value' onchange='fCh2_value()'/>
-				<output id='rch2_value' name='rch2_value'></output></td>
+
+				<td><input type='range' min=0 max=255 value=0 id='ch1_value' name='ch1_value' onchange='fCh1_value()'/>
+				<output value=0 id='rch1_value' name='rch1_value'></output></td>
+
+				<td><input type='range' min=0 max=255 value=0 id='ch2_value' name='ch2_value' onchange='fCh2_value()'/>
+				<output value=0 id='rch2_value' name='rch2_value'></output></td>
+				
 				<td></td>
 			</tr>
 

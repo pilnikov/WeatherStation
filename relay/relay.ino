@@ -27,9 +27,6 @@ void setup()
   DBG_OUT_PORT.print(conf_f);
   DBG_OUT_PORT.println(F(" loaded"));
 
-  conf_data.ch1_in ? pinMode(conf_data.ch1_gpio, INPUT) : pinMode(conf_data.ch1_gpio, OUTPUT);
-  conf_data.ch2_in ? pinMode(conf_data.ch2_gpio, INPUT) : pinMode(conf_data.ch2_gpio, OUTPUT);
-
   //------------------------------------------------------  Загружаем конфигурацию WiFi
   conf_f = "/conf_wifi.json";
   from_client = lfs.readFile(conf_f);
@@ -68,6 +65,9 @@ void setup()
 # endif
 
   lightMeter.begin();
+
+  conf_data.ch1_in ? pinMode(conf_data.ch1_gpio, INPUT) : pinMode(conf_data.ch1_gpio, OUTPUT);
+  conf_data.ch2_in ? pinMode(conf_data.ch2_gpio, INPUT) : pinMode(conf_data.ch2_gpio, OUTPUT);
 }
 
 void loop()
@@ -82,53 +82,70 @@ void loop()
 
   if  (lm < 512) ft = lm / 2;
 
-  if (ch1_auto && ft > conf_data.lim_h &&  ch1_set) ch1_set = false;
-  if (ch1_auto && ft < conf_data.lim_l && !ch1_set) ch1_set = true;
-
-  if (ch2_auto && ft > conf_data.lim_h &&  ch2_set) ch2_set = false;
-  if (ch2_auto && ft < conf_data.lim_l && !ch2_set) ch2_set = true;
-
-  if (ch1_set)
+  if (conf_data.ch1_gpio < 255)
   {
-    if (conf_data.ch1_dig)
+    if (conf_data.ch1_in)
     {
-      ch1_val_buf = 255;
+      if (!bumpless)
+      {
+        buttonState = digitalRead(conf_data.ch1_gpio);
+        if (buttonState == LOW && !ch1_press)
+        {
+          DBG_OUT_PORT.println(F("Button 1 pressed.."));
+          ch2_set = !ch2_set;
+          ch2_auto = false;  // turn OFF the AUTO MODE for ch2
+          ch1_press = true;
+          bumpless = true;
+          setting_ms = millis();
+        }
+        if (buttonState == HIGH && ch1_press) ch1_press = false;
+      }
     }
     else
     {
-      ch1_val_buf = ch1_val;
+      if (ch1_auto && ft > conf_data.lim_h &&  ch1_set) ch1_set = false;
+      if (ch1_auto && ft < conf_data.lim_l && !ch1_set) ch1_set = true;
+
+      ch1_val_buf = 0;
+      if (ch1_set) conf_data.ch1_dig ? ch1_val_buf = 255 : ch1_val_buf = ch1_val;
+
+      analogWrite(conf_data.ch1_gpio, ch1_val_buf);
     }
   }
-  else
-  {
-    ch1_val_buf = 0;
-  }
 
-  if (ch2_set)
+
+  if (conf_data.ch2_gpio < 255)
   {
-    if (conf_data.ch2_dig)
+    if (conf_data.ch2_in)
     {
-      ch2_val_buf = 255;
+      if (!bumpless)
+      {
+        buttonState = digitalRead(conf_data.ch2_gpio);
+        if (buttonState == LOW && !ch2_press)
+        {
+          DBG_OUT_PORT.println(F("Button 2 pressed.."));
+          ch1_set = !ch1_set;
+          ch1_auto = false;  // turn OFF the AUTO MODE for ch1
+          ch2_press = true;
+          bumpless = true;
+          setting_ms = millis();
+        }
+        if (buttonState == HIGH && ch2_press) ch2_press = false;
+      }
     }
     else
     {
-      ch2_val_buf = ch2_val;
+      if (ch2_auto && ft > conf_data.lim_h &&  ch2_set) ch2_set = false;
+      if (ch2_auto && ft < conf_data.lim_l && !ch2_set) ch2_set = true;
+
+      ch2_val_buf = 0;
+      if (ch2_set) conf_data.ch2_dig ? ch2_val_buf = 255 : ch2_val_buf = ch2_val;
+
+      analogWrite(conf_data.ch2_gpio, ch2_val_buf);
     }
   }
-  else
-  {
-    ch2_val_buf = 0;
-  }
 
-  if (conf_data.ch1_gpio < 255 && !conf_data.ch1_in)
-  {
-    analogWrite(conf_data.ch1_gpio, ch1_val_buf);
-  }
+  if ((millis() - setting_ms > 200) && bumpless)  bumpless = !bumpless;
 
-  if (conf_data.ch2_gpio < 255 && !conf_data.ch2_in)
-  {
-    analogWrite(conf_data.ch2_gpio, ch2_val_buf);
-  }
-  if (bumpless & (millis() > (setting_ms + 200))) bumpless = false;
   //  delay (100);
 }

@@ -87,16 +87,21 @@ ch2_set   = false,
 ch1_auto   = true,
 ch2_auto   = true,
 
-bumpless = false;
+bumpless = false,
+ch1_press = false,
+ch2_press = false;
 
-uint8_t ft = 0;
+int buttonState = HIGH;         // variable for reading the pushbutton status
 
-static uint32_t setting_ms;
+uint32_t setting_ms = 0;
 
 static uint8_t 
 ch1_val     = 0, 
 ch1_val_buf = 0, 
 ch2_val     = 0, 
-ch2_val_buf = 0; 
+ch2_val_buf = 0, 
+ft = 0;
+
+String ssta = String();
 
 #endif /* conf_h */

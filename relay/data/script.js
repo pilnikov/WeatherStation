@@ -1,7 +1,7 @@
 			let nIntervId;
 			let req_done = true;
 
-			function loadVal_WiFi()
+			function loadVal()
 			{
 				let url = '/jwifi';
 
@@ -23,13 +23,13 @@
 							document.getElementById('stas2').value  = res.ss2;
 							document.getElementById('stap2').value  = res.sp2;
 							req_done = true;
-							loadVal_Par();
+							loadPar();
 						}
 					};
 				}
 			}
 	  
-			function loadVal_Par()
+			function loadPar()
 			{
 				let url = '/jpar';
 
@@ -61,11 +61,66 @@
 							document.getElementById('lim_l').value = res.lim_l;
 							document.getElementById('lim_h').value = res.lim_h;
 							req_done = true;
+							loadPar2();
 						}
 					};
 				}
 			}
+			
+			function loadPar2()
+			{
+				let url = '/jact';
+
+				if (req_done)
+				{
+					req_done = false;
+					var xh = new XMLHttpRequest();
+					xh.open('GET', url, true);
+					xh.send(null);
+					xh.onreadystatechange = function()
+					{
+						if (this.readyState == 4 && this.status == 200) 
+						{
+						
+							var res = JSON.parse(xh.responseText);
+
+							document.getElementById('cur_br').value = res.ana_code;
+
+							document.getElementById('rch1_value').value = res.ch1_value;
+							document.getElementById('rch2_value').value = res.ch2_value;
+
+							document.getElementById('ch1_value').value = res.ch1_value;
+							document.getElementById('ch2_value').value = res.ch2_value;
 							
+							if ( res.ch1_state)  document.getElementById(  'ch1_on').value = 'On';
+							if (!res.ch1_state)  document.getElementById(  'ch1_on').value = 'Off';
+							if ( res.ch1_auto)   document.getElementById('ch1_auto').value = 'Auto';
+							if (!res.ch1_auto)   document.getElementById('ch1_auto').value = 'Manual';
+						
+							if ( res.ch2_state)  document.getElementById(  'ch2_on').value = 'On';
+							if (!res.ch2_state)  document.getElementById(  'ch2_on').value = 'Off';
+							if ( res.ch2_auto)   document.getElementById('ch2_auto').value = 'Auto';
+							if (!res.ch2_auto)   document.getElementById('ch2_auto').value = 'Manual';
+	  
+							var d1 = document.getElementById('lim_h').value;
+							document.getElementById('rlim_h').value = d1;
+	  
+							d1 = document.getElementById('lim_l').value;
+							document.getElementById('rlim_l').value = d1;
+							
+							req_done = true;
+  					}
+  				};
+  			}
+  		}
+
+							
+
+			function fCh1_on()
+			{
+				let url = '/ch1_set';
+			    send_url(url);
+			}
 
 			function fCh1_auto()
 			{
@@ -73,10 +128,16 @@
 			  send_url(url);
 			}
 
+			function fCh2_on()
+			{
+				let url = '/ch2_set';
+			    send_url(url);
+			}
+
 			function fCh2_auto()
 			{
 				let url = '/ch2_auto';
-	      send_url(url);
+				send_url(url);
 			}
 			
 			function fCh1_dig()
@@ -110,14 +171,14 @@
 			function fCh1_value()
 			{
 				var ch1_value = document.getElementById('ch1_value').value;
-				var url = '/ch1_set?val=' + ch1_value;
+				var url = '/ch1_val?val=' + ch1_value;
 			  send_url(url);
 			}
 
 			function fCh2_value()
 			{
 				var ch2_value = document.getElementById('ch2_value').value;
-				var url = '/ch2_set?val=' + ch2_value;
+				var url = '/ch2_val?val=' + ch2_value;
 			    send_url(url);
 			}
 
@@ -247,7 +308,8 @@
 
 							document.getElementById('rch1_value').value = res.ch1_value;
 							document.getElementById('rch2_value').value = res.ch2_value;
-							
+
+
 							if ( res.ch1_state)  document.getElementById(  'ch1_on').value = 'On';
 							if (!res.ch1_state)  document.getElementById(  'ch1_on').value = 'Off';
 							if ( res.ch1_auto)   document.getElementById('ch1_auto').value = 'Auto';
