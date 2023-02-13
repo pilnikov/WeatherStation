@@ -1,4 +1,28 @@
+/*-------------------------------------------------------------------------
+RTC library
 
+Written by Michael C. Miller.
+
+I invest time and resources providing this open source code,
+please support me by dontating (see https://github.com/Makuna/Rtc)
+
+-------------------------------------------------------------------------
+This file is part of the Makuna/Rtc library.
+
+Rtc is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+Rtc is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with Rtc.  If not, see
+<http://www.gnu.org/licenses/>.
+-------------------------------------------------------------------------*/
 
 #ifndef __RTCDATETIME_H__
 #define __RTCDATETIME_H__
@@ -26,7 +50,9 @@ extern const uint8_t c_daysInMonth[] PROGMEM;
 class RtcDateTime
 {
 public:
-    RtcDateTime(uint32_t secondsFrom2000 = 0);
+    //explicit 
+	RtcDateTime(uint32_t secondsFrom2000 = 0);
+
     RtcDateTime(uint16_t year,
         uint8_t month,
         uint8_t dayOfMonth,
@@ -90,6 +116,12 @@ public:
         *this = after;
     }
 
+    RtcDateTime operator + (uint32_t seconds) const
+    {
+        RtcDateTime after = RtcDateTime(TotalSeconds() + seconds);
+        return after;
+    }
+
     // remove seconds
     void operator -= (uint32_t seconds)
     {
@@ -97,10 +129,40 @@ public:
         *this = before;
     }
 
-    // allows for comparisons to just work (==, <, >, <=, >=, !=)
-    operator uint32_t() const
+    RtcDateTime operator - (uint32_t seconds) const
     {
-        return TotalSeconds();
+        RtcDateTime after = RtcDateTime(TotalSeconds() - seconds);
+        return after;
+    }
+
+    bool operator == (const RtcDateTime& right)
+    {
+        return (this->TotalSeconds() == right.TotalSeconds());
+    }
+
+    bool operator != (const RtcDateTime& right)
+    {
+        return (this->TotalSeconds() != right.TotalSeconds());
+    }
+
+    bool operator <= (const RtcDateTime& right)
+    {
+        return (this->TotalSeconds() <= right.TotalSeconds());
+    }
+
+    bool operator >= (const RtcDateTime& right)
+    {
+        return (this->TotalSeconds() >= right.TotalSeconds());
+    }
+
+    bool operator < (const RtcDateTime& right)
+    {
+        return (this->TotalSeconds() < right.TotalSeconds());
+    }
+
+    bool operator > (const RtcDateTime& right)
+    {
+        return (this->TotalSeconds() > right.TotalSeconds());
     }
 
     // Epoch32 support
@@ -179,7 +241,6 @@ protected:
         }
         _dayOfMonth = days + 1;
     }
-
 };
 
 #endif // __RTCDATETIME_H__

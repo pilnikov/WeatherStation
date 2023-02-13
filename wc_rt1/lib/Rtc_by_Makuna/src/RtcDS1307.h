@@ -1,4 +1,28 @@
+/*-------------------------------------------------------------------------
+RTC library
 
+Written by Michael C. Miller.
+
+I invest time and resources providing this open source code,
+please support me by dontating (see https://github.com/Makuna/Rtc)
+
+-------------------------------------------------------------------------
+This file is part of the Makuna/Rtc library.
+
+Rtc is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+Rtc is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with Rtc.  If not, see
+<http://www.gnu.org/licenses/>.
+-------------------------------------------------------------------------*/
 
 #ifndef __RTCDS1307_H__
 #define __RTCDS1307_H__
@@ -19,7 +43,7 @@ const uint8_t DS1307_REG_RAMEND     = 0x3f;
 const uint8_t DS1307_REG_RAMSIZE = DS1307_REG_RAMEND - DS1307_REG_RAMSTART;
 
 //DS1307 Register Data Size if not just 1
-const uint8_t DS1307_REG_TIMEDATE_SIZE = 7;
+const size_t DS1307_REG_TIMEDATE_SIZE = 7;
 
 // DS1307 Control Register Bits
 const uint8_t DS1307_RS0   = 0;
@@ -45,7 +69,7 @@ template<class T_WIRE_METHOD> class RtcDS1307
 public:
     RtcDS1307(T_WIRE_METHOD& wire) :
         _wire(wire),
-        _lastError(0)
+        _lastError(Rtc_Wire_Error_None)
     {
     }
 
@@ -53,6 +77,7 @@ public:
     {
         _wire.begin();
     }
+
     void Begin(int sda, int scl)
     {
         _wire.begin(sda, scl);
@@ -71,12 +96,13 @@ public:
     bool GetIsRunning()
     {
         uint8_t sreg = getReg(DS1307_REG_STATUS);
-        return (!(sreg & _BV(DS1307_CH)) && (_lastError == 0));
+        return (!(sreg & _BV(DS1307_CH)) && (_lastError == Rtc_Wire_Error_None));
     }
 
     void SetIsRunning(bool isRunning)
     {
         uint8_t sreg = getReg(DS1307_REG_STATUS);
+
         if (isRunning)
         {
             sreg &= ~_BV(DS1307_CH);
@@ -85,6 +111,7 @@ public:
         {
             sreg |= _BV(DS1307_CH);
         }
+
         setReg(DS1307_REG_STATUS, sreg);
     }
 
@@ -118,15 +145,15 @@ public:
         _wire.beginTransmission(DS1307_ADDRESS);
         _wire.write(DS1307_REG_TIMEDATE);
         _lastError = _wire.endTransmission();
-        if (_lastError != 0)
+        if (_lastError != Rtc_Wire_Error_None)
         {
             RtcDateTime(0);
         }
 
-        uint8_t bytesRead = _wire.requestFrom(DS1307_ADDRESS, DS1307_REG_TIMEDATE_SIZE);
+        size_t bytesRead = _wire.requestFrom(DS1307_ADDRESS, DS1307_REG_TIMEDATE_SIZE);
         if (DS1307_REG_TIMEDATE_SIZE != bytesRead)
         {
-            _lastError = 4;
+            _lastError = Rtc_Wire_Error_Unspecific;
             RtcDateTime(0);
         }
 
@@ -185,10 +212,10 @@ public:
         return countWritten;
     }
 
-    uint8_t GetMemory(uint8_t memoryAddress, uint8_t* pValue, uint8_t countBytes)
+    size_t GetMemory(uint8_t memoryAddress, uint8_t* pValue, size_t countBytes)
     {
         uint8_t address = memoryAddress + DS1307_REG_RAMSTART;
-        uint8_t countRead = 0;
+        size_t countRead = 0;
         if (address <= DS1307_REG_RAMEND)
         {
             if (countBytes > DS1307_REG_RAMSIZE)
@@ -199,7 +226,7 @@ public:
             _wire.beginTransmission(DS1307_ADDRESS);
             _wire.write(address);
             _lastError = _wire.endTransmission();
-            if (_lastError != 0)
+            if (_lastError != Rtc_Wire_Error_None)
             {
                 return 0;
             }
@@ -230,16 +257,16 @@ private:
         _wire.beginTransmission(DS1307_ADDRESS);
         _wire.write(regAddress);
         _lastError = _wire.endTransmission();
-        if (_lastError != 0)
+        if (_lastError != Rtc_Wire_Error_None)
         {
             return 0;
         }
 
         // control register
-        uint8_t bytesRead = _wire.requestFrom(DS1307_ADDRESS, (uint8_t)1);
+        size_t bytesRead = _wire.requestFrom(DS1307_ADDRESS, (size_t)1);
         if (1 != bytesRead)
         {
-            _lastError = 4;
+            _lastError = Rtc_Wire_Error_Unspecific;
             return 0;
         }
 

@@ -1,4 +1,28 @@
+/*-------------------------------------------------------------------------
+RTC library
 
+Written by Michael C. Miller.
+
+I invest time and resources providing this open source code,
+please support me by dontating (see https://github.com/Makuna/Rtc)
+
+-------------------------------------------------------------------------
+This file is part of the Makuna/Rtc library.
+
+Rtc is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+Rtc is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with Rtc.  If not, see
+<http://www.gnu.org/licenses/>.
+-------------------------------------------------------------------------*/
 
 #ifndef __RTCDS1302_H__
 #define __RTCDS1302_H__
@@ -21,7 +45,8 @@ const uint8_t DS1302RamSize = 31;
 
 
 // DS1302 Trickle Charge Control Register Bits
-enum DS1302TcrResistor {
+enum DS1302TcrResistor 
+{
     DS1302TcrResistor_Disabled = 0,
     DS1302TcrResistor_2KOhm = B00000001,
     DS1302TcrResistor_4KOhm = B00000010,
@@ -29,7 +54,8 @@ enum DS1302TcrResistor {
     DS1302TcrResistor_MASK  = B00000011,
 };
 
-enum DS1302TcrDiodes {
+enum DS1302TcrDiodes 
+{
     DS1302TcrDiodes_None = 0,
     DS1302TcrDiodes_One      = B00000100,
     DS1302TcrDiodes_Two      = B00001000,
@@ -37,7 +63,8 @@ enum DS1302TcrDiodes {
     DS1302TcrDiodes_MASK     = B00001100,
 };
 
-enum DS1302TcrStatus {
+enum DS1302TcrStatus 
+{
     DS1302TcrStatus_Enabled  = B10100000,
     DS1302TcrStatus_Disabled = B01010000,
     DS1302TcrStatus_MASK     = B11110000,
@@ -64,12 +91,6 @@ public:
     void Begin()
     {
         _wire.begin();
-    }
-
-    
-    void Begin(int sda, int scl)
-    {
-        _wire.begin(sda, scl);
     }
 
     bool GetIsWriteProtected()
@@ -125,24 +146,23 @@ public:
 
     void SetTrickleChargeSettings(uint8_t setting)
     {
-        if ((setting & DS1302TcrResistor_MASK) == DS1302TcrResistor_Disabled) {
+        if ((setting & DS1302TcrResistor_MASK) == DS1302TcrResistor_Disabled) 
+        {
             // invalid resistor setting, set to disabled
             setting = DS1302Tcr_Disabled;
-            goto apply;
         }
-        if ((setting & DS1302TcrDiodes_MASK) == DS1302TcrDiodes_Disabled ||
-            (setting & DS1302TcrDiodes_MASK) == DS1302TcrDiodes_None) {
+        else if ((setting & DS1302TcrDiodes_MASK) == DS1302TcrDiodes_Disabled ||
+            (setting & DS1302TcrDiodes_MASK) == DS1302TcrDiodes_None) 
+        {
             // invalid diode setting, set to disabled
             setting = DS1302Tcr_Disabled;
-            goto apply;
         }
-        if ((setting & DS1302TcrStatus_MASK) != DS1302TcrStatus_Enabled) {
+        else if ((setting & DS1302TcrStatus_MASK) != DS1302TcrStatus_Enabled) 
+        {
             // invalid status setting, set to disabled
             setting = DS1302Tcr_Disabled;
-            goto apply;
         }
 
-     apply:
         setReg(DS1302_REG_TCR, setting);
     }
 
@@ -254,7 +274,6 @@ private:
 
     uint8_t getReg(uint8_t regAddress)
     {
-
         _wire.beginTransmission(regAddress | THREEWIRE_READFLAG);
         uint8_t regValue = _wire.read();
         _wire.endTransmission();

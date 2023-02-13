@@ -76,9 +76,9 @@ class VariantSlot {
     _next = VariantSlotDiff(slot - this);
   }
 
-  void setKey(String k) {
+  void setKey(JsonString k) {
     ARDUINOJSON_ASSERT(k);
-    if (k.isStatic())
+    if (k.isLinked())
       _flags &= VALUE_MASK;
     else
       _flags |= OWNED_KEY_BIT;
