@@ -6,16 +6,14 @@ void web_setup()
   server.on("/ch2_set",  handleSET_2);
   server.on("/ch2_auto", handleAuto_2);
 
-  server.on("/ch1_val",  handleVAL_1);
-  server.on("/ch2_val",  handleVAL_2);
-
   server.on("/set_wifi", handleSetWiFi);
-  server.on("/set_par", handleSetPar);
-
   server.on("/jwifi", handlejWiFi);
+
+  server.on("/set_par", handleSetPar);
   server.on("/jpar", handlejPar);
+
   server.on("/jact", handlejAct);
-  server.on("/rc_cmd", handleRCmd);
+
   server.on("/exit", handleExit);
 
   //-------------------------------------------------------------- for LittleFS
@@ -67,34 +65,37 @@ void stop_serv()
 {
   server.stop();
   DBG_OUT_PORT.println(F("Server stopped...."));
-#if defined(ESP8266)
-  ;
-#else
-  ArduinoOTA.end();
-#endif
-  DBG_OUT_PORT.println(F("OTA stopped...."));
-  MDNS.end();
-  DBG_OUT_PORT.println(F("MDNS stopped...."));
   wifi.end(wifi_data_cur);
 }
 
 //-------------------------------------------------------------- handleSET_1
 void handleSET_1()
 {
-  if (!ch1_set & !bumpless)
+  String ssta = String();
+  if (conf_data.ch1_dig)
   {
-    ch1_set = true;    // turn ON the ch1
-    bumpless = true;
-    DBG_OUT_PORT.println(conf_data.ch1_on_code);
+    if (!ch1_set & !bumpless)
+    {
+      ch1_set = true;    // turn ON the ch1
+      ssta = "ch1_on";
+      bumpless = true;
+      DBG_OUT_PORT.println(conf_data.ch1_on_code);
+    }
+    if (ch1_set & !bumpless)
+    {
+      ch1_set = false;    // turn OFF the ch1
+      ssta = "ch1_off";
+      bumpless = true;
+      DBG_OUT_PORT.println(conf_data.ch1_off_code);
+    }
+    ch1_auto = false;  // turn OFF the AUTO MODE for ch1
   }
-  if (ch1_set & !bumpless)
+  else
   {
-    ch1_set = false;    // turn OFF the ch1
-    bumpless = true;
-    DBG_OUT_PORT.println(conf_data.ch1_off_code);
+    ch1_val = server.arg("val").toInt();
+    ssta = String(ch1_val);
   }
-  ch1_auto = false;  // turn OFF the AUTO MODE for ch1
-  server.send(200, "text/html", "OK!");
+  server.send(200, "text/html", ssta);
   setting_ms = millis();
 }
 
@@ -118,20 +119,32 @@ void handleAuto_1()
 //-------------------------------------------------------------- handleSET_2
 void handleSET_2()
 {
-  if (!ch2_set & !bumpless)
+  String ssta = String();
+
+  if (conf_data.ch2_dig)
   {
-    ch2_set = true;    // turn ON the ch2
-    bumpless = true;
-    DBG_OUT_PORT.println(conf_data.ch2_on_code);
+    if (!ch2_set & !bumpless)
+    {
+      ch2_set = true;    // turn ON the ch2
+      ssta = "ch2_on";
+      bumpless = true;
+      DBG_OUT_PORT.println(conf_data.ch2_on_code);
+    }
+    if (ch2_set & !bumpless)
+    {
+      ch2_set = false;    // turn OFF the ch2
+      ssta = "ch2_off";
+      bumpless = true;
+      DBG_OUT_PORT.println(conf_data.ch2_off_code);
+    }
+    ch2_auto = false;  // turn OFF the AUTO MODE for ch2
   }
-  if (ch2_set & !bumpless)
+  else
   {
-    ch2_set = false;    // turn OFF the ch2
-    bumpless = true;
-    DBG_OUT_PORT.println(conf_data.ch2_off_code);
+    ch2_val = server.arg("val").toInt();
+    ssta = String(ch2_val);
   }
-  ch2_auto = false;  // turn OFF the AUTO MODE for ch2
-  server.send(200, "text/html", "OK!");
+  server.send(200, "text/html", ssta);
   setting_ms = millis();
 }
 
@@ -153,34 +166,6 @@ void handleAuto_2()
   setting_ms = millis();
 }
 
-//-------------------------------------------------------------- handleVAL_1
-void handleVAL_1()
-{
-  ch1_val = server.arg("val").toInt();
-  server.send(200, "text/html", "OK!");
-}
-
-//-------------------------------------------------------------- handleVAL_2
-void handleVAL_2()
-{
-  ch2_val = server.arg("val").toInt();
-  server.send(200, "text/html", "OK!");
-}
-
-
-//-------------------------------------------------------------- handlejWiFi
-void handlejWiFi()
-{
-  from_client = wifi_cfg.to_json(wifi_data);
-  server.send(200, "text/json", from_client);
-}
-
-//-------------------------------------------------------------- handlejPar
-void handlejPar()
-{
-  from_client = main_cfg.to_json(conf_data);
-  server.send(200, "text/json", from_client);
-}
 //-------------------------------------------------------------- handleSetWiFi
 void handleSetWiFi()
 {
@@ -192,6 +177,14 @@ void handleSetWiFi()
   server.send(200, "text/html", "OK!");
 }
 
+//-------------------------------------------------------------- handlejWiFi
+void handlejWiFi()
+{
+  from_client = wifi_cfg.to_json(wifi_data);
+  server.send(200, "text/json", from_client);
+}
+
+
 //-------------------------------------------------------------- handleSetPar
 void handleSetPar()
 {
@@ -201,6 +194,13 @@ void handleSetPar()
   lfs.writeFile(conf_f, from_client.c_str());
   conf_data = main_cfg.from_json(from_client);
   server.send(200, "text/html", "OK!");
+}
+
+//-------------------------------------------------------------- handlejPar
+void handlejPar()
+{
+  from_client = main_cfg.to_json(conf_data);
+  server.send(200, "text/json", from_client);
 }
 
 //-------------------------------------------------------------- handlejAct
@@ -225,45 +225,6 @@ void handlejAct()
 
   server.send(200, "text/json", from_client);
 }
-
-//-------------------------------------------------------------- handler for receive data from remote controller
-void handleRCmd()
-{
-  /*
-      url='/send_data?
-       + '&data1='  + data1_t
-       + '&data2='  + data2_t
-       + '&button1='  + btn1_t
-       + '&button2='  + btn2_t
-  */
-  uint8_t data1, data2; bool button1, button2;
-  data1 = 0;
-  data2 = 0;
-  button1 = false;
-  button2 = false;
-
-  if (server.arg("data1") != 0)
-  {
-    data1 = constrain(server.arg("data1").toInt(), 0, 255);
-  }
-
-  if (server.arg("data2") != 0)
-  {
-    data2 = constrain(server.arg("data2").toInt(), 0, 255);
-  }
-
-  button1 = server.arg("button1") == "1";
-  button2 = server.arg("button2") == "1";
-
-  server.send(200, "text/html", "OK!");
-
-  analogWrite (4, data1);
-  analogWrite (5, data2);
-  digitalWrite (18, button1);
-  digitalWrite (19, button2);
-}
-
-
 
 //-------------------------------------------------------------- handleExit
 void handleExit()

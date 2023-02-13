@@ -66,28 +66,17 @@
 				}
 			}
 							
-			function fCh1_on()
-			{
-				let url = '/ch1_set';
-			    send_url(url);
-			}
 
 			function fCh1_auto()
 			{
-				let url = '/ch1_auto';
-			    send_url(url);
-			}
-
-			function fCh2_on()
-			{
-				let url = '/ch2_set';
-			    send_url(url);
+			  let url = '/ch1_auto';
+			  send_url(url);
 			}
 
 			function fCh2_auto()
 			{
 				let url = '/ch2_auto';
-			    send_url(url);
+	      send_url(url);
 			}
 			
 			function fCh1_dig()
@@ -121,14 +110,14 @@
 			function fCh1_value()
 			{
 				var ch1_value = document.getElementById('ch1_value').value;
-				var url = '/ch1_val?val=' + ch1_value;
-			    send_url(url);
+				var url = '/ch1_set?val=' + ch1_value;
+			  send_url(url);
 			}
 
 			function fCh2_value()
 			{
 				var ch2_value = document.getElementById('ch2_value').value;
-				var url = '/ch2_val?val=' + ch2_value;
+				var url = '/ch2_set?val=' + ch2_value;
 			    send_url(url);
 			}
 

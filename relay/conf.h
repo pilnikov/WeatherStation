@@ -21,13 +21,10 @@
 #endif
 
 #if defined(ESP8266)
-#include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-#include <ESPmDNS.h>
-#include <ESP32SSDP.h>
 #include <WebServer.h>
 #include <HTTPUpdateServer.h>
 
@@ -39,8 +36,6 @@
 #include <SPI.h>
 
 #include <FS.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 
 #include <my_wifi.h>
 #include <BH1750.h>
@@ -86,7 +81,7 @@ wifi_cur_data_t wifi_data_cur;
 const char *conf_f = "/conf_main.json";  // config file name
 String from_client = String();
 
-bool 
+static bool 
 ch1_set   = false,
 ch2_set   = false,
 ch1_auto   = true,
@@ -98,10 +93,10 @@ uint8_t ft = 0;
 
 static uint32_t setting_ms;
 
-uint8_t 
-ch2_val = 0, 
-ch1_val = 0; 
-
-uint32_t time_tck;
+static uint8_t 
+ch1_val     = 0, 
+ch1_val_buf = 0, 
+ch2_val     = 0, 
+ch2_val_buf = 0; 
 
 #endif /* conf_h */

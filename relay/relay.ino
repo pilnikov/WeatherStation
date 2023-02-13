@@ -74,9 +74,7 @@ void loop()
 {
   //------------------------------------------------------ Распределяем системные ресурсы
 
-  time_tck = millis();
   server.handleClient();
-  //  ArduinoOTA.handle();
 
   uint16_t lm = lightMeter.readLightLevel();
   //DBG_OUT_PORT.print(F("Lux.."));
@@ -84,29 +82,53 @@ void loop()
 
   if  (lm < 512) ft = lm / 2;
 
-  if ((ft > conf_data.lim_h) & ch1_auto &  ch1_set) ch1_set = false;
-  if ((ft < conf_data.lim_l) & ch1_auto & !ch1_set) ch1_set = true;
-  if ((ft > conf_data.lim_h) & ch2_auto &  ch2_set) ch2_set = false;
-  if ((ft < conf_data.lim_l) & ch2_auto & !ch2_set) ch2_set = true;
+  if (ch1_auto && ft > conf_data.lim_h &&  ch1_set) ch1_set = false;
+  if (ch1_auto && ft < conf_data.lim_l && !ch1_set) ch1_set = true;
 
-  if (conf_data.ch1_dig && !conf_data.ch1_in)
+  if (ch2_auto && ft > conf_data.lim_h &&  ch2_set) ch2_set = false;
+  if (ch2_auto && ft < conf_data.lim_l && !ch2_set) ch2_set = true;
+
+  if (ch1_set)
   {
-    digitalWrite(conf_data.ch1_gpio, ch1_set);
+    if (conf_data.ch1_dig)
+    {
+      ch1_val_buf = 255;
+    }
+    else
+    {
+      ch1_val_buf = ch1_val;
+    }
   }
   else
   {
-    analogWrite(conf_data.ch1_gpio, ch1_val);
+    ch1_val_buf = 0;
   }
 
-  if (conf_data.ch2_dig && !conf_data.ch2_in)
+  if (ch2_set)
   {
-    digitalWrite(conf_data.ch2_gpio, ch2_set);
+    if (conf_data.ch2_dig)
+    {
+      ch2_val_buf = 255;
+    }
+    else
+    {
+      ch2_val_buf = ch2_val;
+    }
   }
   else
   {
-    analogWrite(conf_data.ch2_gpio, ch2_val);
+    ch2_val_buf = 0;
   }
 
+  if (conf_data.ch1_gpio < 255 && !conf_data.ch1_in)
+  {
+    analogWrite(conf_data.ch1_gpio, ch1_val_buf);
+  }
+
+  if (conf_data.ch2_gpio < 255 && !conf_data.ch2_in)
+  {
+    analogWrite(conf_data.ch2_gpio, ch2_val_buf);
+  }
   if (bumpless & (millis() > (setting_ms + 200))) bumpless = false;
-  delay (100);
+  //  delay (100);
 }
