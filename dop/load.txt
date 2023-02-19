@@ -1,0 +1,1 @@
+Z:\Arduino\portable\packages\esp32\hardware\esp32\2.0.5/tools/espota.exe -r -i 192.168.1.13 -p 3232 --auth=12345678 -f z:\Temp\arduino_build_544904/wc_rt1.ino.bin 

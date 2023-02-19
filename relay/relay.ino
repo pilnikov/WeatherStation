@@ -48,12 +48,13 @@ void setup()
   //--------------------------------------------------------  Запускаем WiFi
   wifi_data_cur = wifi.begin(wifi_data);
 
+  //--------------------------------------------------------  Запускаем сервер и веб морду
   if (wifi_data_cur.cli || wifi_data_cur.ap)
   {
-    //------------------------------------------------------  Запускаем сервер
     web_setup();
     start_serv();
   }
+
 #if CONFIG_IDF_TARGET_ESP32
   Wire.setPins(21, 22);
 #elif CONFIG_IDF_TARGET_ESP32S2

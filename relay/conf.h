@@ -14,17 +14,13 @@
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266HTTPUpdateServer.h>
+
 #elif defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <HTTPClient.h>
-#endif
-
-#if defined(ESP8266)
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
-
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
 #include <WebServer.h>
 #include <HTTPUpdateServer.h>
 
