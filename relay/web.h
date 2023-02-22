@@ -3,7 +3,7 @@
 void web_setup();
 
 void start_serv();
-void  stop_serv();
+void stop_serv();
 
 void handleSET_1();
 void handleAuto_1();
@@ -32,4 +32,4 @@ void handleFileCreate();
 void handleFileList();
 
 File fsUploadFile;
-# endif
+#endif

@@ -1,8 +1,8 @@
 
-#ifndef conf_h
-#define conf_h
+#ifndef _conf_h__
+#define _conf_h__
 
-#define FW_Ver 1.0 //11.01.22 added udp debug console
+#define FW_Ver 1.0  //11.01.22 added udp debug console
 
 // ------------------------------------------------------------- Include
 #if ARDUINO >= 100
@@ -36,6 +36,7 @@
 #include <my_wifi.h>
 #include <BH1750.h>
 #include <My_LFS.h>
+#include <Sysfn.h>
 
 #include "cfg.h"
 #include "web.h"
@@ -67,36 +68,38 @@ CFG main_cfg;
 WF wifi;
 WFJS wifi_cfg;
 LFS lfs;
+SF hw_chk;  //For HW Check
 
 // ----------------------------------- Variable
 
 conf_data_t conf_data;
 wifi_cfg_data_t wifi_data;
 wifi_cur_data_t wifi_data_cur;
+hw_data_t hw_data;
 
 const char *conf_f = "/conf_main.json";  // config file name
 String from_client = String();
 
-static bool 
-ch1_set   = false,
-ch2_set   = false,
-ch1_auto   = true,
-ch2_auto   = true,
+static bool
+  ch1_set = false,
+  ch2_set = false,
+  ch1_auto = true,
+  ch2_auto = true,
 
-bumpless = false,
-ch1_press = false,
-ch2_press = false;
+  bumpless = false,
+  ch1_press = false,
+  ch2_press = false;
 
-int buttonState = HIGH;         // variable for reading the pushbutton status
+int buttonState = HIGH;  // variable for reading the pushbutton status
 
 uint32_t setting_ms = 0;
 
-static uint8_t 
-ch1_val     = 0, 
-ch1_val_buf = 0, 
-ch2_val     = 0, 
-ch2_val_buf = 0, 
-ft = 0;
+static uint8_t
+  ch1_val = 0,
+  ch1_val_buf = 0,
+  ch2_val = 0,
+  ch2_val_buf = 0,
+  ft = 0;
 
 String ssta = String();
 

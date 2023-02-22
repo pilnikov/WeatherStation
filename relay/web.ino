@@ -44,6 +44,15 @@ void web_setup()
   });
   //-------------------------------------------------------------- http update
 
+  // enable CORS header in webserver results
+  server.enableCORS(true);
+
+  // enable ETAG header in webserver results from serveStatic handler
+  server.enableETag(true);
+
+  // serve all static files
+  server.serveStatic("/", LittleFS, "/");
+
   httpUpdater.setup(&server);
 }
 

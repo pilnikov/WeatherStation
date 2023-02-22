@@ -1,0 +1,7 @@
+{
+    "port": "COM1",
+    "board": "esp8266:esp8266:generic",
+    "sketch": "wc_rt1.ino",
+    "output": "../build",
+    "intelliSenseGen": "global"
+}

@@ -1,7 +1,9 @@
-// Udt.h
+/*
+Udt.h
+*/
 
-#ifndef Udt_h
-#define Udt_h
+#ifndef _Udt_h__
+#define _Udt_h__
 
 #if ARDUINO >= 100
 #include <Arduino.h>
