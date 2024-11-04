@@ -1,6 +1,6 @@
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 
-File fsUploadFile; //Should be placed here as global
+File fsUploadFile;  //Should be placed here as global
 
 // ----------------------------------- Web updater
 #if defined(ESP8266)
@@ -10,45 +10,44 @@ HTTPUpdateServer httpUpdater;
 #endif
 
 // ---------------------------------------------------------------------- setup
-void web_setup()
-{
-  server.on("/ntp",         handleNTP);
-  server.on("/set_time",    handleSetTime);
-  server.on("/set_part",    handleSetPart);
-  server.on("/set_wifi",    handleSetWiFi);
-  server.on("/set_ip1",     handleSetIp1);
-  server.on("/set_ip2",     handleSetIp2);
+void web_setup() {
+  server.on("/ntp", handleNTP);
+  server.on("/set_time", handleSetTime);
+  server.on("/set_part", handleSetPart);
+  server.on("/set_wifi", handleSetWiFi);
+  server.on("/set_ip1", handleSetIp1);
+  server.on("/set_ip2", handleSetIp2);
   server.on("/end_set_wifi", handleEndSetWiFi);
-  server.on("/exit",        handleExit);
-# ifdef MATRIX
-  server.on("/set_font",    handleSetFont);
-# endif //MATRIX
-  server.on("/set_pard",    handleSetPard);
-  server.on("/upd_snr",     handleUpdSnr);
-  server.on("/upd_wfc",     handleUpdForeCast);
-  server.on("/set_pars1",   handleSetPars1);
-  server.on("/set_pars2",   handleSetPars2);
-  server.on("/set_pars3",   handleSetPars3);
-  server.on("/set_parc",    handleSetParc);
-  server.on("/set_partrm",  handleSetPartrm);
-  server.on("/set_news",    handleSetNews);
-  server.on("/upd_news",    handleUpdNews);
+  server.on("/exit", handleExit);
+#ifdef MATRIX
+  server.on("/set_font", handleSetFont);
+#endif  //MATRIX
+  server.on("/set_pard", handleSetPard);
+  server.on("/upd_snr", handleUpdSnr);
+  server.on("/upd_wfc", handleUpdForeCast);
+  server.on("/set_pars1", handleSetPars1);
+  server.on("/set_pars2", handleSetPars2);
+  server.on("/set_pars3", handleSetPars3);
+  server.on("/set_parc", handleSetParc);
+  server.on("/set_partrm", handleSetPartrm);
+  server.on("/set_news", handleSetNews);
+  server.on("/upd_news", handleUpdNews);
 
-  server.on("/jactt",       handlejActT);
-  server.on("/jacta",       handlejActA);
-  server.on("/jtime",       handlejTime);
-  server.on("/jwifi",       handlejWiFi);
-  server.on("/jclock",      handlejParc);
-  server.on("/jactb",       handlejActB);
-  server.on("/jdisp",       handlejPard);
-  server.on("/jsens",       handlejPars);
-  server.on("/jts",         handlejTS);
-  server.on("/jsnr",        handlejSnr);
-  server.on("/rcv_snr",     handleRcvSnr);
-  server.on("/juart",       handlejUart);
-  server.on("/jtrm",        handlejTrm);
-  server.on("/jnews",       handlejNews);
-  server.on("/jnewst",      handlejNewsT);
+  server.on("/jactt", handlejActT);
+  server.on("/jacta", handlejActA);
+  server.on("/jtime", handlejTime);
+  server.on("/jwifi", handlejWiFi);
+  server.on("/jclock", handlejParc);
+  server.on("/jactb", handlejActB);
+  server.on("/jdisp", handlejPard);
+  server.on("/jsens", handlejPars);
+  server.on("/jts", handlejTS);
+  server.on("/jsnr", handlejSnr);
+  server.on("/rcv_snr", handleRcvSnr);
+  server.on("/juart", handlejUart);
+  server.on("/jtrm", handlejTrm);
+  server.on("/jnews", handlejNews);
+  server.on("/jnewst", handlejNewsT);
 
   //-------------------------------------------------------------- for LittleFS
   //list directory
@@ -63,9 +62,11 @@ void web_setup()
   server.on("/edit", HTTP_DELETE, handleFileDelete);
   //first callback is called after the request has ended with all parsed arguments
   //second callback handles file uploads at that location
-  server.on("/edit", HTTP_POST, []() {
-    server.send(200, "text/plain", "");
-  }, handleFileUpload);
+  server.on(
+    "/edit", HTTP_POST, []() {
+      server.send(200, "text/plain", "");
+    },
+    handleFileUpload);
 
   //called when the url is not defined here
   //use it to load content from LittleFS
@@ -79,15 +80,12 @@ void web_setup()
 }
 
 //-------------------------------------------------------------- Start_serv
-void start_serv()
-{
-  if (!wifi_data_cur.cli & !wifi_data_cur.ap)
-  {
+void start_serv() {
+  if (!wifi_data_cur.cli & !wifi_data_cur.ap) {
     wifi_data_cur = wifi.begin(wifi_data);
   }
 
-  if (wifi_data_cur.cli || wifi_data_cur.ap)
-  {
+  if (wifi_data_cur.cli || wifi_data_cur.ap) {
     server.begin();
 
     DBG_OUT_PORT.println(F("Server started"));
@@ -95,8 +93,7 @@ void start_serv()
 }
 
 //-------------------------------------------------------------- Stop_serv
-void stop_serv()
-{
+void stop_serv() {
   server.stop();
   DBG_OUT_PORT.println(F("Server stopped...."));
 #if defined(ESP8266)
@@ -112,15 +109,13 @@ void stop_serv()
 
 
 //-------------------------------------------------------------- handlejTime
-void handlejTime()
-{
+void handlejTime() {
   from_client = myrtccfg.to_json(rtc_cfg);
   server.send(200, "text/json", from_client);
 }
 
 //-------------------------------------------------------------- handleSetTime
-void handleSetTime()
-{
+void handleSetTime() {
   unsigned long ttm = server.arg("in").toInt();
   server.send(200, "text/html", "OK!");
 
@@ -136,8 +131,7 @@ void handleSetTime()
 }
 
 //-------------------------------------------------------------- handleSetPart
-void handleSetPart()
-{
+void handleSetPart() {
   from_client = server.arg("in");
   server.send(200, "text/html", "OK!");
 
@@ -148,11 +142,9 @@ void handleSetPart()
 }
 
 //-------------------------------------------------------------- handleNTP
-void handleNTP()
-{
+void handleNTP() {
   server.send(200, "text/html", "OK!");
-  if (wifi_data_cur.cli)
-  {
+  if (wifi_data_cur.cli) {
     unsigned long ttm = myrtc.GetNtp(rtc_cfg, rtc_time.ct);
     DBG_OUT_PORT.print(F("Time after NTP...."));
     DBG_OUT_PORT.println(ttm);
@@ -165,36 +157,31 @@ void handleNTP()
 }
 
 //-------------------------------------------------------------- handlejWiFi
-void handlejWiFi()
-{
+void handlejWiFi() {
   from_client = wifi_cfg.to_json(wifi_data);
   server.send(200, "text/json", from_client);
 }
 
 //-------------------------------------------------------------- handleSetWiFi
-void handleSetWiFi()
-{
+void handleSetWiFi() {
   from_client = server.arg("in");
   server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handleSetIp1
-void handleSetIp1()
-{
+void handleSetIp1() {
   from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handleSetIp2
-void handleSetIp2()
-{
+void handleSetIp2() {
   from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handleEndSetWiFi
-void handleEndSetWiFi()
-{
+void handleEndSetWiFi() {
   from_client.replace("}{", ",");
 
   conf_f = "/conf_wifi.json";
@@ -204,14 +191,13 @@ void handleEndSetWiFi()
 }
 
 //-------------------------------------------------------------- handlejActT
-void handlejActT()
-{
+void handlejActT() {
   DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["boot"] = boot_mode;
   json["actw"] = wasAlarm;
-  json["ct"]   = rtc_time.ct;
+  json["ct"] = rtc_time.ct;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -221,8 +207,7 @@ void handlejActT()
 }
 
 //-------------------------------------------------------------- handlejActA
-void handlejActA()
-{
+void handlejActA() {
   DynamicJsonDocument jsonBuffer(300);
   JsonObject json = jsonBuffer.to<JsonObject>();
   json["actn"] = rtc_alm.num;
@@ -236,8 +221,7 @@ void handlejActA()
 }
 
 //-------------------------------------------------------------- handlejPard
-void handlejPard()
-{
+void handlejPard() {
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -245,7 +229,7 @@ void handlejPard()
   json["ctyp"] = conf_data.type_vdrv;
   json["dtyp"] = conf_data.type_disp;
   json["rlng"] = conf_data.rus_lng;
-  json["tup"]  = conf_data.time_up;
+  json["tup"] = conf_data.time_up;
   json["colu"] = conf_data.color_up;
   json["cold"] = conf_data.color_dwn;
   json["abrd"] = conf_data.auto_br;
@@ -263,9 +247,8 @@ void handlejPard()
 }
 
 //-------------------------------------------------------------- handleSetFont
-# ifdef MATRIX
-void handleSetFont()
-{
+#ifdef MATRIX
+void handleSetFont() {
   //url='/set_font?tfnt='+tfnt;
 
   conf_data.type_font = server.arg("tfnt").toInt();
@@ -279,11 +262,10 @@ void handleSetFont()
   server.send(200, "text/html", "OK!");
   serv_ms = millis();
 }
-# endif //MATRIX
+#endif  //MATRIX
 
 //-------------------------------------------------------------- handler Set Parameter for display
-void handleSetPard()
-{
+void handleSetPard() {
   //url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
   uint8_t vdrv_buf = conf_data.type_vdrv;
@@ -296,9 +278,11 @@ void handleSetPard()
   conf_data.color_dwn = server.arg("mcod").toInt();
   conf_data.auto_br = server.arg("abrd") == "1";
   uint16_t val = server.arg("mbrd").toInt();
-  conf_data.man_br = constrain(val, 0, 254);;
+  conf_data.man_br = constrain(val, 0, 254);
+  ;
   val = server.arg("nbrd").toInt();
-  conf_data.nmd_br = constrain(val, 0, 254);;
+  conf_data.nmd_br = constrain(val, 0, 254);
+  ;
   conf_data.br_level[0] = server.arg("brd1").toInt();
   conf_data.br_level[1] = server.arg("brd2").toInt();
   conf_data.br_level[2] = server.arg("brd3").toInt();
@@ -315,15 +299,14 @@ void handleSetPard()
 }
 
 //-------------------------------------------------------------- handler Get Parameter from TS
-void handlejTS()
-{
+void handlejTS() {
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["tsid"] = conf_data.ts_ch_id;
   json["tsar"] = conf_data.AKey_r;
   json["tsaw"] = conf_data.AKey_w;
-  json["tss"]  = conf_data.use_ts;
+  json["tss"] = conf_data.use_ts;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -333,29 +316,28 @@ void handlejTS()
 }
 
 //-------------------------------------------------------------- handler Get Parameter from sensor
-void handlejPars()
-{
+void handlejPars() {
   DynamicJsonDocument jsonBuffer(700);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
-  json["cyid"]  = conf_data.pp_city_id;
-  json["owmk"]  = conf_data.owm_key;
+  json["cyid"] = conf_data.pp_city_id;
+  json["owmk"] = conf_data.owm_key;
   json["srve1"] = conf_data.esrv1_addr;
   json["srve2"] = conf_data.esrv2_addr;
-  json["srvr"]  = conf_data.radio_addr;
-  json["udp"]   = conf_data.srudp_addr;
-  json["udm"]   = conf_data.udp_mon;
-  json["prgp"]  = conf_data.use_pp;
-  json["s1"]    = snr_cfg_data.type_snr1;
-  json["s2"]    = snr_cfg_data.type_snr2;
-  json["s3"]    = snr_cfg_data.type_snr3;
-  json["sp"]    = snr_cfg_data.type_snrp;
-  json["nc1"]   = conf_data.ch1_name;
-  json["nc2"]   = conf_data.ch2_name;
-  json["nc3"]   = conf_data.ch3_name;
-  json["peri"]  = conf_data.period;
-  json["esm"]   = conf_data.esm;
-  json["ess"]   = conf_data.use_es;
+  json["srvr"] = conf_data.radio_addr;
+  json["udp"] = conf_data.srudp_addr;
+  json["udm"] = conf_data.udp_mon;
+  json["prgp"] = conf_data.use_pp;
+  json["s1"] = snr_cfg_data.type_snr1;
+  json["s2"] = snr_cfg_data.type_snr2;
+  json["s3"] = snr_cfg_data.type_snr3;
+  json["sp"] = snr_cfg_data.type_snrp;
+  json["nc1"] = conf_data.ch1_name;
+  json["nc2"] = conf_data.ch2_name;
+  json["nc3"] = conf_data.ch3_name;
+  json["peri"] = conf_data.period;
+  json["esm"] = conf_data.esm;
+  json["ess"] = conf_data.use_es;
 
   String st = String();
   if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -365,8 +347,7 @@ void handlejPars()
 }
 
 //-------------------------------------------------------------- handler force set data for sensor from ext source e.g. ext sensor
-void handleRcvSnr()
-{
+void handleRcvSnr() {
   /*
       url='/rcv_snr?
        + '&est1='  + est1_t
@@ -378,20 +359,17 @@ void handleRcvSnr()
        + '&esp='   + esp_t;
   */
   float t = 99, h = 0, p = 700;
-  if (server.arg("est1") != 0)
-  {
+  if (server.arg("est1") != 0) {
     t = constrain(server.arg("est1").toInt(), -99, 99);
     if ((t < 99) & (t > -99)) snr_data.t1 = t;
   }
   t = 99;
-  if (server.arg("est2") != 0)
-  {
+  if (server.arg("est2") != 0) {
     t = constrain(server.arg("est2").toInt(), -99, 99);
     if ((t < 99) & (t > -99)) snr_data.t2 = t;
   }
   t = 99;
-  if (server.arg("est3") != 0)
-  {
+  if (server.arg("est3") != 0) {
     t = constrain(server.arg("est3").toInt(), -99, 99);
     if ((t < 99) & (t > -99)) snr_data.t3 = t;
   }
@@ -411,8 +389,7 @@ void handleRcvSnr()
 }
 
 //-------------------------------------------------------------- handler Get data from sensor
-void handlejSnr()
-{
+void handlejSnr() {
   DynamicJsonDocument jsonBuffer(150);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -432,8 +409,7 @@ void handlejSnr()
 }
 
 //-------------------------------------------------------------- handler Update data from sensor
-void handleUpdSnr()
-{
+void handleUpdSnr() {
   snr_data_t sb = snr_data;
   snr_data = GetSnr(sb, snr_cfg_data, conf_data, rtc_hw.a_type, wifi_data_cur.cli, wf_data_cur);
 
@@ -441,14 +417,12 @@ void handleUpdSnr()
   serv_ms = millis();
 }
 
-void handleUpdForeCast()
-{
+void handleUpdForeCast() {
   //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
   if ((conf_data.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(conf_data.pp_city_id, wifi_data_cur.cli));
 
   //------------------------------------------------------ Получаем прогноз погоды от OpenWeatherMap
-  if ((conf_data.use_pp == 2) & wifi_data_cur.cli)
-  {
+  if ((conf_data.use_pp == 2) & wifi_data_cur.cli) {
     wf_data = getOWM_forecast(conf_data.pp_city_id, conf_data.owm_key);
 
     //------------------------------------------------------ Получаем прогноз погоды на сегодня от OpenWeatherMap
@@ -457,8 +431,7 @@ void handleUpdForeCast()
 }
 
 //-------------------------------------------------------------- handler Set Parameter for sensor part one
-void handleSetPars1()
-{
+void handleSetPars1() {
   /*
         url='/set_pars1?cid='+cid_t
            + '&owmk='+owmk_t
@@ -476,15 +449,14 @@ void handleSetPars1()
   strcpy(conf_data.esrv2_addr, server.arg("esa2").c_str());
   strcpy(conf_data.radio_addr, server.arg("rda").c_str());
   strcpy(conf_data.srudp_addr, server.arg("udp").c_str());
-  conf_data.use_pp  = server.arg("upp").toInt();
+  conf_data.use_pp = server.arg("upp").toInt();
   conf_data.udp_mon = server.arg("udm") == "1";
 
   server.send(200, "text/html", "OK!");
 }
 
 //-------------------------------------------------------------- handler Set Parameter for sensor part two
-void handleSetPars2()
-{
+void handleSetPars2() {
   /*
   	  url='/set_pars2?snr1='   + snr1_t
   		 + '&snr2='   + snr2_t
@@ -522,8 +494,7 @@ void handleSetPars2()
 }
 
 //-------------------------------------------------------------- handle Set Parameter for sensor part tree
-void handleSetPars3()
-{
+void handleSetPars3() {
   /*
   	  url='/set_pars3?tschan=' + tschan_t
   		 + '&tsapir=' + tsapir_t
@@ -547,8 +518,7 @@ void handleSetPars3()
 }
 
 //-------------------------------------------------------------- handlejParc
-void handlejParc()
-{
+void handlejParc() {
   DynamicJsonDocument jsonBuffer(512);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -578,8 +548,7 @@ void handlejParc()
 }
 
 //-------------------------------------------------------------- handleSetParc
-void handleSetParc()
-{
+void handleSetParc() {
   //url = '/set_parc?sndpol='+sndpol+'&ledpol='+ledpol+
   //'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+
   //'&dht='+dht+'&ana='+ana+'&uar='+uar;
@@ -613,14 +582,12 @@ void handleSetParc()
 }
 
 //-------------------------------------------------------------- handlejUart
-void handlejUart()
-{
+void handlejUart() {
   server.send(200, "text/json", uart_st(snr_data, wf_data, conf_data, rtc_time, rtc_alm, cur_br));
 }
 
 //-------------------------------------------------------------- handlejTrm
-void handlejTrm()
-{
+void handlejTrm() {
   DynamicJsonDocument jsonBuffer(64);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -637,8 +604,7 @@ void handlejTrm()
 }
 
 //-------------------------------------------------------------- handleSetpartrm
-void handleSetPartrm()
-{
+void handleSetPartrm() {
   //url = '/set_partrm?ttrm='+sttrm+'&tsrc='+stsrs+'&dsta='+sdsta+'&dstp='+sdstp;
 
   conf_data.type_thermo = server.arg("ttrm").toInt();
@@ -651,8 +617,7 @@ void handleSetPartrm()
 }
 
 //-------------------------------------------------------------- handlejActB
-void handlejActB()
-{
+void handlejActB() {
   DynamicJsonDocument jsonBuffer(100);
   JsonObject json = jsonBuffer.to<JsonObject>();
   json["brig"] = snr_data.f;
@@ -665,16 +630,14 @@ void handlejActB()
 }
 
 //-------------------------------------------------------------- handleExit
-void handleExit()
-{
+void handleExit() {
   stop_serv();
-  if (debug_level == 14)  DBG_OUT_PORT.println(F("Reboot esp..."));
+  if (debug_level == 14) DBG_OUT_PORT.println(F("Reboot esp..."));
   ESP.restart();
 }
 
 //-------------------------------------------------------------- for FS
-bool handleFileRead(String path)
-{
+bool handleFileRead(String path) {
   serv_ms = millis();
   DBG_OUT_PORT.println("handleFileRead: " + path);
   if (path.endsWith("/")) path += "index.htm";
@@ -691,23 +654,21 @@ bool handleFileRead(String path)
   return false;
 }
 
-void handleFileUpload()
-{
+void handleFileUpload() {
   if (server.uri() != "/edit") return;
   HTTPUpload& upload = server.upload();
   if (upload.status == UPLOAD_FILE_START) {
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
-    DBG_OUT_PORT.print(F("handleFileUpload Name: ")); DBG_OUT_PORT.println(filename);
+    DBG_OUT_PORT.print(F("handleFileUpload Name: "));
+    DBG_OUT_PORT.println(filename);
     fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
-  }
-  else if (upload.status == UPLOAD_FILE_WRITE) {
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
     //DBG_OUT_PORT.print("handleFileUpload Data: "); DBG_OUT_PORT.println(F(upload.currentSize);
     if (fsUploadFile)
       fsUploadFile.write(upload.buf, upload.currentSize);
-  }
-  else if (upload.status == UPLOAD_FILE_END) {
+  } else if (upload.status == UPLOAD_FILE_END) {
     if (fsUploadFile)
       fsUploadFile.close();
     DBG_OUT_PORT.printf("handleFileUpload Size: %u\n", upload.totalSize);
@@ -715,8 +676,7 @@ void handleFileUpload()
   serv_ms = millis();
 }
 
-void handleFileDelete()
-{
+void handleFileDelete() {
   if (server.args() == 0) return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
   DBG_OUT_PORT.println("handleFileDelete: " + path);
@@ -730,8 +690,7 @@ void handleFileDelete()
   serv_ms = millis();
 }
 
-void handleFileCreate()
-{
+void handleFileCreate() {
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
@@ -751,8 +710,7 @@ void handleFileCreate()
   serv_ms = millis();
 }
 
-void handleFileList()
-{
+void handleFileList() {
   if (!server.hasArg("dir")) {
     server.send(500, "text/plain", "BAD ARGS");
     serv_ms = millis();
@@ -799,8 +757,7 @@ void handleFileList()
   serv_ms = millis();
 }
 
-String getContentType(String filename)
-{
+String getContentType(String filename) {
   if (server.hasArg("download")) return "application/octet-stream";
   else if (filename.endsWith(".htm")) return "text/html";
   else if (filename.endsWith(".html")) return "text/html";
@@ -817,8 +774,7 @@ String getContentType(String filename)
   return "text/plain";
 }
 
-void handleSetNews()
-{
+void handleSetNews() {
   //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
   char src_buff[17];
   strcpy(src_buff, conf_data.news_source);
@@ -838,26 +794,23 @@ void handleSetNews()
   serv_ms = millis();
 }
 
-void handleUpdNews()
-{
-  if (conf_data.news_en)
-  {
-    newsClient -> updateNewsClient(conf_data.news_api_key, conf_data.news_source);
-    newsClient -> updateNews();
+void handleUpdNews() {
+  if (conf_data.news_en) {
+    newsClient->updateNewsClient(conf_data.news_api_key, conf_data.news_source);
+    newsClient->updateNews();
   }
 }
 
 
 //-------------------------------------------------------------- handler Get Parameter from sensor
-void handlejNews()
-{
+void handlejNews() {
   String st = "";
   DynamicJsonDocument jsonBuffer(200);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["displaynews"] = conf_data.news_en;
-  json["newsApiKey"]  = conf_data.news_api_key;
-  json["newssource"]  = conf_data.news_source;
+  json["newsApiKey"] = conf_data.news_api_key;
+  json["newssource"] = conf_data.news_source;
 
   String st1 = String();
   if (serializeJson(jsonBuffer, st1) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
@@ -865,51 +818,50 @@ void handlejNews()
 }
 
 //-------------------------------------------------------------- handler Get Parameter from sensor
-void handlejNewsT()
-{
+void handlejNewsT() {
   String st = "";
   DynamicJsonDocument jsonBuffer(4096);
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   uint8_t inx = 0;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_1"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_2"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_3"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_4"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_5"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_6"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_7"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_8"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_9"] = st;
   inx++;
-  st = newsClient -> getUrl(inx) + newsClient -> getTitle(inx);
-  st += newsClient -> getDescription(inx);
+  st = newsClient->getUrl(inx) + newsClient->getTitle(inx);
+  st += newsClient->getDescription(inx);
   json["st_10"] = st;
 
   String st1 = String();
@@ -917,4 +869,4 @@ void handlejNewsT()
   server.send(200, "text/json", st1);
 }
 
-# endif
+#endif

@@ -35,7 +35,7 @@
   };
 
 ********************************************************** Config
-  typedef struct
+  struct conf_data_t
   {
   uint8_t   boot_mode = 0; // 0 - minimal; 1 - test; 2 - normal
 
@@ -163,7 +163,7 @@
 #ifndef conf_h
 #define conf_h
 
-#define FW_Ver 2.0 //05.03.22 structure modified
+#define FW_Ver 3.0  //05.11.24 code corrected
 
 // ------------------------------------------------------------- Include
 #if ARDUINO >= 100
@@ -185,7 +185,7 @@
 #include <hw.h>
 #endif
 
-#if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A)  || defined(BOARD_RTL8711AM)
+#if defined(BOARD_RTL8710) || defined(BOARD_RTL8195A) || defined(BOARD_RTL8711AM)
 #include <Netwf_rt.h>
 #endif
 
@@ -234,7 +234,7 @@ String lastday(String);
 void Thermo(snr_data_t, conf_data_t);
 void wasAlm_reset();
 void alarm1_action(bool, uint8_t, uint8_t&, uint8_t, rtc_cfg_data_t*, uint8_t, bool&, byte,
-	bool&, bool&, byte*, char*);
+                   bool&, bool&, byte*, char*);
 String radio_snd(String, bool, char*);
 
 
@@ -271,15 +271,14 @@ void ISR_ATTR isr0();
 
 //-------------------------------------------------------------------------------------
 
-class MAINJS
-{
+class MAINJS {
 public:
-	String
-		to_json(conf_data_t);
+  String
+    to_json(conf_data_t);
 
-	conf_data_t
-		from_json(String),
-		def_conf();
+  conf_data_t
+    from_json(String),
+    def_conf();
 private:
 protected:
 };
@@ -288,7 +287,7 @@ protected:
 void web_setup();
 
 void start_serv();
-void  stop_serv();
+void stop_serv();
 
 void handleNTP();
 void handleSetTime();
@@ -298,9 +297,9 @@ void handleSetIp1();
 void handleSetIp2();
 void handleEndSetWiFi();
 void handleExit();
-# ifdef MATRIX
+#ifdef MATRIX
 void handleSetFont();
-# endif //MATRIX
+#endif  //MATRIX
 void handleSetPard();
 void handleUpdSnr();
 void handleUpdForeCast();
