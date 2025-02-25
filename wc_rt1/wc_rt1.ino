@@ -72,8 +72,8 @@ ESP8266HWInfo hwi;
 BH1750 lightMeter;
 
 // ---------------------------------------------------- Other
-FD f_dsp2;  //For Display
-MyDsp mydsp;
+FD f_dsp2;         //For Display
+MyDspHW mydsp_hw;  //For Display HW
 
 Synt Buzz;  //Конструктор пищалки
 
@@ -256,7 +256,7 @@ void setup() {
     hw_accept(hw_data, &snr_cfg_data, &mcf.vdrv_t, &rtc_hw.a_type);
 
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
-    if (mcf.dsp_t > 0) mydsp.disp_init(mcf.vdrv_t, mcf.dsp_t, gcf.gpio_uar, gcf.gpio_dio, gcf.gpio_clk, gcf.gpio_dcs, gcf.gpio_dwr, hw_data.ht_addr, hw_data.lcd_addr, screen, text_size, mcf.rus_lng);
+    if (mcf.dsp_t > 0) mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size);
 
     //------------------------------------------------------  Инициализируем датчики
     if (hw_data.bh1750_present) lightMeter.begin();
@@ -488,7 +488,7 @@ void loop() {
           if (mcf.news_en & wifi_data_cur.cli) ns = newsClient->getTitle(newsIndex);
           cli = wifi_data_cur.cli;
 #endif
-          mydsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // запуск бегущей строки для однострочных дисплеев
+          // tmp_ban mydsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // запуск бегущей строки для однострочных дисплеев
         }
         break;
 
@@ -517,9 +517,9 @@ void loop() {
           // run slowely time displays here
           m32_8time_act = false;
           if (!((mcf.dsp_t == 20) & !end_run_st)) {
-            m32_8time_act = mydsp.time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, mcf, snr_data, ddd);  // break time view while string is running
+            // tmp_ban m32_8time_act = mydsp.time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, mcf, snr_data, ddd);  // break time view while string is running
             cur_br = ddd;
-            mydsp.write_dsp(true, mcf.vdrv_t, mcf.dsp_t, cur_br, mcf.time_up, screen, text_size, mcf.color_up, mcf.color_dwn);
+            mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
           }
         } else cur_br = 0;
         if (!wasAlarm)  //Проверка будильников
@@ -574,8 +574,8 @@ void loop() {
         }
 #endif
 
-        mydsp.scroll_start(true, true, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
-        if (mcf.vdrv_t != 12) mydsp.write_dsp(false, mcf.vdrv_t, mcf.dsp_t, cur_br, mcf.time_up, screen, text_size, mcf.color_up, mcf.color_dwn);
+        // tmp_ban mydsp.scroll_start(true, true, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+        if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
         //divider = !divider;
         break;
 
@@ -584,13 +584,13 @@ void loop() {
           uint8_t pos = 0;
           if (mcf.dsp_t > 20 && mcf.dsp_t < 29 && !mcf.time_up) pos = 32;
 
-          mydsp.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
+          // tmp_ban mydsp.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
         }
         break;
 
       case 8:
         if (disp_on) {
-          mydsp.scroll_start(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+          // tmp_ban mydsp.scroll_start(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
           if ((mcf.dsp_t != 20) & end_run_st & !rtc_time.nm_is_on) {
             cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -598,9 +598,9 @@ void loop() {
             if (mcf.news_en & wifi_data_cur.cli) ns = newsClient->getTitle(newsIndex);
             cli = wifi_data_cur.cli;
 #endif
-            mydsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
+            // tmp_ban mydsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
           }
-          mydsp.write_dsp(false, mcf.vdrv_t, mcf.dsp_t, cur_br, mcf.time_up, screen, text_size, mcf.color_up, mcf.color_dwn);  // передача видеобуфера (screen) на физический уровень
+          mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // передача видеобуфера (screen) на физический уровень
         }
         break;
 

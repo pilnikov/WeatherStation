@@ -118,7 +118,7 @@
   owm_key[33],
   news_api_key[33], // Get your News API Key from https://newsapi.org
   news_source[17];  // https://newsapi.org/sources to get full list of news sources available
-  } conf_data_t;
+  } main_cfg_t;
 
 ********************************************************** Actual config
   struct hw_data_t

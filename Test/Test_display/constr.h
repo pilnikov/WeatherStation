@@ -8,8 +8,8 @@
 #include <WProgram.h>
 #endif
 
-#include <Fdsp.h>
-#include <Fdisp.h>
+#include <Dsp.h>
+#include <Scr.h>
 #include <BH1750.h>
 
 // ---------------------------------------------------- LM
@@ -18,6 +18,6 @@ BH1750 lightMeter;
 // ---------------------------------------------------- Other
 FD f_dsp2; //For Display
 
-MyDsp mydsp;
+MyDspHW mydsp_hw;
 
 #endif

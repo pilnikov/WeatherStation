@@ -31,7 +31,8 @@ String local_ip = "192.168.0.0", ns = String();
 //---------------------------------------------------------------------------------------------------
 snr_data_t snr_data;
 snr_cfg_t snr_cfg_data;
-conf_data_t conf_data;
+main_cfg_t mcf;
+gpio_cfg_t gcf;
 hw_data_t hw_data;
 wf_data_t wf_data_cur;
 wf_data_t wf_data;

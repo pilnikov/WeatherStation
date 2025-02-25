@@ -3,12 +3,14 @@
 MSG dmsg_ff;  //For Messages
 FD f_dsp_ff;  //For Display
 
-MyDsp mydsp_ff;
+MyDspHW dsp_hw;     //For Display HW Config
 
 CT myrtc_ff;        //For RTC Common
 RTCJS myrtccfg_ff;  //For RTC Config
 SNR sens_ff;        //For Sensor Common
-MAINJS maincfg_ff;
+
+MAINJS main_cfg;    //For MAIN Config
+GPIOJS gpio_cfg;    //For GPIO Config
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 ES e_srv_ff;
@@ -42,7 +44,7 @@ void sensor_init(snr_cfg_t* cf) {
   }
 }
 //------------------------------------------------------  Получаем данные с датчиков
-snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t cf, uint8_t type_rtc, bool cli, wf_data_t wfc) {
+snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t mcf, uint8_t type_rtc, bool cli, wf_data_t wfc) {
   snr_data_t td;
   snr_data_t ed1;
   snr_data_t ed2;
@@ -66,15 +68,15 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t cf, uint8_t type_rtc, 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (cli) {
     if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1) {
-      dmsg_ff.callback(cf.dsp_t, 2, 0, cf.rus_lng);     // сообщение на индикатор о начале обмена с TS
-      String ts_str = ts_rcv(cf.ts_ch_id, cf.AKey_r, cli);  // Получаем строчку данных от TS
-      td = e_srv_ff.get_ts(ts_str);                         // Парсим строчку от TS
-      dmsg_ff.callback(cf.dsp_t, 2, 1, cf.rus_lng);     // сообщение на индикатор о результатах обмена с TS
+      dmsg_ff.callback(mcf.dsp_t, 2, 0, mcf.rus_lng);          // сообщение на индикатор о начале обмена с TS
+      String ts_str = ts_rcv(mcf.ts_ch_id, mcf.AKey_r, cli);   // Получаем строчку данных от TS
+      td = e_srv_ff.get_ts(ts_str);                            // Парсим строчку от TS
+      dmsg_ff.callback(mcf.dsp_t, 2, 1, mcf.rus_lng);          // сообщение на индикатор о результатах обмена с TS
     }
-    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv_ff.get_es(es_rcv(cf.esrv1_addr, cli));  // Получаем данные от внешнего сервера1
-    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv_ff.get_es(es_rcv(cf.esrv2_addr, cli));  // Получаем данные от внешнего сервера2
+    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv_ff.get_es(es_rcv(mcf.esrv1_addr, cli));  // Получаем данные от внешнего сервера1
+    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv_ff.get_es(es_rcv(mcf.esrv2_addr, cli));  // Получаем данные от внешнего сервера2
 
-    if (cf.use_pp == 2) {
+    if (mcf.use_pp == 2) {
       wd.h1 = wfc.hum_min;
       wd.t1 = wfc.temp_min;
       wd.p = wfc.press_min;
@@ -87,13 +89,13 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t cf, uint8_t type_rtc, 
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (cli) {
-    if (cf.use_ts > 0) {
-      dmsg_ff.callback(cf.dsp_t, 1, 0, cf.rus_lng);        // сообщение на индикатор о начале обмена с TS
-      ts_snd(e_srv_ff.put_ts(cf.AKey_w, cf.use_ts, sd), cli);  // Отправляем инфу на TS
-      dmsg_ff.callback(cf.dsp_t, 1, 1, cf.rus_lng);        // сообщение на индикатор о результатах обмена с TS
+    if (mcf.use_ts > 0) {
+      dmsg_ff.callback(mcf.dsp_t, 1, 0, mcf.rus_lng);        // сообщение на индикатор о начале обмена с TS
+      ts_snd(e_srv_ff.put_ts(mcf.AKey_w, mcf.use_ts, sd), cli);  // Отправляем инфу на TS
+      dmsg_ff.callback(mcf.dsp_t, 1, 1, mcf.rus_lng);        // сообщение на индикатор о результатах обмена с TS
     }
 
-    if (cf.use_es > 0) put_to_es(cf.esrv1_addr, cf.use_es, sd, cli);  //отправляем показания датчиков на внешний сервер 1
+    if (mcf.use_es > 0) put_to_es(mcf.esrv1_addr, mcf.use_es, sd, cli);  //отправляем показания датчиков на внешний сервер 1
   }
 #endif
 
@@ -510,7 +512,7 @@ String radio_snd(String cmd, bool cli, char* radio_addr) {
 
 //------------------------------------------------------  Обрабатываем клавиатуру
 void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& max_st,
-               byte thermo_t, byte vdrv_t, byte gpio_led, bool led_pola, bool blinkColon, uint32_t& serv_ms, main_cfg_t* main_cfg, bool& end_run_st) {
+               byte thermo_t, byte vdrv_t, byte gpio_led, bool led_pola, bool blinkColon, uint32_t& serv_ms, main_cfg_t mcf, bool& end_run_st) {
   btn_released = btn_state_flag & digitalRead(gpio_btn);
   if (btn_state_flag & !digitalRead(gpio_btn)) tmr_started = true;
   if (btn_released) tmr_started = false;
@@ -558,11 +560,11 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& ma
   if (btn_released & (millis() - setting_ms > 15000))  //держим больше 15 сек
   {
     if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot..."));  //Cбрасываем усе на дефолт и перезагружаемся
-    *main_cfg = maincfg_ff.def_conf();
-    String from_client = maincfg_ff.to_json(*main_cfg);
+    mcf = main_cfg.def_conf();
+    String from_client = main_cfg.to_json(mcf);
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    const char* conf_f = "/config.json";
+    const char* conf_f = "/main_cfg.json";
     lfs_ff.writeFile(conf_f, from_client.c_str());
 
     stop_serv();
@@ -706,12 +708,12 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t& a_act_out, uint8_t a_num, r
       break;
     case 22:
       disp_on = true;
-      mydsp_ff.display_on(vdrv);
+      dsp_hw._on(vdrv);
       break;
     case 23:
       disp_on = false;
       f_dsp_ff.CLS(screen, sizeof screen);
-      mydsp_ff.display_off(vdrv);
+      dsp_hw._off(vdrv);
       break;
     case 24:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
