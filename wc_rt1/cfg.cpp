@@ -5,410 +5,456 @@
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #define ARDUINOJSON_USE_LONG_LONG 1
 
-conf_data_t MAINJS::from_json(String message) {
-  conf_data_t _data;
+main_cfg_t MAINJS::from_json(String message) {
+  main_cfg_t mcf = MAINJS::def_conf();
 
   // Allocate the document on the stack.
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument doc(3100);
+  JsonDocument doc;
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, message);
   if (error) {
-    DBG_OUT_PORT.print(F("deserializeJson() for configFile failed: "));
+    DBG_OUT_PORT.print(F("read main_cf string failed: "));
     DBG_OUT_PORT.println(error.c_str());
     DBG_OUT_PORT.println(F(". Using default configuration"));
-    _data = def_conf();
-    return _data;
   } else {
     DBG_OUT_PORT.println(F("Read msg sucsses!!!"));
 
     // Get the root object in the document
-    memset(_data.owm_key, 0, 33);
-    memset(_data.esrv1_addr, 0, 17);
-    memset(_data.esrv2_addr, 0, 17);
-    memset(_data.radio_addr, 0, 17);
-    memset(_data.srudp_addr, 0, 17);
-    memset(_data.ch1_name, 0, 17);
-    memset(_data.ch2_name, 0, 17);
-    memset(_data.ch3_name, 0, 17);
-    memset(_data.AKey_r, 0, 17);
-    memset(_data.AKey_w, 0, 17);
-    memset(_data.news_api_key, 0, 33);
-    memset(_data.news_source, 0, 17);
-
-    //---gpio.html----------------------------------------
-    //---Options for HW---------------------------------
-    _data.snd_pola = doc["snd_pola"];
-    _data.led_pola = doc["led_pola"];
-
-    //---GPIO-----------------------------------------------
-    _data.gpio_sda = doc["sda"];
-    _data.gpio_scl = doc["scl"];
-    _data.gpio_dio = doc["dio"];
-    _data.gpio_clk = doc["clk"];
-    _data.gpio_dcs = doc["dcs"];
-    _data.gpio_dwr = doc["dwr"];
-    _data.gpio_trm = doc["trm"];
-    _data.gpio_sqw = doc["sqw"];
-    _data.gpio_snd = doc["snd"];
-    _data.gpio_led = doc["led"];
-    _data.gpio_btn = doc["btn"];
-    _data.gpio_dht = doc["dht"];
-    _data.gpio_ana = doc["ana"];
-    _data.gpio_uar = doc["uar"];
+    memset(mcf.owm_key, 0, 33);
+    memset(mcf.esrv1_addr, 0, 17);
+    memset(mcf.esrv2_addr, 0, 17);
+    memset(mcf.radio_addr, 0, 17);
+    memset(mcf.srudp_addr, 0, 17);
+    memset(mcf.ch1_name, 0, 17);
+    memset(mcf.ch2_name, 0, 17);
+    memset(mcf.ch3_name, 0, 17);
+    memset(mcf.AKey_r, 0, 17);
+    memset(mcf.AKey_w, 0, 17);
+    memset(mcf.news_api_key, 0, 33);
+    memset(mcf.news_source, 0, 17);
 
     //---Display.html--------------------------------------
     //---Options for display-------------------------------
-    _data.type_vdrv = doc["vdrv_t"];
-    _data.type_disp = doc["disp_t"];
-    _data.rus_lng = doc["rus_lng"];
-    _data.time_up = doc["t_up"];
-    _data.color_up = doc["colu"];
-    _data.color_dwn = doc["cold"];
-    _data.type_font = doc["type_font"];
+    mcf.vdrv_t = doc["vdrv_t"];
+    mcf.dsp_t = doc["dsp_t"];
+    mcf.rus_lng = doc["rus_lng"];
+    mcf.time_up = doc["t_up"];
+    mcf.color_up = doc["colu"];
+    mcf.color_dwn = doc["cold"];
+    mcf.font_t = doc["font_t"];
 
     //---Brigthness----------------------------------------
-    _data.man_br = doc["man_br"];
-    _data.nmd_br = doc["nmd_br"];
-    _data.auto_br = doc["auto_br"];
+    mcf.man_br = doc["man_br"];
+    mcf.nmd_br = doc["nmd_br"];
+    mcf.auto_br = doc["auto_br"];
 
     //---Brigthness levels---------------------------------
-    for (uint8_t i = 0; i <= 3; i++) _data.br_level[i] = doc["br_level"][i];
+    for (uint8_t i = 0; i <= 3; i++) mcf.br_level[i] = doc["br_level"][i];
 
     //---Sensor.html---------------------------------------
     //---Options for sensor--------------------------------
-    _data.pp_city_id = doc["pp_city_id"];
-    strcpy(_data.owm_key, doc["owm_key"]);
-    strcpy(_data.esrv1_addr, doc["esrv1_a"]);
-    strcpy(_data.esrv2_addr, doc["esrv2_a"]);
-    strcpy(_data.radio_addr, doc["radio_a"]);
-    strcpy(_data.srudp_addr, doc["srudp_a"]);
-    _data.udp_mon = doc["udm"];
-    _data.use_pp = doc["upp"];
+    mcf.pp_city_id = doc["pp_city_id"];
+    strcpy(mcf.owm_key, doc["owm_key"]);
+    strcpy(mcf.esrv1_addr, doc["esrv1_a"]);
+    strcpy(mcf.esrv2_addr, doc["esrv2_a"]);
+    strcpy(mcf.radio_addr, doc["radio_a"]);
+    strcpy(mcf.srudp_addr, doc["srudp_a"]);
+    mcf.udp_mon = doc["udm"];
+    mcf.use_pp = doc["upp"];
 
     //---Sensor type---------------------------------------
-    _data.period = doc["period"];  // minutes
-    _data.use_es = doc["ues"];
-    _data.esm = doc["esm"];
+    mcf.period = doc["period"];  // minutes
+    mcf.use_es = doc["ues"];
+    mcf.esm = doc["esm"];
 
     //---Sensor actual value-------------------------------
-    strcpy(_data.ch1_name, doc["ch1_name"]);
-    strcpy(_data.ch2_name, doc["ch2_name"]);
-    strcpy(_data.ch3_name, doc["ch3_name"]);
+    strcpy(mcf.ch1_name, doc["ch1_name"]);
+    strcpy(mcf.ch2_name, doc["ch2_name"]);
+    strcpy(mcf.ch3_name, doc["ch3_name"]);
 
     //---TS Account----------------------------------------
-    _data.ts_ch_id = doc["ts_ch_id"];
-    strcpy(_data.AKey_r, doc["AKey_r"]);
-    strcpy(_data.AKey_w, doc["AKey_w"]);
+    mcf.ts_ch_id = doc["ts_ch_id"];
+    strcpy(mcf.AKey_r, doc["AKey_r"]);
+    strcpy(mcf.AKey_w, doc["AKey_w"]);
 
     //---TS sender-----------------------------------------
-    _data.use_ts = doc["uts"];
+    mcf.use_ts = doc["uts"];
 
     //---Thermo.html---------------------------------------
     //---Options for thermostat----------------------------
-    _data.type_thermo = doc["trs_t"];
-    _data.src_thermo = doc["src_trs"];
-    _data.lb_thermo = doc["lb_trs"];
-    _data.hb_thermo = doc["hb_trs"];
+    mcf.thermo_t = doc["trs_t"];
+    mcf.src_thermo = doc["src_trs"];
+    mcf.lb_thermo = doc["lb_trs"];
+    mcf.hb_thermo = doc["hb_trs"];
 
     //---News.html---------------------------------------
     //---Options for news----------------------------
-    _data.news_en = doc["news_en"];
-    strcpy(_data.news_api_key, doc["news_api"]);
-    strcpy(_data.news_source, doc["news_src"]);
+    mcf.news_en = doc["news_en"];
+    strcpy(mcf.news_api_key, doc["news_api"]);
+    strcpy(mcf.news_source, doc["news_src"]);
   }
-  return _data;
+  return mcf;
 }
 
-String MAINJS::to_json(conf_data_t _data) {
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start saving conf_data to config.json"));
 
-  if (_data.type_vdrv > 20) _data.type_vdrv = 0;
-  if (_data.type_disp > 50) _data.type_disp = 0;
+gpio_cfg_t GPIOJS::from_json(String message) {
+  gpio_cfg_t gcf = GPIOJS::def_conf();
 
-  DynamicJsonDocument doc(3000);
+  // Allocate the document on the stack.
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/assistant to compute the capacity.
+  JsonDocument doc;
+
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, message);
+  if (error) {
+    DBG_OUT_PORT.print(F("read gpio_cfg string failed: "));
+    DBG_OUT_PORT.println(error.c_str());
+    DBG_OUT_PORT.println(F(". Using default configuration"));
+  } else {
+    DBG_OUT_PORT.println(F("Read cfg sucsses!!!"));
+
+    //---gpio.html----------------------------------------
+    //---Options for HW---------------------------------
+    gcf.snd_pola = doc["snd_pola"];
+    gcf.led_pola = doc["led_pola"];
+
+    //---GPIO-----------------------------------------------
+    gcf.gpio_sda = doc["sda"];
+    gcf.gpio_scl = doc["scl"];
+    gcf.gpio_dio = doc["dio"];
+    gcf.gpio_clk = doc["clk"];
+    gcf.gpio_dcs = doc["dcs"];
+    gcf.gpio_dwr = doc["dwr"];
+    gcf.gpio_trm = doc["trm"];
+    gcf.gpio_sqw = doc["sqw"];
+    gcf.gpio_snd = doc["snd"];
+    gcf.gpio_led = doc["led"];
+    gcf.gpio_btn = doc["btn"];
+    gcf.gpio_dht = doc["dht"];
+    gcf.gpio_ana = doc["ana"];
+    gcf.gpio_uar = doc["uar"];
+  }
+  return gcf;
+}
+
+String MAINJS::to_json(main_cfg_t mcf) {
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start forming main_cfg to json"));
+
+  if (mcf.vdrv_t > 20) mcf.vdrv_t = 0;
+  if (mcf.dsp_t > 50) mcf.dsp_t = 0;
+
+  JsonDocument doc;
   JsonObject json = doc.to<JsonObject>();
-
-  //---gpio.html----------------------------------------
-  //---Options for HW---------------------------------
-  json["snd_pola"] = _data.snd_pola;
-  json["led_pola"] = _data.led_pola;
-
-  //---GPIO-----------------------------------------------
-  json["sda"] = _data.gpio_sda;
-  json["scl"] = _data.gpio_scl;
-  json["dio"] = _data.gpio_dio;
-  json["clk"] = _data.gpio_clk;
-  json["dcs"] = _data.gpio_dcs;
-  json["dwr"] = _data.gpio_dwr;
-  json["trm"] = _data.gpio_trm;
-  json["sqw"] = _data.gpio_sqw;
-  json["snd"] = _data.gpio_snd;
-  json["led"] = _data.gpio_led;
-  json["btn"] = _data.gpio_btn;
-  json["dht"] = _data.gpio_dht;
-  json["ana"] = _data.gpio_ana;
-  json["uar"] = _data.gpio_uar;
 
   //---Display.html--------------------------------------
   //---Options for display-------------------------------
-  json["vdrv_t"] = _data.type_vdrv;
-  json["disp_t"] = _data.type_disp;
-  json["rus_lng"] = _data.rus_lng;
-  json["t_up"] = _data.time_up;
-  json["colu"] = _data.color_up;
-  json["cold"] = _data.color_dwn;
-  json["type_font"] = _data.type_font;
+  json["vdrv_t"] = mcf.vdrv_t;
+  json["disp_t"] = mcf.dsp_t;
+  json["rus_lng"] = mcf.rus_lng;
+  json["t_up"] = mcf.time_up;
+  json["colu"] = mcf.color_up;
+  json["cold"] = mcf.color_dwn;
+  json["font_t"] = mcf.font_t;
 
   //---Brigthness----------------------------------------
-  json["man_br"] = _data.man_br;
-  json["nmd_br"] = _data.nmd_br;
-  json["auto_br"] = _data.auto_br;
+  json["man_br"] = mcf.man_br;
+  json["nmd_br"] = mcf.nmd_br;
+  json["auto_br"] = mcf.auto_br;
 
   //---Brigthness levels---------------------------------
-  JsonArray br_level = json.createNestedArray("br_level");
-  for (uint8_t i = 0; i <= 3; i++) br_level.add(_data.br_level[i]);
+  JsonArray br_level = doc["br_level"].to<JsonArray>();
+  for (uint8_t i = 0; i <= 3; i++) br_level.add(mcf.br_level[i]);
 
   //---Sensor.html---------------------------------------
   //---Options for sensor--------------------------------
-  json["pp_city_id"] = _data.pp_city_id;
-  json["owm_key"] = _data.owm_key;
-  json["esrv1_a"] = _data.esrv1_addr;
-  json["esrv2_a"] = _data.esrv2_addr;
-  json["radio_a"] = _data.radio_addr;
-  json["srudp_a"] = _data.srudp_addr;
-  json["udm"] = _data.udp_mon;
-  json["upp"] = _data.use_pp;
+  json["pp_city_id"] = mcf.pp_city_id;
+  json["owm_key"] = mcf.owm_key;
+  json["esrv1_a"] = mcf.esrv1_addr;
+  json["esrv2_a"] = mcf.esrv2_addr;
+  json["radio_a"] = mcf.radio_addr;
+  json["srudp_a"] = mcf.srudp_addr;
+  json["udm"] = mcf.udp_mon;
+  json["upp"] = mcf.use_pp;
 
   //---Sensor type---------------------------------------
-  json["period"] = _data.period;  // minutes
-  json["ues"] = _data.use_es;
-  json["esm"] = _data.esm;
+  json["period"] = mcf.period;  // minutes
+  json["ues"] = mcf.use_es;
+  json["esm"] = mcf.esm;
 
   //---Sensor channel name -------------------------------
-  json["ch1_name"] = _data.ch1_name;
-  json["ch2_name"] = _data.ch2_name;
-  json["ch3_name"] = _data.ch3_name;
+  json["ch1_name"] = mcf.ch1_name;
+  json["ch2_name"] = mcf.ch2_name;
+  json["ch3_name"] = mcf.ch3_name;
 
   //---TS Account----------------------------------------
-  json["ts_ch_id"] = _data.ts_ch_id;
-  json["AKey_r"] = _data.AKey_r;
-  json["AKey_w"] = _data.AKey_w;
+  json["ts_ch_id"] = mcf.ts_ch_id;
+  json["AKey_r"] = mcf.AKey_r;
+  json["AKey_w"] = mcf.AKey_w;
 
   //---TS sender-----------------------------------------
-  json["uts"] = _data.use_ts;
+  json["uts"] = mcf.use_ts;
 
   //---Thermo.html---------------------------------------
   //---Options for thermostat----------------------------
-  json["trs_t"] = _data.type_thermo;
-  json["src_trs"] = _data.src_thermo;
-  json["lb_trs"] = _data.lb_thermo;
-  json["hb_trs"] = _data.hb_thermo;
+  json["trs_t"] = mcf.thermo_t;
+  json["src_trs"] = mcf.src_thermo;
+  json["lb_trs"] = mcf.lb_thermo;
+  json["hb_trs"] = mcf.hb_thermo;
 
 
   //---News.html---------------------------------------
   //---Options for news----------------------------
-  json["news_en"] = _data.news_en;
-  json["news_api"] = _data.news_api_key;
-  json["news_src"] = _data.news_source;
+  json["news_en"] = mcf.news_en;
+  json["news_api"] = mcf.news_api_key;
+  json["news_src"] = mcf.news_source;
 
   String msg = String();
-  if (serializeJson(doc, msg) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  if (serializeJson(doc, msg) == 0) DBG_OUT_PORT.println(F("Failed forming json string"));
   return msg;
 }
 
-conf_data_t MAINJS::def_conf() {
-  conf_data_t _data;
+String GPIOJS::to_json(gpio_cfg_t gcf) {
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start forming main_cfg to json"));
 
-  // ---------------------------------------------------- WiFi Default
+  JsonDocument doc;
+  JsonObject json = doc.to<JsonObject>();
 
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
+  //---gpio.html----------------------------------------
+  //---Options for HW---------------------------------
+  json["snd_pola"] = gcf.snd_pola;
+  json["led_pola"] = gcf.led_pola;
 
-  memset(_data.AKey_r, 0, 17);
-  memset(_data.AKey_w, 0, 17);
-  strcpy(_data.esrv1_addr, "192.168.1.100");
-  strcpy(_data.esrv2_addr, "192.168.1.200");
-  strcpy(_data.radio_addr, "192.168.1.33");
-  strcpy(_data.srudp_addr, "192.168.1.30");
-  memset(_data.owm_key, 0, 33);
-  strcpy(_data.ch1_name, "Внутри");
-  strcpy(_data.ch2_name, "Снаружи");
-  strcpy(_data.ch3_name, "В бане");
-  memset(_data.news_api_key, 0, 33);
-  strcpy(_data.news_source, "lenta");
+  //---GPIO-----------------------------------------------
+  json["sda"] = gcf.gpio_sda;
+  json["scl"] = gcf.gpio_scl;
+  json["dio"] = gcf.gpio_dio;
+  json["clk"] = gcf.gpio_clk;
+  json["dcs"] = gcf.gpio_dcs;
+  json["dwr"] = gcf.gpio_dwr;
+  json["trm"] = gcf.gpio_trm;
+  json["sqw"] = gcf.gpio_sqw;
+  json["snd"] = gcf.gpio_snd;
+  json["led"] = gcf.gpio_led;
+  json["btn"] = gcf.gpio_btn;
+  json["dht"] = gcf.gpio_dht;
+  json["ana"] = gcf.gpio_ana;
+  json["uar"] = gcf.gpio_uar;
+
+  String msg = String();
+  if (serializeJson(doc, msg) == 0) DBG_OUT_PORT.println(F("Failed forming json string"));
+  return msg;
+}
 
 
-  _data.snd_pola = false;
-  _data.led_pola = false;
-  _data.rus_lng = false;
-  _data.time_up = false;
-  _data.udp_mon = false;
-  _data.esm = false;
-  _data.auto_br = false;
-  _data.color_up = 0;
-  _data.color_dwn = 0;
-  _data.use_pp = 0;
-  _data.type_vdrv = 0;
-  _data.type_disp = 0;
-  _data.use_es = 0;
-  _data.use_ts = 0;
-  _data.type_thermo = 0;
-  _data.src_thermo = 0;
-  _data.lb_thermo = 0;
-  _data.hb_thermo = 0;
-  _data.ts_ch_id = 0;
-  _data.pp_city_id = 28438;
-  _data.period = 10;
-  _data.man_br = 7;
-  _data.nmd_br = 2;
+// ---------------------------------------------------- MCF Default
+main_cfg_t MAINJS::def_conf() {
+  main_cfg_t mcf;
+
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital main_cfg"));
+
+  memset(mcf.AKey_r, 0, 17);
+  memset(mcf.AKey_w, 0, 17);
+  strcpy(mcf.esrv1_addr, "192.168.1.100");
+  strcpy(mcf.esrv2_addr, "192.168.1.200");
+  strcpy(mcf.radio_addr, "192.168.1.33");
+  strcpy(mcf.srudp_addr, "192.168.1.30");
+  memset(mcf.owm_key, 0, 33);
+  strcpy(mcf.ch1_name, "Внутри");
+  strcpy(mcf.ch2_name, "Снаружи");
+  strcpy(mcf.ch3_name, "В бане");
+  memset(mcf.news_api_key, 0, 33);
+  strcpy(mcf.news_source, "lenta");
+
+
+  mcf.rus_lng = false;
+  mcf.time_up = false;
+  mcf.udp_mon = false;
+  mcf.esm = false;
+  mcf.auto_br = false;
+  mcf.color_up = 0;
+  mcf.color_dwn = 0;
+  mcf.use_pp = 0;
+  mcf.vdrv_t = 0;
+  mcf.dsp_t = 0;
+  mcf.use_es = 0;
+  mcf.use_ts = 0;
+  mcf.thermo_t = 0;
+  mcf.src_thermo = 0;
+  mcf.lb_thermo = 0;
+  mcf.hb_thermo = 0;
+  mcf.ts_ch_id = 0;
+  mcf.pp_city_id = 28438;
+  mcf.period = 10;
+  mcf.man_br = 7;
+  mcf.nmd_br = 2;
+
+  mcf.br_level[0] = 1;
+  mcf.br_level[1] = 200;
+  mcf.br_level[2] = 1;
+  mcf.br_level[3] = 15;
+
+  mcf.font_t = 0;
+
+  mcf.news_en = false;
+
+  return mcf;
+}
+
+// ---------------------------------------------------- GCF Default
+gpio_cfg_t GPIOJS::def_conf() {
+  gpio_cfg_t gcf;
+
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital gpio_cfg"));
+
+  gcf.snd_pola = false;
+  gcf.led_pola = false;
 
 #if defined(ESP8266)
-  _data.gpio_sda = 4;
-  _data.gpio_scl = 5;
-  _data.gpio_dio = 13;
-  _data.gpio_clk = 14;
-  _data.gpio_dcs = 16;
-  _data.gpio_dwr = 2;
-  _data.gpio_trm = 2;
-  _data.gpio_sqw = 12;
-  _data.gpio_snd = 15;
-  _data.gpio_led = 2;
-  _data.gpio_btn = 0;
-  _data.gpio_dht = 0;
-  _data.gpio_ana = 17;
-  _data.gpio_uar = 16;
+  gcf.gpio_sda = 4;
+  gcf.gpio_scl = 5;
+  gcf.gpio_dio = 13;
+  gcf.gpio_clk = 14;
+  gcf.gpio_dcs = 16;
+  gcf.gpio_dwr = 2;
+  gcf.gpio_trm = 2;
+  gcf.gpio_sqw = 12;
+  gcf.gpio_snd = 15;
+  gcf.gpio_led = 2;
+  gcf.gpio_btn = 0;
+  gcf.gpio_dht = 0;
+  gcf.gpio_ana = 17;
+  gcf.gpio_uar = 16;
 
 #elif CONFIG_IDF_TARGET_ESP32
-  _data.gpio_sda = 23;
-  _data.gpio_scl = 22;
-  _data.gpio_dio = 19;
-  _data.gpio_clk = 18;
-  _data.gpio_dcs = 5;
-  _data.gpio_dwr = 26;
-  _data.gpio_trm = 36;
-  _data.gpio_sqw = 34;
-  _data.gpio_snd = 2;
-  _data.gpio_led = 16;
-  _data.gpio_btn = 0;
-  _data.gpio_dht = 39;
-  _data.gpio_ana = 35;
-  _data.gpio_uar = 36;
+  gcf.gpio_sda = 23;
+  gcf.gpio_scl = 22;
+  gcf.gpio_dio = 19;
+  gcf.gpio_clk = 18;
+  gcf.gpio_dcs = 5;
+  gcf.gpio_dwr = 26;
+  gcf.gpio_trm = 36;
+  gcf.gpio_sqw = 34;
+  gcf.gpio_snd = 2;
+  gcf.gpio_led = 16;
+  gcf.gpio_btn = 0;
+  gcf.gpio_dht = 39;
+  gcf.gpio_ana = 35;
+  gcf.gpio_uar = 36;
 
 #elif CONFIG_IDF_TARGET_ESP32C3
-  _data.gpio_sda = 5;
-  _data.gpio_scl = 6;
-  _data.gpio_dio = 7;
-  _data.gpio_clk = 8;
-  _data.gpio_dcs = 5;
-  _data.gpio_dwr = 0;
-  _data.gpio_trm = 10;
-  _data.gpio_sqw = 1;
-  _data.gpio_snd = 2;
-  _data.gpio_led = 3;
-  _data.gpio_btn = 9;
-  _data.gpio_dht = 10;
-  _data.gpio_ana = 10;
-  _data.gpio_uar = 10;
+  gcf.gpio_sda = 5;
+  gcf.gpio_scl = 6;
+  gcf.gpio_dio = 7;
+  gcf.gpio_clk = 8;
+  gcf.gpio_dcs = 5;
+  gcf.gpio_dwr = 0;
+  gcf.gpio_trm = 10;
+  gcf.gpio_sqw = 1;
+  gcf.gpio_snd = 2;
+  gcf.gpio_led = 3;
+  gcf.gpio_btn = 9;
+  gcf.gpio_dht = 10;
+  gcf.gpio_ana = 10;
+  gcf.gpio_uar = 10;
 #endif
-
-  _data.br_level[0] = 1;
-  _data.br_level[1] = 200;
-  _data.br_level[2] = 1;
-  _data.br_level[3] = 15;
-
-  _data.type_font = 0;
-
-  _data.news_en = false;
-
-  return _data;
+  return gcf;
 }
 
 #elif defined(__AVR_ATmega2560__)
 
 #include <EEPROM.h>
 
-conf_data_t MAINJS::from_json(String message) {
-  conf_data_t _data;
-  EEPROM.get(0, _data);  // прочитали из адреса 0
-  return _data;
+main_cfg_t MAINJS::from_json(String message) {
+  main_cfg_t mcf;
+  EEPROM.get(0, mcf);  // прочитали из адреса 0
+  return mcf;
 }
 
-conf_data_t MAINJS::def_conf() {
-  conf_data_t _data;
-  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital conf_data with config.json"));
+main_cfg_t MAINJS::def_conf() {
+  main_cfg_t mcf;
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital main_cfg"));
 
 #if defined _dacha
-  strcpy(_data.ch1_name, "В избе");
-  strcpy(_data.ch2_name, "На улице");
-  strcpy(_data.ch3_name, "Подпол");
+  strcpy(mcf.ch1_name, "В избе");
+  strcpy(mcf.ch2_name, "На улице");
+  strcpy(mcf.ch3_name, "Подпол");
 #elif defined _work
-  strcpy(_data.ch1_name, "Внутри");
-  strcpy(_data.ch2_name, "На улице");
-  memset(_data.ch3_name, 0, 17);
+  strcpy(mcf.ch1_name, "Внутри");
+  strcpy(mcf.ch2_name, "На улице");
+  memset(mcf.ch3_name, 0, 17);
 #endif
-  _data.snd_pola = false;
-  _data.led_pola = true;
-  _data.rus_lng = true;
+  mcf.rus_lng = true;
 
 #if defined _dacha
-  _data.type_vdrv = 2;
-  _data.type_disp = 21;
+  mcf.vdrv_t = 2;
+  mcf.dsp_t = 21;
 
 #elif defined _work
-  _data.type_vdrv = 3;
-  _data.type_disp = 23;
+  mcf.vdrv_t = 3;
+  mcf.dsp_t = 23;
 
-  _data.type_snr1 = 10;
-  _data.type_snr2 = 4;
-  _data.type_snr3 = 0;
-  _data.type_snrp = 10;
+  mcf.type_snr1 = 10;
+  mcf.type_snr2 = 4;
+  mcf.type_snr3 = 0;
+  mcf.type_snrp = 10;
 #endif
 
-  _data.type_thermo = 0;
-  _data.src_thermo = 0;
-  _data.lb_thermo = 0;
-  _data.hb_thermo = 0;
-  _data.period = 10;
-  _data.man_br = 14;
-  _data.nmd_br = 2;
-  _data.esm = false;
-  _data.auto_br = true;
-
-  _data.gpio_sda = 20;
-  _data.gpio_scl = 21;
-  _data.gpio_dio = 57;  //A3
-  _data.gpio_clk = 56;  //A2
-  _data.gpio_dcs = 55;  //A1
-  _data.gpio_dwr = 54;  //A0
-  _data.gpio_trm = 60;  //A6
-  _data.gpio_sqw = 19;
-  _data.gpio_snd = 61;  //A7
-  _data.gpio_led = 60;  //A6
-  _data.gpio_btn = 59;  //A5
-  _data.gpio_dht = 63;  //A9
-  _data.gpio_ana = 58;  //A4
-  _data.gpio_uar = 65;  //A11
+  mcf.thermo_t = 0;
+  mcf.src_thermo = 0;
+  mcf.lb_thermo = 0;
+  mcf.hb_thermo = 0;
+  mcf.period = 10;
+  mcf.man_br = 14;
+  mcf.nmd_br = 2;
+  mcf.esm = false;
+  mcf.auto_br = true;
 
 #if defined _dacha
-  _data.br_level[0] = 220;
-  _data.br_level[1] = 1;
-  _data.br_level[2] = 1;
-  _data.br_level[3] = 14;
+  mcf.br_level[0] = 220;
+  mcf.br_level[1] = 1;
+  mcf.br_level[2] = 1;
+  mcf.br_level[3] = 14;
 
 #elif defined _work
-  _data.br_level[0] = 300;
-  _data.br_level[1] = 1;
-  _data.br_level[2] = 1;
-  _data.br_level[3] = 254;
+  mcf.br_level[0] = 300;
+  mcf.br_level[1] = 1;
+  mcf.br_level[2] = 1;
+  mcf.br_level[3] = 254;
 #endif
 
-  return _data;
+  return mcf;
 }
 
-String MAINJS::to_json(conf_data_t _data) {
-  EEPROM.put(0, _data);  // записали по адресу 0
+gpio_cfg_t GPIOJS::def_conf() {
+  gpio_cfg_t gcf;
+  if (debug_level == 3) DBG_OUT_PORT.println(F("Start inital gpio_cfg"));
+
+  gcf.snd_pola = false;
+  gcf.led_pola = true;
+  gcf.gpio_sda = 20;
+  gcf.gpio_scl = 21;
+  gcf.gpio_dio = 57;  //A3
+  gcf.gpio_clk = 56;  //A2
+  gcf.gpio_dcs = 55;  //A1
+  gcf.gpio_dwr = 54;  //A0
+  gcf.gpio_trm = 60;  //A6
+  gcf.gpio_sqw = 19;
+  gcf.gpio_snd = 61;  //A7
+  gcf.gpio_led = 60;  //A6
+  gcf.gpio_btn = 59;  //A5
+  gcf.gpio_dht = 63;  //A9
+  gcf.gpio_ana = 58;  //A4
+  gcf.gpio_uar = 65;  //A11
+
+  return gcf;
+}
+
+String MAINJS::to_json(main_cfg_t mcf) {
+  EEPROM.put(0, mcf);  // записали по адресу 0
   String ret = "OK";
   return ret;
 }

@@ -25,8 +25,8 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   uint8_t octave;
 
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-  ledcSetup(2, 2000, 8);
-  ledcAttachPin(out, 2);
+//  ledcSetup(2, 2000, 8);
+  ledcAttach(out, 2000, 8);
 #endif
 
   if (millis() > dela)
@@ -47,6 +47,7 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
     digitalWrite(out, pola ? HIGH : LOW);
   }
 }
+
 bool Synt::play(uint8_t mel_n, uint8_t out, bool set_up, bool pola)
 {
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -79,8 +80,8 @@ bool Synt::play(uint8_t mel_n, uint8_t out, bool set_up, bool pola)
 
 
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-    ledcSetup(2, 2000, 8);
-    ledcAttachPin(out, 2);
+//    ledcSetup(2, 2000, 8);
+    ledcAttach(out, 2000, 8);
 #endif
 
     // get default duration -------------------------------

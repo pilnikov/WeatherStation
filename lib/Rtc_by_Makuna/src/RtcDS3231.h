@@ -24,14 +24,12 @@ License along with Rtc.  If not, see
 <http://www.gnu.org/licenses/>.
 -------------------------------------------------------------------------*/
 
-#ifndef __RTCDS3231_H__
-#define __RTCDS3231_H__
+#pragma once
 
 #include <Arduino.h>
-
+#include "RtcUtility.h"
 #include "RtcDateTime.h"
 #include "RtcTemperature.h"
-#include "RtcUtility.h"
 
 
 //I2C Slave Address  
@@ -47,6 +45,7 @@ const uint8_t DS3231_REG_STATUS    = 0x0F;
 const uint8_t DS3231_REG_AGING     = 0x10;
                                          
 const uint8_t DS3231_REG_TEMP      = 0x11;
+
 
 //DS3231 Register Data Size if not just 1
 const size_t DS3231_REG_TIMEDATE_SIZE = 7;
@@ -646,7 +645,7 @@ public:
         setReg(DS3231_REG_AGING, value);
     }
 
-private:
+protected:
     T_WIRE_METHOD& _wire;
     uint8_t _lastError;
 
@@ -682,4 +681,3 @@ private:
 
 };
 
-#endif // __RTCDS3231_H__

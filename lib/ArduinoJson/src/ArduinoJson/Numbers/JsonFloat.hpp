@@ -1,5 +1,5 @@
 // ArduinoJson - https://arduinojson.org
-// Copyright © 2014-2022, Benoit BLANCHON
+// Copyright © 2014-2024, Benoit BLANCHON
 // MIT License
 
 #pragma once
@@ -7,11 +7,12 @@
 #include <ArduinoJson/Configuration.hpp>
 #include <ArduinoJson/Namespace.hpp>
 
-namespace ARDUINOJSON_NAMESPACE {
+ARDUINOJSON_BEGIN_PUBLIC_NAMESPACE
 
 #if ARDUINOJSON_USE_DOUBLE
-typedef double JsonFloat;
+using JsonFloat = double;
 #else
-typedef float JsonFloat;
+using JsonFloat = float;
 #endif
-}  // namespace ARDUINOJSON_NAMESPACE
+
+ARDUINOJSON_END_PUBLIC_NAMESPACE

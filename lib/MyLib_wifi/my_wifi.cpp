@@ -37,8 +37,7 @@ wifi_cur_data_t WF::begin(wifi_cfg_data_t _data)
   DBG_OUT_PORT.print(F("Trying to connect a..."));
   DBG_OUT_PORT.println(c_data.ssid);
 
-  if (WiFi.getAutoConnect() != true) WiFi.setAutoConnect(true);  //on power-on automatically connects to last used hwAP
-  WiFi.setAutoReconnect(true);                                   //automatically reconnects to hwAP in case it is disconnected
+  if (WiFi.getAutoReconnect() != true) WiFi.setAutoReconnect(true);  //on power-on automatically connects to last used hwAP
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
 

@@ -1,5 +1,5 @@
 // ArduinoJson - https://arduinojson.org
-// Copyright © 2014-2022, Benoit BLANCHON
+// Copyright © 2014-2024, Benoit BLANCHON
 // MIT License
 
 #pragma once
@@ -8,127 +8,126 @@
 #include <ArduinoJson/Variant/VariantAttorney.hpp>
 #include <ArduinoJson/Variant/VariantData.hpp>
 
-namespace ARDUINOJSON_NAMESPACE {
+ARDUINOJSON_BEGIN_PUBLIC_NAMESPACE
 
 class JsonObject;
 
 // A read-only reference to an array in a JsonDocument
-// https://arduinojson.org/v6/api/jsonarrayconst/
-class JsonArrayConst : public VariantOperators<JsonArrayConst> {
+// https://arduinojson.org/v7/api/jsonarrayconst/
+class JsonArrayConst : public detail::VariantOperators<JsonArrayConst> {
   friend class JsonArray;
-  friend class VariantAttorney;
+  friend class detail::VariantAttorney;
 
  public:
-  typedef JsonArrayConstIterator iterator;
+  using iterator = JsonArrayConstIterator;
 
   // Returns an iterator to the first element of the array.
-  // https://arduinojson.org/v6/api/jsonarrayconst/begin/
-  FORCE_INLINE iterator begin() const {
-    if (!_data)
+  // https://arduinojson.org/v7/api/jsonarrayconst/begin/
+  iterator begin() const {
+    if (!data_)
       return iterator();
-    return iterator(_data->head());
+    return iterator(data_->createIterator(resources_), resources_);
   }
 
   // Returns an iterator to the element following the last element of the array.
-  // https://arduinojson.org/v6/api/jsonarrayconst/end/
-  FORCE_INLINE iterator end() const {
+  // https://arduinojson.org/v7/api/jsonarrayconst/end/
+  iterator end() const {
     return iterator();
   }
 
   // Creates an unbound reference.
-  FORCE_INLINE JsonArrayConst() : _data(0) {}
+  JsonArrayConst() : data_(0), resources_(0) {}
 
   // INTERNAL USE ONLY
-  FORCE_INLINE JsonArrayConst(const CollectionData* data) : _data(data) {}
+  JsonArrayConst(const detail::ArrayData* data,
+                 const detail::ResourceManager* resources)
+      : data_(data), resources_(resources) {}
 
-  // Compares the content of two arrays.
-  // Returns true if the two arrays are equal.
-  FORCE_INLINE bool operator==(JsonArrayConst rhs) const {
-    if (_data == rhs._data)
-      return true;
-    if (!_data || !rhs._data)
-      return false;
-
-    iterator it1 = begin();
-    iterator it2 = rhs.begin();
-
-    for (;;) {
-      bool end1 = it1 == end();
-      bool end2 = it2 == rhs.end();
-      if (end1 && end2)
-        return true;
-      if (end1 || end2)
-        return false;
-      if (*it1 != *it2)
-        return false;
-      ++it1;
-      ++it2;
-    }
+  // Returns the element at the specified index.
+  // https://arduinojson.org/v7/api/jsonarrayconst/subscript/
+  template <typename T,
+            detail::enable_if_t<detail::is_integral<T>::value, int> = 0>
+  JsonVariantConst operator[](T index) const {
+    return JsonVariantConst(
+        detail::ArrayData::getElement(data_, size_t(index), resources_),
+        resources_);
   }
 
   // Returns the element at the specified index.
-  // https://arduinojson.org/v6/api/jsonarrayconst/subscript/
-  FORCE_INLINE JsonVariantConst operator[](size_t index) const {
-    return JsonVariantConst(_data ? _data->getElement(index) : 0);
+  // https://arduinojson.org/v7/api/jsonarrayconst/subscript/
+  template <typename TVariant,
+            detail::enable_if_t<detail::IsVariant<TVariant>::value, int> = 0>
+  JsonVariantConst operator[](const TVariant& variant) const {
+    if (variant.template is<size_t>())
+      return operator[](variant.template as<size_t>());
+    else
+      return JsonVariantConst();
   }
 
   operator JsonVariantConst() const {
-    return JsonVariantConst(collectionToVariant(_data));
+    return JsonVariantConst(getData(), resources_);
   }
 
   // Returns true if the reference is unbound.
-  // https://arduinojson.org/v6/api/jsonarrayconst/isnull/
-  FORCE_INLINE bool isNull() const {
-    return _data == 0;
+  // https://arduinojson.org/v7/api/jsonarrayconst/isnull/
+  bool isNull() const {
+    return data_ == 0;
   }
 
   // Returns true if the reference is bound.
-  // https://arduinojson.org/v6/api/jsonarrayconst/isnull/
-  FORCE_INLINE operator bool() const {
-    return _data != 0;
-  }
-
-  // Returns the number of bytes occupied by the array.
-  // https://arduinojson.org/v6/api/jsonarrayconst/memoryusage/
-  FORCE_INLINE size_t memoryUsage() const {
-    return _data ? _data->memoryUsage() : 0;
+  // https://arduinojson.org/v7/api/jsonarrayconst/isnull/
+  operator bool() const {
+    return data_ != 0;
   }
 
   // Returns the depth (nesting level) of the array.
-  // https://arduinojson.org/v6/api/jsonarrayconst/nesting/
-  FORCE_INLINE size_t nesting() const {
-    return variantNesting(collectionToVariant(_data));
+  // https://arduinojson.org/v7/api/jsonarrayconst/nesting/
+  size_t nesting() const {
+    return detail::VariantData::nesting(getData(), resources_);
   }
 
   // Returns the number of elements in the array.
-  // https://arduinojson.org/v6/api/jsonarrayconst/size/
-  FORCE_INLINE size_t size() const {
-    return _data ? _data->size() : 0;
+  // https://arduinojson.org/v7/api/jsonarrayconst/size/
+  size_t size() const {
+    return data_ ? data_->size(resources_) : 0;
+  }
+
+  // DEPRECATED: always returns zero
+  ARDUINOJSON_DEPRECATED("always returns zero")
+  size_t memoryUsage() const {
+    return 0;
   }
 
  private:
-  const VariantData* getData() const {
-    return collectionToVariant(_data);
+  const detail::VariantData* getData() const {
+    return collectionToVariant(data_);
   }
 
-  const CollectionData* _data;
+  const detail::ArrayData* data_;
+  const detail::ResourceManager* resources_;
 };
 
-template <>
-struct Converter<JsonArrayConst> : private VariantAttorney {
-  static void toJson(JsonVariantConst src, JsonVariant dst) {
-    variantCopyFrom(getData(dst), getData(src), getPool(dst));
-  }
+// Compares the content of two arrays.
+// Returns true if the two arrays are equal.
+inline bool operator==(JsonArrayConst lhs, JsonArrayConst rhs) {
+  if (!lhs && !rhs)
+    return true;
+  if (!lhs || !rhs)
+    return false;
 
-  static JsonArrayConst fromJson(JsonVariantConst src) {
-    const VariantData* data = getData(src);
-    return data ? data->asArray() : 0;
-  }
+  auto a = lhs.begin();
+  auto b = rhs.begin();
 
-  static bool checkJson(JsonVariantConst src) {
-    const VariantData* data = getData(src);
-    return data && data->isArray();
+  for (;;) {
+    if (a == b)  // same pointer or both null
+      return true;
+    if (a == lhs.end() || b == rhs.end())
+      return false;
+    if (*a != *b)
+      return false;
+    ++a;
+    ++b;
   }
-};
+}
 
-}  // namespace ARDUINOJSON_NAMESPACE
+ARDUINOJSON_END_PUBLIC_NAMESPACE

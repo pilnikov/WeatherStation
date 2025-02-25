@@ -16,9 +16,15 @@ DS3231AlarmOne	KEYWORD1
 DS3231AlarmTwo	KEYWORD1
 RtcDS3231	KEYWORD1
 EepromAt24c32	KEYWORD1
+RtcPCF8563	KEYWORD1
+PCF8563Alarm	KEYWORD1
+RtcAlarmManager	KEYWORD1
 RtcTemperature	KEYWORD1
 RtcDateTime	KEYWORD1
 DayOfWeek	KEYWORD1
+AlarmPeriod	KEYWORD1
+AlarmAddError	KEYWORD1
+RtcAlarmCallback	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -51,6 +57,14 @@ GetMemory	KEYWORD2
 SetMemory	KEYWORD2
 GetTrickleChargeSettings	KEYWORD2
 SetTrickleChargeSettings	KEYWORD2
+SetAlarm	KEYWORD2
+StopAlarm	KEYWORD2
+SetTimer	KEYWORD2
+StopTimer	KEYWORD2
+LatchAlarmTriggeredFlag	KEYWORD2
+LatchTimerTriggeredFlag	KEYWORD2
+GetAlarmTriggered	KEYWORD2
+GetTimerTriggered	KEYWORD2
 AsFloatDegC	KEYWORD2
 AsFloatDegF	KEYWORD2
 AsCentiDegC	KEYWORD2
@@ -66,6 +80,18 @@ TotalSeconds	KEYWORD2
 TotalSeconds64	KEYWORD2
 TotalDays	KEYWORD2
 DayOf	KEYWORD2
+IsValid	KEYWORD2
+Unix32Time	KEYWORD2
+InitWithUnix32Time	KEYWORD2
+Unix64Time	KEYWORD2
+InitWithUnix64Time	KEYWORD2
+Ntp32Time	KEYWORD2
+InitWithNtp32Time	KEYWORD2
+Ntp64Time	KEYWORD2
+InitWithNtp64Time	KEYWORD2
+InitWithDateTimeFormatString	KEYWORD2
+ConvertDowToRtc	KEYWORD2
+ConvertRtcToDow	KEYWORD2
 ControlFlags	KEYWORD2
 
 #######################################
@@ -138,6 +164,20 @@ DS3234TempCompensationRate_64Seconds	LITERAL1
 DS3234TempCompensationRate_128Seconds	LITERAL1
 DS3234TempCompensationRate_256Seconds	LITERAL1
 DS3234TempCompensationRate_512Seconds	LITERAL1
+PCF8563SquareWavePinMode_None	LITERAL1
+PCF8563SquareWavePinMode_32kHz	LITERAL1
+PCF8563SquareWavePinMode_1kHz	LITERAL1
+PCF8563SquareWavePinMode_32Hz	LITERAL1
+PCF8563SquareWavePinMode_1Hz	LITERAL1
+PCF8563TimerMode_None	LITERAL1
+PCF8563TimerMode_4096thOfASecond	LITERAL1
+PCF8563TimerMode_64thOfASecond	LITERAL1
+PCF8563TimerMode_Seconds	LITERAL1
+PCF8563TimerMode_Minutes	LITERAL1
+PCF8563AlarmControl_MinuteMatch	LITERAL1
+PCF8563AlarmControl_HourMatch	LITERAL1
+PCF8563AlarmControl_DayOfMonthMatch	LITERAL1
+PCF8563AlarmControl_DayOfWeekMatch	LITERAL1
 DayOfWeek_Sunday	LITERAL1
 DayOfWeek_Monday	LITERAL1
 DayOfWeek_Tuesday	LITERAL1
@@ -152,4 +192,18 @@ Rtc_Wire_Error_NoAddressableDevice	LITERAL1
 Rtc_Wire_Error_UnsupportedRequest	LITERAL1
 Rtc_Wire_Error_Unspecific	LITERAL1
 Rtc_Wire_Error_CommunicationTimeout	LITERAL1
+RtcLocaleEnUs	LITERAL1
+RtcLocaleEn	LITERAL1
+AlarmPeriod_Expired	LITERAL1
+AlarmPeriod_SingleFire	LITERAL1
+AlarmPeriod_Yearly	LITERAL1
+AlarmPeriod_Monthly	LITERAL1
+AlarmPeriod_Monthly_LastDay	LITERAL1
+AlarmPeriod_Weekly	LITERAL1
+AlarmPeriod_Daily	LITERAL1
+AlarmPeriod_Hourly	LITERAL1
+AlarmAddError_PeriodInvalid	LITERAL1
+AlarmAddError_TimePast	LITERAL1
+AlarmAddError_TimeInvalid	LITERAL1
+AlarmAddError_CountExceeded	LITERAL1
 

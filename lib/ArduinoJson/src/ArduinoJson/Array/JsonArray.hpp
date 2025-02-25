@@ -1,5 +1,5 @@
 // ArduinoJson - https://arduinojson.org
-// Copyright © 2014-2022, Benoit BLANCHON
+// Copyright © 2014-2024, Benoit BLANCHON
 // MIT License
 
 #pragma once
@@ -7,204 +7,213 @@
 #include <ArduinoJson/Array/ElementProxy.hpp>
 #include <ArduinoJson/Array/JsonArrayConst.hpp>
 
-namespace ARDUINOJSON_NAMESPACE {
+ARDUINOJSON_BEGIN_PUBLIC_NAMESPACE
 
 class JsonObject;
 
 // A reference to an array in a JsonDocument
-// https://arduinojson.org/v6/api/jsonarray/
-class JsonArray : public VariantOperators<JsonArray> {
-  friend class VariantAttorney;
+// https://arduinojson.org/v7/api/jsonarray/
+class JsonArray : public detail::VariantOperators<JsonArray> {
+  friend class detail::VariantAttorney;
 
  public:
-  typedef JsonArrayIterator iterator;
+  using iterator = JsonArrayIterator;
 
   // Constructs an unbound reference.
-  FORCE_INLINE JsonArray() : _data(0), _pool(0) {}
+  JsonArray() : data_(0), resources_(0) {}
 
   // INTERNAL USE ONLY
-  FORCE_INLINE JsonArray(MemoryPool* pool, CollectionData* data)
-      : _data(data), _pool(pool) {}
+  JsonArray(detail::ArrayData* data, detail::ResourceManager* resources)
+      : data_(data), resources_(resources) {}
 
   // Returns a JsonVariant pointing to the array.
-  // https://arduinojson.org/v6/api/jsonvariant/
+  // https://arduinojson.org/v7/api/jsonvariant/
   operator JsonVariant() {
-    void* data = _data;  // prevent warning cast-align
-    return JsonVariant(_pool, reinterpret_cast<VariantData*>(data));
+    void* data = data_;  // prevent warning cast-align
+    return JsonVariant(reinterpret_cast<detail::VariantData*>(data),
+                       resources_);
   }
 
   // Returns a read-only reference to the array.
-  // https://arduinojson.org/v6/api/jsonarrayconst/
+  // https://arduinojson.org/v7/api/jsonarrayconst/
   operator JsonArrayConst() const {
-    return JsonArrayConst(_data);
+    return JsonArrayConst(data_, resources_);
+  }
+
+  // Appends a new (empty) element to the array.
+  // Returns a reference to the new element.
+  // https://arduinojson.org/v7/api/jsonarray/add/
+  template <typename T, detail::enable_if_t<
+                            !detail::is_same<T, JsonVariant>::value, int> = 0>
+  T add() const {
+    return add<JsonVariant>().to<T>();
   }
 
   // Appends a new (null) element to the array.
   // Returns a reference to the new element.
-  // https://arduinojson.org/v6/api/jsonarray/add/
+  // https://arduinojson.org/v7/api/jsonarray/add/
+  template <typename T, detail::enable_if_t<
+                            detail::is_same<T, JsonVariant>::value, int> = 0>
   JsonVariant add() const {
-    if (!_data)
-      return JsonVariant();
-    return JsonVariant(_pool, _data->addElement(_pool));
+    return JsonVariant(detail::ArrayData::addElement(data_, resources_),
+                       resources_);
   }
 
   // Appends a value to the array.
-  // https://arduinojson.org/v6/api/jsonarray/add/
+  // https://arduinojson.org/v7/api/jsonarray/add/
   template <typename T>
-  FORCE_INLINE bool add(const T& value) const {
-    return add().set(value);
+  bool add(const T& value) const {
+    return detail::ArrayData::addValue(data_, value, resources_);
   }
 
   // Appends a value to the array.
-  // https://arduinojson.org/v6/api/jsonarray/add/
-  template <typename T>
-  FORCE_INLINE bool add(T* value) const {
-    return add().set(value);
+  // https://arduinojson.org/v7/api/jsonarray/add/
+  template <typename T,
+            detail::enable_if_t<!detail::is_const<T>::value, int> = 0>
+  bool add(T* value) const {
+    return detail::ArrayData::addValue(data_, value, resources_);
   }
 
   // Returns an iterator to the first element of the array.
-  // https://arduinojson.org/v6/api/jsonarray/begin/
-  FORCE_INLINE iterator begin() const {
-    if (!_data)
+  // https://arduinojson.org/v7/api/jsonarray/begin/
+  iterator begin() const {
+    if (!data_)
       return iterator();
-    return iterator(_pool, _data->head());
+    return iterator(data_->createIterator(resources_), resources_);
   }
 
   // Returns an iterator following the last element of the array.
-  // https://arduinojson.org/v6/api/jsonarray/end/
-  FORCE_INLINE iterator end() const {
+  // https://arduinojson.org/v7/api/jsonarray/end/
+  iterator end() const {
     return iterator();
   }
 
   // Copies an array.
-  // https://arduinojson.org/v6/api/jsonarray/set/
-  FORCE_INLINE bool set(JsonArrayConst src) const {
-    if (!_data || !src._data)
+  // https://arduinojson.org/v7/api/jsonarray/set/
+  bool set(JsonArrayConst src) const {
+    if (!data_)
       return false;
-    return _data->copyFrom(*src._data, _pool);
-  }
 
-  // Compares the content of two arrays.
-  FORCE_INLINE bool operator==(JsonArray rhs) const {
-    return JsonArrayConst(_data) == JsonArrayConst(rhs._data);
+    clear();
+    for (auto element : src) {
+      if (!add(element))
+        return false;
+    }
+
+    return true;
   }
 
   // Removes the element at the specified iterator.
-  // ⚠️ Doesn't release the memory associated with the removed element.
-  // https://arduinojson.org/v6/api/jsonarray/remove/
-  FORCE_INLINE void remove(iterator it) const {
-    if (!_data)
-      return;
-    _data->removeSlot(it._slot);
+  // https://arduinojson.org/v7/api/jsonarray/remove/
+  void remove(iterator it) const {
+    detail::ArrayData::remove(data_, it.iterator_, resources_);
   }
 
   // Removes the element at the specified index.
-  // ⚠️ Doesn't release the memory associated with the removed element.
-  // https://arduinojson.org/v6/api/jsonarray/remove/
-  FORCE_INLINE void remove(size_t index) const {
-    if (!_data)
-      return;
-    _data->removeElement(index);
+  // https://arduinojson.org/v7/api/jsonarray/remove/
+  void remove(size_t index) const {
+    detail::ArrayData::removeElement(data_, index, resources_);
+  }
+
+  // Removes the element at the specified index.
+  // https://arduinojson.org/v7/api/jsonarray/remove/
+  template <typename TVariant,
+            detail::enable_if_t<detail::IsVariant<TVariant>::value, int> = 0>
+  void remove(const TVariant& variant) const {
+    if (variant.template is<size_t>())
+      remove(variant.template as<size_t>());
   }
 
   // Removes all the elements of the array.
-  // ⚠️ Doesn't release the memory associated with the removed elements.
-  // https://arduinojson.org/v6/api/jsonarray/clear/
+  // https://arduinojson.org/v7/api/jsonarray/clear/
   void clear() const {
-    if (!_data)
-      return;
-    _data->clear();
+    detail::ArrayData::clear(data_, resources_);
   }
 
   // Gets or sets the element at the specified index.
-  // https://arduinojson.org/v6/api/jsonarray/subscript/
-  FORCE_INLINE ElementProxy<JsonArray> operator[](size_t index) const {
-    return ElementProxy<JsonArray>(*this, index);
+  // https://arduinojson.org/v7/api/jsonarray/subscript/
+  template <typename T,
+            detail::enable_if_t<detail::is_integral<T>::value, int> = 0>
+  detail::ElementProxy<JsonArray> operator[](T index) const {
+    return {*this, size_t(index)};
   }
 
-  // Creates an object and appends it to the array.
-  // https://arduinojson.org/v6/api/jsonarray/createnestedobject/
-  FORCE_INLINE JsonObject createNestedObject() const;
-
-  // Creates an array and appends it to the array.
-  // https://arduinojson.org/v6/api/jsonarray/createnestedarray/
-  FORCE_INLINE JsonArray createNestedArray() const {
-    return add().to<JsonArray>();
+  // Gets or sets the element at the specified index.
+  // https://arduinojson.org/v7/api/jsonarray/subscript/
+  template <typename TVariant,
+            detail::enable_if_t<detail::IsVariant<TVariant>::value, int> = 0>
+  detail::ElementProxy<JsonArray> operator[](const TVariant& variant) const {
+    if (variant.template is<size_t>())
+      return {*this, variant.template as<size_t>()};
+    else
+      return {*this, size_t(-1)};
   }
 
   operator JsonVariantConst() const {
-    return JsonVariantConst(collectionToVariant(_data));
+    return JsonVariantConst(collectionToVariant(data_), resources_);
   }
 
   // Returns true if the reference is unbound.
-  // https://arduinojson.org/v6/api/jsonarray/isnull/
-  FORCE_INLINE bool isNull() const {
-    return _data == 0;
+  // https://arduinojson.org/v7/api/jsonarray/isnull/
+  bool isNull() const {
+    return data_ == 0;
   }
 
   // Returns true if the reference is bound.
-  // https://arduinojson.org/v6/api/jsonarray/isnull/
-  FORCE_INLINE operator bool() const {
-    return _data != 0;
-  }
-
-  // Returns the number of bytes occupied by the array.
-  // https://arduinojson.org/v6/api/jsonarray/memoryusage/
-  FORCE_INLINE size_t memoryUsage() const {
-    return _data ? _data->memoryUsage() : 0;
+  // https://arduinojson.org/v7/api/jsonarray/isnull/
+  operator bool() const {
+    return data_ != 0;
   }
 
   // Returns the depth (nesting level) of the array.
-  // https://arduinojson.org/v6/api/jsonarray/nesting/
-  FORCE_INLINE size_t nesting() const {
-    return variantNesting(collectionToVariant(_data));
+  // https://arduinojson.org/v7/api/jsonarray/nesting/
+  size_t nesting() const {
+    return detail::VariantData::nesting(collectionToVariant(data_), resources_);
   }
 
   // Returns the number of elements in the array.
-  // https://arduinojson.org/v6/api/jsonarray/size/
-  FORCE_INLINE size_t size() const {
-    return _data ? _data->size() : 0;
+  // https://arduinojson.org/v7/api/jsonarray/size/
+  size_t size() const {
+    return data_ ? data_->size(resources_) : 0;
+  }
+
+  // DEPRECATED: use add<JsonVariant>() instead
+  ARDUINOJSON_DEPRECATED("use add<JsonVariant>() instead")
+  JsonVariant add() const {
+    return add<JsonVariant>();
+  }
+
+  // DEPRECATED: use add<JsonArray>() instead
+  ARDUINOJSON_DEPRECATED("use add<JsonArray>() instead")
+  JsonArray createNestedArray() const {
+    return add<JsonArray>();
+  }
+
+  // DEPRECATED: use add<JsonObject>() instead
+  ARDUINOJSON_DEPRECATED("use add<JsonObject>() instead")
+  JsonObject createNestedObject() const;
+
+  // DEPRECATED: always returns zero
+  ARDUINOJSON_DEPRECATED("always returns zero")
+  size_t memoryUsage() const {
+    return 0;
   }
 
  private:
-  MemoryPool* getPool() const {
-    return _pool;
+  detail::ResourceManager* getResourceManager() const {
+    return resources_;
   }
 
-  VariantData* getData() const {
-    return collectionToVariant(_data);
+  detail::VariantData* getData() const {
+    return collectionToVariant(data_);
   }
 
-  VariantData* getOrCreateData() const {
-    return collectionToVariant(_data);
+  detail::VariantData* getOrCreateData() const {
+    return collectionToVariant(data_);
   }
 
-  CollectionData* _data;
-  MemoryPool* _pool;
+  detail::ArrayData* data_;
+  detail::ResourceManager* resources_;
 };
 
-template <>
-struct Converter<JsonArray> : private VariantAttorney {
-  static void toJson(JsonVariantConst src, JsonVariant dst) {
-    variantCopyFrom(getData(dst), getData(src), getPool(dst));
-  }
-
-  static JsonArray fromJson(JsonVariant src) {
-    VariantData* data = getData(src);
-    MemoryPool* pool = getPool(src);
-    return JsonArray(pool, data != 0 ? data->asArray() : 0);
-  }
-
-  static InvalidConversion<JsonVariantConst, JsonArray> fromJson(
-      JsonVariantConst);
-
-  static bool checkJson(JsonVariantConst) {
-    return false;
-  }
-
-  static bool checkJson(JsonVariant src) {
-    VariantData* data = getData(src);
-    return data && data->isArray();
-  }
-};
-}  // namespace ARDUINOJSON_NAMESPACE
+ARDUINOJSON_END_PUBLIC_NAMESPACE

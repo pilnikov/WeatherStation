@@ -35,7 +35,7 @@
   };
 
 ********************************************************** Config
-  struct conf_data_t
+  struct main_cfg_t
   {
   uint8_t   boot_mode = 0; // 0 - minimal; 1 - test; 2 - normal
 
@@ -68,15 +68,15 @@
   nm_start = 0,
   nm_stop = 0,
   alarms[7][5],
-  type_font = 0,
-  type_vdrv = 0,
-  type_disp = 0,
+  font_t = 0,
+  vdrv_t = 0,
+  dsp_t = 0,
   type_snr1 = 0,
   type_snr2 = 0,
   type_snr3 = 0,
   type_snrp = 0,
   type_rtc = 0,
-  type_thermo = 0,
+  thermo_t = 0,
   src_thermo = 0,
 
   gpio_sda = 255,
@@ -118,13 +118,13 @@
   owm_key[33],
   news_api_key[33], // Get your News API Key from https://newsapi.org
   news_source[17];  // https://newsapi.org/sources to get full list of news sources available
-  } conf_data_t;
+  } main_cfg_t;
 
 ********************************************************** Actual config
-  struct hw_data_t
+  struct hwmcf_t
   {
-  uint8_t   type_vdrv;      // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574
-  uint8_t   type_disp;      // Тип дисплея 0 - Внешний, 1 - 7SEGx4D, 2 - 7SEGx6D, 3 - 7SEGx8D, 10 - 14SEGx4D, 11 - 14SEGx8D, 12 - 16SEGx4D, 13 - 16SEGx8D, 19 - 2Linex16D, 20 - M32x8Mono, 21 - M32x16Mono, 22 - M32x16BiColor, 23 - M32x16Color, 24 - M64x32Color, 25 - M64x64Color, 29 - 320x240Color, 30 - Custom_1, 31 - Custom_2
+  uint8_t   vdrv_t;      // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574
+  uint8_t   dsp_t;      // Тип дисплея 0 - Внешний, 1 - 7SEGx4D, 2 - 7SEGx6D, 3 - 7SEGx8D, 10 - 14SEGx4D, 11 - 14SEGx8D, 12 - 16SEGx4D, 13 - 16SEGx8D, 19 - 2Linex16D, 20 - M32x8Mono, 21 - M32x16Mono, 22 - M32x16BiColor, 23 - M32x16Color, 24 - M64x32Color, 25 - M64x64Color, 29 - 320x240Color, 30 - Custom_1, 31 - Custom_2
   uint8_t   type_snr1;      // Тип датчика канал 1: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT22, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
   uint8_t   type_snr2;      // Тип датчика канал 2: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT22, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
   uint8_t   type_snr3;      // Тип датчика канал 3: 0 - Нет, 1 - Взять с TC, 2 - Взять с ES1, 2 - Взять с ES2, 4 - DHT22, 5 - DS3231, 6 - SI7021, 7 - AM2320, 8 - BMP180, 9 - BMP280, 10 - BME280, 11 - Взять из прогноза
@@ -139,7 +139,7 @@
   };
 
 ********************************************************* Rtc
-  struct rtc_data_t
+  struct rtcmcf_t
   {
   long          ct        = 1530687234; // Текущее время (UNIX format)
   uint8_t       hour      = 62;         // Текущее время. Час.
@@ -177,8 +177,8 @@
 #include <Sysfn.h>
 #include <Snd.h>
 #include <Snr.h>
-#include <Fdisp.h>
-#include <Fdsp.h>
+#include <Dsp.h>
+#include <Scr.h>
 #include <BH1750.h>
 
 #if defined(ESP8266)
@@ -224,14 +224,15 @@
 
 // ----------------------------------- Force define func name
 void sensor_init(snr_cfg_t*);
-snr_data_t GetSnr(snr_data_t, snr_cfg_t, conf_data_t, uint8_t, bool, wf_data_t);
-String uart_st(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
-void send_uart(snr_data_t, wf_data_t, conf_data_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
-void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, uint32_t&, conf_data_t*, bool&);
+snr_data_t GetSnr(snr_data_t, snr_cfg_t, main_cfg_t, uint8_t, bool, wf_data_t);
+String uart_st(snr_data_t, wf_data_t, main_cfg_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
+void send_uart(snr_data_t, wf_data_t, main_cfg_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
+void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, uint32_t&, main_cfg_t*, bool&);
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String lastday(String);
-void Thermo(snr_data_t, conf_data_t);
+String firstday(String);
+void Thermo(snr_data_t, main_cfg_t, gpio_cfg_t);
 void wasAlm_reset();
 void alarm1_action(bool, uint8_t, uint8_t&, uint8_t, rtc_cfg_data_t*, uint8_t, bool&, byte,
                    bool&, bool&, byte*, char*);
@@ -245,8 +246,10 @@ String ts_rcv(unsigned long, char*, bool);
 String ts_snd(String, bool);
 void put_to_es(char*, uint8_t, snr_data_t, bool);
 
-wf_data_t getOWM_forecast(unsigned long, char*);
+String getOWM_forecast(unsigned long, char*);
 wf_data_t getOWM_current(unsigned long, char*);
+wf_data_t forecast_decode(String, uint8_t);
+
 #endif
 
 void hw_accept(hw_data_t, snr_cfg_t*, uint8_t*, uint8_t*);
@@ -274,14 +277,27 @@ void ISR_ATTR isr0();
 class MAINJS {
 public:
   String
-    to_json(conf_data_t);
+    to_json(main_cfg_t);
 
-  conf_data_t
+  main_cfg_t
     from_json(String),
     def_conf();
 private:
 protected:
 };
+
+class GPIOJS {
+public:
+  String
+    to_json(gpio_cfg_t);
+
+  gpio_cfg_t
+    from_json(String),
+    def_conf();
+private:
+protected:
+};
+
 
 //---------------------------------------------------------------------------------------
 void web_setup();

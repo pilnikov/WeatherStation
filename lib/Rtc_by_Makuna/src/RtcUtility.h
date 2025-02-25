@@ -24,12 +24,15 @@ License along with Rtc.  If not, see
 <http://www.gnu.org/licenses/>.
 -------------------------------------------------------------------------*/
 
-#ifndef __RTCUTILITY_H__
-#define __RTCUTILITY_H__
+#pragma once
 
 // ESP32 complains if not included
 #if defined(ARDUINO_ARCH_ESP32)
 #include <inttypes.h>
+#endif
+
+#if !defined(countof)
+#define countof(a) (sizeof(a) / sizeof(a[0]))
 #endif
 
 // Arduino has no standard for attributing methods used for ISRs
@@ -46,6 +49,16 @@ License along with Rtc.  If not, see
 #endif
 
 #endif // !defined(ISR_ATTR)
+
+// some platforms do not come with STL or properly defined one, specifically functional
+// if you see...
+// undefined reference to `std::__throw_bad_function_call()'
+// ...then you can either add the platform symbol to the list so RTC_NO_STL gets defined or
+// go to boards.txt and enable c++ by adding (teensy31.build.flags.libs=-lstdc++) and set to "smallest code" option in Arduino
+//
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_MEGAAVR) || defined(STM32L432xx) || defined(STM32L476xx) || defined(ARDUINO_ARCH_SAM)
+#define RTC_NO_STL 1
+#endif
 
 // While WIRE has return codes, there is no standard definition of what they are
 // within any headers; they are only documented on the website here
@@ -71,4 +84,5 @@ extern uint8_t BcdToUint8(uint8_t val);
 extern uint8_t Uint8ToBcd(uint8_t val);
 extern uint8_t BcdToBin24Hour(uint8_t bcdHour);
 
-#endif // __RTCUTILITY_H__
+
+

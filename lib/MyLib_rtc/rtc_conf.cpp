@@ -13,7 +13,7 @@ rtc_cfg_data_t RTCJS::from_json(String message)
 	// Allocate the document on the stack.
 	// Don't forget to change the capacity to match your requirements.
 	// Use arduinojson.org/assistant to compute the capacity.
-	DynamicJsonDocument doc(3000);
+	JsonDocument doc;
 
 	// Deserialize the JSON document
 	DeserializationError error = deserializeJson(doc, message);
@@ -78,7 +78,7 @@ String RTCJS::to_json(rtc_cfg_data_t _data)
 	}
 
 
-	DynamicJsonDocument doc(3100);
+	JsonDocument doc;
 	JsonObject json = doc.to<JsonObject>();
 
 	//---Clock.html----------------------------------------
@@ -97,16 +97,14 @@ String RTCJS::to_json(rtc_cfg_data_t _data)
 
 	//---Alarm.html----------------------------------------
 	//---Options for alarms--------------------------------
-	DynamicJsonDocument doc2(700);
-	JsonObject json2 = doc2.to<JsonObject>();
 
-	JsonArray al0 = json2.createNestedArray("0");
-	JsonArray al1 = json2.createNestedArray("1");
-	JsonArray al2 = json2.createNestedArray("2");
-	JsonArray al3 = json2.createNestedArray("3");
-	JsonArray al4 = json2.createNestedArray("4");
-	JsonArray al5 = json2.createNestedArray("5");
-	JsonArray al6 = json2.createNestedArray("6");
+	JsonArray al0 = doc["0"].to<JsonArray>();
+	JsonArray al1 = doc["1"].to<JsonArray>();
+	JsonArray al2 = doc["2"].to<JsonArray>();
+	JsonArray al3 = doc["3"].to<JsonArray>();
+	JsonArray al4 = doc["4"].to<JsonArray>();
+	JsonArray al5 = doc["5"].to<JsonArray>();
+	JsonArray al6 = doc["6"].to<JsonArray>();
 
 	al0.add(_data.alarms[0].type);
 	al0.add(_data.alarms[0].time);
@@ -130,7 +128,7 @@ String RTCJS::to_json(rtc_cfg_data_t _data)
 	al6.add(_data.alarms[6].time);
 	al6.add(_data.alarms[6].act);
 
-	JsonObject alarms = json.createNestedObject("al");
+	JsonObject alarms = doc["al"].to<JsonObject>();
 	alarms["0"] = al0;
 	alarms["1"] = al1;
 	alarms["2"] = al2;

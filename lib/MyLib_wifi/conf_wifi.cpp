@@ -9,7 +9,7 @@ wifi_cfg_data_t WFJS::from_json(String message)
 	// Allocate the document on the stack.
 	// Don't forget to change the capacity to match your requirements.
 	// Use arduinojson.org/assistant to compute the capacity.
-	DynamicJsonDocument doc(3000);
+	JsonDocument doc;
 
 	// Deserialize the JSON document
 	DeserializationError error = deserializeJson(doc, message);
@@ -106,7 +106,7 @@ String WFJS::to_json(wifi_cfg_data_t _data)
 		DBG_OUT_PORT.print(F("Start forming wifi_cfg_data to json string"));
 	}
 
-	DynamicJsonDocument doc(1000);
+	JsonDocument doc;
 	JsonObject json = doc.to<JsonObject>();
 
 	char nastr[20];

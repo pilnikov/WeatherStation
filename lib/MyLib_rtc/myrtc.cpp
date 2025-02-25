@@ -311,7 +311,7 @@ void CT::man_set_time(rtc_hw_data_t hw_data, uint32_t ct)
 {
   RtcDateTime dt;
   
-  dt.InitWithEpoch32Time(ct);
+  dt.InitWithUnix32Time(ct);
 
   switch (hw_data.a_type)
   {
@@ -327,7 +327,7 @@ void CT::man_set_time(rtc_hw_data_t hw_data, uint32_t ct)
     default:
       break;
   }
-  cur_time = dt.Epoch32Time();
+  cur_time = dt.Unix32Time();
 }
 
 uint32_t CT::GetTime(rtc_hw_data_t hw_data)
@@ -335,7 +335,7 @@ uint32_t CT::GetTime(rtc_hw_data_t hw_data)
   uint32_t ct = cur_time;
   
   RtcDateTime dt;
-  dt.InitWithEpoch32Time(ct);
+  dt.InitWithUnix32Time(ct);
 
   switch (hw_data.a_type)
   {
@@ -351,7 +351,7 @@ uint32_t CT::GetTime(rtc_hw_data_t hw_data)
     default:
       break;
   }
-  ct = dt.Epoch32Time();
+  ct = dt.Unix32Time();
   return ct;
 }
 
@@ -397,17 +397,17 @@ uint32_t CT::GetNtp(rtc_cfg_data_t cfg_data, uint32_t ct)
 
   myip.fromString(cfg_data.ntp_srv[0]);
   c_time = NTP_t.getTime(myip, cfg_data.time_zone);
-  if (c_time <= compiled.Epoch32Time())
+  if (c_time <= compiled.Unix32Time())
   {
 	myip.fromString(cfg_data.ntp_srv[1]);
     c_time = NTP_t.getTime(myip, cfg_data.time_zone);
   }
-  if (c_time <= compiled.Epoch32Time())
+  if (c_time <= compiled.Unix32Time())
   {
     myip.fromString(cfg_data.ntp_srv[2]);
 	c_time = NTP_t.getTime(myip, cfg_data.time_zone);
   }
-  if (c_time <= compiled.Epoch32Time())
+  if (c_time <= compiled.Unix32Time())
   {
 	  DBG_OUT_PORT.println(F("Failed !!!"));
 	  return out_time;

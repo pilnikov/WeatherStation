@@ -1,0 +1,7 @@
+
+name  pin sure pin on board gpio esp8266
+
+Wr		10			1			 2
+Cs		 7			2			16
+Clk		 8			3			14			
+Data     9			4			13

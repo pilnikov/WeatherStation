@@ -42,7 +42,7 @@ void sensor_init(snr_cfg_t* cf) {
   }
 }
 //------------------------------------------------------  Получаем данные с датчиков
-snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc, bool cli, wf_data_t wfc) {
+snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t cf, uint8_t type_rtc, bool cli, wf_data_t wfc) {
   snr_data_t td;
   snr_data_t ed1;
   snr_data_t ed2;
@@ -66,10 +66,10 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc,
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (cli) {
     if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1) {
-      dmsg_ff.callback(cf.type_disp, 2, 0, cf.rus_lng);     // сообщение на индикатор о начале обмена с TS
+      dmsg_ff.callback(cf.dsp_t, 2, 0, cf.rus_lng);     // сообщение на индикатор о начале обмена с TS
       String ts_str = ts_rcv(cf.ts_ch_id, cf.AKey_r, cli);  // Получаем строчку данных от TS
       td = e_srv_ff.get_ts(ts_str);                         // Парсим строчку от TS
-      dmsg_ff.callback(cf.type_disp, 2, 1, cf.rus_lng);     // сообщение на индикатор о результатах обмена с TS
+      dmsg_ff.callback(cf.dsp_t, 2, 1, cf.rus_lng);     // сообщение на индикатор о результатах обмена с TS
     }
     if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv_ff.get_es(es_rcv(cf.esrv1_addr, cli));  // Получаем данные от внешнего сервера1
     if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv_ff.get_es(es_rcv(cf.esrv2_addr, cli));  // Получаем данные от внешнего сервера2
@@ -88,9 +88,9 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, conf_data_t cf, uint8_t type_rtc,
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (cli) {
     if (cf.use_ts > 0) {
-      dmsg_ff.callback(cf.type_disp, 1, 0, cf.rus_lng);        // сообщение на индикатор о начале обмена с TS
+      dmsg_ff.callback(cf.dsp_t, 1, 0, cf.rus_lng);        // сообщение на индикатор о начале обмена с TS
       ts_snd(e_srv_ff.put_ts(cf.AKey_w, cf.use_ts, sd), cli);  // Отправляем инфу на TS
-      dmsg_ff.callback(cf.type_disp, 1, 1, cf.rus_lng);        // сообщение на индикатор о результатах обмена с TS
+      dmsg_ff.callback(cf.dsp_t, 1, 1, cf.rus_lng);        // сообщение на индикатор о результатах обмена с TS
     }
 
     if (cf.use_es > 0) put_to_es(cf.esrv1_addr, cf.use_es, sd, cli);  //отправляем показания датчиков на внешний сервер 1
@@ -163,7 +163,7 @@ wf_data_t getOWM_current(unsigned long cityID, char* weatherKey) {
 
   DBG_OUT_PORT.println("\n Now " + line);
 
-  DynamicJsonDocument jsonBuf(2048);
+  JsonDocument jsonBuf;
   DeserializationError error = deserializeJson(jsonBuf, line);
 
   if (error) {
@@ -213,13 +213,14 @@ wf_data_t getOWM_current(unsigned long cityID, char* weatherKey) {
   Берем ПРОГНОЗ!!! погоды с сайта openweathermap.org
   =======================================================================
 */
-wf_data_t getOWM_forecast(unsigned long cityID, char* weatherKey) {
-  wf_data_t prog;
+String getOWM_forecast(unsigned long cityID, char* weatherKey) {
   const char* owmHost = "api.openweathermap.org";
 
   String out = "No connect to network";
-  DBG_OUT_PORT.print(F("\n Weather forecast for tomorrow from "));
+
+  DBG_OUT_PORT.print(F("\n Weather forecast from "));
   DBG_OUT_PORT.println(owmHost);
+
   String addr = "http://";
   addr += owmHost;
   addr += "/data/2.5/forecast/daily?id=";
@@ -227,16 +228,33 @@ wf_data_t getOWM_forecast(unsigned long cityID, char* weatherKey) {
   addr += "&units=metric&appid=";
   addr += weatherKey;
   addr += "&lang=ru&cnt=2";
+
   //if (debug_level == 10)
   DBG_OUT_PORT.println(addr);
 
   out = nsys_ff.http_client(addr);
-  if (debug_level == 10) DBG_OUT_PORT.println(out);
+  DBG_OUT_PORT.println(out);
 
-  String tempz = lastday(out);
-  DBG_OUT_PORT.println("\n" + tempz);
+  return out;
+}
 
-  DynamicJsonDocument jsonBuf(2048);
+wf_data_t forecast_decode(String inSt, uint8_t cnt) {
+  DBG_OUT_PORT.print(F("\n Weather forecast "));
+
+  wf_data_t prog;
+  String tempz;
+
+  if (cnt > 1) {
+    tempz = lastday(inSt);
+    DBG_OUT_PORT.print(F("on tomorrow \n"));
+  } else {
+    tempz = firstday(inSt);
+    DBG_OUT_PORT.print(F("on today \n"));
+  }
+
+  DBG_OUT_PORT.println(tempz);
+
+  JsonDocument jsonBuf;
   DeserializationError error = deserializeJson(jsonBuf, tempz);
   if (error) {
     DBG_OUT_PORT.print(F("deserializeJson() failed: "));
@@ -325,6 +343,18 @@ String lastday(String line) {
   return line;
 }
 
+String firstday(String line) {
+  String s = String();
+
+  int start_sym = line.indexOf("dt") - 2;
+  int stop_sym = line.lastIndexOf("dt") - 3;
+  s = line.substring(start_sym, stop_sym);
+
+  line = String();
+  line = remove_sb(s);
+
+  return line;
+}
 //------------------------------------------------------  Делаем запрос показаний датчиков с внешнего сервера
 String es_rcv(char* es_addr, bool cli) {
   if (debug_level == 10) DBG_OUT_PORT.println(F("True get data from ext server"));
@@ -480,7 +510,7 @@ String radio_snd(String cmd, bool cli, char* radio_addr) {
 
 //------------------------------------------------------  Обрабатываем клавиатуру
 void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& max_st,
-               byte type_thermo, byte type_vdrv, byte gpio_led, bool led_pola, bool blinkColon, uint32_t& serv_ms, conf_data_t* conf_data, bool& end_run_st) {
+               byte thermo_t, byte vdrv_t, byte gpio_led, bool led_pola, bool blinkColon, uint32_t& serv_ms, main_cfg_t* main_cfg, bool& end_run_st) {
   btn_released = btn_state_flag & digitalRead(gpio_btn);
   if (btn_state_flag & !digitalRead(gpio_btn)) tmr_started = true;
   if (btn_released) tmr_started = false;
@@ -502,16 +532,16 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& ma
     if (!serv_act) {
       serv_ms = millis();
       start_serv();                                                                              //Запускаем web морду
-      if ((type_thermo == 0) & (type_vdrv != 5)) digitalWrite(gpio_led, led_pola ? LOW : HIGH);  // Включаем светодиод
+      if ((thermo_t == 0) & (vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? LOW : HIGH);  // Включаем светодиод
     } else {
       serv_ms = millis() + 60000L;
       //stop_serv();  //Останавливаем web морду
-      if ((type_thermo == 0) & (type_vdrv != 5)) digitalWrite(gpio_led, led_pola ? HIGH : LOW);  // Выключаем светодиод
+      if ((thermo_t == 0) & (vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? HIGH : LOW);  // Выключаем светодиод
     }
   }
 
 #endif
-  if ((millis() - setting_ms > 9000) & (type_thermo == 0) & (type_vdrv != 5)) digitalWrite(gpio_led, blinkColon);  // Мигаем светодиодом
+  if ((millis() - setting_ms > 9000) & (thermo_t == 0) & (vdrv_t != 5)) digitalWrite(gpio_led, blinkColon);  // Мигаем светодиодом
 
   if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000))  //держим от 9 до 15 сек
   {
@@ -528,8 +558,8 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& ma
   if (btn_released & (millis() - setting_ms > 15000))  //держим больше 15 сек
   {
     if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot..."));  //Cбрасываем усе на дефолт и перезагружаемся
-    *conf_data = maincfg_ff.def_conf();
-    String from_client = maincfg_ff.to_json(*conf_data);
+    *main_cfg = maincfg_ff.def_conf();
+    String from_client = maincfg_ff.to_json(*main_cfg);
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     const char* conf_f = "/config.json";
@@ -589,20 +619,20 @@ void ISR_ATTR isr0() {
 #endif
 
 //------------------------------------------------------  Отправляем данные по USART
-String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_time_data_t rt, rtc_alm_data_t rta, uint8_t c_br) {
-  DynamicJsonDocument jsonBuffer(500);
+String uart_st(snr_data_t snr, wf_data_t wf, main_cfg_t mcf, rtc_time_data_t rt, rtc_alm_data_t rta, uint8_t c_br) {
+  JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
   json["T"] = rt.ct;
   json["U"] = c_br;
-  json["V"] = sn.t1;
-  json["W"] = sn.t2;
-  json["X"] = sn.h1;
-  json["Y"] = sn.h2;
-  json["Z"] = sn.p;
+  json["V"] = snr.t1;
+  json["W"] = snr.t2;
+  json["X"] = snr.h1;
+  json["Y"] = snr.h2;
+  json["Z"] = snr.p;
   json["M"] = rta.time;
 
-  if (cf.use_pp > 0) {
+  if (mcf.use_pp > 0) {
     json["A"] = wf.tod;
     json["B"] = wf.cloud;
     json["C"] = wf.prec;
@@ -622,38 +652,38 @@ String uart_st(snr_data_t sn, wf_data_t wf, conf_data_t cf, rtc_time_data_t rt, 
   json["Q"] = "End";
 
   String st = String();
-  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  if (serializeJson(jsonBuffer, st) == 0) DBG_OUT_PORT.println(F("Failed forming json string"));
   return st;
 }
 
-void send_uart(snr_data_t snr_data, wf_data_t wf_data, conf_data_t conf_data, rtc_time_data_t rtc_time, rtc_alm_data_t rtc_alm, uint8_t br) {
-  DBG_OUT_PORT.println(uart_st(snr_data, wf_data, conf_data, rtc_time, rtc_alm, br));
+void send_uart(snr_data_t snr, wf_data_t wf, main_cfg_t mcf, rtc_time_data_t rtc_time, rtc_alm_data_t rtc_alm, uint8_t br) {
+  DBG_OUT_PORT.println(uart_st(snr, wf, mcf, rtc_time, rtc_alm, br));
 }
 
 //------------------------------------------------------  Термостат
-void Thermo(snr_data_t sn, conf_data_t cf) {
+void Thermo(snr_data_t snr, main_cfg_t mcf, gpio_cfg_t gcf) {
   bool act = 0;
-  if (cf.type_thermo > 0) {
-    if (cf.src_thermo == 0) {
-      act = (sn.t1 > cf.lb_thermo) && (sn.t1 < cf.hb_thermo);
+  if (mcf.thermo_t > 0) {
+    if (mcf.src_thermo == 0) {
+      act = (snr.t1 > mcf.lb_thermo) && (snr.t1 < mcf.hb_thermo);
     } else {
-      act = (sn.t2 > cf.lb_thermo) && (sn.t2 < cf.hb_thermo);
+      act = (snr.t2 > mcf.lb_thermo) && (snr.t2 < mcf.hb_thermo);
     }
     if (act) {
-      if (cf.type_thermo == 1) {
+      if (mcf.thermo_t == 1) {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
-        digitalWrite(cf.gpio_trm, HIGH);
+        digitalWrite(gcf.gpio_trm, HIGH);
       } else {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
-        digitalWrite(cf.gpio_trm, LOW);
+        digitalWrite(gcf.gpio_trm, LOW);
       }
     } else {
-      if (cf.type_thermo == 1) {
+      if (mcf.thermo_t == 1) {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS OFF!!!");
-        digitalWrite(cf.gpio_trm, LOW);
+        digitalWrite(gcf.gpio_trm, LOW);
       } else {
         //DBG_OUT_PORT.println(F("Thermostate OUT IS ON!!!");
-        digitalWrite(cf.gpio_trm, HIGH);
+        digitalWrite(gcf.gpio_trm, HIGH);
       }
     }
   }
@@ -662,9 +692,9 @@ void wasAlm_reset() {
   _wasAlarmed_int = false;
 }
 
-void alarm1_action(bool cli, uint8_t a_act, uint8_t& a_act_out, uint8_t a_num, rtc_cfg_data_t* rtc_cfg, uint8_t a_type, bool& nmon, byte type_vdrv,
+void alarm1_action(bool cli, uint8_t a_act, uint8_t& a_act_out, uint8_t a_num, rtc_cfg_data_t* rtc_cfg, uint8_t a_type, bool& nmon, byte vdrv,
                    bool& disp_on, bool& play_snd, byte* screen, char* radio_addr) {
-  //  dmsg_ff.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.type_disp, rtc_cfg.rus_lng);  // Сообщение на индикатор
+  //  dmsg_ff.alarm_msg(rtc_cfg.n_cur_alm, rtc_cfg.dsp_t, rtc_cfg.rus_lng);  // Сообщение на индикатор
 
   switch (a_act)  // Выполняем экшн
   {
@@ -676,12 +706,12 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t& a_act_out, uint8_t a_num, r
       break;
     case 22:
       disp_on = true;
-      mydsp_ff.display_on(type_vdrv);
+      mydsp_ff.display_on(vdrv);
       break;
     case 23:
       disp_on = false;
       f_dsp_ff.CLS(screen, sizeof screen);
-      mydsp_ff.display_off(type_vdrv);
+      mydsp_ff.display_off(vdrv);
       break;
     case 24:
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3

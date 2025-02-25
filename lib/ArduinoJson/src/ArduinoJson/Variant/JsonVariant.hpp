@@ -1,80 +1,78 @@
 // ArduinoJson - https://arduinojson.org
-// Copyright © 2014-2022, Benoit BLANCHON
+// Copyright © 2014-2024, Benoit BLANCHON
 // MIT License
 
 #pragma once
 
 #include <ArduinoJson/Variant/VariantRefBase.hpp>
 
-namespace ARDUINOJSON_NAMESPACE {
+ARDUINOJSON_BEGIN_PUBLIC_NAMESPACE
 
 // A reference to a value in a JsonDocument.
-// https://arduinojson.org/v6/api/jsonvariant/
-class JsonVariant : public VariantRefBase<JsonVariant>,
-                    public VariantOperators<JsonVariant> {
-  friend class VariantAttorney;
+// https://arduinojson.org/v7/api/jsonvariant/
+class JsonVariant : public detail::VariantRefBase<JsonVariant>,
+                    public detail::VariantOperators<JsonVariant> {
+  friend class detail::VariantAttorney;
 
  public:
   // Creates an unbound reference.
-  JsonVariant() : _data(0), _pool(0) {}
+  JsonVariant() : data_(0), resources_(0) {}
 
   // INTERNAL USE ONLY
-  JsonVariant(MemoryPool* pool, VariantData* data) : _data(data), _pool(pool) {}
+  JsonVariant(detail::VariantData* data, detail::ResourceManager* resources)
+      : data_(data), resources_(resources) {}
 
  private:
-  FORCE_INLINE MemoryPool* getPool() const {
-    return _pool;
+  detail::ResourceManager* getResourceManager() const {
+    return resources_;
   }
 
-  FORCE_INLINE VariantData* getData() const {
-    return _data;
+  detail::VariantData* getData() const {
+    return data_;
   }
 
-  FORCE_INLINE VariantData* getOrCreateData() const {
-    return _data;
+  detail::VariantData* getOrCreateData() const {
+    return data_;
   }
 
-  VariantData* _data;
-  MemoryPool* _pool;
+  detail::VariantData* data_;
+  detail::ResourceManager* resources_;
 };
 
+namespace detail {
+bool copyVariant(JsonVariant dst, JsonVariantConst src);
+}
+
 template <>
-struct Converter<JsonVariant> : private VariantAttorney {
-  static void toJson(JsonVariant src, JsonVariant dst) {
-    variantCopyFrom(getData(dst), getData(src), getPool(dst));
+struct Converter<JsonVariant> : private detail::VariantAttorney {
+  static void toJson(JsonVariantConst src, JsonVariant dst) {
+    copyVariant(dst, src);
   }
 
   static JsonVariant fromJson(JsonVariant src) {
     return src;
   }
 
-  static InvalidConversion<JsonVariantConst, JsonVariant> fromJson(
-      JsonVariantConst);
-
   static bool checkJson(JsonVariant src) {
-    VariantData* data = getData(src);
+    auto data = getData(src);
     return !!data;
-  }
-
-  static bool checkJson(JsonVariantConst) {
-    return false;
   }
 };
 
 template <>
-struct Converter<JsonVariantConst> : private VariantAttorney {
+struct Converter<JsonVariantConst> : private detail::VariantAttorney {
   static void toJson(JsonVariantConst src, JsonVariant dst) {
-    variantCopyFrom(getData(dst), getData(src), getPool(dst));
+    copyVariant(dst, src);
   }
 
   static JsonVariantConst fromJson(JsonVariantConst src) {
-    return JsonVariantConst(getData(src));
+    return JsonVariantConst(getData(src), getResourceManager(src));
   }
 
   static bool checkJson(JsonVariantConst src) {
-    const VariantData* data = getData(src);
+    auto data = getData(src);
     return !!data;
   }
 };
 
-}  // namespace ARDUINOJSON_NAMESPACE
+ARDUINOJSON_END_PUBLIC_NAMESPACE

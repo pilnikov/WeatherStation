@@ -8,7 +8,7 @@ snr_data_t ES::get_ts(String inStr)
 
 	//  data.h1 = 0; data.t1 = 99; data.h2 = 0; data.t2 = 99; data.h3 = 0; data.t3 = 99; data.p = 0;
 
-	DynamicJsonDocument jsonBuffer(512);
+	JsonDocument jsonBuffer;
 
 	DeserializationError error = deserializeJson(jsonBuffer, inStr);
 	if (error)
@@ -386,7 +386,7 @@ snr_data_t ES::get_es(String inStr)
 	snr_data_t data;
 	data.h1 = 0; data.h2 = 0; data.h3 = 0; data.t1 = 99; data.t2 = 99; data.t3 = 99; data.p = 700; data.f = 255;
 
-	DynamicJsonDocument jsonBuffer(1024);
+	JsonDocument jsonBuffer;
 
 	DeserializationError error = deserializeJson(jsonBuffer, inStr);
 	if (error)

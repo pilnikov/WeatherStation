@@ -535,10 +535,10 @@ var numaa = 7;
 						document.getElementById('abrd').checked = res.abrd;
 						document.getElementById('mbrd').value = res.mbrd;
 						document.getElementById('nbrd').value = res.nbrd;
-						document.getElementById('brd1').value = res.brlevel[0];
-						document.getElementById('brd2').value = res.brlevel[1];
-						document.getElementById('brd3').value = res.brlevel[2];
-						document.getElementById('brd4').value = res.brlevel[3];
+						document.getElementById('brd1').value = res.br_level[0];
+						document.getElementById('brd2').value = res.br_level[1];
+						document.getElementById('brd3').value = res.br_level[2];
+						document.getElementById('brd4').value = res.br_level[3];
 						
 						show_abr();
 					}

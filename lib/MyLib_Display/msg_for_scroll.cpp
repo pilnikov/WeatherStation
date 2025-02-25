@@ -93,7 +93,17 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
         case 2:
           if (sn.t1 > -99 && sn.t1 < 99)
           {
-            sprintf_P(out, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
+            sprintf_P(buf, PSTR(" %s "), cf.ch1_name);
+            strcat(out, buf);
+            if (sn.h1 > 0) 
+			{
+				sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t1, grad, sn.h1);
+			}
+			else
+			{
+				sprintf_P(buf, PSTR(" %d%cC"), sn.t1, grad);
+            }
+            strcat(out, buf);
             _repeat = false;
           }
           if (sn.t2 > -99 && sn.t2 < 99)
@@ -107,16 +117,30 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
               sprintf_P(buf, PSTR(" wind %s %dm/s"), swnr[wfc.wind_dir], wfc.wind_min);
               strcat(out, buf);
             }
-            sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
+            if (sn.h2 > 0) 
+			{
+				sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
+			}
+			else
+			{
+				sprintf_P(buf, PSTR(" %d%cC"), sn.t2, grad);
+            }
             strcat(out, buf);
             _repeat = false;
           }
           if (sn.t3 > -99 && sn.t3 < 99)
           {
-            sprintf_P(buf, PSTR(" %s %d%cC %d%%"), cf.ch3_name, sn.t3, grad, sn.h3);
+            sprintf_P(buf, PSTR(" %s "), cf.ch3_name);
             strcat(out, buf);
-            _repeat = false;
-          }
+            if (sn.h3 > 0) 
+			{
+				sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t3, grad, sn.h3);
+			}
+			else
+			{
+				sprintf_P(buf, PSTR(" %d%cC"), sn.t3, grad);
+            }
+		  }
           if (sn.p > 700)
           {
             sprintf_P(buf, PSTR(" preesure %dmm.m."), sn.p);
@@ -192,10 +216,20 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
           _repeat = false;
           break;
         case 2:
-          if ((sn.t1 > -99) & (sn.t1 < 99))
+          if (sn.t1 > -99 && sn.t1 < 99)
           {
-            sprintf_P(out, PSTR(" %s %d%cC %d%%"), cf.ch1_name, sn.t1, grad, sn.h1);
-            _repeat = false;
+            sprintf_P(buf, PSTR(" %s "), cf.ch1_name);
+            strcat(out, buf);
+            if (sn.h1 > 0) 
+			{
+				sprintf_P(buf, PSTR("%d%cC %d%%"), sn.t1, grad, sn.h1);
+			}
+			else
+			{
+				sprintf_P(buf, PSTR(" %d%cC"), sn.t1, grad);
+            }
+            strcat(out, buf);
+			_repeat = false;
           }
 
           if (sn.t2 > -99 && sn.t2 < 99)
@@ -209,14 +243,29 @@ void MyDsp::pr_str(uint8_t &num, uint8_t _max, conf_data_t cf, snr_data_t sn, wf
               sprintf_P(buf, PSTR(" ветер %s %dм/с"), swnr[wfc.wind_dir], wfc.wind_min);
               strcat(out, buf);
             }
-            sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
+            if (sn.h2 > 0) 
+			{
+				sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t2, grad, sn.h2);
+			}
+			else
+			{
+				sprintf_P(buf, PSTR(" %d%cC"), sn.t2, grad);
+			}
             strcat(out, buf);
             _repeat = false;
           }
-
           if (sn.t3 > -99 && sn.t3 < 99)
           {
-            sprintf_P(buf, PSTR(" %s %d%cC %d%%"), cf.ch3_name, sn.t3, grad, sn.h3);
+            sprintf_P(buf, PSTR(" %s "), cf.ch3_name);
+            strcat(out, buf);
+            if (sn.h3 > 0) 
+			{
+				sprintf_P(buf, PSTR(" %d%cC %d%%"), sn.t3, grad, sn.h3);
+			}
+			else
+			{
+				sprintf_P(buf, PSTR(" %d%cC"), sn.t3, grad);
+            }
             strcat(out, buf);
             _repeat = false;
           }

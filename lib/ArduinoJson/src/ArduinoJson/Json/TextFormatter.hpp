@@ -1,5 +1,5 @@
 // ArduinoJson - https://arduinojson.org
-// Copyright © 2014-2022, Benoit BLANCHON
+// Copyright © 2014-2024, Benoit BLANCHON
 // MIT License
 
 #pragma once
@@ -15,16 +15,18 @@
 #include <ArduinoJson/Polyfills/type_traits.hpp>
 #include <ArduinoJson/Serialization/CountingDecorator.hpp>
 
-namespace ARDUINOJSON_NAMESPACE {
+ARDUINOJSON_BEGIN_PRIVATE_NAMESPACE
 
 template <typename TWriter>
 class TextFormatter {
  public:
-  explicit TextFormatter(TWriter writer) : _writer(writer) {}
+  explicit TextFormatter(TWriter writer) : writer_(writer) {}
+
+  TextFormatter& operator=(const TextFormatter&) = delete;
 
   // Returns the number of bytes sent to the TWriter implementation.
   size_t bytesWritten() const {
-    return _writer.count();
+    return writer_.count();
   }
 
   void writeBoolean(bool value) {
@@ -64,6 +66,10 @@ class TextFormatter {
 
   template <typename T>
   void writeFloat(T value) {
+    writeFloat(JsonFloat(value), sizeof(T) >= 8 ? 9 : 6);
+  }
+
+  void writeFloat(JsonFloat value, int8_t decimalPlaces) {
     if (isnan(value))
       return writeRaw(ARDUINOJSON_ENABLE_NAN ? "NaN" : "null");
 
@@ -85,7 +91,7 @@ class TextFormatter {
     }
 #endif
 
-    FloatParts<T> parts(value);
+    auto parts = decomposeFloat(value, decimalPlaces);
 
     writeInteger(parts.integral);
     if (parts.decimalPlaces)
@@ -98,8 +104,8 @@ class TextFormatter {
   }
 
   template <typename T>
-  typename enable_if<is_signed<T>::value>::type writeInteger(T value) {
-    typedef typename make_unsigned<T>::type unsigned_type;
+  enable_if_t<is_signed<T>::value> writeInteger(T value) {
+    using unsigned_type = make_unsigned_t<T>;
     unsigned_type unsigned_value;
     if (value < 0) {
       writeRaw('-');
@@ -111,7 +117,7 @@ class TextFormatter {
   }
 
   template <typename T>
-  typename enable_if<is_unsigned<T>::value>::type writeInteger(T value) {
+  enable_if_t<is_unsigned<T>::value> writeInteger(T value) {
     char buffer[22];
     char* end = buffer + sizeof(buffer);
     char* begin = end;
@@ -144,30 +150,28 @@ class TextFormatter {
   }
 
   void writeRaw(const char* s) {
-    _writer.write(reinterpret_cast<const uint8_t*>(s), strlen(s));
+    writer_.write(reinterpret_cast<const uint8_t*>(s), strlen(s));
   }
 
   void writeRaw(const char* s, size_t n) {
-    _writer.write(reinterpret_cast<const uint8_t*>(s), n);
+    writer_.write(reinterpret_cast<const uint8_t*>(s), n);
   }
 
   void writeRaw(const char* begin, const char* end) {
-    _writer.write(reinterpret_cast<const uint8_t*>(begin),
+    writer_.write(reinterpret_cast<const uint8_t*>(begin),
                   static_cast<size_t>(end - begin));
   }
 
   template <size_t N>
   void writeRaw(const char (&s)[N]) {
-    _writer.write(reinterpret_cast<const uint8_t*>(s), N - 1);
+    writer_.write(reinterpret_cast<const uint8_t*>(s), N - 1);
   }
   void writeRaw(char c) {
-    _writer.write(static_cast<uint8_t>(c));
+    writer_.write(static_cast<uint8_t>(c));
   }
 
  protected:
-  CountingDecorator<TWriter> _writer;
-
- private:
-  TextFormatter& operator=(const TextFormatter&);  // cannot be assigned
+  CountingDecorator<TWriter> writer_;
 };
-}  // namespace ARDUINOJSON_NAMESPACE
+
+ARDUINOJSON_END_PRIVATE_NAMESPACE

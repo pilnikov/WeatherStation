@@ -15,7 +15,7 @@ snr_cfg_t SNRJS::from_json(String message)
     // Allocate the document on the stack.
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/assistant to compute the capacity.
-    DynamicJsonDocument doc(3100);
+    JsonDocument doc;
 
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, message);
@@ -52,7 +52,7 @@ String SNRJS::to_json(snr_cfg_t _data)
   if (_data.type_snr3  >  13) _data.type_snr3  = 0;
   if (_data.type_snrp  >  12) _data.type_snrp  = 0;
 
-  DynamicJsonDocument doc(3000);
+  JsonDocument doc;
   JsonObject json = doc.to<JsonObject>();
 
   //---Sensor.html---------------------------------------
