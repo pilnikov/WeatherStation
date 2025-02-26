@@ -227,7 +227,7 @@ void sensor_init(snr_cfg_t*);
 snr_data_t GetSnr(snr_data_t, snr_cfg_t, main_cfg_t, uint8_t, bool, wf_data_t);
 String uart_st(snr_data_t, wf_data_t, main_cfg_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
 void send_uart(snr_data_t, wf_data_t, main_cfg_t, rtc_time_data_t, rtc_alm_data_t, uint8_t);
-void keyb_read(bool, bool, byte, uint8_t&, uint8_t&, byte, byte, byte, bool, bool, uint32_t&, main_cfg_t*, bool&);
+
 inline uint8_t rumb_conv(uint16_t);
 String remove_sb(String);
 String lastday(String);
@@ -294,6 +294,14 @@ public:
   gpio_cfg_t
     from_json(String),
     def_conf();
+private:
+protected:
+};
+
+class KBT {
+public:
+  void _read(bool, bool, uint8_t, uint8_t, bool, uint8_t&, uint8_t&, bool, uint32_t&, bool&, main_cfg_t*);
+
 private:
 protected:
 };

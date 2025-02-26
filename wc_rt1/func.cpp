@@ -3,14 +3,14 @@
 MSG dmsg_ff;  //For Messages
 FD f_dsp_ff;  //For Display
 
-MyDspHW dsp_hw;     //For Display HW Config
+MyDspHW dsp_hw;  //For Display HW Config
 
 CT myrtc_ff;        //For RTC Common
 RTCJS myrtccfg_ff;  //For RTC Config
 SNR sens_ff;        //For Sensor Common
 
-MAINJS main_cfg;    //For MAIN Config
-GPIOJS gpio_cfg;    //For GPIO Config
+MAINJS main_cfg2;  //For MAIN Config
+GPIOJS gpio_cfg2;  //For GPIO Config
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 ES e_srv_ff;
@@ -68,10 +68,10 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t mcf, uint8_t type_rtc,
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (cli) {
     if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1) {
-      dmsg_ff.callback(mcf.dsp_t, 2, 0, mcf.rus_lng);          // сообщение на индикатор о начале обмена с TS
-      String ts_str = ts_rcv(mcf.ts_ch_id, mcf.AKey_r, cli);   // Получаем строчку данных от TS
-      td = e_srv_ff.get_ts(ts_str);                            // Парсим строчку от TS
-      dmsg_ff.callback(mcf.dsp_t, 2, 1, mcf.rus_lng);          // сообщение на индикатор о результатах обмена с TS
+      dmsg_ff.callback(mcf.dsp_t, 2, 0, mcf.rus_lng);         // сообщение на индикатор о начале обмена с TS
+      String ts_str = ts_rcv(mcf.ts_ch_id, mcf.AKey_r, cli);  // Получаем строчку данных от TS
+      td = e_srv_ff.get_ts(ts_str);                           // Парсим строчку от TS
+      dmsg_ff.callback(mcf.dsp_t, 2, 1, mcf.rus_lng);         // сообщение на индикатор о результатах обмена с TS
     }
     if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv_ff.get_es(es_rcv(mcf.esrv1_addr, cli));  // Получаем данные от внешнего сервера1
     if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv_ff.get_es(es_rcv(mcf.esrv2_addr, cli));  // Получаем данные от внешнего сервера2
@@ -90,9 +90,9 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t mcf, uint8_t type_rtc,
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (cli) {
     if (mcf.use_ts > 0) {
-      dmsg_ff.callback(mcf.dsp_t, 1, 0, mcf.rus_lng);        // сообщение на индикатор о начале обмена с TS
+      dmsg_ff.callback(mcf.dsp_t, 1, 0, mcf.rus_lng);            // сообщение на индикатор о начале обмена с TS
       ts_snd(e_srv_ff.put_ts(mcf.AKey_w, mcf.use_ts, sd), cli);  // Отправляем инфу на TS
-      dmsg_ff.callback(mcf.dsp_t, 1, 1, mcf.rus_lng);        // сообщение на индикатор о результатах обмена с TS
+      dmsg_ff.callback(mcf.dsp_t, 1, 1, mcf.rus_lng);            // сообщение на индикатор о результатах обмена с TS
     }
 
     if (mcf.use_es > 0) put_to_es(mcf.esrv1_addr, mcf.use_es, sd, cli);  //отправляем показания датчиков на внешний сервер 1
@@ -511,8 +511,9 @@ String radio_snd(String cmd, bool cli, char* radio_addr) {
 #endif
 
 //------------------------------------------------------  Обрабатываем клавиатуру
-void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& max_st,
-               byte thermo_t, byte vdrv_t, byte gpio_led, bool led_pola, bool blinkColon, uint32_t& serv_ms, main_cfg_t mcf, bool& end_run_st) {
+void KBT::_read(bool cli, bool ap, uint8_t gpio_btn, uint8_t gpio_led, bool led_pola, uint8_t& disp_mode, uint8_t& max_st,
+                    bool blinkColon, uint32_t& serv_ms, bool& end_run_st, main_cfg_t* mcf) {
+
   btn_released = btn_state_flag & digitalRead(gpio_btn);
   if (btn_state_flag & !digitalRead(gpio_btn)) tmr_started = true;
   if (btn_released) tmr_started = false;
@@ -533,17 +534,17 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& ma
   {
     if (!serv_act) {
       serv_ms = millis();
-      start_serv();                                                                              //Запускаем web морду
-      if ((thermo_t == 0) & (vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? LOW : HIGH);  // Включаем светодиод
+      start_serv();                                                                                  //Запускаем web морду
+      if ((mcf->thermo_t == 0) & (mcf->vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? LOW : HIGH);  // Включаем светодиод
     } else {
       serv_ms = millis() + 60000L;
       //stop_serv();  //Останавливаем web морду
-      if ((thermo_t == 0) & (vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? HIGH : LOW);  // Выключаем светодиод
+      if ((mcf->thermo_t == 0) & (mcf->vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? HIGH : LOW);  // Выключаем светодиод
     }
   }
 
 #endif
-  if ((millis() - setting_ms > 9000) & (thermo_t == 0) & (vdrv_t != 5)) digitalWrite(gpio_led, blinkColon);  // Мигаем светодиодом
+  if ((millis() - setting_ms > 9000) & (mcf->thermo_t == 0) & (mcf->vdrv_t != 5)) digitalWrite(gpio_led, blinkColon);  // Мигаем светодиодом
 
   if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000))  //держим от 9 до 15 сек
   {
@@ -560,8 +561,8 @@ void keyb_read(bool cli, bool ap, byte gpio_btn, uint8_t& disp_mode, uint8_t& ma
   if (btn_released & (millis() - setting_ms > 15000))  //держим больше 15 сек
   {
     if (debug_level == 10) DBG_OUT_PORT.println(F("Set default value and reboot..."));  //Cбрасываем усе на дефолт и перезагружаемся
-    mcf = main_cfg.def_conf();
-    String from_client = main_cfg.to_json(mcf);
+    *mcf = main_cfg2.def_conf();
+    String from_client = main_cfg2.to_json(*mcf);
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     const char* conf_f = "/main_cfg.json";

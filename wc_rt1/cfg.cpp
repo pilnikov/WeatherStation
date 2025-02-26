@@ -153,7 +153,7 @@ String MAINJS::to_json(main_cfg_t mcf) {
   //---Display.html--------------------------------------
   //---Options for display-------------------------------
   json["vdrv_t"] = mcf.vdrv_t;
-  json["disp_t"] = mcf.dsp_t;
+  json["dsp_t"] = mcf.dsp_t;
   json["rus_lng"] = mcf.rus_lng;
   json["t_up"] = mcf.time_up;
   json["colu"] = mcf.color_up;

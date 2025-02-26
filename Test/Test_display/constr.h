@@ -20,4 +20,6 @@ FD f_dsp2; //For Display
 
 MyDspHW mydsp_hw;
 
+MSG msg_dsp;
+
 #endif

@@ -1,5 +1,6 @@
 
 #include "Scr.h"
+#include "fonts.h"
 
 #ifdef __AVR__
 #include <avr/io.h>
@@ -7,6 +8,9 @@
 #elif defined(__xtensa__)
 #include <pgmspace.h>
 #endif
+
+FD f_dsp; // Для объектов класса FD
+
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 static const byte utf_recode[64] =
@@ -602,4 +606,107 @@ void FD::scroll_init()
 {
    icp = 0;	/*pointer to character in the input string*/
    fbp = 0;	/*pointer to byte in font*/
+}
+
+void FD::scroll_disp(uint8_t pos, byte *screen)
+{
+  uint8_t font_wdt = 5;
+  byte nbuf[64];
+
+  for (uint8_t i = 0; i < q_dig; i++)
+  {
+    if (i > 3) font_wdt = 3;
+
+    if (old[i])
+    {
+      FD::shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, dposx[i],  dposx[i] + font_wdt); // запуск вертушка для изменившихся позиций
+    }
+  }
+}
+
+void FD::scroll_start(bool l_s, bool dvd, uint8_t vdrv_t, uint8_t dsp_t, bool time_up, bool &end, char *st1, byte *screen) // ---------------------------- Запуск бегущей строки
+{
+ 	byte bbuf[16];
+	if (l_s)
+	{
+	  if (vdrv_t == 11)
+	  {
+		if (dsp_t == 11)
+		{
+		  if  (!end)
+		  {
+			uint8_t x1 = 8, x2 = 15;
+			if (!time_up)
+			{
+			  x1 = 0;
+			  x2 = 7;
+			}
+			end = FD::scroll_String(x1, x2, st1, screen, font14s, 2, 0, 2);
+		  }
+		}
+		if (dsp_t == 31)
+		{
+		  if  (!end)
+		  {
+			end = FD::scroll_String(20, 25, st1, screen, font14s, 2, 0, 2);
+		  }
+		}
+	  }
+
+	  if (vdrv_t == 12)
+	  {
+		if (dsp_t == 19)
+		{
+		  if  (!end & dvd)
+		  {
+			uint8_t x1 = 0;
+			if (time_up) x1 = 1;
+			end = FD::lcd_mov_str(16, st1, bbuf);
+		  }
+		}
+	  }
+  }
+  else
+  {
+	  if (dsp_t > 19 && dsp_t < 29 && !end)
+	  {
+		uint8_t x1 = 32, x2 = 63;
+		if (!time_up)
+		{
+		  x1 = 0;
+		  x2 = 31;
+		}
+		end = FD::scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1); // бегущая строка
+	  }
+  }
+}
+
+void MSG::runing_string_start(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint16_t c_br, bool cli, String ns, uint8_t &ni, bool &end, char *st1, byte* screen) // ---------------------------- Перезапуск бегущей строки
+{
+  if (end)
+  {
+	  memset(st1, 0, 254);
+	 
+	  MSG::pr_str(num, _max, mcf, snr, wf, wfc, rt, rta, local_ip, c_br, st1, cli, ns);
+
+	  DBG_OUT_PORT.print(F("num_st = "));
+	  DBG_OUT_PORT.println(num);
+	  DBG_OUT_PORT.print(F("st1 = "));
+	  DBG_OUT_PORT.println(st1);
+	  DBG_OUT_PORT.print(F("ni = "));
+	  DBG_OUT_PORT.println(ni);
+
+
+	  if (mcf.rus_lng & (mcf.vdrv_t == 12)) f_dsp.lcd_rus(st1);
+	  if (mcf.rus_lng & (mcf.vdrv_t != 12)) f_dsp.utf8rus(st1);
+
+	  f_dsp.scroll_init();
+	  end = false;
+	  
+	  if (mcf.dsp_t == 20) f_dsp.CLS(screen, sizeof screen);
+
+	  if (num == 6)	ni ++;
+		
+	  if (ni > 9) ni = 0;
+  }
 }

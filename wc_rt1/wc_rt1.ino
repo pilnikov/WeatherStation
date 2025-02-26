@@ -72,8 +72,9 @@ ESP8266HWInfo hwi;
 BH1750 lightMeter;
 
 // ---------------------------------------------------- Other
-FD f_dsp2;         //For Display
-MyDspHW mydsp_hw;  //For Display HW
+FD f_dsp1;           //For Display functions
+MSG msg_dsp;        //For Display messages
+MyDspHW mydsp_hw;   //For Display HW
 
 Synt Buzz;  //Конструктор пищалки
 
@@ -82,6 +83,8 @@ RTCJS myrtccfg;  //For RTC Config
 SF hw_chk;       //For HW Check
 SNR sens_f;      //For Sensor Common
 SNRJS mysnrcfg;  //For Sensor Config
+
+KBT keybrd;
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 // ---------------------------------------------------- News Client
@@ -345,8 +348,8 @@ void setup() {
 
     //-------------------------------------------------------- Регулируем яркость дисплея
     if (mcf.auto_br && mcf.dsp_t > 0) {
-      snr_data.f = f_dsp2.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
-      cur_br = f_dsp2.auto_br(snr_data.f, mcf);
+      snr_data.f = f_dsp1.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
+      cur_br = f_dsp1.auto_br(snr_data.f, mcf);
     } else {
       if (rtc_time.nm_is_on) cur_br = mcf.nmd_br;  // Man brigthness
       else cur_br = mcf.man_br;
@@ -488,7 +491,7 @@ void loop() {
           if (mcf.news_en & wifi_data_cur.cli) ns = newsClient->getTitle(newsIndex);
           cli = wifi_data_cur.cli;
 #endif
-          // tmp_ban mydsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // запуск бегущей строки для однострочных дисплеев
+          msg_dsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // запуск бегущей строки для однострочных дисплеев
         }
         break;
 
@@ -505,8 +508,8 @@ void loop() {
         if (disp_on && mcf.dsp_t > 0) {
           //-------------Brigthness------------------
           if (mcf.auto_br) {
-            snr_data.f = f_dsp2.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
-            cur_br = f_dsp2.auto_br(snr_data.f, mcf);
+            snr_data.f = f_dsp1.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
+            cur_br = f_dsp1.auto_br(snr_data.f, mcf);
           } else {
             if (rtc_time.nm_is_on) cur_br = mcf.nmd_br;  // Man brigthness
             else cur_br = mcf.man_br;
@@ -517,9 +520,9 @@ void loop() {
           // run slowely time displays here
           m32_8time_act = false;
           if (!((mcf.dsp_t == 20) & !end_run_st)) {
-            // tmp_ban m32_8time_act = mydsp.time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, mcf, snr_data, ddd);  // break time view while string is running
+            m32_8time_act = msg_dsp.time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, mcf, snr_data, ddd);  // break time view while string is running
             cur_br = ddd;
-            mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
+            mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen); // to fhysical level
           }
         } else cur_br = 0;
         if (!wasAlarm)  //Проверка будильников
@@ -574,7 +577,7 @@ void loop() {
         }
 #endif
 
-        // tmp_ban mydsp.scroll_start(true, true, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+        f_dsp1.scroll_start(true, true, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
         if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
         //divider = !divider;
         break;
@@ -584,13 +587,13 @@ void loop() {
           uint8_t pos = 0;
           if (mcf.dsp_t > 20 && mcf.dsp_t < 29 && !mcf.time_up) pos = 32;
 
-          // tmp_ban mydsp.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
+          f_dsp1.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
         }
         break;
 
       case 8:
         if (disp_on) {
-          // tmp_ban mydsp.scroll_start(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+          f_dsp1.scroll_start(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
           if ((mcf.dsp_t != 20) & end_run_st & !rtc_time.nm_is_on) {
             cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -598,7 +601,7 @@ void loop() {
             if (mcf.news_en & wifi_data_cur.cli) ns = newsClient->getTitle(newsIndex);
             cli = wifi_data_cur.cli;
 #endif
-            // tmp_ban mydsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
+            msg_dsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
           }
           mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // передача видеобуфера (screen) на физический уровень
         }
@@ -622,8 +625,7 @@ void loop() {
     ap = wifi_data_cur.ap;
 #endif
 
-    keyb_read(cli, ap, gcf.gpio_btn, disp_mode, max_st,
-              mcf.thermo_t, mcf.vdrv_t, gcf.gpio_led, gcf.led_pola, blinkColon, serv_ms, &mcf, end_run_st);
+    keybrd._read(cli, ap, gcf.gpio_btn, gcf.gpio_led, gcf.led_pola, disp_mode, max_st, blinkColon, serv_ms, end_run_st, &mcf);
 
     //------------------------------------------------------  Верифицируем ночной режим
     rtc_time.nm_is_on = myrtc.nm_act(rtc_time.ct, rtc_cfg.nm_start, rtc_cfg.nm_stop);
