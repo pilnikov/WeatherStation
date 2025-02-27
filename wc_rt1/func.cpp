@@ -565,7 +565,7 @@ void KBT::_read(bool cli, bool ap, uint8_t gpio_btn, uint8_t gpio_led, bool led_
     String from_client = main_cfg2.to_json(*mcf);
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-    const char* conf_f = "/main_cfg.json";
+    const char* conf_f = "/conf_main.json";
     lfs_ff.writeFile(conf_f, from_client.c_str());
 
     stop_serv();

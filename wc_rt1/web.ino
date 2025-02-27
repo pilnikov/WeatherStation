@@ -290,7 +290,7 @@ void handleSetPard() {
 
   from_client = main_cfg.to_json(mcf);
 
-  conf_f = "/main_cfg.json";
+  conf_f = "/conf_main.json";
   lfs.writeFile(conf_f, from_client.c_str());
 
   server.send(200, "text/html", "OK!");
@@ -479,7 +479,7 @@ void handleSetPars2() {
 
   from_client = mysnrcfg.to_json(snr_cfg_data);
 
-  conf_f = "/snr_cfg.json";
+  conf_f = "/conf_snr.json";
   lfs.writeFile(conf_f, from_client.c_str());
 
   mcf.period = constrain(server.arg("period").toInt(), 1, 59);
@@ -511,7 +511,7 @@ void handleSetPars3() {
 
   from_client = main_cfg.to_json(mcf);
 
-  conf_f = "/main_cfg.json";
+  conf_f = "/conf_main.json";
   lfs.writeFile(conf_f, from_client.c_str());
 
   server.send(200, "text/html", "OK!");
@@ -575,7 +575,7 @@ void handleSetParc() {
 
   from_client = gpio_cfg.to_json(gcf);
 
-  conf_f = "/gpio_cfg.json";
+  conf_f = "/conf_gpio.json";
   lfs.writeFile(conf_f, from_client.c_str());
 
   server.send(200, "text/html", "OK!");
@@ -776,6 +776,7 @@ String getContentType(String filename) {
   return "text/plain";
 }
 
+//-------------------------------------------------------------- handler Set Parameter for news
 void handleSetNews() {
   //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
   char src_buff[17];
@@ -788,7 +789,7 @@ void handleSetNews() {
 
   from_client = main_cfg.to_json(mcf);
 
-  conf_f = "/main_cfg.json";
+  conf_f = "/conf_main.json";
   lfs.writeFile(conf_f, from_client.c_str());
 
   if (strcmp(src_buff, mcf.news_source) != 0) handleUpdNews();
@@ -796,6 +797,7 @@ void handleSetNews() {
   serv_ms = millis();
 }
 
+//-------------------------------------------------------------- handler Updater news string
 void handleUpdNews() {
   if (mcf.news_en) {
     newsClient->updateNewsClient(mcf.news_api_key, mcf.news_source);
@@ -803,8 +805,7 @@ void handleUpdNews() {
   }
 }
 
-
-//-------------------------------------------------------------- handler Get Parameter from sensor
+//-------------------------------------------------------------- handler Set Parameter for news
 void handlejNews() {
   String st = "";
   JsonDocument jsonBuffer;
@@ -819,7 +820,7 @@ void handlejNews() {
   server.send(200, "text/json", st1);
 }
 
-//-------------------------------------------------------------- handler Get Parameter from sensor
+//-------------------------------------------------------------- handler Get full text from news string
 void handlejNewsT() {
   String st = "";
   JsonDocument jsonBuffer;

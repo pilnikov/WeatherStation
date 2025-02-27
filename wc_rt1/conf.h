@@ -165,6 +165,10 @@
 
 #define FW_Ver 3.0  //05.11.24 code corrected
 
+#ifndef debug_level
+#define debug_level 0
+#endif
+
 // ------------------------------------------------------------- Include
 #if ARDUINO >= 100
 #include <Arduino.h>
@@ -275,36 +279,63 @@ void ISR_ATTR isr0();
 //-------------------------------------------------------------------------------------
 
 class MAINJS {
-public:
-  String
+  public:
+    String
     to_json(main_cfg_t);
 
-  main_cfg_t
+    main_cfg_t
     from_json(String),
-    def_conf();
-private:
-protected:
+              def_conf();
+  private:
+  protected:
 };
 
 class GPIOJS {
-public:
-  String
+  public:
+    String
     to_json(gpio_cfg_t);
 
-  gpio_cfg_t
+    gpio_cfg_t
     from_json(String),
-    def_conf();
-private:
-protected:
+              def_conf();
+  private:
+  protected:
 };
 
 class KBT {
-public:
-  void _read(bool, bool, uint8_t, uint8_t, bool, uint8_t&, uint8_t&, bool, uint32_t&, bool&, main_cfg_t*);
+  public:
+    void _read(bool, bool, uint8_t, uint8_t, bool, uint8_t&, uint8_t&, bool, uint32_t&, bool&, main_cfg_t*);
 
-private:
-protected:
+  private:
+  protected:
 };
+
+
+class DSPF // Фомирование картинки на дисплее
+{
+  public:
+    void
+    pr_str(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[], bool cur_cli, String newsClient),
+           runing_string_start(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint16_t c_br, bool cli, String ns, uint8_t &ni, bool &end, char *st1, byte* screen),
+    bool
+    time_view(bool use_pm, bool blinkColon, bool end_run_st, rtc_time_data_t rt, rtc_alm_data_t rta, byte *screen, main_cfg_t mcf, snr_data_t snr, uint16_t br);
+    uint8_t
+    seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, snr_data_t sn, rtc_time_data_t rt,  rtc_alm_data_t rta, bool pm, uint16_t c_br);
+  private:
+    uint8_t
+    q_dig = 6;
+    bool
+    old[6];
+    const uint8_t
+    dposx[6] = {0, 6, 13, 19, 25, 29};
+    unsigned
+    char change[6];
+    uint16_t
+    buffud[64];
+
+  protected:
+};
+
 
 
 //---------------------------------------------------------------------------------------

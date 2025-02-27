@@ -1025,16 +1025,16 @@ var numaa = 7;
 				nc2_t = document.getElementById('name_ch2').value;
 				nc3_t = document.getElementById('name_ch3').value;
 			  
-				var url2 = '/set_pars2?snr1='     + snr1_t
-									 + '&snr2='   + snr2_t
-									 + '&snr3='   + snr3_t
-									 + '&snrp='   + snrp_t
-									 + '&period=' + period_t
-									 + '&ues='    + ues_t
-									 + '&esm='    + esm_t
-									 + '&nc1='    + nc1_t
-									 + '&nc2='    + nc2_t
-									 + '&nc3='    + nc3_t;
+				var url2 = '/set_pars2?snr1='   + snr1_t
+						   + '&snr2='   + snr2_t
+						   + '&snr3='   + snr3_t
+						   + '&snrp='   + snrp_t
+						   + '&period=' + period_t
+						   + '&ues='    + ues_t
+						   + '&esm='    + esm_t
+						   + '&nc1='    + nc1_t
+						   + '&nc2='    + nc2_t
+						   + '&nc3='    + nc3_t;
 
 				var xh1 = new XMLHttpRequest();
 				xh1.open('GET', url2, true);

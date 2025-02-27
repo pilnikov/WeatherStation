@@ -8,19 +8,9 @@
 #include <WProgram.h>
 #endif
 
-#include <Udt.h>
-
-#include <Sysfn.h>
-#include <myrtc.h>
-#include <Snr.h>
-#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-#include <my_wifi.h>
-#endif
-
-
 // ---------------------------------------------------- Common
 
-static uint16_t cur_br  = 0;
+static uint16_t cur_br  = 7;
 
 //---------------------------------------------------------------------------------------------------
 static byte     screen[64];       // display buffer

@@ -425,6 +425,7 @@ snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr
 	{	
 		uint8_t type_snr = 0; 
 		float t_data_h = 0, t_data_t = 99,  t_data_p = 700, e_data1_h = 0, e_data1_t = 99, e_data1_p = 700, e_data2_h = 0, e_data2_t = 99, e_data2_p =700;
+		float h = 0, t = 99, p = 700;
 
 		switch (i)
 		{
@@ -484,8 +485,6 @@ snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr
 				break;
 		}
 		
-		float h = 0, t = 99, p = 700;
-
 		switch (type_snr)
 		{
 			case 1:
@@ -540,6 +539,7 @@ snr_data_t SNR::read_snr(snr_cfg_t cfg, uint8_t rtc_temp, snr_data_t t_data, snr
 				t = temp_read(type_snr);
 				break;
 			default:
+				h = 0, t = 99, p = 700;
 				break;
 		}
 		

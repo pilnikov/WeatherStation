@@ -93,6 +93,7 @@ NewsApiClient *newsClient;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
+
   //------------------------------------------------------  Определяем консоль
   DBG_OUT_PORT.begin(115200);
 
@@ -192,7 +193,7 @@ void setup() {
   DBG_OUT_PORT.println(F(" loaded"));
 
   //------------------------------------------------------  Загружаем общие настройки HW
-  conf_f = "/main_cfg.json";
+  conf_f = "/conf_main.json";
   mcf = main_cfg.def_conf();
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -211,7 +212,7 @@ void setup() {
   DBG_OUT_PORT.println(F(" loaded"));
 
   //------------------------------------------------------  Загружаем настройки GPIO
-  conf_f = "/gpio_cfg.json";
+  conf_f = "/conf_gpio.json";
   gcf = gpio_cfg.def_conf();
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -587,7 +588,7 @@ void loop() {
           uint8_t pos = 0;
           if (mcf.dsp_t > 20 && mcf.dsp_t < 29 && !mcf.time_up) pos = 32;
 
-          f_dsp1.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
+          f_dsp1.scroll_all_pos(pos, screen);  // запуск вертушка для каждой изменившейся позиции 
         }
         break;
 

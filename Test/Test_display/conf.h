@@ -163,7 +163,7 @@
 #ifndef conf_h
 #define conf_h
 
-#define FW_Ver 2.0 //05.03.22 structure modified
+#define FW_Ver 2.0  //05.03.22 structure modified
 
 // ------------------------------------------------------------- Include
 //#include "..\lib\MyLib_Udt\Udt.h"
@@ -179,6 +179,18 @@
 #include <Sysfn.h>
 #include <myrtc.h>
 #include <Snr.h>
+#include <Scr.h>
+#include <Dsp.h>
+#include <BH1750.h>
+
+
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#include <my_wifi.h>
+#endif
+
+
+#include "global_var.h"
+
 
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial

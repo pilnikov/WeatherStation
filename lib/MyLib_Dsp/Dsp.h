@@ -11,9 +11,10 @@
 #include <Udt.h>
 #include <LiquidCrystal_I2C.h>
 #include <Max72.h>
-#include <SHT1632_3.h>
+//#include <SHT1632_3.h>
 #include <myHT16K33.h>
 #include <myTM1637.h>
+#include <HT1632.h>
 
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 #include <freertos/FreeRTOS.h>
@@ -33,6 +34,12 @@
 
 //----------------------------------------------------------------------------------------------------------------------------------define
 
+#ifndef DBG_OUT_PORT
+#define DBG_OUT_PORT Serial
+#endif
+
+
+
 class MyDspHW
 {
   public:
@@ -51,7 +58,7 @@ class MyDspHW
 	pcf8574_init(byte, uint8_t, uint8_t),
 	m7219_init(byte, uint8_t),
 	ht1621_init(uint8_t, uint8_t, uint8_t),
-	ht1632_init(byte, byte),
+	ht1632_init(uint8_t, uint8_t, uint8_t, uint8_t),
 	ht1633_init(byte),
 	ili9341_init(),
 
@@ -68,4 +75,17 @@ class MyDspHW
 	roll_seg(byte&);  
   protected:
 };
+
+class MyDspBCF // Функции для управления яркостью (BrightControlFunctions)
+{
+  public:
+   uint8_t 
+	auto_br(uint16_t, main_cfg_t);       // Авто регулировка яркости с расчетом пределов
+   uint16_t
+	ft_read(bool, uint16_t, uint8_t);    // Селектор источника измерения освещенности
+  
+  private:
+  protected:
+};
+
 #endif /*disp_h*/

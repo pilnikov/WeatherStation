@@ -1,10 +1,10 @@
-#include "Scr.h"
+#include "Scr_frm.h"
 #include "fonts.h"
 
-CT rtc_f; //For RTC Common
-FD dsp_f; //For Display
+CT  rtc7;   //For RTC Common
+FFF scr7;  //For frame former funcions
 
-uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, snr_data_t snr, rtc_time_data_t rt,  rtc_alm_data_t rta, bool pm, uint16_t c_br)
+uint8_t SSCF::seg_add_data(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset, snr_data_t snr, rtc_time_data_t rtd,  rtc_alm_data_t rta, bool pm, uint16_t c_br) // Формирует подстроку с доп данными (не текущее время)
 {
   const char* name_week_0 = PSTR("  ");
   const char* name_week_1 = PSTR("8c");
@@ -18,9 +18,9 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
   const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
   char tStr[25];
 
-  rtc_hms_t alt = rtc_f.unix_to_hms(rta.time);
+  rtc_hms_t alt = rtc7.unix_to_hms(rta.time);
 
-  uint8_t h = pm && rt.hour != 12 ? rt.hour % 12 : rt.hour;
+  uint8_t h = pm && rtd.hour != 12 ? rtd.hour % 12 : rtd.hour;
   h = h % 100;
 
   bool _repeat = true;
@@ -33,7 +33,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
       case 4:
         switch (mod)
         {
-          case 1: //Температура канал 1
+          case 1: //��������� ����� 1
             if (snr.t1 <= -99 || snr.t1 >= 99) mod ++;
             else
             {
@@ -43,7 +43,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 2: //Влажность канал 1
+          case 2: //��������� ����� 1
             if (snr.h1 <= 0 || snr.h1 > 99) mod ++;
             else
             {
@@ -52,7 +52,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 3: //Температура канал 2
+          case 3: //��������� ����� 2
             if (snr.t2 <= -99 || snr.t2 >= 99) mod ++;
             else
             {
@@ -62,7 +62,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 4: //Влажность канал 2
+          case 4: //��������� ����� 2
             if (snr.h2 <= 0 || snr.h2 > 99) mod ++;
             else
             {
@@ -71,7 +71,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 5: //Температура канал 3
+          case 5: //��������� ����� 3
             if (snr.t3 <= -99 || snr.t3 >= 99) mod ++;
             else
             {
@@ -81,7 +81,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 6: //Влажность канал 3
+          case 6: //��������� ����� 3
             if (snr.h3 <= 0 || snr.h3 > 99) mod ++;
             else
             {
@@ -90,7 +90,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 7: //Давление
+          case 7: //��������
             if (snr.p <= 700 || snr.p >= 800) mod ++;
             else
             {
@@ -99,18 +99,18 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 8: //День недели, дата
+          case 8: //���� ������, ���
 
-            sprintf_P(tStr, PSTR("%2s%2d"), name_week7[rt.wday], rt.day);
+            sprintf_P(tStr, PSTR("%2s%2d"), name_week7[rtd.wday], rtd.day);
             _repeat = false;
             break;
 
-          case 9: //Месяц, год
-            sprintf_P(tStr, PSTR("%2d%2d"), rt.month, rt.year % 100);
+          case 9: //�����, ���
+            sprintf_P(tStr, PSTR("%2d%2d"), rtd.month, rtd.year % 100);
             _repeat = false;
             break;
 
-          case 10: //Актуальный будильник
+          case 10: //���㠫�� �㤨�쭨�
             if (rta.num == 7) mod ++;
             else
             {
@@ -119,18 +119,18 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 11: //Секунды
-            sprintf_P(tStr, PSTR("%02d5 "), rt.sec);
+          case 11: //���㭤�
+            sprintf_P(tStr, PSTR("%02d5 "), rtd.sec);
             _repeat = false;
             break;
 
-          case 12: //Текущая яркость
+          case 12: //������ �મ���
             sprintf_P(tStr, PSTR("L%3d"), c_br);
             _repeat = false;
             break;
 
           default:
-            sprintf_P(tStr, PSTR("%2d%02d"), h, rt.min);
+            sprintf_P(tStr, PSTR("%2d%02d"), h, rtd.min);
             _repeat = false;
             break;
         }
@@ -138,7 +138,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
       case 6:
         switch (mod)
         {
-          case 1: //Температура канал 1
+          case 1: //��������� ����� 1
             if (snr.t1 <= -99 || snr.t1 >= 99) mod ++;
             else
             {
@@ -147,7 +147,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 2: //Влажность канал 1
+          case 2: //��������� ����� 1
             if (snr.h1 <= 0 || snr.h1 > 99) mod ++;
             else
             {
@@ -156,7 +156,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 3: //Температура канал 2
+          case 3: //��������� ����� 2
             if (snr.t2 <= -99 || snr.t2 >= 99) mod ++;
             else
             {
@@ -165,7 +165,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 4: //Влажность канал 2
+          case 4: //��������� ����� 2
             if (snr.h2 <= 0 || snr.h2 > 99) mod ++;
             else
             {
@@ -174,7 +174,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 5: //Температура канал 3
+          case 5: //��������� ����� 3
             if (snr.t3 <= -99 || snr.t3 >= 99) mod ++;
             else
             {
@@ -183,7 +183,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 6: //Влажность канал 3
+          case 6: //��������� ����� 3
             if (snr.h3 <= 0 || snr.h3 > 99) mod ++;
             else
             {
@@ -192,7 +192,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 7: //Давление
+          case 7: //��������
             if (snr.p <= 700 || snr.p >= 800)mod ++;
             else
             {
@@ -201,12 +201,12 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 8: //День недели, дата месяц
-            sprintf_P(tStr, PSTR("%2s.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month);
+          case 8: //���� ������, ��� �����
+            sprintf_P(tStr, PSTR("%2s.%02d.%02d"), name_week7[rtd.wday], rtd.day, rtd.month);
             _repeat = false;
             break;
 
-          case 9: //Актуальный будильник
+          case 9: //���㠫�� �㤨�쭨�
             if (rta.num == 7) mod ++;
             else
             {
@@ -215,13 +215,13 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 10: //Текущая яркость
+          case 10: //������ �મ���
             sprintf_P(tStr, PSTR(" L %2u  "), c_br);
             _repeat = false;
             break;
 
           default:
-            sprintf_P(tStr, PSTR("%2d.%02d.%02d"), h, rt.min, rt.sec);
+            sprintf_P(tStr, PSTR("%2d.%02d.%02d"), h, rtd.min, rtd.sec);
             _repeat = false;
             break;
         }
@@ -229,7 +229,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
       case 8:
         switch (mod)
         {
-          case 1: //Температура, Влажность канал 1
+          case 1: //���������, ��������� ����� 1
             if ((snr.h1 <= 0 || snr.h1 > 99) && (snr.t1 <= -99 || snr.t1 >= 99)) mod ++;
             else
             {
@@ -240,7 +240,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 2: //Температура, Влажность канал 2
+          case 2: //���������, ��������� ����� 2
             if ((snr.h2 <= 0 || snr.h2 > 99) && (snr.t2 <= -99 || snr.t2 >= 99)) mod ++;
             else
             {
@@ -251,7 +251,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 3: //Температура, Влажность канал 3
+          case 3: //���������, ��������� ����� 3
             if ((snr.h3 <= 0 || snr.h3 > 99) && (snr.t3 <= -99 || snr.t3 >= 99)) mod ++;
             else
             {
@@ -262,7 +262,7 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 4: //Давление
+          case 4: //��������
             if (snr.p <= 700 || snr.p >= 800) mod ++;
             else
             {
@@ -271,19 +271,19 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
             }
             break;
 
-          case 5: //День недели, дата, месяц, год
-            sprintf_P(tStr, PSTR("%2s.%02d.%02d.%02d"), name_week7[rt.wday], rt.day, rt.month, rt.year % 100);
+          case 5: //���� ������, ���, �����, ���
+            sprintf_P(tStr, PSTR("%2s.%02d.%02d.%02d"), name_week7[rtd.wday], rtd.day, rtd.month, rtd.year % 100);
             _repeat = false;
             break;
 
-          case 6: //Актуальный будильник, текущая яркость
+          case 6: //���㠫�� �㤨�쭨�, ⥪��� �મ���
             if (rta.num == 7) sprintf_P(tStr, PSTR("A----L%2d"), c_br % 100);
             else sprintf_P(tStr, PSTR("A%2u.%02dL%2d"), alt.h, alt.m, c_br % 100);
             _repeat = false;
             break;
 
           default:
-            sprintf_P(tStr, PSTR("%2d-%02d-%02d"), h % 100, rt.min % 100, rt.sec % 100);
+            sprintf_P(tStr, PSTR("%2d-%02d-%02d"), h % 100, rtd.min % 100, rtd.sec % 100);
             _repeat = false;
             break;
         }
@@ -295,11 +295,8 @@ uint8_t MSG::seg7_mode(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _offset,
     }
   } while (_repeat);
 
-  //  DBG_OUT_PORT.print(F("test string"));
-  //  DBG_OUT_PORT.println(tStr);
-
-  dsp_f.utf8rus(tStr);
-  dsp_f.print_(tStr, strlen(tStr), in, _offset, font14s, 2, 0);
+  scr7.utf8rus(tStr);
+  scr7.print_(tStr, strlen(tStr), in, _offset, font14s, 2, 0);
   return strlen(tStr);
 }
-//#endif
+

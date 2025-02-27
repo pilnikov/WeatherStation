@@ -9,6 +9,9 @@
 #include <pgmspace.h>
 #endif
 
+FD f_dsp; // Для объектов класса FD
+
+
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 static const byte utf_recode[64] =
 { 0x41, 0xa0, 0x42, 0xa1, 0xe0, 0x45, 0xa3, 0xa4, 0xa5, 0xa6, 0x4b, 0xa7, 0x4d, 0x48, 0x4f,
@@ -26,7 +29,8 @@ const byte utf_recode[64] PROGMEM =
 };
 #endif
 
-void FFF::roll_seg(byte &in) //переворот сегмента
+
+void FD::roll_seg(byte &in) //переворот сегмента
 /*      a              d        a b c
         -              -     заменить на
      f|   |b        c|   |e     d e f
@@ -43,7 +47,7 @@ void FFF::roll_seg(byte &in) //переворот сегмента
   in = b;
 }
 
-void FFF::mir_seg(byte &in) //адаптация для мах7219
+void FD::mir_seg(byte &in) //адаптация для мах7219
 /*
 *  для мах последовательность бит в байте для 7ми сегментника обратная,
 *  т.е если для тм и нт 0 бит -> сегмент А .. 6 бит -> сегмент G 
@@ -63,7 +67,7 @@ void FFF::mir_seg(byte &in) //адаптация для мах7219
 }
 
 
-void FFF::lcd_rus(String &source)
+void FD::lcd_rus(String &source)
 {
   String target;
 
@@ -107,7 +111,7 @@ void FFF::lcd_rus(String &source)
   source = target;
 }
 
-void FFF::lcd_rus(char *source)
+void FD::lcd_rus(char *source)
 {
   uint16_t i = 0, j = 0; // source symbol pos index
   uint16_t k = strlen(source);// source length
@@ -172,7 +176,7 @@ void FFF::lcd_rus(char *source)
 
 
 /* Recode russian fonts from UTF-8 to Windows-1251 */
-void FFF::utf8rus(String &source)
+void FD::utf8rus(String &source)
 {
   String target;
 
@@ -209,7 +213,7 @@ void FFF::utf8rus(String &source)
   source = target;
 }
 
-void FFF::utf8rus(char *source)
+void FD::utf8rus(char *source)
 {
    
   uint16_t i = 0, j = 0;
@@ -248,8 +252,46 @@ void FFF::utf8rus(char *source)
   for (i = j; i < k; i++) source[i] = 0;
 }
 
+bool FD::time_m32_8(byte *in, uint8_t pos, unsigned char *old, const uint8_t *dposx, bool *change, uint16_t *buff, const byte *font, bool pm, const uint8_t q_dig, rtc_time_data_t rt)
+{
+  //----------------------------------------------------------------- заполнение массива
+  unsigned char d[q_dig];
+  uint8_t font_wdt = 5;
+  byte nbuf[256];
+
+  uint8_t h = rt.hour;
+  // Do 24 hour to 12 hour format conversion when required.
+  if (pm & (h != 12)) h = h % 12;
+
+  d[0] = ' ';
+  if (h > 9) d[0] = h / 10 + '0';
+  d[1] = h % 10 + '0';
+  d[2] = rt.min / 10 + '0';
+  d[3] = rt.min % 10 + '0';
+  d[4] = rt.sec / 10 + '\x80';
+  d[5] = rt.sec % 10 + '\x80';
+
+  for (uint8_t i = 0; i < q_dig; i++)
+  {
+    if (i > 3) font_wdt = 3;
+    change[i] = d[i] != old[i]; // проверка изменений в буфере отображаемых символов
+    if (change[i])
+    {
+      FD::printCharacter(d[i], dposx[i], nbuf + pos, font, 5); // запись символа в вертушок для изменившихся позиций
+      FD::shift_ud(true, true, nbuf + pos, in + pos,  buff + pos, dposx[i],  dposx[i] + font_wdt); // запись символа в вертушок для изменившихся позиций
+    }
+    else
+    {
+      FD::printCharacter(old[i], dposx[i], in + pos, font, 5); // отображение символов
+    }
+    old[i] = d[i]; // перезапись предыдущих значений в буфер
+  }
+  //DBG_OUT_PORT.println(F("time_m32_8");
+  return true;
+}
+
 //-------------------------------------------------------------- Отображение бегущей строки
-bool FFF::matrix_scroll_String(int8_t x1, /*start_pos*/
+bool FD::scroll_String(int8_t x1, /*start_pos*/
                    int8_t x2, /*  end_pos*/
                    char* in,  /*in string*/
                    byte *out, /*out string*/
@@ -310,31 +352,31 @@ bool FFF::matrix_scroll_String(int8_t x1, /*start_pos*/
 }
 
 
-void FFF::CLS(byte *out, size_t size) // Clean screen buffer
+void FD::CLS(byte *out, size_t size) // Clean screen buffer
 {
   memset(out, 0, size);
 }
 
-void FFF::cleanPos(uint8_t pos, byte *out) // Erases one pos on display
+void FD::cleanPos(uint8_t pos, byte *out) // Erases one pos on display
 {
   memset(out + pos, 0, 1);
 }
 
-void FFF::printDot(uint8_t pos, byte *out) // Displays an dot  on a given display
+void FD::printDot(uint8_t pos, byte *out) // Displays an dot  on a given display
 {
   out[pos] |= 0x80;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FFF::printCharacter(unsigned char character, uint8_t x, byte *out, const byte* font, uint8_t font_wdt)
+void FD::printCharacter(unsigned char character, uint8_t x, byte *out, const byte* font, uint8_t font_wdt)
 {
     memcpy_P (out + x,                   // цель
             font + character * font_wdt, // источник
             font_wdt);                   // объем
 }
 
-void FFF::print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* font, uint8_t font_wdt, uint8_t spacer_wdt)
+void FD::print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const byte* font, uint8_t font_wdt, uint8_t spacer_wdt)
 {
   unsigned char character = 0;
   uint8_t icp = 0;
@@ -349,7 +391,7 @@ void FFF::print_(char *in, uint8_t size_in, byte *out, uint8_t _offset, const by
   }
 }
 
-void FFF::v_scroll(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8_t x1, int8_t x2) //Вертикальный скролинг области
+void FD::shift_ud(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8_t x1, int8_t x2)
 {
   if (x1 < 0 || x2 > 63) return;
   for (uint8_t x = x1; x < x2; x++)
@@ -377,7 +419,7 @@ void FFF::v_scroll(bool dwn, bool r_s, byte *in, byte *out, uint16_t *buff, int8
   }
 }
 
-void FFF::compressor7(byte *in, uint8_t x1, uint8_t x2) // Адаптация дисплейного буфера под семисегментники
+void FD::compressor7(byte *in, uint8_t x1, uint8_t x2) // Адаптация дисплейного буфера под семисегментники
 {
   uint8_t _size = (x2 - x1);
 
@@ -394,39 +436,41 @@ void FFF::compressor7(byte *in, uint8_t x1, uint8_t x2) // Адаптация д
   }
 }
 
-/*
-   Scroll a string across displays
-   Includes fade in where string starts on right-most display preceded by blank space
-   and scrolls left. This also includes a fade out where characters travel off the left
-   display followed by blank space
-*/
-
-bool FFF::lcd_scroll_String(uint8_t window_wdt, char *in, byte *out)
+//-------------------------------------------------------------- Установка яркости
+uint8_t FD::auto_br(uint16_t lt, main_cfg_t mcf)
 {
-  if (icp > strlen(in) + window_wdt)
-  {
-    icp = 0;
-	return true;
-  }
+  // у = кх + в
+
+  uint8_t c_br = mcf.br_level[2]; // b
+  float br = mcf.br_level[3];
+
+  float dx = (float)mcf.br_level[1] - mcf.br_level[0]; //диапазон освещенности (dх)
+  float dy = (float)mcf.br_level[3] - mcf.br_level[2]; //уставки яркости (dу)
+  float ltt = (float)lt;
+
+  br = dy / dx * ltt + (float)mcf.br_level[2];
+  if (dx < 0)   br = dy / dx * ltt + (float)mcf.br_level[3];
+
+  c_br = constrain(br, mcf.br_level[2], mcf.br_level[3]);
+  return c_br;
+}
+
+uint16_t FD::ft_read(bool snr_pres, uint16_t bh_lvl, uint8_t in)
+{
+  uint16_t ft = 7;
+  if (snr_pres) ft = bh_lvl;
   else
   {
-	for (uint8_t posIdx = 0; posIdx < window_wdt; posIdx++)
-	{
-		uint8_t i = icp + posIdx - window_wdt;
-		out[posIdx] = ' ';
-		if (i < strlen(in)) out[posIdx] = in[i]; //front
-	}
-    icp++;
-    return false;
+    ft = analogRead(in);
   }
+
+  //  DBG_OUT_PORT.print(F("level from sensor..."));
+  //  DBG_OUT_PORT.println(ft);
+
+  return ft;
 }
 
-void FFF::h_scroll_init() 
-/* Устанавливает указатели на первый символ в прокручиваемой строке и на первый байт в буфере */
-{
-   icp = 0;	/*pointer to character in the input string*/
-   fbp = 0;	/*pointer to byte in screen(buffer)*/
-}
+
 
 //-------------------------------------------------------------- Выбор дня недели
 void HT::dow_sel(uint8_t _dow, byte *in)
@@ -529,5 +573,140 @@ void HT::ala(uint8_t num, byte *in) //Будильник
     case 3:
       in[0] |= 0x2;
       break;
+  }
+}
+
+/*
+   Scroll a string across displays
+   Includes fade in where string starts on right-most display preceded by blank space
+   and scrolls left. This also includes a fade out where characters travel off the left
+   display followed by blank space
+*/
+bool FD::lcd_mov_str(uint8_t window_wdt, char *in, byte *out)
+{
+  if (icp > strlen(in) + window_wdt)
+  {
+    icp = 0;
+	return true;
+  }
+  else
+  {
+	for (uint8_t posIdx = 0; posIdx < window_wdt; posIdx++)
+	{
+		uint8_t i = icp + posIdx - window_wdt;
+		out[posIdx] = ' ';
+		if (i < strlen(in)) out[posIdx] = in[i]; //front
+	}
+    icp++;
+    return false;
+  }
+}
+
+void FD::scroll_init()
+{
+   icp = 0;	/*pointer to character in the input string*/
+   fbp = 0;	/*pointer to byte in font*/
+}
+
+void FD::scroll_disp(uint8_t pos, byte *screen)
+{
+  uint8_t font_wdt = 5;
+  byte nbuf[64];
+
+  for (uint8_t i = 0; i < q_dig; i++)
+  {
+    if (i > 3) font_wdt = 3;
+
+    if (old[i])
+    {
+      FD::shift_ud(true, false, nbuf + pos, screen + pos,  buffud + pos, dposx[i],  dposx[i] + font_wdt); // запуск вертушка для изменившихся позиций
+    }
+  }
+}
+
+void FD::scroll_start(bool l_s, bool dvd, uint8_t vdrv_t, uint8_t dsp_t, bool time_up, bool &end, char *st1, byte *screen) // ---------------------------- Запуск бегущей строки
+{
+ 	byte bbuf[16];
+	if (l_s)
+	{
+	  if (vdrv_t == 11)
+	  {
+		if (dsp_t == 11)
+		{
+		  if  (!end)
+		  {
+			uint8_t x1 = 8, x2 = 15;
+			if (!time_up)
+			{
+			  x1 = 0;
+			  x2 = 7;
+			}
+			end = FD::scroll_String(x1, x2, st1, screen, font14s, 2, 0, 2);
+		  }
+		}
+		if (dsp_t == 31)
+		{
+		  if  (!end)
+		  {
+			end = FD::scroll_String(20, 25, st1, screen, font14s, 2, 0, 2);
+		  }
+		}
+	  }
+
+	  if (vdrv_t == 12)
+	  {
+		if (dsp_t == 19)
+		{
+		  if  (!end & dvd)
+		  {
+			uint8_t x1 = 0;
+			if (time_up) x1 = 1;
+			end = FD::lcd_mov_str(16, st1, bbuf);
+		  }
+		}
+	  }
+  }
+  else
+  {
+	  if (dsp_t > 19 && dsp_t < 29 && !end)
+	  {
+		uint8_t x1 = 32, x2 = 63;
+		if (!time_up)
+		{
+		  x1 = 0;
+		  x2 = 31;
+		}
+		end = FD::scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1); // бегущая строка
+	  }
+  }
+}
+
+void MSG::runing_string_start(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint16_t c_br, bool cli, String ns, uint8_t &ni, bool &end, char *st1, byte* screen) // ---------------------------- Перезапуск бегущей строки
+{
+  if (end)
+  {
+	  memset(st1, 0, 254);
+	 
+	  MSG::pr_str(num, _max, mcf, snr, wf, wfc, rt, rta, local_ip, c_br, st1, cli, ns);
+
+	  DBG_OUT_PORT.print(F("num_st = "));
+	  DBG_OUT_PORT.println(num);
+	  DBG_OUT_PORT.print(F("st1 = "));
+	  DBG_OUT_PORT.println(st1);
+	  DBG_OUT_PORT.print(F("ni = "));
+	  DBG_OUT_PORT.println(ni);
+
+
+	  if (mcf.rus_lng & (mcf.vdrv_t == 12)) f_dsp.lcd_rus(st1);
+	  if (mcf.rus_lng & (mcf.vdrv_t != 12)) f_dsp.utf8rus(st1);
+
+	  f_dsp.scroll_init();
+	  end = false;
+	  
+	  if (mcf.dsp_t == 20) f_dsp.CLS(screen, sizeof screen);
+
+	  if (num == 6)	ni ++;
+		
+	  if (ni > 9) ni = 0;
   }
 }

@@ -45,6 +45,15 @@ String SNRJS::to_json(snr_cfg_t _data)
   if (debug_level == 3)
   {
     DBG_OUT_PORT.print(F("Start forming snr_cfg_data to json string"));
+    DBG_OUT_PORT.print(F("Snr 1 type is "));
+    DBG_OUT_PORT.println(_data.type_snr1);
+    DBG_OUT_PORT.print(F("Snr 2 type is "));
+    DBG_OUT_PORT.println(_data.type_snr2);
+    DBG_OUT_PORT.print(F("Snr 3 type is "));
+    DBG_OUT_PORT.println(_data.type_snr2);
+    DBG_OUT_PORT.print(F("Snr p type is "));
+    DBG_OUT_PORT.println(_data.type_snrp);
+
   }
 
   if (_data.type_snr1  >  13) _data.type_snr1  = 0;
@@ -65,6 +74,12 @@ String SNRJS::to_json(snr_cfg_t _data)
 
   String msg = String();
   if (serializeJson(doc, msg) == 0) DBG_OUT_PORT.println(F("Failed write json to string"));
+  else
+  if (debug_level == 3)
+  {
+      DBG_OUT_PORT.println(msg);  
+  }
+  
   return msg;
 }
 

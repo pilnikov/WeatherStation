@@ -1,9 +1,7 @@
-/*
-Udt.h
-*/
+// Udt.h
 
-#ifndef _Udt_h__
-#define _Udt_h__
+#ifndef Udt_h
+#define Udt_h
 
 #if ARDUINO >= 100
 #include <Arduino.h>
@@ -40,8 +38,6 @@ typedef struct
 {
   bool
   auto_br = false,
-  snd_pola = false,
-  led_pola = false,
   rus_lng = false,
   time_up = false,
   udp_mon = false,
@@ -64,28 +60,12 @@ typedef struct
   nmd_br = 0,
   color_up = 0,
   color_dwn = 0,
-  type_font = 0,
-  type_vdrv = 0,
-  type_disp = 0,
-  type_rtc = 0,
-  type_thermo = 0,
-  src_thermo = 0,
-
-  gpio_sda = 255,
-  gpio_scl = 255,
-  gpio_dio = 255,
-  gpio_clk = 255,
-  gpio_dcs = 255,
-  gpio_dwr = 255,
-  gpio_trm = 255,
-  gpio_sqw = 255,
-  gpio_snd = 255,
-  gpio_led = 255,
-  gpio_btn = 255,
-  gpio_dht = 255,
-  gpio_ana = 255,
-  gpio_uar = 255,
-  gpio_bz2 = 255;
+  font_t = 0,
+  vdrv_t = 0,
+  dsp_t = 0,
+  rtc_t = 0,
+  thermo_t = 0,
+  src_thermo = 0;
 
   int8_t
   time_zone;
@@ -107,21 +87,45 @@ typedef struct
   owm_key[33],
   news_api_key[33], // Get your News API Key from https://newsapi.org
   news_source[17];  // https://newsapi.org/sources to get full list of news sources available
-} conf_data_t;
+} main_cfg_t;
+
+typedef struct 
+{
+  bool
+  snd_pola = false,
+  led_pola = false;
+
+  uint8_t
+  gpio_sda = 255,
+  gpio_scl = 255,
+  gpio_dio = 255,
+  gpio_clk = 255,
+  gpio_dcs = 255,
+  gpio_dwr = 255,
+  gpio_trm = 255,
+  gpio_sqw = 255,
+  gpio_snd = 255,
+  gpio_led = 255,
+  gpio_btn = 255,
+  gpio_dht = 255,
+  gpio_ana = 255,
+  gpio_uar = 255,
+  gpio_bz2 = 255;
+} gpio_cfg_t;
 
 typedef struct
 {
   uint8_t   
-  type_vdrv = 0, // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574 
-  type_rtc = 0,  // Тип RTC 0 - Нет, 1 - DS3231, 2 - DS1302, 3 - DS1307
-  temp_rtc = 0,  // Температура чипа DS3231,
+  drv_t = 0,     // Тип микросхемы драйвера дисплея 0 - Нет, 1 - TM1637, 2 - MAX7219, 3 - 74HC595, 4 - HT1621, 5 - HT1632, 6 - ILI9341, 11 - HT16K33, 12 - PCF8574 
+  rtc_t = 0,     // Тип RTC 0 - Нет, 1 - DS3231, 2 - DS1302, 3 - DS1307
+  rtc_tm = 0,    // Температура чипа DS3231,
   lcd_addr = 0,  // Адрес LCD дисплея
   ht_addr = 0,   // Адрес HT1633
   bm_addr = 0,   // Адрес BM E/P 1/2 80
   gpio_dht = 255;// Пин одноногих датчиков
   uint16_t  lb;  // Текущая яркость
   bool      bh1750_present; // Наличие датчика освещенности BH1750
-} ram_data_t;
+} ram_cfg_t;
 
 
 

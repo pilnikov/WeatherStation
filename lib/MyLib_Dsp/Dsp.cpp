@@ -18,7 +18,7 @@ Max72 *m7219;
 HT1621 *ht21;
 
 //---------------------------------------------------------------------------HT1632
-HT1632C *m1632;
+HT1632Class *m1632;
 
 //---------------------------------------------------------------------------Matrix
 #if defined(__AVR_ATmega2560__)
@@ -65,7 +65,7 @@ void MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte 
       MyDspHW::ht1621_init(gcf.gpio_dcs, gcf.gpio_clk, gcf.gpio_dio);
       break;
     case 5:
-#if defined(ESP8266)
+/*#if defined(ESP8266)
       SPI.pins(gcf.gpio_clk, -1, gcf.gpio_dio, gcf.gpio_dcs);
       SPI.begin();
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
@@ -73,7 +73,8 @@ void MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte 
 #else
       SPI.begin();
 #endif
-      MyDspHW::ht1632_init(gcf.gpio_dwr, gcf.gpio_dcs);
+*/
+      MyDspHW::ht1632_init(gcf.gpio_dwr, gcf.gpio_dcs, gcf.gpio_clk, gcf.gpio_dio);
       break;
     case 6:
 #if defined(ESP8266)
@@ -115,7 +116,7 @@ void MyDspHW::m7219_ramFormer(byte *ram_buff)
 {
   byte buff[32];
 
-  for (uint8_t x = 0; x < 32; x += 8) // ÑˆÐ°Ð³ 8 - ÐºÐ¾Ð» Ð²Ð¾ ÑÑ‚Ñ€Ð¾Ðº Ð² Ð¾Ð´Ð½Ð¾Ð¼ Ð¼Ð¾Ð´ÑƒÐ»Ðµ; 32 - Ð²ÑÐµÐ³Ð¾ Ð±Ð°Ð¹Ñ‚ (ÐºÐ¾Ð»Ð¾Ð½Ð¾Ðº) Ð² Ð½Ð°Ð±Ð¾Ñ€Ðµ = 4Ñ…8 24 = 32 - 8
+  for (uint8_t x = 0; x < 32; x += 8) // è £ 8 - ª®« ¢® áâà®ª ¢ ®¤­®¬ ¬®¤ã«¥; 32 - ¢á¥£® ¡ ©â (ª®«®­®ª) ¢ ­ ¡®à¥ = 4å8 24 = 32 - 8
   {
     byte b[8];
     for (uint8_t z = 0; z < 8; z++)
@@ -124,11 +125,11 @@ void MyDspHW::m7219_ramFormer(byte *ram_buff)
     }
     for (uint8_t y = 0; y < 8; y++)
     {
-      buff[24 - x + y] = ram_buff[x + y]; // Ð¼ÐµÐ½ÑÐµÑ‚ Ð¿Ð¾ÑÐ»ÐµÐ´Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚ÑŒ Ð¼Ð¾Ð´ÑƒÐ»ÐµÐ¹ Ð½Ð° Ð·ÐµÑ€ÐºÐ°Ð»ÑŒÐ½ÑƒÑŽ 0 1 2 3 -> 3 2 1 0   24 = 32 - 8 Ð°Ð´Ñ€ÐµÑÐ° Ð² Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ¼ Ð¼Ð¾Ð´ÑƒÐ»Ðµ
+      buff[24 - x + y] = ram_buff[x + y]; // ¬¥­ï¥â ¯®á«¥¤®¢ â¥«ì­®áâì ¬®¤ã«¥© ­  §¥àª «ì­ãî 0 1 2 3 -> 3 2 1 0   24 = 32 - 8  ¤à¥á  ¢ ¯®á«¥¤­¥¬ ¬®¤ã«¥
       byte a = 1;
       for (uint8_t z = 0; z < 8; z++)
       {
-        b[z] |= buff[24 - x + y] & a ? 0x1 << (7 - y) : 0x0; // Ð¿Ð¾Ð²Ð¾Ñ€Ð¾Ñ‚ ÐºÐ°Ð¶Ð´Ð¾Ð¹ Ð¼Ð°Ñ‚Ñ€Ð¸Ñ†Ñ‹ Ð½Ð° 90 Ð³Ñ€Ð°Ð´ÑƒÑÐ¾Ð² Ð¿Ñ€Ð¾Ñ‚Ð¸Ð² Ñ‡Ð°ÑÐ¾Ð²Ð¾Ð¹ ÑÑ‚Ñ€ÐµÐ»ÐºÐ¸
+        b[z] |= buff[24 - x + y] & a ? 0x1 << (7 - y) : 0x0; // ¯®¢®à®â ª ¦¤®© ¬ âà¨æë ¯à®â¨¢ ç á®¢®© áâà¥«ª¨ ­  90 £à ¤ãá®¢
         a <<= 1;
       }
     }
@@ -147,7 +148,7 @@ void MyDspHW::m7219_ramFormer2(byte *ram_buff, uint8_t h_dsp, uint8_t v_dsp)
 
   byte buff[mSize];
 
-  for (uint8_t x = 0; x < mSize; x += 8) // ÑˆÐ°Ð³ 8 - ÐºÐ¾Ð» Ð²Ð¾ ÑÑ‚Ñ€Ð¾Ðº Ð² Ð¾Ð´Ð½Ð¾Ð¼ Ð¼Ð¾Ð´ÑƒÐ»Ðµ; mSize - Ð²ÑÐµÐ³Ð¾ Ð±Ð°Ð¹Ñ‚ (ÐºÐ¾Ð»Ð¾Ð½Ð¾Ðº) Ð² Ð½Ð°Ð±Ð¾Ñ€Ðµ = hdisp Ñ… 8 x vdisp;
+  for (uint8_t x = 0; x < mSize; x += 8) // è £ 8 - ª®« ¢® áâà®ª ¢ ®¤­®¬ ¬®¤ã«¥; mSize - ¢á¥£® ¡ ©â (ª®«®­®ª) ¢ ­ ¡®à¥ = hdisp å 8 x vdisp;
   {
     byte b[8];
     memset(b, 0, 8);
@@ -157,10 +158,10 @@ void MyDspHW::m7219_ramFormer2(byte *ram_buff, uint8_t h_dsp, uint8_t v_dsp)
       byte a = 0x1;
       for (uint8_t z = 0; z < 8; z++)
       {
-        b[z] |= ram_buff[x + y] & a ? 0x1 << (7 - y) : 0x0; // Ð¿Ð¾Ð²Ð¾Ñ€Ð¾Ñ‚ ÐºÐ°Ð¶Ð´Ð¾Ð¹ Ð¼Ð°Ñ‚Ñ€Ð¸Ñ†Ñ‹ Ð½Ð° 90 Ð³Ñ€Ð°Ð´ÑƒÑÐ¾Ð² Ð¿Ñ€Ð¾Ñ‚Ð¸Ð² Ñ‡Ð°ÑÐ¾Ð²Ð¾Ð¹ ÑÑ‚Ñ€ÐµÐ»ÐºÐ¸
+        b[z] |= ram_buff[x + y] & a ? 0x1 << (7 - y) : 0x0; // ¯®¢®à®â ª ¦¤®© ¬ âà¨æë ­  90 £à ¤ãá®¢ ¯à®â¨¢ ç á®¢®© áâà¥«ª¨
         a <<= 1;
-        buff[x + z] = b[z] >> 1;// Ð¿ÐµÑ€ÐµÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð±Ð¸Ñ‚Ñ‹ Ð¸Ð· 7 6 5 4 3 2 1 0
-        buff[x + z] |= b[z] & 0x1 ? 0x80 : 0x0; //    Ð² 6 5 4 3 2 1 0 7
+        buff[x + z] = b[z] >> 1;// ¯¥à¥áâ ¢«ï¥¬ ¡¨âë ¨§ 7 6 5 4 3 2 1 0
+        buff[x + z] |= b[z] & 0x1 ? 0x80 : 0x0; //    ¢ 6 5 4 3 2 1 0 7
       }
     }
   }
@@ -328,20 +329,23 @@ void MyDspHW::ht1621_init(uint8_t gpio_dcs, uint8_t gpio_clk, uint8_t gpio_dio)
 
 ////////////////////////////////////ht1632//////////////////////////////////////////////////////////////////
 
-void MyDspHW::ht1632_init(byte gpio_dwr, byte gpio_dcs)
+void MyDspHW::ht1632_init(uint8_t gpio_dwr, uint8_t gpio_dcs, uint8_t gpio_clk, uint8_t gpio_dio)
 {
-  m1632 = new HT1632C(gpio_dwr, /*clk*/ gpio_dcs /*cs*/);
+  m1632 = new HT1632Class;
+  m1632->setCLK(gpio_clk /*clk*/);
+  m1632->begin(gpio_dcs/*dcs*/, gpio_dwr/*dwr*/, gpio_dio/*dio*/); 
 }
 
 void MyDspHW::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2)
 {
+  uint8_t dt = 0b1;
   for (uint8_t x = 0; x < 32; x++)
   {
-    uint8_t dt = 0b1;
+    dt = 0b1;
     for (uint8_t y = 0; y < 8; y++)
     {
-      m1632 -> plot(x, y, (in[x] & dt << y) ? color1 : 0);
-      m1632 -> plot(x, y + 8, (in[x + 32] & dt << y) ? color2 : 0);
+      if (in[x] & dt << y) m1632 -> setPixel(x, y, color1);
+      if (in[x + 32] & dt << y) m1632 -> setPixel(x + 32, y, color2);
     }
   }
 }
@@ -493,10 +497,11 @@ void MyDspHW::_write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_si
       break;
     case 5:
 	//HT1632
-	//ORANGE = 3 RED = 2 GREEN = 1
+	//ORANGE = 3 RED = 0 GREEN = 1
+        m1632 -> clear();
 	ht1632_ramFormer(screen, color_up, color_dwn);
-	m1632 -> pwm(br);
-	m1632 -> sendFrame();
+	m1632 -> setBrightness(br, 0b1111);
+	m1632 -> render();
       break;
     case 6:
       //ILI9341
@@ -540,9 +545,9 @@ void MyDspHW::_off(byte type_vdrv)
 #endif
       break;
     case 5:
-      m1632 -> pwm(0);
+      m1632 -> setBrightness(0, 0b1111);
       m1632 -> clear();
-      m1632 -> sendFrame();
+      m1632 -> render();
       break;
     case 12:
       lcd->noBacklight();
@@ -573,4 +578,38 @@ void MyDspHW::_on(byte type_vdrv)
     default:
       break;
   }
+}
+
+//-------------------------------------------------------------- Óñòàíîâêà ÿðêîñòè
+uint8_t MyDspBCF::auto_br(uint16_t lt, main_cfg_t mcf)
+{
+  // ó = êõ + â
+
+  uint8_t c_br = mcf.br_level[2]; // b
+  float br = mcf.br_level[3];
+
+  float dx = (float)mcf.br_level[1] - mcf.br_level[0]; //äèàïàçîí îñâåùåííîñòè (dõ)
+  float dy = (float)mcf.br_level[3] - mcf.br_level[2]; //óñòàâêè ÿðêîñòè (dó)
+  float ltt = (float)lt;
+
+  br = dy / dx * ltt + (float)mcf.br_level[2];
+  if (dx < 0)   br = dy / dx * ltt + (float)mcf.br_level[3];
+
+  c_br = constrain(br, mcf.br_level[2], mcf.br_level[3]);
+  return c_br;
+}
+
+uint16_t MyDspBCF::ft_read(bool snr_pres, uint16_t bh_lvl, uint8_t in)
+{
+  uint16_t ft = 7;
+  if (snr_pres) ft = bh_lvl;
+  else
+  {
+    ft = analogRead(in);
+  }
+
+  //  DBG_OUT_PORT.print(F("level from sensor..."));
+  //  DBG_OUT_PORT.println(ft);
+
+  return ft;
 }

@@ -1,11 +1,16 @@
 //------------------------------------------------------
 //#include ".\headers\conf.h"
-#include "constr.h"
 #include "conf.h"
-#include "global_var.h"
 
+// ---------------------------------------------------- Constructors
+// ---------------------------------------------------- LM
+BH1750 lightMeter;
 
-char tstr[25];
+// ---------------------------------------------------- HW Level of displays
+MyDspHW mydsp_hw;
+
+//-------------------------------------------------------- Scr
+MyDspBCF mydsp_bcf;
 
 void setup() {
   //------------------------------------------------------  Определяем консоль
@@ -20,11 +25,13 @@ void setup() {
   gcf.gpio_dwr = 2;
 #endif
 
-  mcf.vdrv_t = 2;  //MAX7219
-  mcf.dsp_t = 21;  //M32x16MONO
+  mcf.vdrv_t = 5;  //ht1632
+  mcf.dsp_t = 22;  //M32x16BICOL
   mcf.auto_br = false;
   mcf.nmd_br = 7;  // Man brigthness
   mcf.man_br = 7;
+  mcf.color_up = 0;
+  mcf.color_dwn = 1;
 
   //------------------------------------------------------  Начинаем инициализацию Hardware
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
@@ -57,8 +64,8 @@ void setup() {
 
   //-------------------------------------------------------- Регулируем яркость дисплея
   if (mcf.auto_br) {
-    snr_data.f = f_dsp2.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
-    cur_br = f_dsp2.auto_br(snr_data.f, mcf);
+    snr_data.f = mydsp_bcf.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
+    cur_br = mydsp_bcf.auto_br(snr_data.f, mcf);
   } else {
     if (rtc_time.nm_is_on) cur_br = mcf.nmd_br;  // Man brigthness
     else cur_br = mcf.man_br;

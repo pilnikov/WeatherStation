@@ -19,6 +19,9 @@ static unsigned long alarm_time = millis();
 
 void main_loop() {
   //------------------------------------------------------ interrupts
+  
+  bool cli = false;
+  
   unsigned long t3 = mcf.period * 2000L;
   const uint8_t irq_q = 9;
   static uint8_t _st = 0;
@@ -26,7 +29,7 @@ void main_loop() {
   const unsigned long timers[irq_q] = { 120000L, 60000L, t3, 1800L, 180, 16, 6, 2, 1 }, base_t = 30L, _offset = base_t / (irq_q + 1);  // значения * base_t -> время в мс
 
   uint8_t irq = irq_q + 1;
-
+  
   if (millis() >= buff_ms) {
     _st++;
     if (_st >= irq_q) {
@@ -80,11 +83,15 @@ void main_loop() {
       break;
 
     case 7:
-      if (m32_8time_act) firq7();
+      if (m32_8time_act) {
+        firq7();
+      }
       break;
 
     case 8:
-      if (disp_on) firq8();
+      if (disp_on) {
+        firq8();
+      }
       break;
 
     default:  // no IRQ
@@ -106,8 +113,8 @@ void firq5()  // 0.5 sec main cycle
   if (disp_on) {
     //-------------Brigthness------------------
     if (mcf.auto_br) {
-      snr_data.f = f_dsp2.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
-      cur_br = f_dsp2.auto_br(snr_data.f, mcf);
+      snr_data.f = mydsp_bcf.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
+      cur_br = mydsp_bcf.auto_br(snr_data.f, mcf);
     } else {
       if (rtc_time.nm_is_on) cur_br = mcf.nmd_br;  // Man brigthness
       else cur_br = mcf.man_br;
@@ -130,7 +137,7 @@ void firq5()  // 0.5 sec main cycle
 void firq6()  // 0.180 sec Communications with server
 {
   static bool divider;
-  f_dsp2.scroll_start(true, divider, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+  mydsp_bcf.scroll_start(true, divider, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
   if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
   divider = !divider;
 }
@@ -140,17 +147,16 @@ void firq7()  // 0.060 sec
   uint8_t pos = 0;
   if (mcf.dsp_t > 20 && mcf.dsp_t < 29 && !mcf.time_up) pos = 32;
 
-  f_dsp2.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
+  mydsp_bcf.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
 }
 
 void firq8()  //0.030 sec running string is out switch to time view
 {
-  f_dsp2.scroll_start(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+  mydsp_bcf.scroll_start(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
   if ((mcf.dsp_t != 20) & end_run_st & !rtc_time.nm_is_on) {
     bool cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     local_ip = wifi_data_cur.addr.toString();
-    //    if (mcf.news_en & wifi_data_cur.cli) ns = newsClient -> getTitle(newsIndex);
     cli = wifi_data_cur.cli;
 #endif
     msg_dsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
