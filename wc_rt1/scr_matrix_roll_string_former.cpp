@@ -1,15 +1,16 @@
 #include "Scr_frm.h"
+#include "fonts.h"
 
-RTCMSG myrtcmsg; //For RTC Messages
+RTCMSG myrtcmsg;  //For RTC Messages
+FFF fffm;         //FrameFormerFunctions
 
-void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[], bool cur_cli, String newsClient)
-{
+void MSCF::roll_string_cf(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[], bool cur_cli, String newsClient) {
   const char* stdr_0 = PSTR("ночь");
   const char* stdr_1 = PSTR("yтро");
   const char* stdr_2 = PSTR("день");
   const char* stdr_3 = PSTR("вечер");
 
-  const char* const stdr[] = {stdr_0, stdr_1, stdr_2, stdr_3};
+  const char* const stdr[] = { stdr_0, stdr_1, stdr_2, stdr_3 };
 
   const char* swnr_0 = PSTR("северный");
   const char* swnr_1 = PSTR("северо-восточный");
@@ -20,7 +21,7 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
   const char* swnr_6 = PSTR("западный");
   const char* swnr_7 = PSTR("северо-западный");
 
-  const char* const swnr[] = {swnr_0, swnr_1, swnr_2, swnr_3, swnr_4, swnr_5, swnr_6, swnr_7};
+  const char* const swnr[] = { swnr_0, swnr_1, swnr_2, swnr_3, swnr_4, swnr_5, swnr_6, swnr_7 };
 
   const char* sprcr_0 = PSTR("ясно");
   const char* sprcr_1 = PSTR("малооблачно");
@@ -37,9 +38,8 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
   const char* sprcr_17 = PSTR("возможен сильный снегопад");
   const char* sprcr_18 = PSTR("возможна гроза");
 
-  const char* const sprcr[] = {sprcr_0, sprcr_1, sprcr_2, sprcr_3, sprcr_4, sprcr_5, sprcr_6,
-                               sprcr_7, sprcr_8, sprcr_9, sprcr_10, sprcr_16, sprcr_17, sprcr_18
-                              };
+  const char* const sprcr[] = { sprcr_0, sprcr_1, sprcr_2, sprcr_3, sprcr_4, sprcr_5, sprcr_6,
+                                sprcr_7, sprcr_8, sprcr_9, sprcr_10, sprcr_16, sprcr_17, sprcr_18 };
 
   const char* smnr_01 = PSTR("января");
   const char* smnr_02 = PSTR("февраля");
@@ -54,7 +54,7 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
   const char* smnr_11 = PSTR("ноября");
   const char* smnr_12 = PSTR("декабря");
 
-  const char* const smnr[] = {smnr_01, smnr_02, smnr_03, smnr_04, smnr_05, smnr_06, smnr_07, smnr_08, smnr_09, smnr_10, smnr_11, smnr_12};
+  const char* const smnr[] = { smnr_01, smnr_02, smnr_03, smnr_04, smnr_05, smnr_06, smnr_07, smnr_08, smnr_09, smnr_10, smnr_11, smnr_12 };
 
   const char* smne_01 = PSTR("January");
   const char* smne_02 = PSTR("February");
@@ -69,7 +69,7 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
   const char* smne_11 = PSTR("November");
   const char* smne_12 = PSTR("December");
 
-  const char* const smne[] = {smne_01, smne_02, smne_03, smne_04, smne_05, smne_06, smne_07, smne_08, smne_09, smne_10, smne_11, smne_12};
+  const char* const smne[] = { smne_01, smne_02, smne_03, smne_04, smne_05, smne_06, smne_07, smne_08, smne_09, smne_10, smne_11, smne_12 };
 
   char grad = '\260';
   if (mcf.dsp_t == 19) grad = '\357';
@@ -78,82 +78,63 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
 
   bool _repeat = true;
 
-  do
-  {
+  do {
     memset(buf, 0, 254);
 
-    if (!mcf.rus_lng)
-    {
-      switch (num)
-      {
+    if (!mcf.rus_lng) {
+      switch (num) {
         case 1:
           myrtcmsg.rtc_str(num, mcf.rus_lng, rt, rta, out);
           _repeat = false;
           break;
         case 2:
-          if (snr.t1 > -99 && snr.t1 < 99)
-          {
+          if (snr.t1 > -99 && snr.t1 < 99) {
             sprintf_P(buf, PSTR(" %s "), mcf.ch1_name);
             strcat(out, buf);
-            if (snr.h1 > 0) 
-			{
-				sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t1, grad, snr.h1);
-			}
-			else
-			{
-				sprintf_P(buf, PSTR(" %d%cC"), snr.t1, grad);
+            if (snr.h1 > 0) {
+              sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t1, grad, snr.h1);
+            } else {
+              sprintf_P(buf, PSTR(" %d%cC"), snr.t1, grad);
             }
             strcat(out, buf);
             _repeat = false;
           }
-          if (snr.t2 > -99 && snr.t2 < 99)
-          {
+          if (snr.t2 > -99 && snr.t2 < 99) {
             sprintf_P(buf, PSTR(" %s "), mcf.ch2_name);
             strcat(out, buf);
-            if (mcf.use_pp == 2)
-            {
+            if (mcf.use_pp == 2) {
               wfc.descript.toCharArray(buf, wfc.descript.length() + 1);
               strcat(out, buf);
               sprintf_P(buf, PSTR(" wind %s %dm/s"), swnr[wfc.wind_dir], wfc.wind_min);
               strcat(out, buf);
             }
-            if (snr.h2 > 0) 
-			{
-				sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t2, grad, snr.h2);
-			}
-			else
-			{
-				sprintf_P(buf, PSTR(" %d%cC"), snr.t2, grad);
+            if (snr.h2 > 0) {
+              sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t2, grad, snr.h2);
+            } else {
+              sprintf_P(buf, PSTR(" %d%cC"), snr.t2, grad);
             }
             strcat(out, buf);
             _repeat = false;
           }
-          if (snr.t3 > -99 && snr.t3 < 99)
-          {
+          if (snr.t3 > -99 && snr.t3 < 99) {
             sprintf_P(buf, PSTR(" %s "), mcf.ch3_name);
             strcat(out, buf);
-            if (snr.h3 > 0) 
-			{
-				sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t3, grad, snr.h3);
-			}
-			else
-			{
-				sprintf_P(buf, PSTR(" %d%cC"), snr.t3, grad);
+            if (snr.h3 > 0) {
+              sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t3, grad, snr.h3);
+            } else {
+              sprintf_P(buf, PSTR(" %d%cC"), snr.t3, grad);
             }
-		  }
-          if (snr.p > 700)
-          {
+          }
+          if (snr.p > 700) {
             sprintf_P(buf, PSTR(" preesure %dmm.m."), snr.p);
             strcat(out, buf);
             _repeat = false;
           }
           break;
         case 3:
-          switch (mcf.use_pp)
-          {
+          switch (mcf.use_pp) {
             case 1:
-              if (wf.temp_min > -99)
-              {
+              if (wf.temp_min > -99) {
                 if ((wf.prec == 6) & (wf.rpower == 0)) wf.prec = 11;
                 if ((wf.prec == 7) & (wf.rpower == 0)) wf.prec = 12;
                 if ((wf.prec == 8) & (wf.spower == 0)) wf.prec = 13;
@@ -167,8 +148,7 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
             case 2:
               wf.descript.toCharArray(buf, wf.descript.length() + 1);
 
-              if (wf.temp_min > -99)
-              {
+              if (wf.temp_min > -99) {
                 sprintf_P(out, PSTR(" Weather forecast from OWM on %d %s: %s temp from %d to %d%cC wind %s %dm/s humid %d%% press %dmm.m."),
                           wf.day, smne[wf.month - 1], buf,
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
@@ -180,20 +160,18 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
           }
           break;
         case 4:
-          if (rta.num < 7)
-          {
+          if (rta.num < 7) {
             myrtcmsg.rtc_str(num, mcf.rus_lng, rt, rta, out);
             _repeat = false;
           }
           break;
         case 5:
-          if (mcf.news_en & cur_cli)
-          {
+          if (mcf.news_en & cur_cli) {
             String news_s = "News not support this platform";
-# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
             news_s = "";
             news_s = (String)mcf.news_source + ": " + newsClient;
-# endif
+#endif
             strcpy(out, news_s.c_str());
             _repeat = false;
           }
@@ -206,82 +184,63 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
         default:
           break;
       }
-    }
-    else
-    {
-      switch (num)
-      {
+    } else {
+      switch (num) {
         case 1:
           myrtcmsg.rtc_str(num, mcf.rus_lng, rt, rta, out);
           _repeat = false;
           break;
         case 2:
-          if (snr.t1 > -99 && snr.t1 < 99)
-          {
+          if (snr.t1 > -99 && snr.t1 < 99) {
             sprintf_P(buf, PSTR(" %s "), mcf.ch1_name);
             strcat(out, buf);
-            if (snr.h1 > 0) 
-			{
-				sprintf_P(buf, PSTR("%d%cC %d%%"), snr.t1, grad, snr.h1);
-			}
-			else
-			{
-				sprintf_P(buf, PSTR(" %d%cC"), snr.t1, grad);
+            if (snr.h1 > 0) {
+              sprintf_P(buf, PSTR("%d%cC %d%%"), snr.t1, grad, snr.h1);
+            } else {
+              sprintf_P(buf, PSTR(" %d%cC"), snr.t1, grad);
             }
             strcat(out, buf);
-			_repeat = false;
+            _repeat = false;
           }
 
-          if (snr.t2 > -99 && snr.t2 < 99)
-          {
+          if (snr.t2 > -99 && snr.t2 < 99) {
             sprintf_P(buf, PSTR(" %s "), mcf.ch2_name);
             strcat(out, buf);
-            if (mcf.use_pp == 2)
-            {
+            if (mcf.use_pp == 2) {
               wfc.descript.toCharArray(buf, wfc.descript.length() + 1);
               strcat(out, buf);
               sprintf_P(buf, PSTR(" ветер %s %dм/с"), swnr[wfc.wind_dir], wfc.wind_min);
               strcat(out, buf);
             }
-            if (snr.h2 > 0) 
-			{
-				sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t2, grad, snr.h2);
-			}
-			else
-			{
-				sprintf_P(buf, PSTR(" %d%cC"), snr.t2, grad);
-			}
-            strcat(out, buf);
-            _repeat = false;
-          }
-          if (snr.t3 > -99 && snr.t3 < 99)
-          {
-            sprintf_P(buf, PSTR(" %s "), mcf.ch3_name);
-            strcat(out, buf);
-            if (snr.h3 > 0) 
-			{
-				sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t3, grad, snr.h3);
-			}
-			else
-			{
-				sprintf_P(buf, PSTR(" %d%cC"), snr.t3, grad);
+            if (snr.h2 > 0) {
+              sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t2, grad, snr.h2);
+            } else {
+              sprintf_P(buf, PSTR(" %d%cC"), snr.t2, grad);
             }
             strcat(out, buf);
             _repeat = false;
           }
-          if (snr.p > 700)
-          {
+          if (snr.t3 > -99 && snr.t3 < 99) {
+            sprintf_P(buf, PSTR(" %s "), mcf.ch3_name);
+            strcat(out, buf);
+            if (snr.h3 > 0) {
+              sprintf_P(buf, PSTR(" %d%cC %d%%"), snr.t3, grad, snr.h3);
+            } else {
+              sprintf_P(buf, PSTR(" %d%cC"), snr.t3, grad);
+            }
+            strcat(out, buf);
+            _repeat = false;
+          }
+          if (snr.p > 700) {
             sprintf_P(buf, PSTR(" давление %dмм рт.ст."), snr.p);
             strcat(out, buf);
             _repeat = false;
           }
           break;
         case 3:
-          switch (mcf.use_pp)
-          {
+          switch (mcf.use_pp) {
             case 1:
-              if (wf.temp_min > -99)
-              {
+              if (wf.temp_min > -99) {
                 if ((wf.prec == 6) & (wf.rpower == 0)) wf.prec = 11;
                 if ((wf.prec == 7) & (wf.rpower == 0)) wf.prec = 12;
                 if ((wf.prec == 8) & (wf.spower == 0)) wf.prec = 13;
@@ -295,8 +254,7 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
             case 2:
               wf.descript.toCharArray(buf, wf.descript.length() + 1);
 
-              if (wf.temp_min > -99)
-              {
+              if (wf.temp_min > -99) {
                 sprintf_P(out, PSTR(" Прогноз погоды от OWM на %d %s: %s температура от %d до %d%cC ветер %s %dм/с, oтн.влажность %d%%, давление %dмм.рт.ст."),
                           wf.day, smnr[wf.month - 1], buf,
                           wf.temp_min, wf.temp_max, grad, swnr[wf.wind_dir], wf.wind_min, wf.hum_min, wf.press_min);
@@ -308,23 +266,20 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
           }
           break;
         case 4:
-          if (rta.num < 7)
-          {
+          if (rta.num < 7) {
             myrtcmsg.rtc_str(num, mcf.rus_lng, rt, rta, out);
             _repeat = false;
           }
           break;
         case 5:
-          if (mcf.news_en & cur_cli)
-          {
+          if (mcf.news_en & cur_cli) {
             String news_s = "Новости недоступны для этой платформы";
-# if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
             news_s = "";
             news_s = (String)mcf.news_source + ": " + newsClient;
-# endif
+#endif
             strcpy(out, news_s.c_str());
             _repeat = false;
-
           }
           break;
         case 6:
@@ -337,10 +292,83 @@ void MSCF::roll_string_cf(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t
       }
     }
     num++;
-    if (num > _max)
-    {
+    if (num > _max) {
       num = 1;
       _repeat = true;
     }
   } while (_repeat);
+}
+
+void MSCF::h_scroll(bool l_s, bool dvd, uint8_t vdrv_t, uint8_t dsp_t, bool time_up, bool& end, char* st1, byte* screen)  // Запуск бегущей строки
+{
+  byte bbuf[16];
+  if (l_s) {
+    if (vdrv_t == 11) {
+      if (dsp_t == 11) {
+        if (!end) {
+          uint8_t x1 = 8, x2 = 15;
+          if (!time_up) {
+            x1 = 0;
+            x2 = 7;
+          }
+          end = fffm.matrix_scroll_String(x1, x2, st1, screen, font14s, 2, 0, 2);
+        }
+      }
+      if (dsp_t == 31) {
+        if (!end) {
+          end = fffm.matrix_scroll_String(20, 25, st1, screen, font14s, 2, 0, 2);
+        }
+      }
+    }
+
+    if (vdrv_t == 12) {
+      if (dsp_t == 19) {
+        if (!end & dvd) {
+          uint8_t x1 = 0;
+          if (time_up) x1 = 1;
+          end = fffm.lcd_scroll_String(16, st1, bbuf);
+        }
+      }
+    }
+  } else {
+    if (dsp_t > 19 && dsp_t < 29 && !end) {
+      uint8_t x1 = 32, x2 = 63;
+      if (!time_up) {
+        x1 = 0;
+        x2 = 31;
+      }
+      end = fffm.matrix_scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1);  // бегущая строка
+    }
+  }
+}
+
+void MSCF::h_scroll_restart(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t snr,
+                            wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip,
+                            uint16_t c_br, bool cli, String ns, uint8_t& ni, bool& end, char* st1, byte* screen)  //Перезапуск бегущей строки
+{
+  if (end) {
+    memset(st1, 0, 254);
+
+    MSCF::roll_string_cf(num, _max, mcf, snr, wf, wfc, rt, rta, local_ip, c_br, st1, cli, ns);
+
+    DBG_OUT_PORT.print(F("num_st = "));
+    DBG_OUT_PORT.println(num);
+    DBG_OUT_PORT.print(F("st1 = "));
+    DBG_OUT_PORT.println(st1);
+    DBG_OUT_PORT.print(F("ni = "));
+    DBG_OUT_PORT.println(ni);
+
+
+    if (mcf.rus_lng & (mcf.vdrv_t == 12)) fffm.lcd_rus(st1);
+    if (mcf.rus_lng & (mcf.vdrv_t != 12)) fffm.utf8rus(st1);
+
+    fffm.h_scroll_init();
+    end = false;
+
+    if (mcf.dsp_t == 20) fffm.CLS(screen, sizeof screen);
+
+    if (num == 6) ni++;
+
+    if (ni > 9) ni = 0;
+  }
 }

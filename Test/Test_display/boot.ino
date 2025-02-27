@@ -19,9 +19,9 @@ static unsigned long alarm_time = millis();
 
 void main_loop() {
   //------------------------------------------------------ interrupts
-  
+
   bool cli = false;
-  
+
   unsigned long t3 = mcf.period * 2000L;
   const uint8_t irq_q = 9;
   static uint8_t _st = 0;
@@ -29,7 +29,7 @@ void main_loop() {
   const unsigned long timers[irq_q] = { 120000L, 60000L, t3, 1800L, 180, 16, 6, 2, 1 }, base_t = 30L, _offset = base_t / (irq_q + 1);  // значения * base_t -> время в мс
 
   uint8_t irq = irq_q + 1;
-  
+
   if (millis() >= buff_ms) {
     _st++;
     if (_st >= irq_q) {
@@ -65,7 +65,9 @@ void main_loop() {
         //        if (mcf.news_en & wifi_data_cur.cli) ns = newsClient -> getTitle(newsIndex);
         cli = wifi_data_cur.cli;
 #endif
-        msg_dsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // запуск бегущей строки для однострочных дисплеев
+        mscf.h_scroll_restart(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur,
+                              rtc_time, rtc_alm, local_ip, cur_br, cli, ns,
+                              newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для однострочных дисплеев
       }
       break;
 
@@ -125,7 +127,11 @@ void firq5()  // 0.5 sec main cycle
     // run slowely time displays here
     m32_8time_act = false;
     if (!((mcf.dsp_t == 20) & !end_run_st)) {
-      m32_8time_act = msg_dsp.time_view(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, mcf, snr_data, ddd);  // break time view while string is running
+      if ((mcf.dsp_t > 0 && mcf.dsp_t < 14) || mcf.dsp_t == 30 || mcf.dsp_t == 31) {
+        sscf.seg_scr_frm(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, screen, mcf, snr_data, ddd);
+      } else {
+        m32_8time_act = mscf.symbol_time_part_view(rtc_cfg.use_pm, end_run_st, rtc_time, rtc_alm, mcf, screen);
+      }
       cur_br = ddd;
       mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
     }
@@ -137,7 +143,7 @@ void firq5()  // 0.5 sec main cycle
 void firq6()  // 0.180 sec Communications with server
 {
   static bool divider;
-  mydsp_bcf.scroll_start(true, divider, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+  mscf.h_scroll(true, divider, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
   if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
   divider = !divider;
 }
@@ -147,19 +153,20 @@ void firq7()  // 0.060 sec
   uint8_t pos = 0;
   if (mcf.dsp_t > 20 && mcf.dsp_t < 29 && !mcf.time_up) pos = 32;
 
-  mydsp_bcf.scroll_disp(pos, screen);  // скроллинг вниз символов на экране
+  mscf.v_scroll_all(pos, screen);  // скроллинг вниз изменившихся символов
 }
 
 void firq8()  //0.030 sec running string is out switch to time view
 {
-  mydsp_bcf.scroll_start(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+  mscf.h_scroll(false, false, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
   if ((mcf.dsp_t != 20) & end_run_st & !rtc_time.nm_is_on) {
     bool cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
     local_ip = wifi_data_cur.addr.toString();
     cli = wifi_data_cur.cli;
 #endif
-    msg_dsp.runing_string_start(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time, rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
+    mscf.h_scroll_restart(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time,
+                          rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
   }
   mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // передача видеобуфера (screen) на физический уровень
 }

@@ -188,10 +188,6 @@
 #include <my_wifi.h>
 #endif
 
-
-#include "global_var.h"
-
-
 #ifndef DBG_OUT_PORT
 #define DBG_OUT_PORT Serial
 #endif
@@ -208,8 +204,6 @@ void firq5();
 void firq6();
 void firq7();
 void firq8();
-void runing_string_start();
-
 
 // ---------------------------------------------------- Variant of config
 #define _dacha

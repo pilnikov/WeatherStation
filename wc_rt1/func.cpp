@@ -1,7 +1,7 @@
 #include "conf.h"
 
-MSG dmsg_ff;  //For Messages
-FD f_dsp_ff;  //For Display
+MSG dmsg_ff;   //For Messages
+FFF f_dsp_ff;  //For Display
 
 MyDspHW dsp_hw;  //For Display HW Config
 
@@ -512,7 +512,7 @@ String radio_snd(String cmd, bool cli, char* radio_addr) {
 
 //------------------------------------------------------  Обрабатываем клавиатуру
 void KBT::_read(bool cli, bool ap, uint8_t gpio_btn, uint8_t gpio_led, bool led_pola, uint8_t& disp_mode, uint8_t& max_st,
-                    bool blinkColon, uint32_t& serv_ms, bool& end_run_st, main_cfg_t* mcf) {
+                bool blinkColon, uint32_t& serv_ms, bool& end_run_st, main_cfg_t* mcf) {
 
   btn_released = btn_state_flag & digitalRead(gpio_btn);
   if (btn_state_flag & !digitalRead(gpio_btn)) tmr_started = true;
@@ -524,7 +524,7 @@ void KBT::_read(bool cli, bool ap, uint8_t gpio_btn, uint8_t gpio_led, bool led_
     disp_mode++;  // меняем содержимое экрана на 7ми сегментных индикаторах
     if (disp_mode > 12) disp_mode = 0;
     max_st = 7;
-    f_dsp_ff.scroll_init();
+    f_dsp_ff.h_scroll_init();
     end_run_st = true;
   }
 

@@ -1,6 +1,6 @@
 //------------------------------------------------------
 //#include ".\headers\conf.h"
-#include "conf.h"
+#include "Scr_frm.h"
 
 // ---------------------------------------------------- Constructors
 // ---------------------------------------------------- LM
@@ -9,8 +9,41 @@ BH1750 lightMeter;
 // ---------------------------------------------------- HW Level of displays
 MyDspHW mydsp_hw;
 
-//-------------------------------------------------------- Scr
+//-------------------------------------------------------- Bright control
 MyDspBCF mydsp_bcf;
+
+//-------------------------------------------------------- MatrixScreenContentFormer
+MSCF mscf;
+
+//-------------------------------------------------------- SegmentScreenContentFormer
+SSCF sscf;
+
+// ---------------------------------------------------- Global Var
+static uint16_t cur_br = 7;
+
+//---------------------------------------------------------------------------------------------------
+static byte screen[64];        // display buffer
+static uint8_t text_size = 1;  // размер текста
+static uint8_t newsIndex;
+String local_ip = "192.168.0.0", ns = String();
+
+//---------------------------------------------------------------------------------------------------
+
+snr_data_t snr_data;
+snr_cfg_t snr_cfg_data;
+main_cfg_t mcf;
+gpio_cfg_t gcf;
+hw_data_t hw_data;
+wf_data_t wf_data_cur;
+wf_data_t wf_data;
+#if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
+wifi_cfg_data_t wifi_data;
+wifi_cur_data_t wifi_data_cur;
+#endif
+rtc_hw_data_t rtc_hw;
+rtc_cfg_data_t rtc_cfg;
+rtc_time_data_t rtc_time;
+rtc_alm_data_t rtc_alm;
 
 void setup() {
   //------------------------------------------------------  Определяем консоль
