@@ -1,4 +1,4 @@
-#include "conf.h"
+#include "Scr_frm.h"
 
 MSG dmsg_ff;   //For Messages
 FFF f_dsp_ff;  //For Display

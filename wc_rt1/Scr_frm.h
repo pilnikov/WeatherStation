@@ -1,8 +1,36 @@
 
+//--------------------------------------------------------------------------------------------------------------------------------HW define
 #ifndef Scr_frm_h
 #define Scr_frm_h
 
 #include "conf.h"
+
+#include <LiquidCrystal_I2C.h>
+#include <Max72.h>
+//#include <SHT1632_3.h>
+#include <myHT16K33.h>
+#include <myTM1637.h>
+#include <HT1632.h>
+
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <Adafruit_Protomatter.h>
+#endif
+
+#if defined(__AVR_ATmega2560__)
+#include <RGBmatrixPanel.h>  // Hardware-specific library
+#endif
+
+//---------------------------------------------------------------------------HT1621
+#include <HT1621.h>
+
+//---------------------------------------------------------------------------ILI9341
+#include <Adafruit_ILI9341.h>
+
+//----------------------------------------------------------------------------------------------------------------------------------define
+
+
 
 class SSCF  // Формирование содержимого для сегментных дисплеев (SegmentScreenContentFormer)
 {
@@ -26,8 +54,8 @@ public:
 
     h_scroll(bool l_s, bool dvd, uint8_t vdrv_t, uint8_t dsp_t, bool time_up, bool &end, char *st1, byte *screen),  // Формирует бегущую строку
     h_scroll_restart(uint8_t &num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf,
-                   wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint16_t c_br, bool cli, String ns,
-                   uint8_t &ni, bool &end, char *st1, byte *screen),  // ---------------------------- Перезапуск бегущей строки
+                     wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint16_t c_br, bool cli, String ns,
+                     uint8_t &ni, bool &end, char *st1, byte *screen),  // ---------------------------- Перезапуск бегущей строки
 
     v_scroll_all(uint8_t, byte *);  // запуск вертушка для всех изменившихся позиций
 
@@ -53,5 +81,61 @@ private:
 protected:
 };
 
+//------------------------------------------------------------------------------------------------------------------------------- HW Sections
+
+class MyDspHW {
+public:
+  void
+  _init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte lcd_addr, uint8_t &text_size, byte *screen, bool rus_lng),
+
+    _write(bool from_time, bool time_up, uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, 
+           uint8_t text_size, uint8_t color_up, uint8_t color_dwn, byte *screen),
+
+    _off(byte),
+    _on(byte);
+
+private:
+  //----------------------------------------------------------------------------------------------------------------------------------Global Var
+  void
+    tm1637_init(byte, byte),
+    pcf8574_init(byte, uint8_t, uint8_t, bool),
+    m7219_init(byte, uint8_t, byte *),
+    ht1621_init(uint8_t, uint8_t, uint8_t, byte *),
+    ht1632_init(uint8_t, uint8_t, uint8_t, uint8_t),
+    ht1633_init(byte),
+    ili9341_init(),
+
+#if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
+    a595_init(byte, byte &, uint8_t &),
+    m3216_ramFormer(byte *, uint8_t, uint8_t),
+#endif
+
+    m7219_ramFormer(byte *),
+    m7219_ramFormer2(byte *, uint8_t, uint8_t),
+    ht1632_ramFormer(byte *, const uint8_t, const uint8_t),
+    ht1633_ramFormer(byte *, uint8_t, uint8_t),
+    ht1633_ramFormer2(byte *, uint8_t, uint8_t),
+    m7adopt(byte *, uint8_t, uint8_t),
+    roll_seg(byte &),
+
+    //==========================Not support
+    ili_time(bool, bool),
+    drawWifiQuality();
+  int8_t
+  getWifiQuality();
+protected:
+};
+
+class MyDspBCF  // Функции для управления яркостью (BrightControlFunctions)
+{
+public:
+  uint8_t
+    auto_br(uint16_t, main_cfg_t);  // Авто регулировка яркости с расчетом пределов
+  uint16_t
+  ft_read(bool, uint16_t, uint8_t);  // Селектор источника измерения освещенности
+
+private:
+protected:
+};
 
 #endif

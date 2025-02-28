@@ -266,7 +266,8 @@ void setup() {
     hw_accept(hw_data, &snr_cfg_data, &mcf.vdrv_t, &rtc_hw.a_type);
 
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
-    if (mcf.dsp_t > 0) mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size);
+    //if (mcf.dsp_t > 0) mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size);
+    if (mcf.dsp_t > 0) mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size, screen, mcf.rus_lng);
 
     //------------------------------------------------------  Инициализируем датчики
     if (hw_data.bh1750_present) lightMeter.begin();
@@ -535,7 +536,8 @@ void loop() {
               m32_8time_act = mscf.symbol_time_part_view(rtc_cfg.use_pm, end_run_st, rtc_time, rtc_alm, mcf, screen);
             }
             cur_br = ddd;
-            mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // to fhysical level
+            //mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // to fhysical level
+            mydsp_hw._write(true, mcf.time_up, mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // to fhysical level
           }
         } else cur_br = 0;
         if (!wasAlarm)  //Проверка будильников
@@ -590,7 +592,8 @@ void loop() {
         }
 #endif
         mscf.h_scroll(true, true, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
-        if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
+        if (mcf.vdrv_t != 12) mydsp_hw._write(false, mcf.time_up, mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
+        //if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
         //divider = !divider;
         break;
 
@@ -615,7 +618,8 @@ void loop() {
             mscf.h_scroll_restart(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time,
                                   rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
           }
-          mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // передача видеобуфера (screen) на физический уровень
+          mydsp_hw._write(false, mcf.time_up, mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // передача видеобуфера (screen) на физический уровень
+                                                                                                                               //          mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // передача видеобуфера (screen) на физический уровень
         }
         break;
 
