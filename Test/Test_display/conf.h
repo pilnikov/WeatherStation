@@ -180,9 +180,11 @@
 #include <myrtc.h>
 #include <Snr.h>
 #include <Scr.h>
-#include <Dsp.h>
 #include <BH1750.h>
 
+#ifndef int_dsp_f
+#include <Dsp.h>
+#endif
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
 #include <my_wifi.h>

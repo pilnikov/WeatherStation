@@ -58,8 +58,8 @@ void setup() {
   gcf.gpio_dwr = 2;
 #endif
 
-  mcf.vdrv_t = 5;  //ht1632
-  mcf.dsp_t = 22;  //M32x16BICOL
+  mcf.vdrv_t = 11;  //ht16к33
+  mcf.dsp_t = 11;  //14SEGx8D
   mcf.auto_br = false;
   mcf.nmd_br = 7;  // Man brigthness
   mcf.man_br = 7;

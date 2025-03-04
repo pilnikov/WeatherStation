@@ -39,7 +39,8 @@ void MSCF::roll_string_cf(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t
   const char* sprcr_18 = PSTR("возможна гроза");
 
   const char* const sprcr[] = { sprcr_0, sprcr_1, sprcr_2, sprcr_3, sprcr_4, sprcr_5, sprcr_6,
-                                sprcr_7, sprcr_8, sprcr_9, sprcr_10, sprcr_16, sprcr_17, sprcr_18 };
+                                sprcr_7, sprcr_8, sprcr_9, sprcr_10, sprcr_16, sprcr_17, sprcr_18
+                              };
 
   const char* smnr_01 = PSTR("января");
   const char* smnr_02 = PSTR("февраля");
@@ -299,76 +300,48 @@ void MSCF::roll_string_cf(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t
   } while (_repeat);
 }
 
-void MSCF::h_scroll(bool l_s, bool dvd, uint8_t vdrv_t, uint8_t dsp_t, bool time_up, bool& end, char* st1, byte* screen)  // Запуск бегущей строки
+void MSCF::h_scroll(uint8_t vdrv_t, uint8_t dsp_t, bool slow_mode, bool& _end, char* in_st, byte* out)  // Запуск бегущей строки
 {
-  byte bbuf[16];
-  if (l_s) {
+  if (slow_mode) {
     if (vdrv_t == 11) {
-      if (dsp_t == 11) {
-        if (!end) {
-          uint8_t x1 = 8, x2 = 15;
-          if (!time_up) {
-            x1 = 0;
-            x2 = 7;
-          }
-          end = fffm.matrix_scroll_String(x1, x2, st1, screen, font14s, 2, 0, 2);
-        }
-      }
-      if (dsp_t == 31) {
-        if (!end) {
-          end = fffm.matrix_scroll_String(20, 25, st1, screen, font14s, 2, 0, 2);
-        }
-      }
+      if (dsp_t == 11 && !_end) _end = fffm.matrix_scroll_String(0, 7, in_st, out, font14s, 2, 0, 2); // For 14seg
+      if (dsp_t == 31 && !_end) _end = fffm.matrix_scroll_String(20, 25, in_st, out, font14s, 2, 0, 2); // For type 31
     }
 
-    if (vdrv_t == 12) {
-      if (dsp_t == 19) {
-        if (!end & dvd) {
-          uint8_t x1 = 0;
-          if (time_up) x1 = 1;
-          end = fffm.lcd_scroll_String(16, st1, bbuf);
-        }
-      }
-    }
-  } else {
-    if (dsp_t > 19 && dsp_t < 29 && !end) {
-      uint8_t x1 = 32, x2 = 63;
-      if (!time_up) {
-        x1 = 0;
-        x2 = 31;
-      }
-      end = fffm.matrix_scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1);  // бегущая строка
-    }
+    if (vdrv_t == 12 && dsp_t == 19 && !_end) _end = fffm.lcd_scroll_String(16, in_st, out); // For lcd
+  }
+  else {
+    if (dsp_t > 19 && dsp_t < 29 && !_end) _end = fffm.matrix_scroll_String(0, 31, in_st, out, font5x7, 5, 1, 1);  // for matrix
   }
 }
 
 void MSCF::h_scroll_restart(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t snr,
                             wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip,
-                            uint16_t c_br, bool cli, String ns, uint8_t& ni, bool& end, char* st1, byte* screen)  //Перезапуск бегущей строки
+                            uint16_t c_br, bool cli, String ns, uint8_t& ni, bool& _end, char* in_str, byte* out)  //Перезапуск бегущей строки
 {
-  if (end) {
-    memset(st1, 0, 254);
+  if (_end) {
+    memset(in_str, 0, 254);
 
-    MSCF::roll_string_cf(num, _max, mcf, snr, wf, wfc, rt, rta, local_ip, c_br, st1, cli, ns);
+    MSCF::roll_string_cf(num, _max, mcf, snr, wf, wfc, rt, rta, local_ip, c_br, in_str, cli, ns);
 
     DBG_OUT_PORT.print(F("num_st = "));
     DBG_OUT_PORT.println(num);
-    DBG_OUT_PORT.print(F("st1 = "));
-    DBG_OUT_PORT.println(st1);
+    DBG_OUT_PORT.print(F("in str = "));
+    DBG_OUT_PORT.println(in_str);
     DBG_OUT_PORT.print(F("ni = "));
     DBG_OUT_PORT.println(ni);
 
 
-    if (mcf.rus_lng & (mcf.vdrv_t == 12)) fffm.lcd_rus(st1);
-    if (mcf.rus_lng & (mcf.vdrv_t != 12)) fffm.utf8rus(st1);
+    if (mcf.rus_lng & (mcf.vdrv_t == 12)) fffm.lcd_rus(in_str); //for lcd
+    if (mcf.rus_lng & (mcf.vdrv_t != 12)) fffm.utf8rus(in_str); //for other
 
     fffm.h_scroll_init();
-    end = false;
+    _end = false;
 
-    if (mcf.dsp_t == 20) fffm.CLS(screen, sizeof screen);
+    if (mcf.dsp_t == 20) memset(out, 0, 32);
 
     if (num == 6) ni++;
 
-    if (ni > 9) ni = 0;
+    if (ni > _max) ni = 0;
   }
 }

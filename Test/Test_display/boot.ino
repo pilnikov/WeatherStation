@@ -133,6 +133,15 @@ void firq5()  // 0.5 sec main cycle
         m32_8time_act = mscf.symbol_time_part_view(rtc_cfg.use_pm, end_run_st, rtc_time, rtc_alm, mcf, screen);
       }
       cur_br = ddd;
+
+      DBG_OUT_PORT.println(F("11111111111111111111111111111111111111111111111111111111"));
+      DBG_OUT_PORT.println();
+      DBG_OUT_PORT.println(screen[16]);
+      DBG_OUT_PORT.println(screen[20]);
+      DBG_OUT_PORT.println(screen[24]);
+      DBG_OUT_PORT.println(screen[31]);
+      DBG_OUT_PORT.println();
+
       mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
     }
   } else cur_br = 0;
@@ -144,6 +153,15 @@ void firq6()  // 0.180 sec Communications with server
 {
   static bool divider;
   mscf.h_scroll(true, divider, mcf.vdrv_t, mcf.dsp_t, mcf.time_up, end_run_st, st1, screen);
+
+  DBG_OUT_PORT.println(F("2222222222222222222222222222222222222222222222222222222222"));
+  DBG_OUT_PORT.println();
+  DBG_OUT_PORT.println(screen[16]);
+  DBG_OUT_PORT.println(screen[20]);
+  DBG_OUT_PORT.println(screen[24]);
+  DBG_OUT_PORT.println(screen[31]);
+  DBG_OUT_PORT.println();
+
   if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);
   divider = !divider;
 }
@@ -168,5 +186,12 @@ void firq8()  //0.030 sec running string is out switch to time view
     mscf.h_scroll_restart(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time,
                           rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, screen);  // перезапуск бегущей строки для двухстрочных дисплеев
   }
+  DBG_OUT_PORT.println(F("3333333333333333333333333333333333333333333333333333333333333333"));
+  DBG_OUT_PORT.println();
+  DBG_OUT_PORT.println(screen[16]);
+  DBG_OUT_PORT.println(screen[20]);
+  DBG_OUT_PORT.println(screen[24]);
+  DBG_OUT_PORT.println(screen[31]);
+  DBG_OUT_PORT.println();
   mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, screen);  // передача видеобуфера (screen) на физический уровень
 }

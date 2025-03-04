@@ -13,8 +13,6 @@ bool MSCF::symbol_time_part_view(bool use_pm, bool end_run_st, rtc_time_data_t r
 
   bool _alarmed = rta.num < 7, m32_8time_act = false;
 
-  uint8_t mod = 13, x1 = 0;
-  if (!mcf.time_up) x1 = 32;
   if (end_run_st || rtd.nm_is_on) scr.CLS(screen, sizeof screen);
   switch (mcf.dsp_t) {
     case 19:
@@ -31,23 +29,23 @@ bool MSCF::symbol_time_part_view(bool use_pm, bool end_run_st, rtc_time_data_t r
       break;
     case 21:
       // m32x16MONO
-      m32_8time_act = MSCF::time_m32_8(screen, x1, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
+      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
       break;
     case 22:
       // M32x16BICOL
-      m32_8time_act = MSCF::time_m32_8(screen, x1, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
+      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
       break;
     case 23:
       // M32x16COLOR
-      m32_8time_act = MSCF::time_m32_8(screen, x1, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
+      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
       break;
     case 24:
       // M64x32COLOR
-      m32_8time_act = MSCF::time_m32_8(screen, x1, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
+      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
       break;
     case 25:
       // M64x64COLOR
-      m32_8time_act = MSCF::time_m32_8(screen, x1, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
+      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
       break;
     case 29:
       // 320x240COLOR
@@ -64,7 +62,7 @@ bool MSCF::time_m32_8(byte *in, uint8_t pos, unsigned char *rep_rec, const uint8
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];
   uint8_t font_wdt = 5;
-  byte nbuf[256];
+  byte nbuf[64];
 
   uint8_t h = rtd.hour;
   // Do 24 hour to 12 hour format conversion when required.
@@ -109,4 +107,3 @@ void MSCF::v_scroll_all(uint8_t pos, byte *screen) // Вертикальная �
     }
   }
 }
-
