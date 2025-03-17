@@ -37,7 +37,7 @@ FFF f_dsp;  //For Display
 HT h_dsp;   //For Display
 
 
-void MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte lcd_addr, uint8_t &text_size, byte *screen, bool rus_lng) {
+byte MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte lcd_addr, uint8_t &text_size) {
 
   byte gpio_uart = gcf.gpio_uar, gpio_dio = gcf.gpio_dio, gpio_clk = gcf.gpio_clk, gpio_dcs = gcf.gpio_dcs, gpio_dwr = gcf.gpio_dwr;
 
@@ -59,7 +59,7 @@ void MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte 
 #else
       SPI.begin();
 #endif
-      MyDspHW::m7219_init(dsp_t, gpio_dcs, screen);
+      MyDspHW::m7219_init(dsp_t, gpio_dcs);
       break;
     case 3:
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
@@ -69,7 +69,7 @@ void MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte 
 #endif
       break;
     case 4:
-      MyDspHW::ht1621_init(gpio_dcs, gpio_clk, gpio_dio, screen);
+      MyDspHW::ht1621_init(gpio_dcs, gpio_clk, gpio_dio);
       break;
     case 5:
 #if defined(ESP8266)
@@ -97,15 +97,17 @@ void MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte 
       MyDspHW::ht1633_init(ht_addr);
       break;
     case 12:
-      MyDspHW::pcf8574_init(lcd_addr, 16, 2, rus_lng);
+      MyDspHW::pcf8574_init(lcd_addr, 16, 2);
       break;
   }
   DBG_OUT_PORT.print(F("Type chip driver of display = "));
   DBG_OUT_PORT.println(vdrv_t);
+  byte out = MyDspHW::_class(dsp_t);
+  return out;
 }
 
 
-void MyDspHW::m7219_init(byte dsp_t, byte gpio_dcs, byte *screen) {
+void MyDspHW::m7219_init(byte dsp_t, byte gpio_dcs) {
   if (dsp_t < 10) m7219 = new Max72(gpio_dcs, 1, 1);
   else {
     if (dsp_t == 20) m7219 = new Max72(gpio_dcs, 4, 1);
@@ -113,16 +115,6 @@ void MyDspHW::m7219_init(byte dsp_t, byte gpio_dcs, byte *screen) {
   }
 
   m7219->begin();
-  f_dsp.CLS(screen, sizeof screen);
-
-  if (dsp_t > 0 && dsp_t < 10) {
-    char Tstr[25];
-    memset(Tstr, 0, 25);
-    strcpy(Tstr, "7219");
-    f_dsp.print_(Tstr, 5, screen, 0, font14s, 2, 0);
-    m7adopt(screen, 0, 4);
-  }
-  m7219->write();
 }
 
 
@@ -148,7 +140,6 @@ void MyDspHW::m7219_ramFormer(byte *ram_buff) {
     }
   }
   m7219->setRam(buff, 32);
-  m7219->write();
 }
 
 void MyDspHW::m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp) {
@@ -173,7 +164,6 @@ void MyDspHW::m7219_ramFormer2(byte *ram_buff, uint8_t hdisp, uint8_t vdisp) {
     }
   }
   m7219->setRam(buff, mSize);
-  m7219->write();
 }
 
 void MyDspHW::m7adopt(byte *in, uint8_t x1, uint8_t x2) {
@@ -199,23 +189,23 @@ void MyDspHW::a595_init(byte dsp_t, byte &vdrv_t, uint8_t &text_size) {
     //GND OE |  g 33
 
     uint8_t A_PIN = 54,  //A0 Пин A
-      B_PIN = 55,        //A1 Пин B
-      C_PIN = 56,        //A2 Пин C
-      //            D_PIN =  57, //A3 Пин D
+            B_PIN = 55,        //A1 Пин B
+            C_PIN = 56,        //A2 Пин C
+            //            D_PIN =  57, //A3 Пин D
 
-      CLK_PIN = 11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
-      LAT_PIN = 10,  // Пин LAT
-      OE_PIN = 9;    // Пин OE
+            CLK_PIN = 11,  // Пин CLK MUST be on PORTB! (Use pin 11 on Mega)
+            LAT_PIN = 10,  // Пин LAT
+            OE_PIN = 9;    // Пин OE
     m3216 = new RGBmatrixPanel(A_PIN, B_PIN, C_PIN, CLK_PIN, LAT_PIN, OE_PIN, true);
 
 #elif CONFIG_IDF_TARGET_ESP32
     uint8_t rgbPins[] = { 4, 12, 13, 14, 15, 21 },
-            addrPins[] = { 26, 5, 18, 19, 25 },
-            clockPin = 27,  // Must be on same port as rgbPins
-      latchPin = 32,
-            oePin = 33,
-            naddr_pin = 3,
-            wide = 32;
+                        addrPins[] = { 26, 5, 18, 19, 25 },
+                                     clockPin = 27,  // Must be on same port as rgbPins
+                                     latchPin = 32,
+                                     oePin = 33,
+                                     naddr_pin = 3,
+                                     wide = 32;
     if (dsp_t != 23) wide = 64;
     if (dsp_t == 24) {
       naddr_pin = 4;
@@ -236,12 +226,12 @@ void MyDspHW::a595_init(byte dsp_t, byte &vdrv_t, uint8_t &text_size) {
 
 #elif CONFIG_IDF_TARGET_ESP32S2
     uint8_t rgbPins[] = { 16, 15, 14, 13, 11, 12 },
-            addrPins[] = { 34, 33, 36, 35, 16 },
-            clockPin = 10,  // Must be on same port as rgbPins
-      latchPin = 9,
-            oePin = 21,
-            naddr_pin = 3,
-            wide = 32;
+                        addrPins[] = { 34, 33, 36, 35, 16 },
+                                     clockPin = 10,  // Must be on same port as rgbPins
+                                     latchPin = 9,
+                                     oePin = 21,
+                                     naddr_pin = 3,
+                                     wide = 32;
     if (dsp_t != 23) wide = 64;
     if (dsp_t == 24) {
       naddr_pin = 4;
@@ -307,9 +297,7 @@ void MyDspHW::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size) {
 #endif
 
 //////////////////////////////////////////lcd//////////////////////////////////////////////////////////////////////
-void MyDspHW::pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus_lng) {
-  char st_in[16];
-
+void MyDspHW::pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row) {
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   lcd = new LiquidCrystal_I2C(addr, lcd_col, lcd_row);
   lcd->init();
@@ -321,17 +309,6 @@ void MyDspHW::pcf8574_init(byte addr, uint8_t lcd_col, uint8_t lcd_row, bool rus
 #endif
 
   lcd->backlight();  //Включаем подсветку
-
-  strcpy(st_in, "Hello");
-  if (rus_lng) strcpy(st_in, "Привет");
-  lcd->setCursor(5, 0);
-  f_dsp.lcd_rus(st_in);
-  lcd->print(st_in);
-  strcpy(st_in, "World");
-  if (rus_lng) strcpy(st_in, "Мир!!!");
-  lcd->setCursor(5, 1);
-  f_dsp.lcd_rus(st_in);
-  lcd->print(st_in);
 }
 
 
@@ -342,7 +319,7 @@ void MyDspHW::tm1637_init(byte gpio_clk, byte gpio_dio) {
   tm1637->set_br(7);
 }
 
-void MyDspHW::ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio, byte *screen) {
+void MyDspHW::ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio) {
   ht21 = new HT1621(gpio_dcs, gpio_clk, gpio_dio);  // ss, rw, data
   ht21->begin();
 
@@ -350,24 +327,6 @@ void MyDspHW::ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio, byte *scr
   ht21->sendCommand(HT1621::BIAS_THIRD_4_COM);
   ht21->sendCommand(HT1621::SYS_EN);
   ht21->sendCommand(HT1621::LCD_ON);
-
-  uint8_t i = 0;
-
-  ht21->clear_all();  // clear memory
-  f_dsp.CLS(screen, sizeof screen);
-
-  h_dsp.digit(1, 1, screen); /* 1 */
-  h_dsp.digit(3, 2, screen); /* 2 */
-  h_dsp.digit(5, 6, screen); /* 6 */
-  h_dsp.digit(7, 1, screen); /* 1 */
-
-  for (i = 1; i < 8; i++) {
-    ht21->write(i, screen[i]);
-
-    if (i < 7) h_dsp.bat(i - 1, screen);
-    ht21->write(21, screen, 2);
-    delay(250);
-  }
 }
 
 ////////////////////////////////////ht1632//////////////////////////////////////////////////////////////////
@@ -378,18 +337,74 @@ void MyDspHW::ht1632_init(uint8_t gpio_dwr, uint8_t gpio_dcs, uint8_t gpio_clk, 
   m1632->begin(gpio_dcs /*dcs*/, gpio_dwr /*dwr*/, gpio_dio /*dio*/);
 }
 
-void MyDspHW::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2) {
-  uint8_t dt = 0b1;
+void MyDspHW::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2, uint8_t t_size)
+{
+  /*  uint8_t dt = 0b1;
+    for (uint8_t x = 0; x < 32; x++) {
+      dt = 0b1;
+      for (uint8_t y = 0; y < 8; y++) {
+        if (in[x] & dt << y) m1632->setPixel(x, y, color1);
+        if (in[x + 32] & dt << y) m1632->setPixel(x, y + 8, color2);
+      }
+    }
+
+  */
   for (uint8_t x = 0; x < 32; x++) {
-    dt = 0b1;
+    uint8_t dt = 0b1;
     for (uint8_t y = 0; y < 8; y++) {
-      if (in[x] & dt << y) m1632->setPixel(x, y, color1);
-      if (in[x + 32] & dt << y) m1632->setPixel(x, y + 8, color2);
+      for (uint8_t xz = 0; xz < t_size; xz++) {
+        uint8_t _x = (x * t_size) + xz;
+        for (uint8_t yz = 0; yz < t_size; yz++) {
+          uint8_t _y = (y * t_size) + yz;
+          uint8_t _yy = _y + (8 * t_size);
+
+          switch (color1)
+          {
+            case 0:
+              m1632->selectChannel(0);
+              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              break;
+            case 1:
+              m1632->selectChannel(1);
+              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              break;
+            case 2:
+              m1632->selectChannel(0);
+              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              m1632->selectChannel(1);
+              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              break;
+            default:
+              m1632->selectChannel(0);
+              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              break;
+          }
+          switch (color2)
+          {
+            case 0:
+              m1632->selectChannel(0);
+              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              break;
+            case 1:
+              m1632->selectChannel(1);
+              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              break;
+            case 2:
+              m1632->selectChannel(0);
+              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              m1632->selectChannel(1);
+              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              break;
+            default:
+              m1632->selectChannel(0);
+              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              break;
+          }
+        }
+      }
     }
   }
 }
-
-
 ///////////////////////////////ht1633/////////////////////////////////////////////////////////////////////////////
 /*
    Function prototypes
@@ -474,16 +489,24 @@ void MyDspHW::roll_seg(byte &in)  //переворот сегмента
 }
 
 // for 14 seg display
-void MyDspHW::ht1633_ramFormer2(byte *in, uint8_t x1, uint8_t x2) {
-  uint16_t _row = 0;
-  if (x1 > x2 || x2 > 7) return;
+void MyDspHW::ht1633_ramFormer2(byte *in, uint8_t in_pos_line1, uint8_t in_pos_line2) {
+  uint16_t _row = 0; // колонка (каждый разряд состоит из 2х колонок, разрядов 4 в ряд, рядов 2, всего колонок 8
 
-  for (uint8_t i = x1, y = x1; i <= x2; i++, y++) {
-    _row = in[y] << 8;
-    y++;
-    _row |= (in[y] & 0xFF);
+  for (uint8_t i = 0; i <= 3; i++, in_pos_line1++) {
+    _row = in[in_pos_line1] << 8;
+    in_pos_line1++;
+    _row |= (in[in_pos_line1] & 0xFF);
     ht1633->setRow(i, _row);
   }
+
+  // второй ряд
+  for (uint8_t i = 4; i <= 7; i++, in_pos_line2++) {
+    _row = in[in_pos_line2] << 8;
+    in_pos_line2++;
+    _row |= (in[in_pos_line2] & 0xFF);
+    ht1633->setRow(i, _row);
+  }
+
 }
 
 ////////////////////////////////////////////ili9341/////////////////////////////////////////////////
@@ -572,7 +595,7 @@ int8_t MyDspHW::getWifiQuality() {
 }
 
 
-void MyDspHW::_write(bool from_time, bool time_up, uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_size, uint8_t color_up, uint8_t color_dwn, byte *screen) {
+void MyDspHW::_write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_size, uint8_t color_up, uint8_t color_dwn, byte *screen) {
   switch (vdrv_t) {
     case 0:
       //SERIAL
@@ -584,20 +607,11 @@ void MyDspHW::_write(bool from_time, bool time_up, uint8_t vdrv_t, uint8_t dsp_t
       break;
     case 2:
       //MAX7219
-
-      if (from_time) {
-        if (dsp_t < 10) {
-          m7adopt(screen, 0, 8);
-          m7219->setIntensity(br);  // Use a value between 0 and 15 for brightness
-          m7219->write();
-        }
-      } else {
-        m7219->setIntensity(br);  // Use a value between 0 and 15 for brightness
-        if (dsp_t == 20 || dsp_t == 21) {
-          if (dsp_t == 20) m7219_ramFormer(screen);
-          if (dsp_t == 21) m7219_ramFormer2(screen, 4, 2);
-        }
-      }
+      if (dsp_t < 10)  m7adopt(screen, 0, 8);
+      if (dsp_t == 20) m7219_ramFormer(screen);
+      if (dsp_t == 21) m7219_ramFormer2(screen, 4, 2);
+      m7219->setIntensity(br);  // Use a value between 0 and 15 for brightness
+      m7219->write();
       break;
     case 3:
       //595
@@ -618,37 +632,34 @@ void MyDspHW::_write(bool from_time, bool time_up, uint8_t vdrv_t, uint8_t dsp_t
       //ORANGE = 3 GREEN = 1
       //ORANGE = 3 RED = 0 GREEN = 1
       m1632->clear();
-      ht1632_ramFormer(screen, color_up, color_dwn);
-      m1632->setBrightness(br, 0b1111);
+      ht1632_ramFormer(screen, color_up, color_dwn, text_size);
+      m1632->setBrightness(br);
       m1632->render();
     case 6:
       //ILI9341
       break;
     case 11:
       //HT16K33
-      if (from_time) {
-        if (dsp_t != 31 && dsp_t != 11) {
-          if (dsp_t == 13) ht1633_ramFormer2(screen, 0, 7);
-          else ht1633_ramFormer2(screen, 0, 3);
-        }
+      if (dsp_t == 31) ht1633_ramFormer(screen, 0, 13);
+      else {
+        ht1633_ramFormer2(screen, 0, 32);
       }
       ht1633->setBrightness(br);
       ht1633->write();
       break;
     case 12:
       //PCF8574
-      if (from_time)
-        ;  //MyDspHW::lcd_time(screen, time_up);
-      else {
-        lcd->setCursor(0, 0 /*as x1*/);
-        lcd->print((char *)screen /*as st2*/);
-      }
+      lcd->setCursor(0, 0 /*as x1*/);
+      lcd->print((char *)screen /*as st1*/);
+      lcd->setCursor(0, 1 /*as x2*/);
+      lcd->print((char *)screen + 32/*as st2*/);
       break;
     default:
       break;
   }
 }
-void MyDspHW::_off(byte vdrv_t) {
+void MyDspHW::_off(byte vdrv_t) // Dsp off
+{
   switch (vdrv_t) {
     case 1:
       tm1637->set_br(0);
@@ -670,7 +681,7 @@ void MyDspHW::_off(byte vdrv_t) {
       break;
     case 5:
       m1632->clear();
-      m1632->setBrightness(0, 0b1111);
+      m1632->setBrightness(0);
       m1632->render();
       break;
     case 12:
@@ -687,7 +698,8 @@ void MyDspHW::_off(byte vdrv_t) {
   }
 }
 
-void MyDspHW::_on(byte vdrv_t) {
+void MyDspHW::_on(byte vdrv_t) // Dsp on
+{
   switch (vdrv_t) {
     case 12:
       lcd->backlight();
@@ -701,53 +713,174 @@ void MyDspHW::_on(byte vdrv_t) {
       break;
   }
 }
-/*
-void MyDspHW::scroll_start(bool l_s, bool dvd, uint8_t vdrv_t, uint8_t dsp_t, bool time_up, bool &end, char *st1, byte *screen)  // ---------------------------- Запуск бегущей строки
-{
-  byte bbuf[16];
-  if (l_s) {
-    if (vdrv_t == 11) {
-      if (dsp_t == 11) {
-        if (!end) {
-          uint8_t x1 = 8, x2 = 15;
-          if (!time_up) {
-            x1 = 0;
-            x2 = 7;
-          }
-          end = f_dsp.scroll_String(x1, x2, st1, screen, font14s, 2, 0, 2);
-        }
-        ht1633_ramFormer2(screen, 0, 7);
-      }
-      if (dsp_t == 31) {
-        if (!end) {
-          end = f_dsp.scroll_String(20, 25, st1, screen, font14s, 2, 0, 2);
-        }
-        ht1633_ramFormer(screen, 0, 13);
-      }
-    }
 
-    if (vdrv_t == 12) {
-      if (dsp_t == 19) {
-        if (!end & dvd) {
-          uint8_t x1 = 0;
-          if (time_up) x1 = 1;
-          end = f_dsp.lcd_mov_str(16, st1, bbuf);
-          write_dsp(false, vdrv_t, dsp_t, x1, time_up, bbuf, 1, 0, 0);
-        }
-      }
-    }
-  } else {
-    if (dsp_t > 19 && dsp_t < 29 && !end) {
-      uint8_t x1 = 32, x2 = 63;
-      if (!time_up) {
-        x1 = 0;
-        x2 = 31;
-      }
-      end = f_dsp.scroll_String(x1, x2, st1, screen, font5x7, 5, 1, 1);  // бегущая строка
-    }
+byte MyDspHW::_class(uint8_t dsp_t)// Classified
+{
+
+  //_color _symbol _fast _double    1
+  //_mono  _digit  _slow _single    0
+
+  bool _color = false, _symbol = false, _fast = false, _double = false;
+  switch (dsp_t) {
+    case 1:
+      // 7SEGx4D
+      _color = false;
+      _symbol = false;
+      _fast = false;
+      _double = false;
+      break;
+    case 2:
+      // 7SEGx6D
+      _color = false;
+      _symbol = false;
+      _fast = false;
+      _double = false;
+      break;
+    case 3:
+      // 7SEGx8D
+      _color = false;
+      _symbol = false;
+      _fast = false;
+      _double = true;
+      break;
+    case 10:
+      // 14SEGx4D
+      _color = false;
+      _symbol = true;
+      _fast = false;
+      _double = false;
+      break;
+    case 11:
+      // 14SEGx8D
+      _color = false;
+      _symbol = true;
+      _fast = false;
+      _double = true;
+      break;
+    case 12:
+      // 16SEGx4D
+      _color = false;
+      _symbol = true;
+      _fast = false;
+      _double = false;
+      break;
+    case 13:
+      // 16SEGx8D
+      _color = false;
+      _symbol = true;
+      _fast = false;
+      _double = true;
+      break;
+    case 19:
+      // 2LINEx16D
+      _color = false;
+      _symbol = true;
+      _fast = false;
+      _double = true;
+      break;
+    case 20:
+      // M32x8MONO
+      _color = false;
+      _symbol = true;
+      _fast = true;
+      _double = false;
+      break;
+    case 21:
+      // m32x16MONO
+      _color = false;
+      _symbol = true;
+      _fast = true;
+      _double = true;
+      break;
+    case 22:
+      // M32x16BICOL
+      _color = true;
+      _symbol = true;
+      _fast = true;
+      _double = true;
+      break;
+    case 23:
+      // M32x16COLOR
+      _color = true;
+      _symbol = true;
+      _fast = true;
+      _double = true;
+      break;
+    case 24:
+      // M64x32COLOR
+      _color = true;
+      _symbol = true;
+      _fast = true;
+      _double = true;
+      break;
+    case 25:
+      // M64x64COLOR
+      _color = true;
+      _symbol = true;
+      _fast = true;
+      _double = true;
+      break;
+    case 29:
+      // 320x240COLOR
+      _color = true;
+      _symbol = true;
+      _fast = true;
+      _double = true;
+      break;
+    case 30:
+      // CUSTOM_1
+      break;
+    case 31:
+      // CUSTOM_2
+      _color = false;
+      _symbol = true;
+      _fast = false;
+      _double = true;
+      break;
+    default:
+      break;
+  }
+  byte _out = 0;
+  if (_color) _out |= 0b1000;
+  if (_symbol) _out |= 0b0100;
+  if (_fast) _out |= 0b0010;
+  if (_double) _out |= 0b0001;
+
+  DBG_OUT_PORT.println(F("Classified display as: "));
+  if (_color)   DBG_OUT_PORT.println(F("color, "));
+  else  DBG_OUT_PORT.println(F("monochrome, "));
+  if (_symbol)  DBG_OUT_PORT.println(F("symbolic, "));
+  else  DBG_OUT_PORT.println(F("segments, "));
+  if (_fast)  DBG_OUT_PORT.println(F("fast, "));
+  else  DBG_OUT_PORT.println(F("slow, "));
+  if (_double)  DBG_OUT_PORT.println(F("double row."));
+  else DBG_OUT_PORT.println(F("single row."));
+
+  return _out;
+}
+
+void MyDspHW::out_vbuf_frm(bool time_up, byte *tm_in, byte *sc_in, byte *_out) //out video buffer former
+{
+  memset(_out, 0, 64);
+  if (time_up)
+  {
+    memcpy (_out,           // цель
+            tm_in,          // источник
+            32); // объем
+    memcpy(_out + 32,       // цель
+           sc_in,           // источник
+           32);  // объем
+  }
+  else
+  {
+    memcpy(_out,           // цель
+           sc_in,          // источник
+           32);  // объем
+    memcpy (_out + 32,      // цель
+            tm_in,          // источник
+            32); // объем
   }
 }
-*/
 
 //-------------------------------------------------------------- Установка яркости
 uint8_t MyDspBCF::auto_br(uint16_t lt, main_cfg_t mcf) {

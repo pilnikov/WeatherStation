@@ -7,58 +7,29 @@ CT rtc;   //For RTC Common
 FFF scr;  //For frame former funcions
 
 // Формирует часть фрейма с отображением текущего времени на символьных (матричных и LCD1602) дисплеях
-bool MSCF::symbol_time_part_view(bool use_pm, bool end_run_st, rtc_time_data_t rtd, rtc_alm_data_t rta, main_cfg_t mcf, byte *screen) {
+bool MSCF::symbol_time_part_view(bool use_pm, bool end_run_st, bool rus_lng, uint8_t dsp_t, rtc_time_data_t rtd, rtc_alm_data_t rta, byte *out) {
   uint8_t h = use_pm && rtd.hour != 12 ? rtd.hour % 12 : rtd.hour;
   h = h % 100;
-
   bool _alarmed = rta.num < 7, m32_8time_act = false;
 
-  if (end_run_st || rtd.nm_is_on) scr.CLS(screen, sizeof screen);
-  switch (mcf.dsp_t) {
-    case 19:
-      // 2LINEx16D
-      if (_alarmed) {
-        rtc_hms_t alt = rtc.unix_to_hms(rta.time);
-        if (mcf.rus_lng) sprintf_P((char *)screen, PSTR("%3d:%02d:%02d %2d:%02d\355"), h, rtd.min, rtd.sec, alt.h, alt.m);
-        else sprintf_P((char *)screen, PSTR("%3d:%02d:%02d %2d:%02d"), h, rtd.min, rtd.sec, alt.h, alt.m);
-      } else sprintf_P((char *)screen, PSTR("%3d:%02d:%02d --:-- "), h, rtd.min, rtd.sec);
-      break;
-    case 20:
-      // M32x8MONO
-      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
-      break;
-    case 21:
-      // m32x16MONO
-      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
-      break;
-    case 22:
-      // M32x16BICOL
-      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
-      break;
-    case 23:
-      // M32x16COLOR
-      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
-      break;
-    case 24:
-      // M64x32COLOR
-      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
-      break;
-    case 25:
-      // M64x64COLOR
-      m32_8time_act = MSCF::time_m32_8(screen, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
-      break;
-    case 29:
-      // 320x240COLOR
-      //ili_time(mcf.rus_lng, use_pm);
-      break;
-      break;
-    default:
-      break;
+  if (end_run_st || rtd.nm_is_on) scr.CLS(out, sizeof out);
+
+  if (dsp_t == 19) {
+    // 2LINEx16D
+    if (_alarmed) {
+      rtc_hms_t alt = rtc.unix_to_hms(rta.time);
+      if (rus_lng) sprintf_P((char *)out, PSTR("%3d:%02d:%02d %2d:%02d\355"), h, rtd.min, rtd.sec, alt.h, alt.m);
+      else sprintf_P((char *)out, PSTR("%3d:%02d:%02d %2d:%02d"), h, rtd.min, rtd.sec, alt.h, alt.m);
+    } else sprintf_P((char *)out, PSTR("%3d:%02d:%02d --:-- "), h, rtd.min, rtd.sec);
   }
-  return m32_8time_act;
+  if ((dsp_t > 20) && (dsp_t < 29)) m32_8time_act = MSCF::time_m32_8(out, 0, change, dposx, rep_rec, v_scroll_buff, font5x7, use_pm, q_dig, rtd);
+    if (dsp_t == 19) {
+    ; //ili_time(rus_lng, use_pm);
+  }
+return m32_8time_act;
 }
 
-bool MSCF::time_m32_8(byte *in, uint8_t pos, unsigned char *rep_rec, const uint8_t *dposx, bool *change, uint16_t *buff, const byte *font, bool pm, const uint8_t q_dig, rtc_time_data_t rtd) {
+bool MSCF::time_m32_8(byte * in, uint8_t pos, unsigned char *rep_rec, const uint8_t *dposx, bool * change, uint16_t *buff, const byte * font, bool pm, const uint8_t q_dig, rtc_time_data_t rtd) {
   //----------------------------------------------------------------- заполнение массива
   unsigned char d[q_dig];
   uint8_t font_wdt = 5;
@@ -92,7 +63,7 @@ bool MSCF::time_m32_8(byte *in, uint8_t pos, unsigned char *rep_rec, const uint8
 }
 
 
-void MSCF::v_scroll_all(uint8_t pos, byte *screen) // Вертикальная прокрутка всех элементов на экране
+void MSCF::v_scroll_all(uint8_t pos, byte * out) // Вертикальный скроллинг всех элементов на экране
 {
   uint8_t font_wdt = 5;
   byte nbuf[64];
@@ -103,7 +74,7 @@ void MSCF::v_scroll_all(uint8_t pos, byte *screen) // Вертикальная �
 
     if (rep_rec[i])
     {
-      scr.v_scroll(true, false, nbuf + pos, screen + pos,  v_scroll_buff + pos, dposx[i],  dposx[i] + font_wdt); // запуск вертушка для изменившихся позиций
+      scr.v_scroll(true, false, nbuf + pos, out + pos,  v_scroll_buff + pos, dposx[i],  dposx[i] + font_wdt); // запуск вертушка для изменившихся позиций
     }
   }
 }

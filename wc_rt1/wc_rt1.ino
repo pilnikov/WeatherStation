@@ -19,12 +19,17 @@ static bool play_snd = false;
 static uint16_t cur_br = 0;
 
 //---------------------------------------------------------------------------------------------------
-byte _screen[64];               // display buffer
 static byte time_buff[32];      // display buffer for time part
 static byte scroll_buff[32];    // display buffer for scrolling
 static uint8_t text_size = 1;   // размер текста
 static uint8_t newsIndex;
 String local_ip = "192.168.0.0", ns = String();
+
+static byte dsp_c; // Class of displays
+
+//_color _symbol _fast _double    1
+//_mono  _digit  _slow _single    0
+
 
 //---------------------------------------------------------------------------------------------------
 snr_data_t snr_data;
@@ -268,8 +273,8 @@ void setup() {
     hw_accept(hw_data, &snr_cfg_data, &mcf.vdrv_t, &rtc_hw.a_type);
 
     //------------------------------------------------------  Инициализируем выбранный чип драйвера дисплея
-    //if (mcf.dsp_t > 0) mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size);
-    if (mcf.dsp_t > 0) mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size, _screen, mcf.rus_lng);
+    //if (mcf.dsp_t > 0 && mcf.vdrv_t > 0) mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size);
+    if ((mcf.dsp_t > 0) && (mcf.vdrv_t > 0)) dsp_c = mydsp_hw._init(mcf.vdrv_t, mcf.dsp_t, gcf, hw_data.ht_addr, hw_data.lcd_addr, text_size);
 
     //------------------------------------------------------  Инициализируем датчики
     if (hw_data.bh1750_present) lightMeter.begin();
@@ -279,8 +284,8 @@ void setup() {
 
     //------------------------------------------------------  Инициализируем GPIO
     if (!hw_data.bh1750_present) pinMode(gcf.gpio_ana, INPUT);
-    if ((mcf.thermo_t == 0) & (mcf.vdrv_t != 5)) pinMode(gcf.gpio_led, OUTPUT);                          // Initialize the LED_PIN pin as an output
-    if ((mcf.thermo_t == 0) & (mcf.vdrv_t != 5)) digitalWrite(gcf.gpio_led, gcf.led_pola ? HIGH : LOW);  //Включаем светодиод
+    if (gcf.gpio_led != 255) pinMode(gcf.gpio_led, OUTPUT);                          // Initialize the LED_PIN pin as an output
+    if (gcf.gpio_led != 255) digitalWrite(gcf.gpio_led, gcf.led_pola ? HIGH : LOW);  //Включаем светодиод
 
     if (gcf.gpio_snd != 255) pinMode(gcf.gpio_snd, OUTPUT);
 
@@ -353,11 +358,11 @@ void setup() {
     snr_data = GetSnr(sb, snr_cfg_data, mcf, rtc_hw.a_type, cli, wf_data_cur);
 
     //-------------------------------------------------------- Гасим светодиод
-    if ((mcf.thermo_t == 0) & (mcf.vdrv_t != 5)) digitalWrite(gcf.gpio_led, gcf.led_pola ? LOW : HIGH);
+    if (gcf.gpio_led != 255) digitalWrite(gcf.gpio_led, gcf.led_pola ? LOW : HIGH);
 
 
     //-------------------------------------------------------- Регулируем яркость дисплея
-    if (mcf.auto_br && mcf.dsp_t > 0) {
+    if (mcf.auto_br && mcf.dsp_t > 0 && mcf.vdrv_t > 0) {
       snr_data.f = mydsp_bcf.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
       cur_br = mydsp_bcf.auto_br(snr_data.f, mcf);
     } else {
@@ -403,6 +408,7 @@ void setup() {
 void loop() {
   if (boot_mode == 1) {
     //------------------------------------------------------ interrupts
+    byte _screen[64];               // display buffer
     unsigned long t3 = mcf.period * 2000L;
     const uint8_t irq_q = 9;
     static uint8_t _st = 0;
@@ -494,16 +500,16 @@ void loop() {
 
       case 3:  // 55 sec
         max_st = 6;
-        if ((mcf.dsp_t == 20) & end_run_st & !rtc_time.nm_is_on) {
+        if (dsp_c && 0b0100 && !(dsp_c & 0b0001) && end_run_st && !rtc_time.nm_is_on) {
           cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
           local_ip = wifi_data_cur.addr.toString();
           if (mcf.news_en & wifi_data_cur.cli) ns = newsClient->getTitle(newsIndex);
           cli = wifi_data_cur.cli;
 #endif
-          mscf.h_scroll_restart(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur,
-                                rtc_time, rtc_alm, local_ip, cur_br, cli, ns,
-                                newsIndex, end_run_st, st1, scroll_buff);  // перезапуск бегущей строки для однострочных дисплеев
+          mscf.roll_string_part_sw(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur,
+                                   rtc_time, rtc_alm, local_ip, cur_br, cli, ns,
+                                   newsIndex, end_run_st, st1, scroll_buff);  //смена фрагмента строки прокрутки для однострочных символьных дисплеев
         }
         break;
 
@@ -516,51 +522,27 @@ void loop() {
         //-------------Refresh current time in rtcmcf------------------
         rtc_time.ct = myrtc.GetTime(rtc_hw);
         myrtc.dt_from_unix(&rtc_time);
-        //-------------Forming string version of current time ------------------
-        if (disp_on && mcf.dsp_t > 0) {
-          //-------------Brigthness------------------
-          if (mcf.auto_br) {
-            snr_data.f = mydsp_bcf.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
-            cur_br = mydsp_bcf.auto_br(snr_data.f, mcf);
-          } else {
-            if (rtc_time.nm_is_on) cur_br = mcf.nmd_br;  // Man brigthness
-            else cur_br = mcf.man_br;
-            snr_data.f = cur_br;
+
+
+        //-------------Forming current time frame ---------------------------------------------------------------------------------------------------------------------------
+        // run slowely time displays here
+
+        m32_8time_act = false;
+        if (!((mcf.dsp_t == 20) & !end_run_st))
+        {
+          if ((mcf.dsp_t > 0 && mcf.dsp_t < 14) || mcf.dsp_t == 30 || mcf.dsp_t == 31)
+          {
+            memset(time_buff, 0, sizeof(time_buff));
+            sscf.seg_scr_frm(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, time_buff, mcf, snr_data, cur_br);
           }
-          uint16_t ddd = cur_br;  // костыль!!!!!!!!!!!
-          //-----------------------------------------
-          // run slowely time displays here
-          m32_8time_act = false;
-          if (!((mcf.dsp_t == 20) & !end_run_st)) {
-            if ((mcf.dsp_t > 0 && mcf.dsp_t < 14) || mcf.dsp_t == 30 || mcf.dsp_t == 31) {
-              sscf.seg_scr_frm(rtc_cfg.use_pm, blinkColon, end_run_st, rtc_time, rtc_alm, scroll_buff, mcf, snr_data, ddd);
-            } else {
-              m32_8time_act = mscf.symbol_time_part_view(rtc_cfg.use_pm, end_run_st, rtc_time, rtc_alm, mcf, time_buff);
-            }
-            cur_br = ddd;
-            memset(_screen, 0, sizeof(_screen));
-            if (mcf.time_up)
-            {
-              memcpy (_screen,            // цель
-                      time_buff,          // источник
-                      sizeof(time_buff)); // объем
-              memcpy(_screen + 32,        // цель
-                     scroll_buff,         // источник
-                     sizeof(scroll_buff));// объем
-            }
-            else
-            {
-              memcpy(_screen,             // цель
-                     scroll_buff,         // источник
-                     sizeof(scroll_buff));// объем
-              memcpy (_screen + 32,       // цель
-                      time_buff,          // источник
-                      sizeof(time_buff)); // объем
-            }
-            //mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, _screen);  // to fhysical level
-            mydsp_hw._write(true, mcf.time_up, mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, _screen);  // to fhysical level
+          else
+          {
+            // Формирует часть фрейма с отображением текущего времени на символьных (матричных и LCD1602) дисплеях
+            memset(time_buff, 0, sizeof(time_buff));
+            m32_8time_act = mscf.symbol_time_part_view(rtc_cfg.use_pm, end_run_st, mcf.rus_lng, mcf.dsp_t, rtc_time, rtc_alm, time_buff);
           }
-        } else cur_br = 0;
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (!wasAlarm)  //Проверка будильников
         {
           bool aaaa = !digitalRead(rtc_hw.gpio_sqw);
@@ -596,8 +578,23 @@ void loop() {
 #if defined(ESP8266)
         if (mcf.dsp_t == 50 && !digitalRead(gcf.gpio_uar)) send_uart(snr_data, wf_data, mcf, rtc_time, rtc_alm, cur_br);
 #endif
-        break;
 
+        //------------------------------------------------------ Управляем яркостью
+        if (disp_on && mcf.dsp_t > 0 && mcf.vdrv_t > 0)
+        {
+          if (mcf.auto_br) {
+            snr_data.f = mydsp_bcf.ft_read(hw_data.bh1750_present, lightMeter.readLightLevel(), gcf.gpio_ana);
+            cur_br = mydsp_bcf.auto_br(snr_data.f, mcf);
+          }
+          else
+          {
+            if (rtc_time.nm_is_on) cur_br = mcf.nmd_br;  // Man brigthness
+            else cur_br = mcf.man_br;
+            snr_data.f = cur_br;
+          }
+        }
+        else cur_br = 0;
+        break;
       case 6:
         //bool divider = true;
 
@@ -612,70 +609,56 @@ void loop() {
           if (((millis() - serv_ms) > 300000L) & wifi_data.wifi_off) stop_serv();  // Истек таймер неактивности - останавливаем вебморду
         }
 #endif
-        mscf.h_scroll(mcf.vdrv_t, mcf.dsp_t, true, end_run_st, st1, scroll_buff); // Бегущая строка для медленных
-        memset(_screen, 0, sizeof(_screen));
-        if (mcf.time_up)
-        {
-          memcpy (_screen,            // цель
-                  time_buff,          // источник
-                  sizeof(time_buff)); // объем
-          memcpy(_screen + 32,        // цель
-                 scroll_buff,         // источник
-                 sizeof(scroll_buff));// объем
-        }
-        else
-        {
-          memcpy(_screen,             // цель
-                 scroll_buff,         // источник
-                 sizeof(scroll_buff));// объем
-          memcpy (_screen + 32,       // цель
-                  time_buff,          // источник
-                  sizeof(time_buff)); // объем
-        }
-        if (mcf.vdrv_t != 12) mydsp_hw._write(false, mcf.time_up, mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, _screen);
-        //if (mcf.vdrv_t != 12) mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, _screen);
-        //divider = !divider;
+        if (disp_on) mscf.scroll_string_ran_selector(mcf.vdrv_t, mcf.dsp_t, true, end_run_st, st1, scroll_buff); // Бегущая строка для медленных
         break;
 
       case 7:
         if (m32_8time_act) {
-          mscf.v_scroll_all(0, time_buff);  // скроллинг вниз изменившихся символов
+          mscf.v_scroll_all(0, time_buff);  // вертикальный скроллинг изменившихся позиций
         }
         break;
 
       case 8:
-        if (disp_on) {
-          mscf.h_scroll(mcf.vdrv_t, mcf.dsp_t, false, end_run_st, st1, scroll_buff); //Бегущая строка для быстрых 
-          if ((mcf.dsp_t != 20) & end_run_st & !rtc_time.nm_is_on) {
+        if (disp_on)
+        {
+          mscf.scroll_string_ran_selector(mcf.vdrv_t, mcf.dsp_t, false, end_run_st, st1, scroll_buff); //Бегущая строка для быстрых
+
+          // --------------------------------------------------------------------------перезапуск бегущей строки для двухстрочных дисплеев
+          if ((mcf.dsp_t != 20) & end_run_st & !rtc_time.nm_is_on)
+          {
             cli = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
             local_ip = wifi_data_cur.addr.toString();
             if (mcf.news_en & wifi_data_cur.cli) ns = newsClient->getTitle(newsIndex);
             cli = wifi_data_cur.cli;
 #endif
-            mscf.h_scroll_restart(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time,
-                                  rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, scroll_buff);  // перезапуск бегущей строки для двухстрочных дисплеев
+            mscf.roll_string_part_sw(num_st, max_st, mcf, snr_data, wf_data, wf_data_cur, rtc_time,
+                                     rtc_alm, local_ip, cur_br, cli, ns, newsIndex, end_run_st, st1, scroll_buff);
           }
-          memset(_screen, 0, sizeof(_screen));
+
+          //-----------------------------------------------------------------------------------------------/
+          memset(_screen, 0, 64);
+
           if (mcf.time_up)
           {
             memcpy (_screen,            // цель
                     time_buff,          // источник
-                    sizeof(time_buff)); // объем
+                    32); // объем
             memcpy(_screen + 32,        // цель
                    scroll_buff,         // источник
-                   sizeof(scroll_buff));// объем
+                   32);// объем
           }
           else
           {
             memcpy(_screen,             // цель
                    scroll_buff,         // источник
-                   sizeof(scroll_buff));// объем
+                   32);// объем
             memcpy (_screen + 32,       // цель
                     time_buff,          // источник
-                    sizeof(time_buff)); // объем
+                    32); // объем
           }
-          mydsp_hw._write(false, mcf.time_up, mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, _screen);  // передача видеобуфера (_screen) на физический уровень
+ 
+          mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, _screen);  // передача видеобуфера (_screen) на физический уровень
           //          mydsp_hw._write(mcf.vdrv_t, mcf.dsp_t, cur_br, text_size, mcf.color_up, mcf.color_dwn, _screen);  // передача видеобуфера (_screen) на физический уровень
         }
         break;

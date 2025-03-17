@@ -4,6 +4,8 @@
 RTCMSG myrtcmsg;  //For RTC Messages
 FFF fffm;         //FrameFormerFunctions
 
+
+// Наполнение содержимым инфостроки для символьных дисплеев
 void MSCF::roll_string_cf(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t snr, wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip, uint8_t c_br, char out[], bool cur_cli, String newsClient) {
   const char* stdr_0 = PSTR("ночь");
   const char* stdr_1 = PSTR("yтро");
@@ -300,11 +302,13 @@ void MSCF::roll_string_cf(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t
   } while (_repeat);
 }
 
-void MSCF::h_scroll(uint8_t vdrv_t, uint8_t dsp_t, bool slow_mode, bool& _end, char* in_st, byte* out)  // Запуск бегущей строки
+
+// Селектор запуска бегущей строки для символьных дисплеев
+void MSCF::scroll_string_ran_selector(uint8_t vdrv_t, uint8_t dsp_t, bool slow_mode, bool& _end, char* in_st, byte* out) 
 {
   if (slow_mode) {
     if (vdrv_t == 11) {
-      if (dsp_t == 11 && !_end) _end = fffm.matrix_scroll_String(0, 7, in_st, out, font14s, 2, 0, 2); // For 14seg
+      if ((dsp_t == 11 || dsp_t == 13) && !_end) _end = fffm.matrix_scroll_String(0, 7, in_st, out, font14s, 2, 0, 2); // For 14seg
       if (dsp_t == 31 && !_end) _end = fffm.matrix_scroll_String(20, 25, in_st, out, font14s, 2, 0, 2); // For type 31
     }
 
@@ -315,9 +319,10 @@ void MSCF::h_scroll(uint8_t vdrv_t, uint8_t dsp_t, bool slow_mode, bool& _end, c
   }
 }
 
-void MSCF::h_scroll_restart(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t snr,
+//переключатель фрагментов стоки прокрутки для символьных дисплеев
+void MSCF::roll_string_part_sw(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data_t snr,
                             wf_data_t wf, wf_data_t wfc, rtc_time_data_t rt, rtc_alm_data_t rta, String local_ip,
-                            uint16_t c_br, bool cli, String ns, uint8_t& ni, bool& _end, char* in_str, byte* out)  //Перезапуск бегущей строки
+                            uint16_t c_br, bool cli, String ns, uint8_t& nidx, bool& _end, char* in_str, byte* out)
 {
   if (_end) {
     memset(in_str, 0, 254);
@@ -328,8 +333,8 @@ void MSCF::h_scroll_restart(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data
     DBG_OUT_PORT.println(num);
     DBG_OUT_PORT.print(F("in str = "));
     DBG_OUT_PORT.println(in_str);
-    DBG_OUT_PORT.print(F("ni = "));
-    DBG_OUT_PORT.println(ni);
+    DBG_OUT_PORT.print(F("nidx = "));
+    DBG_OUT_PORT.println(nidx);
 
 
     if (mcf.rus_lng & (mcf.vdrv_t == 12)) fffm.lcd_rus(in_str); //for lcd
@@ -340,8 +345,8 @@ void MSCF::h_scroll_restart(uint8_t& num, uint8_t _max, main_cfg_t mcf, snr_data
 
     if (mcf.dsp_t == 20) memset(out, 0, 32);
 
-    if (num == 6) ni++;
+    if (num == 6) nidx++;
 
-    if (ni > _max) ni = 0;
+    if (nidx > 9) nidx = 0;
   }
 }

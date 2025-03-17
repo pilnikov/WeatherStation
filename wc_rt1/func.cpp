@@ -535,16 +535,16 @@ void KBT::_read(bool cli, bool ap, uint8_t gpio_btn, uint8_t gpio_led, bool led_
     if (!serv_act) {
       serv_ms = millis();
       start_serv();                                                                                  //Запускаем web морду
-      if ((mcf->thermo_t == 0) & (mcf->vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? LOW : HIGH);  // Включаем светодиод
+      if (gpio_led != 255) digitalWrite(gpio_led, led_pola ? LOW : HIGH);  // Включаем светодиод
     } else {
       serv_ms = millis() + 60000L;
       //stop_serv();  //Останавливаем web морду
-      if ((mcf->thermo_t == 0) & (mcf->vdrv_t != 5)) digitalWrite(gpio_led, led_pola ? HIGH : LOW);  // Выключаем светодиод
+      if (gpio_led != 255) digitalWrite(gpio_led, led_pola ? HIGH : LOW);  // Выключаем светодиод
     }
   }
 
 #endif
-  if ((millis() - setting_ms > 9000) & (mcf->thermo_t == 0) & (mcf->vdrv_t != 5)) digitalWrite(gpio_led, blinkColon);  // Мигаем светодиодом
+  if ((millis() - setting_ms > 9000) & (gpio_led != 255)) digitalWrite(gpio_led, blinkColon);  // Мигаем светодиодом
 
   if (btn_released & (millis() - setting_ms > 9000) & (millis() - setting_ms < 15000))  //держим от 9 до 15 сек
   {
@@ -580,11 +580,11 @@ void KBT::_read(bool cli, bool ap, uint8_t gpio_btn, uint8_t gpio_led, bool led_
   if (millis() - setting_ms > 20000) tmr_started = false;
   if (!tmr_started) setting_ms = millis();
   /*  if (tmr_started)
-	  {
-		DBG_OUT_PORT.print(F("Timer ..."));
-		DBG_OUT_PORT.println(millis() - setting_ms);
-	  }
-	*/
+    {
+  	DBG_OUT_PORT.print(F("Timer ..."));
+  	DBG_OUT_PORT.println(millis() - setting_ms);
+    }
+  */
 }
 
 #if defined(ESP8266)
@@ -772,22 +772,22 @@ void hw_accept(hw_data_t hd, snr_cfg_t* snr_cfg, uint8_t* vd_typ, uint8_t* rt_ty
     DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#2 is not found -> deselected"));
   }
   /*
-	  if (!hd.am2320_present && snr_cfg->type_snr1 == 7)
-	  {
-		snr_cfg->type_snr1 = 0;
-		DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#1 is not found -> deselected"));
-	  }
-	  if (!hd.am2320_present && snr_cfg->type_snr2 == 7)
-	  {
-		snr_cfg->type_snr2 = 0;
-		DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#2 is not found -> deselected"));
-	  }
-	  if (!hd.am2320_present && snr_cfg->type_snr3 == 7)
-	  {
-		snr_cfg->type_snr3 = 0;
-		DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#3 is not found -> deselected"));
-	  }
-	*/
+    if (!hd.am2320_present && snr_cfg->type_snr1 == 7)
+    {
+  	snr_cfg->type_snr1 = 0;
+  	DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#1 is not found -> deselected"));
+    }
+    if (!hd.am2320_present && snr_cfg->type_snr2 == 7)
+    {
+  	snr_cfg->type_snr2 = 0;
+  	DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#2 is not found -> deselected"));
+    }
+    if (!hd.am2320_present && snr_cfg->type_snr3 == 7)
+    {
+  	snr_cfg->type_snr3 = 0;
+  	DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#3 is not found -> deselected"));
+    }
+  */
   if (!hd.bmp180_present && snr_cfg->type_snr1 == 8) {
     snr_cfg->type_snr1 = 0;
     DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#1 is not found -> deselected"));

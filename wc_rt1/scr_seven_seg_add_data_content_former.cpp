@@ -16,7 +16,7 @@ uint8_t SSCF::seg_add_data(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _off
   const char* name_week_7 = PSTR("c6");
 
   const char* const name_week7[] = {name_week_0, name_week_1, name_week_2, name_week_3, name_week_4, name_week_5, name_week_6, name_week_7};
-  char tStr[25];
+  char tStr[32];
 
   rtc_hms_t alt = rtc7.unix_to_hms(rta.time);
 
@@ -24,7 +24,7 @@ uint8_t SSCF::seg_add_data(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _off
   h = h % 100;
 
   bool _repeat = true;
-  memset (tStr, 0, 25);
+  memset (tStr, 0, 32);
 
   do
   {
@@ -299,4 +299,3 @@ uint8_t SSCF::seg_add_data(uint8_t &mod,  uint8_t _width, byte *in, uint8_t _off
   scr7.print_(tStr, strlen(tStr), in, _offset, font14s, 2, 0);
   return strlen(tStr);
 }
-
