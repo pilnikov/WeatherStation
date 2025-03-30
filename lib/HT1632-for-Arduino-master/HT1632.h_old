@@ -41,7 +41,7 @@ typedef unsigned char byte;
 // #define TYPE_3208_MONO 1
 
 // SureElectronics 24x16 Monochrome LED Dot Matrix Unit Board
-//#define TYPE_2416_MONO 1
+#define TYPE_2416_MONO 1
 
 // SureElectronics 16X08 Bicolor (emulation)
 // #define TYPE_1608_DEBUG 1
@@ -98,7 +98,7 @@ typedef unsigned char byte;
 // Address space size (number of 4-bit words in HT1632 memory)
 // Exactly equal to the number of 4-bit address spaces available.
 #define ADDR_SPACE_SIZE (COM_SIZE * OUT_SIZE / PIXELS_PER_BYTE)
-#define GET_ADDR_FROM_X_Y(_x,_y) (_x*(COM_SIZE/PIXELS_PER_BYTE)+_y/PIXELS_PER_BYTE)
+#define GET_ADDR_FROM_X_Y(_x,_y) ((_x)*((COM_SIZE)/(PIXELS_PER_BYTE))+(_y)/(PIXELS_PER_BYTE))
 #define GET_BIT_FROM_Y(y) ( (0b1 << (PIXELS_PER_BYTE-1)) >> (y % PIXELS_PER_BYTE) )
 
 // NO-OP Definition
@@ -109,10 +109,10 @@ typedef unsigned char byte;
 // Standard command list.
 // This list is modified from original code by Bill Westfield
 
-#define HT1632_ID_CMD 0b100	/* ID = 100 - Commands 	*/
-#define HT1632_ID_RD  0b110	/* ID = 110 - Read RAM 	*/
+#define HT1632_ID_CMD 0b100	/* ID = 100 - Commands */
+#define HT1632_ID_RD  0b110	/* ID = 110 - Read RAM */
 #define HT1632_ID_WR  0b101	/* ID = 101 - Write RAM */
-#define HT1632_ID_LEN 3     /* IDs are 3 bits 		*/
+#define HT1632_ID_LEN 3         /* IDs are 3 bits */
 
 #define HT1632_CMD_SYSDIS 0x00	/* CMD= 0000-0000-x Turn off oscil */
 #define HT1632_CMD_SYSEN  0x01	/* CMD= 0000-0001-x Enable system oscil */
@@ -121,7 +121,7 @@ typedef unsigned char byte;
 #define HT1632_CMD_BLOFF  0x08	/* CMD= 0000-1000-x Blink ON */
 #define HT1632_CMD_BLON   0x09	/* CMD= 0000-1001-x Blink Off */
 #define HT1632_CMD_SLVMD  0x10	/* CMD= 0001-00xx-x Slave Mode */
-#define HT1632_CMD_MSTMD  0x14  /* CMD= 0001-01xx-x Master Mode, on-chip clock */
+#define HT1632_CMD_MSTMD  0x14 /* CMD= 0001-01xx-x Master Mode, on-chip clock */
 #define HT1632_CMD_RCCLK  0x18  /* CMD= 0001-10xx-x Master Mode, external clock */
 #define HT1632_CMD_EXTCLK 0x1C	/* CMD= 0001-11xx-x Use external clock */
 #define HT1632_CMD_COMS00 0x20	/* CMD= 0010-ABxx-x commons options */
@@ -133,13 +133,13 @@ typedef unsigned char byte;
   /* Produces the correct command from the given value of lvl. lvl = [0..15] */
 #define HT1632_CMD_LEN    8	/* Commands are 8 bits long, excluding the trailing bit */
 #define HT1632_ADDR_LEN   7	/* Addresses are 7 bits long */
-#define HT1632_WORD_LEN   4 /* 	   Words are 4 bits long */
+#define HT1632_WORD_LEN   4     /* Words are 4 bits long */
 
 class HT1632Class
 {
   private:  
     uint8_t _pinCS [4];
-    uint8_t _numActivePins = 1;
+    uint8_t _numActivePins;
     uint8_t _pinWR;
     uint8_t _pinDATA;
     uint8_t _pinCLK;
@@ -173,7 +173,7 @@ class HT1632Class
     void drawImage(const byte img [], uint8_t width, uint8_t height, int8_t x, int8_t y, int offset = 0);
     void drawText(const char text [], int x, int y, const byte font [], int font_end [], uint8_t font_height, uint8_t gutter_space = 1);
     int getTextWidth(const char text [], int font_end [], uint8_t font_height, uint8_t gutter_space = 1);
-    void setBrightness(uint8_t brightness, byte selectionmask = 0b00010000);
+    void setBrightness(char brightness, char selectionmask = 0b00010000);
     
     void setPixel(uint8_t x, uint8_t y);
     void clearPixel(uint8_t x, uint8_t y);
@@ -187,5 +187,6 @@ class HT1632Class
 
 extern HT1632Class HT1632;
 
-
+#else
+//#error "HT1632.h" already defined!
 #endif

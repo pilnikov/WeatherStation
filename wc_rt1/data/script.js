@@ -6,18 +6,18 @@ let al;
 var numaa = 7;
 
 //---------------------------------------------------------------------------------Time.htm
-			function loadVal_Time()
+			function send_Time_cfg()
 			{
 				const event = new Date();
 				document.getElementById('date').value  = event.toISOString().slice(0, 10);
 				document.getElementById('time').value  = event.toTimeString().slice(0, 8);
-				loadVal_Time1();
+				send_Time_cfg1();
 			}
 			
-			function loadVal_Time1()
+			function send_Time_cfg1()
 			{
 				var xh1 = new XMLHttpRequest();
-				xh1.open("GET", "/jacta", true);
+				xh1.open("GET", "/send_acta", true);
 				xh1.send(null);
 				xh1.onreadystatechange = function()
 				{
@@ -25,32 +25,32 @@ var numaa = 7;
 					{
 						var res1 = JSON.parse(xh1.responseText);
 
-    				numaa = res1.actn;
+						numaa = res1.actn;
 
 						if (numaa < 7) 
 						{
-        			let dateObj = new Date(0);
-      				tz = dateObj.getTimezoneOffset() * 60; 
-              dateObj.setTime((res1.acta + tz) * 1000);
-	  					document.getElementById('cur_atime').value = dateObj.toTimeString().slice(0, 8);
+							let dateObj = new Date(0);
+							tz = dateObj.getTimezoneOffset() * 60; 
+							dateObj.setTime((res1.acta + tz) * 1000);
+							document.getElementById('cur_atime').value = dateObj.toTimeString().slice(0, 8);
 						}
 						else 
 						{
 							document.getElementById('cur_atime').value = "--:--";
 							sel_atyp();
 						}
-					loadVal_Time2();
+						send_Time_cfg2();
 					}
 				};
 			}
       
-			function loadVal_Time2()
+			function send_Time_cfg2()
 			{
-  			let dateObj = new Date(0);
+				let dateObj = new Date(0);
 				var tz = dateObj.getTimezoneOffset() / -60; 
 
 				var xh2 = new XMLHttpRequest();
-				xh2.open("GET", "/jtime", true);
+				xh2.open("GET", "/send_time_cfg", true);
 				xh2.send(null);
 				xh2.onreadystatechange =  function()
 				{
@@ -60,10 +60,10 @@ var numaa = 7;
 						document.getElementById('tzone').value = tz;
 						document.getElementById('acorr').checked = res.auto_corr;
 						document.getElementById('upm').checked = res.upm;
-    				tz = dateObj.getTimezoneOffset() * 60; 
-            dateObj.setTime((res.nm_start + tz) * 1000);
+						tz = dateObj.getTimezoneOffset() * 60; 
+						dateObj.setTime((res.nm_start + tz) * 1000);
 						document.getElementById('nmstart').value = dateObj.toTimeString().slice(0, 8);
-            dateObj.setTime((res.nm_stop + tz) * 1000);
+						dateObj.setTime((res.nm_stop + tz) * 1000);
 						document.getElementById('nmstop' ).value = dateObj.toTimeString().slice(0, 8);
 						document.getElementById('ehb').checked = res.e_h_b;
 						document.getElementById('rtyp').value = res.rtc_t;
@@ -78,8 +78,8 @@ var numaa = 7;
 						if (numaa < 7)
 						{
 							document.getElementById('atyp'  ).value = al[numaa][0];
-      				tz = dateObj.getTimezoneOffset() * 60; 
-              dateObj.setTime((al[numaa][1] + tz) * 1000);
+							tz = dateObj.getTimezoneOffset() * 60; 
+							dateObj.setTime((al[numaa][1] + tz) * 1000);
 							document.getElementById('atime' ).value = dateObj.toTimeString().slice(0, 8);
 							if(al[numaa][2] < 20)
 							{
@@ -107,17 +107,17 @@ var numaa = 7;
 				if  (numaa < 7)
 				{
 					document.getElementById('atyp'  ).value = al[numaa][0];
-  				let tz = dateObj.getTimezoneOffset() * 60; 
-          dateObj.setTime((al[numaa][1] + tz) * 1000);
+					let tz = dateObj.getTimezoneOffset() * 60; 
+					dateObj.setTime((al[numaa][1] + tz) * 1000);
 					document.getElementById('atime' ).value = dateObj.toTimeString().slice(0, 8);
 					if(al[numaa][2] < 20)
 					{
-					  document.getElementById('amel'  ).value = al[numaa][2];
+						document.getElementById('amel'  ).value = al[numaa][2];
 						document.getElementById('aon'   ).value = 0;
 					}
 					else
 					{
-					  document.getElementById('amel'  ).value = 0;
+						document.getElementById('amel'  ).value = 0;
 						document.getElementById('aon'   ).value = al[numaa][2];
 					}
 				}
@@ -135,18 +135,18 @@ var numaa = 7;
 				}
 				else  
 				{
-  				let satyp = document.getElementById('atyp').value;
-	  			let saon  = document.getElementById('aon').value;
+					let satyp = document.getElementById('atyp').value;
+					let saon  = document.getElementById('aon').value;
 		
 					showHide('atyp',  true);
 
 					if (saon > 0) 
 					{
-					  showHide('amel',  false);
+						showHide('amel',  false);
 					}
 					else
 					{
-					  showHide('amel',  true);
+						showHide('amel',  true);
 					}
 	  
 					if (satyp > 0)
@@ -169,17 +169,17 @@ var numaa = 7;
 				{
 					al[numaa][0] = document.getElementById('atyp' ).value;
 					let dd = document.getElementById('atime').value.split(":");
-  				let dateObj = new Date(0);
-  				let tz = dateObj.getTimezoneOffset() * 60; 
-	  			al[numaa][1] = dateObj.setHours(dd[0], dd[1]) / 1000 - tz;
+					let dateObj = new Date(0);
+					let tz = dateObj.getTimezoneOffset() * 60; 
+					al[numaa][1] = dateObj.setHours(dd[0], dd[1]) / 1000 - tz;
 
 					if(document.getElementById('aon').value < 20)
 					{
-					  al[numaa][2] = document.getElementById('amel').value;
+						al[numaa][2] = document.getElementById('amel').value;
 					}
 					else
 					{
-					  al[numaa][2] = document.getElementById('aon').value;
+						al[numaa][2] = document.getElementById('aon').value;
 					}
 				}
 			}
@@ -191,7 +191,7 @@ var numaa = 7;
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (this.readyState === 4 && this.status === 200) loadVal_Time();
+					if (this.readyState === 4 && this.status === 200) send_Time_cfg();
 				};     
 			}
 
@@ -206,10 +206,10 @@ var numaa = 7;
 				
 				let url = '/set_time?in=' + timeNOW;
 
-        time_ntp(url);
-      }
+				time_ntp(url);
+			}
 			
-			function set_time_2()
+			function get_Time_cfg()
 			{
 				var acorr = 0, upm = 0, ehb = 0, sndpol = 0, ledpol = 0;
 
@@ -220,7 +220,7 @@ var numaa = 7;
 				let tz = dateObj.getTimezoneOffset() * 60; 
 				let dd = document.getElementById('nmstart').value.split(":");
 				var nmstart = dateObj.setHours(dd[0], dd[1]) / 1000 - tz;
-				    dd = document.getElementById('nmstop').value.split(":");
+				dd = document.getElementById('nmstop').value.split(":");
 				var nmstop  = dateObj.setHours(dd[0], dd[1]) / 1000 - tz;
 				if (document.getElementById('ehb').checked) ehb = 1;
 				var srtyp = document.getElementById('rtyp').value;
@@ -242,15 +242,15 @@ var numaa = 7;
 									al: al
 							};
 
-				let url = '/set_part?in=' + JSON.stringify(urlc);
-        console.log(url);
+				let url = '/get_time_cfg?in=' + JSON.stringify(urlc);
+				console.log(url);
 				time_ntp(url);				
 			}
 
 			function process_Time()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jactt", true);
+				xh.open("GET", "/send_actt", true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
@@ -260,7 +260,7 @@ var numaa = 7;
 						if (res.actw) 
 						{
 							document.getElementById('cur_time').value = "Алярма!!!!!!!!";
-							loadVal_Time();
+							send_Time_cfg();
 						}
 						else 
 						{
@@ -275,9 +275,9 @@ var numaa = 7;
 			}
 
 //-----------------------------------------------------------------------------WiFi.htm
-			function loadVal_WiFi()
+			function send_WiFi_cfg()
 			{
-				let url = '/jwifi';
+				let url = '/send_wifi_cfg';
 
 				if (req_done)
 				{
@@ -348,7 +348,7 @@ var numaa = 7;
 				showHide('dns2st2', st);
 			}
 
-			function set_wifi()
+			function get_wifi_cfg()
 			{
 				var wof = 0, st1= 0, st2 = 0, xh; 
 
@@ -381,7 +381,7 @@ var numaa = 7;
 							 wof: wof
 							};
 
-				let url = '/set_wifi?in=' + JSON.stringify(urlc);
+				let url = '/get_wifi_cfg?in=' + JSON.stringify(urlc);
         
 				if (st1 === 1 & st2 === 0) sti = 1;
 				if (st1 === 0 & st2 === 1) sti = 2;
@@ -401,13 +401,13 @@ var numaa = 7;
 							switch (sti) 
 							{
 								case 1:
-									set_wifi1();
+									get_wifi1();
 								break;
 								case 2:
-									set_wifi2();
+									get_wifi2();
 								break;
 								default:
-									set_wifi_end();                
+									get_wifi_end();                
 								break;
 							}
 						}
@@ -415,7 +415,7 @@ var numaa = 7;
 				}
 			}
 
-			function set_wifi1()
+			function get_wifi1()
 			{
 				var ip = document.getElementById('ipst1').value;
 				var ma = document.getElementById('mast1').value;
@@ -431,7 +431,7 @@ var numaa = 7;
 								d21: d2
 							};
     
-				var url = '/set_ip1?in=' + JSON.stringify(urlc);
+				var url = '/get_ip1?in=' + JSON.stringify(urlc);
 
 				if (req_done)
 				{
@@ -447,10 +447,10 @@ var numaa = 7;
 							switch (sti) 
 							{
 								case 2:
-									set_wifi2();
+									get_wifi2();
 								break;
 								default:
-									set_wifi_end();                
+									get_wifi_end();                
 								break;
 							}
 						}
@@ -458,7 +458,7 @@ var numaa = 7;
 				}
 			}
 
-			function set_wifi2()
+			function get_wifi2()
 			{
 				var ip = document.getElementById('ipst2').value;
 				var ma = document.getElementById('mast2').value;
@@ -474,7 +474,7 @@ var numaa = 7;
 								d22: d2
 							};
 		
-				var url = '/set_ip2?in=' + JSON.stringify(urlc);
+				var url = '/get_ip2?in=' + JSON.stringify(urlc);
         
 				if (req_done)
 				{
@@ -487,16 +487,16 @@ var numaa = 7;
 						if (this.readyState == 4 && this.status == 200)
 						{
 							req_done = true;
-							set_wifi_end();
+							get_wifi_end();
 						}
 					};
 				}
 			}
 				
 
-			function set_wifi_end()
+			function get_wifi_end()
 			{
-				url = '/end_set_wifi';
+				url = '/get_wifi_end';
 
 				if (req_done)
 				{
@@ -509,17 +509,17 @@ var numaa = 7;
 						if (this.readyState == 4 && this.status == 200) 
 						{
 							req_done = true;
-							loadVal_WiFi();
+							send_WiFi_cfg();
 						}
 					};
 				}
 			}
 
 //------------------------------------------------------------------------------Disp.htm
-			function loadVal_Disp()
+			function send_Disp_cfg()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jdisp", true);
+				xh.open("GET", "/send_disp_cfg", true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
@@ -549,7 +549,7 @@ var numaa = 7;
 			function process_Disp()
 			{
 				var xh1 = new XMLHttpRequest();
-				xh1.open("GET", "/jactb", true);
+				xh1.open("GET", "/send_actb", true);
 				xh1.send(null);
 				xh1.onreadystatechange = function()
 				{
@@ -579,7 +579,7 @@ var numaa = 7;
 				};
 			}
       
-			function set_pard()
+			function get_Disp_cfg()
 			{
 				var rlng = 0, abrd = 0, ttup = 0;
 
@@ -597,14 +597,14 @@ var numaa = 7;
 				brd3 = document.getElementById('brd3').value;
 				brd4 = document.getElementById('brd4').value;
 
-				var url = '/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
+				var url = '/get_disp_cfg?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (this.readyState==4 && this.status==200) loadVal_Disp();
+				  if (this.readyState==4 && this.status==200) send_Disp_cfg();
 				};      
 			}
 			  
@@ -618,7 +618,7 @@ var numaa = 7;
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (this.readyState==4 && this.status==200) loadVal_Disp();
+				  if (this.readyState==4 && this.status==200) send_Disp_cfg();
 				};      
 			}
 
@@ -685,10 +685,10 @@ var numaa = 7;
 			}
 
 //------------------------------------------------------------------------------gpio.htm
-			function loadVal_GPIO()
+			function send_GPIO_cfg()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jclock", true);
+				xh.open("GET", "/send_gpio_cfg", true);
 				xh.send(null);
 				xh.onreadystatechange =  function()
 				{
@@ -717,7 +717,7 @@ var numaa = 7;
 				_from = 'gpio';
 			}
 
-			function set_parc()
+			function get_GPIO_cfg()
 			{
 				var acorr = 0, upm = 0, ehb = 0, sndpol = 0, ledpol = 0;
 
@@ -739,14 +739,14 @@ var numaa = 7;
 				ana = document.getElementById('ana').value;
 				uar = document.getElementById('uar').value;
 
-				url = '/set_parc?sndpol='+sndpol+'&ledpol='+ledpol+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+'&dht='+dht+'&ana='+ana+'&uar='+uar;
+				url = '/get_gpio_cfg?sndpol='+sndpol+'&ledpol='+ledpol+'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+'&dht='+dht+'&ana='+ana+'&uar='+uar;
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (this.readyState == 4 && this.status == 200) loadVal_GPIO();
+					if (this.readyState == 4 && this.status == 200) send_GPIO_cfg();
 				};      
 			}
 
@@ -755,7 +755,7 @@ var numaa = 7;
 			{
 				_from = 'main';
 				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jactt", true);
+				xh.open("GET", "/send_actt", true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
@@ -779,7 +779,7 @@ var numaa = 7;
 			}
 
 //------------------------------------------------------------------------------News
-			function loadVal_News()
+			function send_News_cfg()
 			{
 				var xmlhttp=new XMLHttpRequest();
 				xmlhttp.open('GET','https://raw.githubusercontent.com/Qrome/marquee-scroller/master/sources.json',!0);
@@ -795,7 +795,7 @@ var numaa = 7;
 				};
 
 				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jnews", true);
+				xh.open("GET", "/send_news_cfg", true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
@@ -813,7 +813,7 @@ var numaa = 7;
 				_from = 'news';
 			}
 
-			function set_parnews()
+			function get_News_cfg()
 			{
 				var sdisplaynews = 0;
 
@@ -821,14 +821,14 @@ var numaa = 7;
 				snewsApiKey = document.getElementById('newsk').value;
 				snewssource = document.getElementById('newssrc').value;
 
-				url = '/set_news?displaynews='+sdisplaynews+'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
+				url = '/get_news_cfg?displaynews='+sdisplaynews+'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
 
 				var xh = new XMLHttpRequest();
 				xh.open('GET', url, true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-					if (this.readyState == 4 && this.status == 200) loadVal_News();
+					if (this.readyState == 4 && this.status == 200) send_News_cfg();
 				};     
 			}
 
@@ -868,15 +868,15 @@ var numaa = 7;
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (this.readyState==4 && this.status==200) loadVal_News();
+				  if (this.readyState==4 && this.status==200) send_News_cfg();
 				};      
 			}
 
 //------------------------------------------------------------------------------Sens.htm
-			function loadVal_Snr()
+			function send_Snr_cfg()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jsens", true);
+				xh.open("GET", "/send_sens_cfg", true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
@@ -913,7 +913,7 @@ var numaa = 7;
 				};
 
 				var xh2 = new XMLHttpRequest();
-				xh2.open("GET", "/jts", true);
+				xh2.open("GET", "/send_tsnr_cfg", true);
 				xh2.send(null);
 				xh2.onreadystatechange = function()
 				{
@@ -932,16 +932,16 @@ var numaa = 7;
 						document.getElementById('utsp').checked  = (res2.tss & 0b01000000);
 
 						sel_ts();
-						loadSnr();
+						send_Snr_data();
 					}   	  
 				};
 				_from = 'sens';
 			}
 			
-			function loadSnr()
+			function send_Snr_data()
 			{
 				var xh3 = new XMLHttpRequest();
-				xh3.open("GET", "/jsnr", true);
+				xh3.open("GET", "/send_snr_data", true);
 				xh3.send(null);
 				xh3.onreadystatechange = function()
 				{
@@ -959,29 +959,29 @@ var numaa = 7;
 				};
 			}
 
-			function update_snr()
+			function upd_Snr_data()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open('GET', '/upd_snr', true);
+				xh.open('GET', '/upd_snr_data', true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (this.readyState==4 && this.status==200) loadSnr();
+				  if (this.readyState==4 && this.status==200) send_Snr_data();
 				};      
 			}
 
-			function update_wfc()
+			function upd_Wfc_data()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open('GET', '/upd_wfc', true);
+				xh.open('GET', '/upd_wfc_data', true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
-				  if (this.readyState==4 && this.status==200) loadSnr();
+				  if (this.readyState==4 && this.status==200) send_Snr_data();
 				};      
 			}
 
-			function set_pars()
+			function get_Snr_cfg()
 			{
 				var udm_t = 0;     
 				var cid_t  = document.getElementById('cityID').value;
@@ -993,7 +993,7 @@ var numaa = 7;
 				if (document.getElementById('udm').checked) udm_t = 1;
 				var upp_t  = document.getElementById('usepp').value;
 		 
-				var url = '/set_pars1?cid='+cid_t
+				var url = '/get_snr_cfg1?cid='+cid_t
 							 + '&owmk='+owmk_t
 							 + '&esa1='+esa1_t
 							 + '&esa2='+esa2_t
@@ -1025,7 +1025,7 @@ var numaa = 7;
 				nc2_t = document.getElementById('name_ch2').value;
 				nc3_t = document.getElementById('name_ch3').value;
 			  
-				var url2 = '/set_pars2?snr1='   + snr1_t
+				var url2 = '/get_snr_cfg2?snr1='   + snr1_t
 						   + '&snr2='   + snr2_t
 						   + '&snr3='   + snr3_t
 						   + '&snrp='   + snrp_t
@@ -1053,7 +1053,7 @@ var numaa = 7;
 				if (document.getElementById('utsh3').checked) uts_t |= 0b00100000;
 				if (document.getElementById('utsp').checked)  uts_t |= 0b01000000;
 
-				url3 = '/set_pars3?tschan='+tschan_t
+				url3 = '/get_snr_cfg3?tschan='+tschan_t
 							    +'&tsapir='+tsapir_t
 							    +'&tsapiw='+tsapiw_t
 							    +'&uts='   + uts_t;
@@ -1063,7 +1063,7 @@ var numaa = 7;
 				xh3.send(null);
 				xh3.onreadystatechange = function()
 				{
-					if (this.readyState==4 && this.status==200) loadVal_Snr();
+					if (this.readyState==4 && this.status==200) send_Snr_data();
 				};      
 			}
 
@@ -1178,10 +1178,10 @@ var numaa = 7;
 			}
 			  
 //------------------------------------------------------------------------------Thermo.htm
-			function loadVal_Trm()
+			function send_Tmst_cfg()
 			{
 				var xh = new XMLHttpRequest();
-				xh.open("GET", "/jtrm", true);
+				xh.open("GET", "/send_tmst_cfg", true);
 				xh.send(null);
 				xh.onreadystatechange = function()
 				{
@@ -1217,14 +1217,14 @@ var numaa = 7;
 				}
 			}
 		  
-			function set_partrm()
+			function get_Tmst_cfg()
 			{
 				ttrm_t = document.getElementById('ittrm').value;
 				tsrc_t = document.getElementById('itsrc').value;
 				dsta_t = document.getElementById('idsta').value;
 				dstp_t = document.getElementById('idstp').value;
 
-				url = '/set_partrm?ttrm=' + ttrm_t
+				url = '/get_tmst_cfg?ttrm=' + ttrm_t
 										  + '&tsrc=' + tsrc_t
 										  + '&dsta=' + dsta_t
 										  + '&dstp=' + dstp_t;

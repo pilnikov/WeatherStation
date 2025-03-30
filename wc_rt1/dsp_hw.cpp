@@ -20,8 +20,8 @@ Max72 *m7219;
 HT1621 *ht21;
 
 //---------------------------------------------------------------------------HT1632
-//HT1632 *m1632;
-HT1632Class *m1632;
+//HT1632 *ht1632;
+HT1632Class *ht1632;
 
 //---------------------------------------------------------------------------Matrix
 #if defined(__AVR_ATmega2560__)
@@ -72,14 +72,6 @@ byte MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte 
       MyDspHW::ht1621_init(gpio_dcs, gpio_clk, gpio_dio);
       break;
     case 5:
-#if defined(ESP8266)
-      SPI.pins(gpio_clk, -1, gpio_dio, gpio_dcs);
-      SPI.begin();
-#elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-      SPI.begin(gpio_clk, -1, gpio_dio, gpio_dcs);
-#else
-      SPI.begin();
-#endif
       MyDspHW::ht1632_init(gpio_dwr, gpio_dcs, gpio_clk, gpio_dio);
       break;
     case 6:
@@ -332,9 +324,9 @@ void MyDspHW::ht1621_init(byte gpio_dcs, byte gpio_clk, byte gpio_dio) {
 ////////////////////////////////////ht1632//////////////////////////////////////////////////////////////////
 
 void MyDspHW::ht1632_init(uint8_t gpio_dwr, uint8_t gpio_dcs, uint8_t gpio_clk, uint8_t gpio_dio) {
-  m1632 = new HT1632Class;
-  m1632->setCLK(gpio_clk /*clk*/);
-  m1632->begin(gpio_dcs /*dcs*/, gpio_dwr /*dwr*/, gpio_dio /*dio*/);
+  ht1632 = new HT1632Class;
+  ht1632->setCLK(gpio_clk /*clk*/);
+  ht1632->begin(gpio_dcs /*dcs*/, gpio_dwr /*dwr*/, gpio_dio /*dio*/);
 }
 
 void MyDspHW::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t color2, uint8_t t_size)
@@ -343,8 +335,8 @@ void MyDspHW::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t col
     for (uint8_t x = 0; x < 32; x++) {
       dt = 0b1;
       for (uint8_t y = 0; y < 8; y++) {
-        if (in[x] & dt << y) m1632->setPixel(x, y, color1);
-        if (in[x + 32] & dt << y) m1632->setPixel(x, y + 8, color2);
+        if (in[x] & dt << y) ht1632->setPixel(x, y, color1);
+        if (in[x + 32] & dt << y) ht1632->setPixel(x, y + 8, color2);
       }
     }
 
@@ -361,43 +353,43 @@ void MyDspHW::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t col
           switch (color1)
           {
             case 0:
-              m1632->selectChannel(0);
-              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              ht1632->selectChannel(0);
+              (in[x] & dt << y) ? ht1632->setPixel(_x, _y) : ht1632->clearPixel(_x, _y);
               break;
             case 1:
-              m1632->selectChannel(1);
-              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              ht1632->selectChannel(1);
+              (in[x] & dt << y) ? ht1632->setPixel(_x, _y) : ht1632->clearPixel(_x, _y);
               break;
             case 2:
-              m1632->selectChannel(0);
-              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
-              m1632->selectChannel(1);
-              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              ht1632->selectChannel(0);
+              (in[x] & dt << y) ? ht1632->setPixel(_x, _y) : ht1632->clearPixel(_x, _y);
+              ht1632->selectChannel(1);
+              (in[x] & dt << y) ? ht1632->setPixel(_x, _y) : ht1632->clearPixel(_x, _y);
               break;
             default:
-              m1632->selectChannel(0);
-              (in[x] & dt << y) ? m1632->setPixel(_x, _y) : m1632->clearPixel(_x, _y);
+              ht1632->selectChannel(0);
+              (in[x] & dt << y) ? ht1632->setPixel(_x, _y) : ht1632->clearPixel(_x, _y);
               break;
           }
           switch (color2)
           {
             case 0:
-              m1632->selectChannel(0);
-              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              ht1632->selectChannel(0);
+              (in[x + 32] & dt << y) ? ht1632->setPixel(_x, _yy) : ht1632->clearPixel(_x, _yy);
               break;
             case 1:
-              m1632->selectChannel(1);
-              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              ht1632->selectChannel(1);
+              (in[x + 32] & dt << y) ? ht1632->setPixel(_x, _yy) : ht1632->clearPixel(_x, _yy);
               break;
             case 2:
-              m1632->selectChannel(0);
-              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
-              m1632->selectChannel(1);
-              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              ht1632->selectChannel(0);
+              (in[x + 32] & dt << y) ? ht1632->setPixel(_x, _yy) : ht1632->clearPixel(_x, _yy);
+              ht1632->selectChannel(1);
+              (in[x + 32] & dt << y) ? ht1632->setPixel(_x, _yy) : ht1632->clearPixel(_x, _yy);
               break;
             default:
-              m1632->selectChannel(0);
-              (in[x + 32] & dt << y) ? m1632->setPixel(_x, _yy) : m1632->clearPixel(_x, _yy);
+              ht1632->selectChannel(0);
+              (in[x + 32] & dt << y) ? ht1632->setPixel(_x, _yy) : ht1632->clearPixel(_x, _yy);
               break;
           }
         }
@@ -414,9 +406,6 @@ void MyDspHW::ht1632_ramFormer(byte *in, const uint8_t color1, const uint8_t col
 void MyDspHW::ht1633_init(byte addr) {
   ht1633 = new HT16K33;
   ht1633->init(addr);
-  ht1633->setBrightness(14);
-  ht1633->clear();
-  ht1633->write();
 }
 
 // For type 31 display
@@ -631,10 +620,10 @@ void MyDspHW::_write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_si
       //HT1632
       //ORANGE = 3 GREEN = 1
       //ORANGE = 3 RED = 0 GREEN = 1
-      m1632->clear();
+      ht1632->clear();
       ht1632_ramFormer(screen, color_up, color_dwn, text_size);
-      m1632->setBrightness(br);
-      m1632->render();
+      ht1632->setBrightness(br,0b1111);
+      ht1632->render();
     case 6:
       //ILI9341
       break;
@@ -680,9 +669,9 @@ void MyDspHW::_off(byte vdrv_t) // Dsp off
 #endif
       break;
     case 5:
-      m1632->clear();
-      m1632->setBrightness(0);
-      m1632->render();
+      ht1632->clear();
+      ht1632->setBrightness(0,0b1111);
+      ht1632->render();
       break;
     case 12:
       lcd->noBacklight();

@@ -11,43 +11,44 @@ HTTPUpdateServer httpUpdater;
 
 // ---------------------------------------------------------------------- setup
 void web_setup() {
-  server.on("/ntp", handleNTP);
-  server.on("/set_time", handleSetTime);
-  server.on("/set_part", handleSetPart);
-  server.on("/set_wifi", handleSetWiFi);
-  server.on("/set_ip1", handleSetIp1);
-  server.on("/set_ip2", handleSetIp2);
-  server.on("/end_set_wifi", handleEndSetWiFi);
-  server.on("/exit", handleExit);
+  server.on("/set_ntp",        handler_SET_Time_from_NTP);
+  server.on("/set_time",       handler_SET_Time);
+  server.on("/get_time_cfg",   handler_GET_Time_Cfg);
+  server.on("/get_wifi_cfg",   handler_GET_WiFi_Cfg_Start);
+  server.on("/get_ip1",        handler_GET_IP_1);
+  server.on("/get_ip2",        handler_GET_IP_2);
+  server.on("/get_wifi_end",   handler_GET_WiFi_Cfg_End);
+  server.on("/exit",           handleExit);
 #ifdef MATRIX
-  server.on("/set_font", handleSetFont);
+  server.on("/set_font",       handler_SET_Font);
 #endif  //MATRIX
-  server.on("/set_pard", handleSetPard);
-  server.on("/upd_snr", handleUpdSnr);
-  server.on("/upd_wfc", handleUpdForeCast);
-  server.on("/set_pars1", handleSetPars1);
-  server.on("/set_pars2", handleSetPars2);
-  server.on("/set_pars3", handleSetPars3);
-  server.on("/set_parc", handleSetParc);
-  server.on("/set_partrm", handleSetPartrm);
-  server.on("/set_news", handleSetNews);
-  server.on("/upd_news", handleUpdNews);
+  server.on("/get_disp_cfg",   handler_GET_Disp_Cfg);
+  server.on("/upd_snr_data",   handler_UPD_Snr_Data);
+  server.on("/upd_wfc_data",   handler_UPD_WFC_Data);
+  server.on("/get_snr_cfg1",   handler_GET_Snr_Cfg_1);
+  server.on("/get_snr_cfg2",   handler_GET_Snr_Cfg_2);
+  server.on("/get_snr_cfg3",   handler_GET_Snr_Cfg_3);
+  server.on("/get_gpio_cfg",   handler_GET_GPIO_Cfg);
+  server.on("/get_news_cfg",   handler_GET_News_Cfg);
+  server.on("/upd_news",       handler_UPD_News);
+  server.on("/get_tmst_cfg",   handler_GET_Tmst_Cfg);
 
-  server.on("/jactt", handlejActT);
-  server.on("/jacta", handlejActA);
-  server.on("/jtime", handlejTime);
-  server.on("/jwifi", handlejWiFi);
-  server.on("/jclock", handlejParc);
-  server.on("/jactb", handlejActB);
-  server.on("/jdisp", handlejPard);
-  server.on("/jsens", handlejPars);
-  server.on("/jts", handlejTS);
-  server.on("/jsnr", handlejSnr);
-  server.on("/rcv_snr", handleRcvSnr);
-  server.on("/juart", handlejUart);
-  server.on("/jtrm", handlejTrm);
-  server.on("/jnews", handlejNews);
-  server.on("/jnewst", handlejNewsT);
+  server.on("/send_actt",      handler_SEND_Act_Time);
+  server.on("/send_acta",      handler_SEND_Act_Alarm);
+  server.on("/send_actb",      handler_SEND_BR_Act);
+
+  server.on("/send_time_cfg",  handler_SEND_Time_Cfg);
+  server.on("/send_wifi_cfg",  handler_SEND_WiFi_Cfg);
+  server.on("/send_disp_cfg",  handler_SEND_Disp_Cfg);
+  server.on("/send_sens_cfg",  handler_SEND_Snr_Cfg);
+  server.on("/send_tsnr_cfg",  handler_SEND_TSnr_Cfg);
+  server.on("/send_snr_data",  handler_SEND_Snr_Data);
+  server.on("/get_snr_data",   handler_GET_Snr_Data);
+  server.on("/send_uart",      handler_SEND_UART);
+  server.on("/send_gpio_cfg",  handler_SEND_GPIO_Cfg);
+  server.on("/send_tmst_cfg",  handler_SEND_Tmst_Cfg);
+  server.on("/send_news_cfg",  handler_SEND_News_Cfg);
+  server.on("/send_newsf",     handler_SEND_News_Full);
 
   //-------------------------------------------------------------- for LittleFS
   //list directory
@@ -62,11 +63,9 @@ void web_setup() {
   server.on("/edit", HTTP_DELETE, handleFileDelete);
   //first callback is called after the request has ended with all parsed arguments
   //second callback handles file uploads at that location
-  server.on(
-    "/edit", HTTP_POST, []() {
-      server.send(200, "text/plain", "");
-    },
-    handleFileUpload);
+  server.on("/edit", HTTP_POST, []() {
+    server.send(200, "text/plain", "");
+  }, handleFileUpload);
 
   //called when the url is not defined here
   //use it to load content from LittleFS
@@ -108,14 +107,14 @@ void stop_serv() {
 }
 
 
-//-------------------------------------------------------------- handlejTime
-void handlejTime() {
+//-------------------------------------------------------------- handler_SEND_Time_Cfg
+void handler_SEND_Time_Cfg() {
   from_client = myrtccfg.to_json(rtc_cfg);
   server.send(200, "text/json", from_client);
 }
 
-//-------------------------------------------------------------- handleSetTime
-void handleSetTime() {
+//-------------------------------------------------------------- handler_SET_Time
+void handler_SET_Time() {
   unsigned long ttm = server.arg("in").toInt();
   server.send(200, "text/html", "OK!");
 
@@ -130,8 +129,8 @@ void handleSetTime() {
   DBG_OUT_PORT.println(rtc_time.ct);
 }
 
-//-------------------------------------------------------------- handleSetPart
-void handleSetPart() {
+//-------------------------------------------------------------- handler_GET_Time_Cfg
+void handler_GET_Time_Cfg() {
   from_client = server.arg("in");
   server.send(200, "text/html", "OK!");
 
@@ -141,8 +140,8 @@ void handleSetPart() {
   rtc_alm = myrtc.set_alarm(rtc_cfg, rtc_time.ct, rtc_hw.a_type == 1);
 }
 
-//-------------------------------------------------------------- handleNTP
-void handleNTP() {
+//-------------------------------------------------------------- handler_SET_Time_from_NTP
+void handler_SET_Time_from_NTP() {
   server.send(200, "text/html", "OK!");
   if (wifi_data_cur.cli) {
     unsigned long ttm = myrtc.GetNtp(rtc_cfg, rtc_time.ct);
@@ -156,32 +155,32 @@ void handleNTP() {
   }
 }
 
-//-------------------------------------------------------------- handlejWiFi
-void handlejWiFi() {
+//-------------------------------------------------------------- handler_SEND_WiFi_Cfg
+void handler_SEND_WiFi_Cfg() {
   from_client = wifi_cfg.to_json(wifi_data);
   server.send(200, "text/json", from_client);
 }
 
-//-------------------------------------------------------------- handleSetWiFi
-void handleSetWiFi() {
+//-------------------------------------------------------------- handler_GET_WiFi_Cfg_Start
+void handler_GET_WiFi_Cfg_Start() {
   from_client = server.arg("in");
   server.send(200, "text/html", "OK!");
 }
 
-//-------------------------------------------------------------- handleSetIp1
-void handleSetIp1() {
+//-------------------------------------------------------------- handler_GET_IP_1
+void handler_GET_IP_1() {
   from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
 }
 
-//-------------------------------------------------------------- handleSetIp2
-void handleSetIp2() {
+//-------------------------------------------------------------- handler_GET_IP_2
+void handler_GET_IP_2() {
   from_client += server.arg("in");
   server.send(200, "text/html", "OK!");
 }
 
-//-------------------------------------------------------------- handleEndSetWiFi
-void handleEndSetWiFi() {
+//-------------------------------------------------------------- handler_GET_WiFi_Cfg_End
+void handler_GET_WiFi_Cfg_End() {
   from_client.replace("}{", ",");
 
   conf_f = "/conf_wifi.json";
@@ -190,8 +189,8 @@ void handleEndSetWiFi() {
   server.send(200, "text/html", "OK!");
 }
 
-//-------------------------------------------------------------- handlejActT
-void handlejActT() {
+//-------------------------------------------------------------- handler_SEND_Act_Time
+void handler_SEND_Act_Time() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -206,8 +205,8 @@ void handlejActT() {
   st = String();
 }
 
-//-------------------------------------------------------------- handlejActA
-void handlejActA() {
+//-------------------------------------------------------------- handler_SEND_Act_Alarm
+void handler_SEND_Act_Alarm() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
   json["actn"] = rtc_alm.num;
@@ -220,8 +219,8 @@ void handlejActA() {
   st = String();
 }
 
-//-------------------------------------------------------------- handlejPard
-void handlejPard() {
+//-------------------------------------------------------------- handler_SEND_Disp_Cfg
+void handler_SEND_Disp_Cfg() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -246,9 +245,9 @@ void handlejPard() {
   st = String();
 }
 
-//-------------------------------------------------------------- handleSetFont
+//-------------------------------------------------------------- handler_SET_Font
 #ifdef MATRIX
-void handleSetFont() {
+void handler_SET_Font() {
   //url='/set_font?tfnt='+tfnt;
 
   main_cfg.font_t = server.arg("tfnt").toInt();
@@ -264,8 +263,8 @@ void handleSetFont() {
 }
 #endif  //MATRIX
 
-//-------------------------------------------------------------- handler Set Parameter for display
-void handleSetPard() {
+//-------------------------------------------------------------- handler GET Parameter for display
+void handler_GET_Disp_Cfg() {
   //url='/set_pard?ctyp='+ctyp+'&dtyp='+dtyp+'&rlng='+rlng+'&ttup='+ttup+'&mcou='+mcou+'&mcod='+mcod+'&abrd='+abrd+'&mbrd='+mbrd+'&nbrd='+nbrd+'&brd1='+brd1+'&brd2='+brd2+'&brd3='+brd3+'&brd4='+brd4;
 
   uint8_t vdrv_buf = mcf.vdrv_t;
@@ -298,8 +297,8 @@ void handleSetPard() {
   if (vdrv_buf != mcf.vdrv_t) handleExit();
 }
 
-//-------------------------------------------------------------- handler Get Parameter from TS
-void handlejTS() {
+//-------------------------------------------------------------- handler SEND ThingSpeak Cfg
+void handler_SEND_TSnr_Cfg() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -315,8 +314,8 @@ void handlejTS() {
   st = String();
 }
 
-//-------------------------------------------------------------- handler Get Parameter from sensor
-void handlejPars() {
+//-------------------------------------------------------------- handler Send Sensor Config
+void handler_SEND_Snr_Cfg() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -346,8 +345,8 @@ void handlejPars() {
   st = String();
 }
 
-//-------------------------------------------------------------- handler force set data for sensor from ext source e.g. ext sensor
-void handleRcvSnr() {
+//-------------------------------------------------------------- handler GET data for sensor from ext source e.g. ext sensor
+void handler_GET_Snr_Data() {
   /*
       url='/rcv_snr?
        + '&est1='  + est1_t
@@ -388,8 +387,8 @@ void handleRcvSnr() {
   server.send(200, "text/html", "OK!");
 }
 
-//-------------------------------------------------------------- handler Get data from sensor
-void handlejSnr() {
+//-------------------------------------------------------------- handler SEND sensor data
+void handler_SEND_Snr_Data() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -409,7 +408,7 @@ void handlejSnr() {
 }
 
 //-------------------------------------------------------------- handler Update data from sensor
-void handleUpdSnr() {
+void handler_UPD_Snr_Data() {
   snr_data_t sb = snr_data;
   snr_data = GetSnr(sb, snr_cfg_data, mcf, rtc_hw.a_type, wifi_data_cur.cli, wf_data_cur);
 
@@ -417,7 +416,8 @@ void handleUpdSnr() {
   serv_ms = millis();
 }
 
-void handleUpdForeCast() {
+//-------------------------------------------------------------- handler Update Weather ForeCast data
+void handler_UPD_WFC_Data() {
   //------------------------------------------------------ Получаем прогноз погоды от GisMeteo
   if ((mcf.use_pp == 1) & wifi_data_cur.cli) wf_data = e_srv.get_gm(gs_rcv(mcf.pp_city_id, wifi_data_cur.cli));
 
@@ -432,8 +432,8 @@ void handleUpdForeCast() {
   }
 }
 
-//-------------------------------------------------------------- handler Set Parameter for sensor part one
-void handleSetPars1() {
+//-------------------------------------------------------------- handler GET sensor Cfg part one
+void handler_GET_Snr_Cfg_1() {
   /*
         url='/set_pars1?cid='+cid_t
            + '&owmk='+owmk_t
@@ -457,8 +457,8 @@ void handleSetPars1() {
   server.send(200, "text/html", "OK!");
 }
 
-//-------------------------------------------------------------- handler Set Parameter for sensor part two
-void handleSetPars2() {
+//-------------------------------------------------------------- handler GET Sensor Cfg part two
+void handler_GET_Snr_Cfg_2() {
   /*
   	  url='/set_pars2?snr1='   + snr1_t
   		 + '&snr2='   + snr2_t
@@ -495,8 +495,8 @@ void handleSetPars2() {
   sens_f.init(&snr_cfg_data);
 }
 
-//-------------------------------------------------------------- handle Set Parameter for sensor part tree
-void handleSetPars3() {
+//-------------------------------------------------------------- handle GET sensor Cfg part tree
+void handler_GET_Snr_Cfg_3() {
   /*
   	  url='/set_pars3?tschan=' + tschan_t
   		 + '&tsapir=' + tsapir_t
@@ -519,8 +519,8 @@ void handleSetPars3() {
   handleExit();
 }
 
-//-------------------------------------------------------------- handlejParc
-void handlejParc() {
+//-------------------------------------------------------------- handler_SEND_GPIO_Cfg
+void handler_SEND_GPIO_Cfg() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -549,8 +549,8 @@ void handlejParc() {
   st = String();
 }
 
-//-------------------------------------------------------------- handleSetParc
-void handleSetParc() {
+//-------------------------------------------------------------- handler_GET_GPIO_Cfg
+void handler_GET_GPIO_Cfg() {
   //url = '/set_parc?sndpol='+sndpol+'&ledpol='+ledpol+
   //'&sda='+sda+'&scl='+scl+'&dio='+dio+'&clk='+clk+'&dcs='+dcs+'&dwr='+dwr+'&trm='+trm+'&sqw='+sqw+'&snd='+snd+'&led='+led+'&btn='+btn+
   //'&dht='+dht+'&ana='+ana+'&uar='+uar;
@@ -583,13 +583,13 @@ void handleSetParc() {
   handleExit();
 }
 
-//-------------------------------------------------------------- handlejUart
-void handlejUart() {
+//-------------------------------------------------------------- handler_SEND_UART
+void handler_SEND_UART() {
   server.send(200, "text/json", uart_st(snr_data, wf_data, mcf, rtc_time, rtc_alm, cur_br));
 }
 
-//-------------------------------------------------------------- handlejTrm
-void handlejTrm() {
+//-------------------------------------------------------------- handler_SEND_Tmst_Cfg
+void handler_SEND_Tmst_Cfg() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
 
@@ -605,8 +605,8 @@ void handlejTrm() {
   st = String();
 }
 
-//-------------------------------------------------------------- handleSetpartrm
-void handleSetPartrm() {
+//-------------------------------------------------------------- handler_GET_Tmst_Cfg
+void handler_GET_Tmst_Cfg() {
   //url = '/set_partrm?ttrm='+sttrm+'&tsrc='+stsrs+'&dsta='+sdsta+'&dstp='+sdstp;
 
   mcf.thermo_t = server.arg("ttrm").toInt();
@@ -618,8 +618,8 @@ void handleSetPartrm() {
   serv_ms = millis();
 }
 
-//-------------------------------------------------------------- handlejActB
-void handlejActB() {
+//-------------------------------------------------------------- handler_SEND_BR_Act
+void handler_SEND_BR_Act() {
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
   json["brig"] = snr_data.f;
@@ -776,8 +776,8 @@ String getContentType(String filename) {
   return "text/plain";
 }
 
-//-------------------------------------------------------------- handler Set Parameter for news
-void handleSetNews() {
+//-------------------------------------------------------------- handler GET news Cfg
+void handler_GET_News_Cfg() {
   //url = '/set_news?displaynews='+sdisplaynews'&newsApiKey='+snewsApiKey+'&newssource='+snewssource;
   char src_buff[17];
   strcpy(src_buff, mcf.news_source);
@@ -792,21 +792,21 @@ void handleSetNews() {
   conf_f = "/conf_main.json";
   lfs.writeFile(conf_f, from_client.c_str());
 
-  if (strcmp(src_buff, mcf.news_source) != 0) handleUpdNews();
+  if (strcmp(src_buff, mcf.news_source) != 0) handler_UPD_News();
   server.send(200, "text/html", "Ok!");
   serv_ms = millis();
 }
 
-//-------------------------------------------------------------- handler Updater news string
-void handleUpdNews() {
+//-------------------------------------------------------------- handler Updater news
+void handler_UPD_News() {
   if (mcf.news_en) {
     newsClient->updateNewsClient(mcf.news_api_key, mcf.news_source);
     newsClient->updateNews();
   }
 }
 
-//-------------------------------------------------------------- handler Set Parameter for news
-void handlejNews() {
+//-------------------------------------------------------------- handler SEND news cfg
+void handler_SEND_News_Cfg() {
   String st = "";
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();
@@ -820,8 +820,8 @@ void handlejNews() {
   server.send(200, "text/json", st1);
 }
 
-//-------------------------------------------------------------- handler Get full text from news string
-void handlejNewsT() {
+//-------------------------------------------------------------- handler SEND full text from news string
+void handler_SEND_News_Full() {
   String st = "";
   JsonDocument jsonBuffer;
   JsonObject json = jsonBuffer.to<JsonObject>();

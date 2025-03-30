@@ -23,28 +23,28 @@ static unsigned long setting_ms = millis();
 static bool tmr_started = false, btn_released = false;
 volatile bool btn_state_flag = false, _wasAlarmed_int = false;
 
-void sensor_init(snr_cfg_t* cf) {
+void sensor_init(snr_cfg_t* scf) {
 
-  if (cf->type_snr1 > 0 || cf->type_snr2 > 0 || cf->type_snr3 > 0) {
-    if (cf->type_snr1 == 4 || cf->type_snr2 == 4 || cf->type_snr3 == 4) {
-      sens_ff.dht_preset(cf->gpio_dht, 22);  //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
+  if (scf->type_snr1 > 0 || scf->type_snr2 > 0 || scf->type_snr3 > 0) {
+    if (scf->type_snr1 == 4 || scf->type_snr2 == 4 || scf->type_snr3 == 4) {
+      sens_ff.dht_preset(scf->gpio_dht, 22);  //Тут устанавливается GPIO для DHT и его тип (11, 21, 22)
     }
 
-    sens_ff.init(cf);
+    sens_ff.init(scf);
 
     DBG_OUT_PORT.print(F("Snr type on channel 1 = "));
-    DBG_OUT_PORT.println(cf->type_snr1);
+    DBG_OUT_PORT.println(scf->type_snr1);
     DBG_OUT_PORT.print(F("Snr type on channel 2 = "));
-    DBG_OUT_PORT.println(cf->type_snr2);
+    DBG_OUT_PORT.println(scf->type_snr2);
     DBG_OUT_PORT.print(F("Snr type on channel 3 = "));
-    DBG_OUT_PORT.println(cf->type_snr3);
+    DBG_OUT_PORT.println(scf->type_snr3);
     DBG_OUT_PORT.print("Snr type on pressure = ");
-    DBG_OUT_PORT.println(cf->type_snrp);
+    DBG_OUT_PORT.println(scf->type_snrp);
     DBG_OUT_PORT.println(F("sensor inital"));
   }
 }
 //------------------------------------------------------  Получаем данные с датчиков
-snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t mcf, uint8_t type_rtc, bool cli, wf_data_t wfc) {
+snr_data_t GetSnr(snr_data_t sb, snr_cfg_t scf, main_cfg_t mcf, uint8_t type_rtc, bool cli, wf_data_t wfc) {
   snr_data_t td;
   snr_data_t ed1;
   snr_data_t ed2;
@@ -61,30 +61,30 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t mcf, uint8_t type_rtc,
 
   uint8_t temp_rtc = 99;
 
-  if ((rd.type_snr1 == 5 || rd.type_snr2 == 5 || rd.type_snr3 == 5) && type_rtc == 1) {
+  if ((scf.type_snr1 == 5 || scf.type_snr2 == 5 || scf.type_snr3 == 5) && type_rtc == 1) {
     temp_rtc = myrtc_ff.get_temperature();
   }
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
   if (cli) {
-    if (rd.type_snr1 == 1 || rd.type_snr2 == 1 || rd.type_snr3 == 1 || rd.type_snrp == 1) {
+    if (scf.type_snr1 == 1 || scf.type_snr2 == 1 || scf.type_snr3 == 1 || scf.type_snrp == 1) {
       dmsg_ff.callback(mcf.dsp_t, 2, 0, mcf.rus_lng);         // сообщение на индикатор о начале обмена с TS
       String ts_str = ts_rcv(mcf.ts_ch_id, mcf.AKey_r, cli);  // Получаем строчку данных от TS
       td = e_srv_ff.get_ts(ts_str);                           // Парсим строчку от TS
       dmsg_ff.callback(mcf.dsp_t, 2, 1, mcf.rus_lng);         // сообщение на индикатор о результатах обмена с TS
     }
-    if (rd.type_snr1 == 2 || rd.type_snr2 == 2 || rd.type_snr3 == 2 || rd.type_snrp == 2) ed1 = e_srv_ff.get_es(es_rcv(mcf.esrv1_addr, cli));  // Получаем данные от внешнего сервера1
-    if (rd.type_snr1 == 3 || rd.type_snr2 == 3 || rd.type_snr3 == 3 || rd.type_snrp == 3) ed2 = e_srv_ff.get_es(es_rcv(mcf.esrv2_addr, cli));  // Получаем данные от внешнего сервера2
+    if (scf.type_snr1 == 2 || scf.type_snr2 == 2 || scf.type_snr3 == 2 || scf.type_snrp == 2) ed1 = e_srv_ff.get_es(es_rcv(mcf.esrv1_addr, cli));  // Получаем данные от внешнего сервера1
+    if (scf.type_snr1 == 3 || scf.type_snr2 == 3 || scf.type_snr3 == 3 || scf.type_snrp == 3) ed2 = e_srv_ff.get_es(es_rcv(mcf.esrv2_addr, cli));  // Получаем данные от внешнего сервера2
 
-    if (mcf.use_pp == 2) {
+    if (mcf.use_pp > 0) {
       wd.h1 = wfc.hum_min;
       wd.t1 = wfc.temp_min;
       wd.p = wfc.press_min;
     }
   }
 #endif
-  if ((rd.type_snr1 > 0 && rd.type_snr1 < 14) || (rd.type_snr2 > 0 && rd.type_snr2 < 14) || (rd.type_snr3 > 0 && rd.type_snr3 < 14) || (rd.type_snrp > 0 && rd.type_snrp < 14)) {
-    sd = sens_ff.read_snr(rd, temp_rtc, td, ed1, ed2, wd);  // Заполняем матрицу данных с датчиков
+  if ((scf.type_snr1 > 0 && scf.type_snr1 < 14) || (scf.type_snr2 > 0 && scf.type_snr2 < 14) || (scf.type_snr3 > 0 && scf.type_snr3 < 14) || (scf.type_snrp > 0 && scf.type_snrp < 14)) {
+    sd = sens_ff.read_snr(scf, temp_rtc, td, ed1, ed2, wd);  // Заполняем матрицу данных с датчиков
   }
 
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
@@ -99,19 +99,19 @@ snr_data_t GetSnr(snr_data_t sb, snr_cfg_t rd, main_cfg_t mcf, uint8_t type_rtc,
   }
 #endif
 
-  if (rd.type_snr1 == 12) {
+  if (scf.type_snr1 == 12) {
     sd.t1 = sb.t1;
     sd.h1 = sb.h1;
   }
-  if (rd.type_snr2 == 12) {
+  if (scf.type_snr2 == 12) {
     sd.t2 = sb.t2;
     sd.h2 = sb.h2;
   }
-  if (rd.type_snr3 == 12) {
+  if (scf.type_snr3 == 12) {
     sd.t3 = sb.t3;
     sd.h3 = sb.h3;
   }
-  if (rd.type_snrp == 12) {
+  if (scf.type_snrp == 12) {
     sd.p = sb.p;
   }
 
@@ -364,9 +364,30 @@ String es_rcv(char* es_addr, bool cli) {
   if (cli) {
     String addr = "http://";
     addr += String(es_addr);
-    addr += "/jsnr";
+    addr += "/send_snr_data";
     if (debug_level == 10) DBG_OUT_PORT.println(addr);
-    out = nsys_ff.http_client(addr);
+    //    out = nsys_ff.http_client(addr);
+
+    HTTPClient http;
+    bool beg;
+#if defined(ESP8266)
+    WiFiClient client;
+    beg = http.begin(client, addr);  //HTTP
+#else
+    beg = http.begin(addr);  //HTTP
+#endif
+    if (beg) {
+      int httpCode = http.GET();
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+        out = http.getString();
+      }
+      http.end();
+      beg = false;
+    }
+    else
+    {
+      if (debug_level == 10) DBG_OUT_PORT.println("Error HTTP Began!!!");
+    }
   }
   if (debug_level == 10) DBG_OUT_PORT.println(out);
   return out;
@@ -381,7 +402,7 @@ void put_to_es(char* es_addr, uint8_t use_es, snr_data_t sd, bool cli) {
   if (cli) {
     String postStr = "http://";
     postStr += String(es_addr);
-    postStr += "/rcv_snr?";
+    postStr += "/get_snr_data?";
     if ((use_es & 0b00000001) && sd.t1 < 99) {
       postStr += "&est1=";
       postStr += String(sd.t1);
@@ -743,97 +764,97 @@ void alarm1_action(bool cli, uint8_t a_act, uint8_t& a_act_out, uint8_t a_num, r
   }
 }
 
-void hw_accept(hw_data_t hd, snr_cfg_t* snr_cfg, uint8_t* vd_typ, uint8_t* rt_typ) {
-  snr_cfg->bm_addr = hd.bm_addr;
+void hw_accept(hw_data_t hd, snr_cfg_t* scf, uint8_t* vd_typ, uint8_t* rt_typ) {
+  scf->bm_addr = hd.bm_addr;
 
   // if selected -> deselect auto
-  if (!hd.ds3231_present && snr_cfg->type_snr1 == 5) {
-    snr_cfg->type_snr1 = 0;
+  if (!hd.ds3231_present && scf->type_snr1 == 5) {
+    scf->type_snr1 = 0;
     DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.ds3231_present && snr_cfg->type_snr2 == 5) {
-    snr_cfg->type_snr2 = 0;
+  if (!hd.ds3231_present && scf->type_snr2 == 5) {
+    scf->type_snr2 = 0;
     DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.ds3231_present && snr_cfg->type_snr3 == 5) {
-    snr_cfg->type_snr3 = 0;
+  if (!hd.ds3231_present && scf->type_snr3 == 5) {
+    scf->type_snr3 = 0;
     DBG_OUT_PORT.println(F("DS3231 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.si7021_present && snr_cfg->type_snr1 == 6) {
-    snr_cfg->type_snr1 = 0;
+  if (!hd.si7021_present && scf->type_snr1 == 6) {
+    scf->type_snr1 = 0;
     DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.si7021_present && snr_cfg->type_snr2 == 6) {
-    snr_cfg->type_snr2 = 0;
+  if (!hd.si7021_present && scf->type_snr2 == 6) {
+    scf->type_snr2 = 0;
     DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.si7021_present && snr_cfg->type_snr3 == 6) {
-    snr_cfg->type_snr3 = 0;
+  if (!hd.si7021_present && scf->type_snr3 == 6) {
+    scf->type_snr3 = 0;
     DBG_OUT_PORT.println(F("SI7021 as a sensor on CH#2 is not found -> deselected"));
   }
   /*
-    if (!hd.am2320_present && snr_cfg->type_snr1 == 7)
+    if (!hd.am2320_present && scf->type_snr1 == 7)
     {
-  	snr_cfg->type_snr1 = 0;
+  	scf->type_snr1 = 0;
   	DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#1 is not found -> deselected"));
     }
-    if (!hd.am2320_present && snr_cfg->type_snr2 == 7)
+    if (!hd.am2320_present && scf->type_snr2 == 7)
     {
-  	snr_cfg->type_snr2 = 0;
+  	scf->type_snr2 = 0;
   	DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#2 is not found -> deselected"));
     }
-    if (!hd.am2320_present && snr_cfg->type_snr3 == 7)
+    if (!hd.am2320_present && scf->type_snr3 == 7)
     {
-  	snr_cfg->type_snr3 = 0;
+  	scf->type_snr3 = 0;
   	DBG_OUT_PORT.println(F("AM2320 as a sensor on CH#3 is not found -> deselected"));
     }
   */
-  if (!hd.bmp180_present && snr_cfg->type_snr1 == 8) {
-    snr_cfg->type_snr1 = 0;
+  if (!hd.bmp180_present && scf->type_snr1 == 8) {
+    scf->type_snr1 = 0;
     DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.bmp180_present && snr_cfg->type_snr2 == 8) {
-    snr_cfg->type_snr2 = 0;
+  if (!hd.bmp180_present && scf->type_snr2 == 8) {
+    scf->type_snr2 = 0;
     DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.bmp180_present && snr_cfg->type_snr3 == 8) {
-    snr_cfg->type_snr3 = 0;
+  if (!hd.bmp180_present && scf->type_snr3 == 8) {
+    scf->type_snr3 = 0;
     DBG_OUT_PORT.println(F("BMP180 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.bmp180_present && snr_cfg->type_snrp == 8) {
-    snr_cfg->type_snrp = 0;
+  if (!hd.bmp180_present && scf->type_snrp == 8) {
+    scf->type_snrp = 0;
     DBG_OUT_PORT.println(F("BMP180 as a pressure sensor is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg->type_snr1 == 9) {
-    snr_cfg->type_snr1 = 0;
+  if (!hd.bmp280_present && scf->type_snr1 == 9) {
+    scf->type_snr1 = 0;
     DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg->type_snr2 == 9) {
-    snr_cfg->type_snr2 = 0;
+  if (!hd.bmp280_present && scf->type_snr2 == 9) {
+    scf->type_snr2 = 0;
     DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg->type_snr3 == 9) {
-    snr_cfg->type_snr3 = 0;
+  if (!hd.bmp280_present && scf->type_snr3 == 9) {
+    scf->type_snr3 = 0;
     DBG_OUT_PORT.println(F("BMP280 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.bmp280_present && snr_cfg->type_snrp == 9) {
-    snr_cfg->type_snrp = 0;
+  if (!hd.bmp280_present && scf->type_snrp == 9) {
+    scf->type_snrp = 0;
     DBG_OUT_PORT.println(F("BMP280 as a pressure sensor is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg->type_snr1 == 10) {
-    snr_cfg->type_snr1 = 0;
+  if (!hd.bme280_present && scf->type_snr1 == 10) {
+    scf->type_snr1 = 0;
     DBG_OUT_PORT.println(F("BME280 as a sensor on CH#1 is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg->type_snr2 == 10) {
-    snr_cfg->type_snr2 = 0;
+  if (!hd.bme280_present && scf->type_snr2 == 10) {
+    scf->type_snr2 = 0;
     DBG_OUT_PORT.println(F("BME280 as a sensor on CH#2 is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg->type_snr3 == 10) {
-    snr_cfg->type_snr3 = 0;
+  if (!hd.bme280_present && scf->type_snr3 == 10) {
+    scf->type_snr3 = 0;
     DBG_OUT_PORT.println(F("BME280 as a sensor on CH#3 is not found -> deselected"));
   }
-  if (!hd.bme280_present && snr_cfg->type_snrp == 10) {
-    snr_cfg->type_snrp = 0;
+  if (!hd.bme280_present && scf->type_snrp == 10) {
+    scf->type_snrp = 0;
     DBG_OUT_PORT.println(F("BME280 as a pressure sensor is not found -> deselected"));
   }
   if (!hd.lcd_present && *vd_typ == 12) {

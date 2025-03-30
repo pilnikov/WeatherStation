@@ -12,7 +12,7 @@
 
 void HT1632Class::drawText(const char text [], int x, int y, const byte font [], int font_end [], uint8_t font_height, uint8_t gutter_space) {
 	int curr_x = x;
-	int i = 0;
+	uint8_t i = 0;
 	char currchar;
 	
 	// Check if string is within y-bounds
@@ -54,7 +54,7 @@ void HT1632Class::drawText(const char text [], int x, int y, const byte font [],
 // Gives you the width, in columns, of a particular string.
 int HT1632Class::getTextWidth(const char text [], int font_end [], uint8_t font_height, uint8_t gutter_space) {
 	int wd = 0;
-	int i = 0;
+	uint8_t i = 0;
 	char currchar;
 	
 	while(true){  
@@ -156,8 +156,8 @@ void HT1632Class::initialize(uint8_t pinWR, uint8_t pinDATA) {
 	//   this command causes problems in HT1632C (note the C at the end) chips. 
 	
 	// Send Master commands
+	
 	select(0b1111); // Assume that board 1 is the master.
-
 	writeData(HT1632_ID_CMD, HT1632_ID_LEN);    // Command mode
 	
 	writeCommand(HT1632_CMD_SYSDIS); // Turn off system oscillator
@@ -213,8 +213,8 @@ void HT1632Class::drawImage(const byte * img, uint8_t width, uint8_t height, int
 	// Copying Engine.
 
 	// Current off
-	int dst_x = x;
-	int src_x = 0;
+	int8_t dst_x = x;
+	int8_t src_x = 0;
 	// Repeat until each column has been copied.
 	while (src_x < width) {
 		if(dst_x < 0) {
@@ -257,7 +257,7 @@ void HT1632Class::drawImage(const byte * img, uint8_t width, uint8_t height, int
 			dst_copyMask <<= (8 - (dst_y & 0b111) - copyInNextStep);
 
 			// Shift the data to the bits of highest significance
-			int copyData = pgm_read_byte(&img[img_offset + (bytesPerColumn * src_x) + (src_y >> 3)]) << (src_y & 0b111);
+			uint8_t copyData = pgm_read_byte(&img[img_offset + (bytesPerColumn * src_x) + (src_y >> 3)]) << (src_y & 0b111);
 			// Shift data to match the destination place value.
 			copyData >>= (dst_y & 0b111);
 
@@ -331,9 +331,14 @@ void HT1632Class::clear(){
 #if defined TYPE_3216_BICOLOR
 // Draw the contents of mem
 void HT1632Class::render() {
+	if(_tgtRender >= _numActivePins) {
+		return;
+	}
+
 	// Write chip-by-chip:
-	for (uint8_t nChip = 0, t = 0b1; nChip < NUM_ACTIVE_CHIPS; ++nChip, t <<= 1) {
-		select(t);
+	for (uint8_t nChip = 0; nChip < NUM_ACTIVE_CHIPS; ++nChip) {
+		select (nChip);		
+		
 		// Output data!
 		writeData(HT1632_ID_WR, HT1632_ID_LEN);
 		writeData(0, HT1632_ADDR_LEN); // Selecting the memory address
@@ -362,8 +367,7 @@ void HT1632Class::render() {
 				writeData(mem[c][i], HT1632_WORD_LEN);
 			}
 		}
-	} 
-	select(0b0); // Close the stream at the end
+	}
 }
 #elif defined TYPE_3208_MONO
 // Draw the contents of mem
@@ -413,13 +417,22 @@ void HT1632Class::render() {
 	}
 #endif
 
-/* Set the brightness to an integer level between 1 and 16 (inclusive). */
-/* Uses the PWM feature to set the brightness.							*/
-/*	A1A2  B1B2 															*/
-/*  C1C2  D1D2															*/
-/* 	0bABCD	(mask)														*/
-
+// Set the brightness to an integer level between 1 and 16 (inclusive).
+// Uses the PWM feature to set the brightness.
 void HT1632Class::setBrightness(uint8_t brightness, byte selectionmask) {
+
+#if defined TYPE_3216_BICOLOR
+	if(_tgtRender >= _numActivePins) {
+		return;
+	}
+
+	// Write chip-by-chip:
+	for (uint8_t nChip = 0; nChip < NUM_ACTIVE_CHIPS; ++nChip) {
+		select (nChip);		
+		writeData(HT1632_ID_CMD, HT1632_ID_LEN);    // Command mode
+		writeCommand(HT1632_CMD_PWM(brightness));   // Set brightness
+	}
+#else
 	if(selectionmask == 0b00010000) {
 		if(_tgtRender < _numActivePins) {
 			selectionmask = 0b0001 << _tgtRender;
@@ -431,7 +444,8 @@ void HT1632Class::setBrightness(uint8_t brightness, byte selectionmask) {
 	select(selectionmask); 
 	writeData(HT1632_ID_CMD, HT1632_ID_LEN);    // Command mode
 	writeCommand(HT1632_CMD_PWM(brightness));   // Set brightness
-	select(0b0);
+	select();
+#endif
 }
 
 
@@ -487,19 +501,27 @@ inline void HT1632Class::pulseCLK() {
 #if defined TYPE_3216_BICOLOR
 // This is used to send initialization commands, and so selects all chips
 // in the selected board.
-void HT1632Class::select(uint8_t mask) {
-	for(uint8_t i = 0, t = 0b1; i < NUM_ACTIVE_CHIPS; ++i, t <<= 1){
-		digitalWrite(_pinCS[0], (t & mask)?LOW:HIGH);
-		pulseCLK();
+void HT1632Class::select(uint8_t nChip) {
+// Select a single sub-chip:
+	digitalWrite(_pinCS[0], HIGH);
+	for(uint8_t tmp = 0; tmp < NUM_ACTIVE_CHIPS; tmp++){
+		if (tmp == nChip) {
+			digitalWrite(_pinCS[0], LOW);
+			pulseCLK();
+			digitalWrite(_pinCS[0], HIGH);
+		} else {
+			pulseCLK();
+		}
 	}
 }
+
 #elif defined TYPE_3208_MONO
 // Choose a chip. This function sets the correct CS line to LOW, and the rest to HIGH
 // Call the function with no arguments to deselect all chips.
 // Call the function with a bitmask (0b4321) to select specific chips. 0b1111 selects all. 
 void HT1632Class::select(uint8_t mask) {
 	for(uint8_t i=0, t=1; i<_numActivePins; ++i, t <<= 1){
-		digitalWrite(_pinCS[i], (t & mask)?LOW:HIGH);
+		digitalWrite(_pinCS[i], (t & mask) ? LOW : HIGH);
 	}
 }
 #elif defined TYPE_2416_MONO
@@ -511,10 +533,19 @@ void HT1632Class::select(uint8_t mask) {
 		digitalWrite(_pinCS[i], (t & mask) ? LOW : HIGH);
 	}
 }
+#else
+// Choose a chip. This function sets the correct CS line to LOW, and the rest to HIGH
+// Call the function with no arguments to deselect all chips.
+// Call the function with a bitmask (0b4321) to select specific chips. 0b1111 selects all. 
+void HT1632Class::select(uint8_t mask) {
+	for (uint8_t i = 0, t = 1; i<_numActivePins; ++i, t <<= 1) {
+		digitalWrite(_pinCS[i], (t & mask) ? LOW : HIGH);
+	}
+}
 #endif
 
 void HT1632Class::select() {
-	select(0b0);
+	select(0);
 }
 
 HT1632Class HT1632;

@@ -6,7 +6,7 @@
 		<style type='text/css'></style>
 	</head>
   
-	<body onload='loadVal_Disp();'>
+	<body onload='send_Disp_cfg();'>
 
 		<ul class="menu">
 			<li><a href="#">Menu</a>
@@ -111,7 +111,7 @@
 				<td>Мах яркость дисплея </td><td><input type='range' min=0 max=255 id='brd4' name='brd4'/> = <output id='rbrd4' name='rbrd4'></output></td>
 			</tr>
 			<tr>
-				<td colspan='2' class='h'><button onclick='set_pard();'>Записать</button></td>
+				<td colspan='2' class='h'><button onclick='get_Disp_cfg();'>Записать</button></td>
 			</tr>
 		</table>
 		<script src="script.js"></script>

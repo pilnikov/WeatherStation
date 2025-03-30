@@ -163,7 +163,7 @@
 #ifndef conf_h
 #define conf_h
 
-#define FW_Ver 3.0  //05.11.24 code corrected
+#define FW_Ver 5.0  //25.03.25 code corrected
 
 #ifndef debug_level
 #define debug_level 0

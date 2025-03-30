@@ -154,12 +154,12 @@ void setup() {
     }
 
     //------------------------------------------------------  Запускаем сервер, ОТА, MDNS
-    nsys.OTA_init(wifi_data.ap_ssid, wifi_data.ap_pass);
-
     MDNS.begin(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F("Open http://"));
     DBG_OUT_PORT.print(wifi_data.ap_ssid);
     DBG_OUT_PORT.print(F(".local/edit to see the file browser\n"));
+
+    nsys.OTA_init(wifi_data.ap_ssid, wifi_data.ap_pass);
 
     web_setup();
     start_serv();
@@ -335,7 +335,7 @@ void setup() {
       }
 
       //------------------------------------------------------ Получаем прогноз погоды
-      if (mcf.use_pp > 0) handleUpdForeCast();
+      if (mcf.use_pp > 0) handler_UPD_WFC_Data();
 
       //------------------------------------------------------ Запускаем SSDP
       nsys.ssdp_init();
@@ -343,7 +343,7 @@ void setup() {
       //------------------------------------------------------ Получаем новости от NewsApi
       if (mcf.news_en & wifi_data_cur.cli) {
         newsClient = new NewsApiClient(mcf.news_api_key, mcf.news_source);
-        handleUpdNews();
+        handler_UPD_News();
       }
     }
 #endif
@@ -388,7 +388,7 @@ void setup() {
 
     //------------------------------------------------------ Окончание подготовки к запуску
     DBG_OUT_PORT.println(F("End of setup"));
-
+//    mcf.esm = false;
     //------------------------------------------------------ Засыпаем
     if (mcf.esm) {
 #if defined(ESP8266)
