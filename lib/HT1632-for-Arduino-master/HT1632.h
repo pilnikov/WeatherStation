@@ -9,15 +9,15 @@
   Released into the public domain.
 */
 #ifndef HT1632_h
-#define HT1632_h
+  #define HT1632_h
 
 #include <Arduino.h>
 #ifdef __AVR__
- #include <avr/pgmspace.h>
+  #include <avr/pgmspace.h>
 #elif defined(ESP8266)
- #include <pgmspace.h>
+  #include <pgmspace.h>
 #else
- #define PROGMEM
+  #define PROGMEM
 #endif
 
 // Custom typedefs
@@ -102,9 +102,11 @@ typedef unsigned char byte;
 #define GET_BIT_FROM_Y(y) ( (0b1 << (PIXELS_PER_BYTE-1)) >> (y % PIXELS_PER_BYTE) )
 
 // NO-OP Definition
-#define NOP(); __asm__("nop\n\t"); 
-// The HT1632 requires at least 50 ns between the change in data and the rising
-// edge of the WR signal. On a 16MHz processor, this provides 62.5ns per NOP. 
+#ifndef NOP
+  #define NOP(); __asm__("nop\n\t"); 
+  // The HT1632 requires at least 50 ns between the change in data and the rising
+  // edge of the WR signal. On a 16MHz processor, this provides 62.5ns per NOP. 
+#endif
 
 // Standard command list.
 // This list is modified from original code by Bill Westfield

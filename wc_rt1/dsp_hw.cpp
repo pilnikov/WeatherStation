@@ -43,9 +43,7 @@ byte MyDspHW::_init(byte vdrv_t, byte dsp_t, gpio_cfg_t gcf, byte ht_addr, byte 
 
   switch (vdrv_t) {
     case 0:
-#if defined(ESP8266)
-      pinMode(gpio_uart, INPUT_PULLUP);
-#endif
+      if (gpio_uart != 255) pinMode(gpio_uart, INPUT_PULLUP);
       break;
     case 1:
       MyDspHW::tm1637_init(gpio_clk, gpio_dio);
@@ -260,7 +258,24 @@ void MyDspHW::a595_init(byte dsp_t, byte &vdrv_t, uint8_t &text_size) {
   }
 }
 
-void MyDspHW::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size) {
+void MyDspHW::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size, int color_up, int color_dwn) {
+
+  byte _red1, _green1, _blue1, _red2, _green2, _blue2;
+  int calc;
+  calc = ((color_up & 0b111100000000) >> 8) * c_br;
+  _red1 = calc & 0b11111111;
+  calc = ((color_up & 0b11110000) >> 4) * c_br;
+  _green1 = calc & 0b11111111;
+  calc = (color_up & 0b1111) * c_br;
+  _blue1 = calc & 0b11111111;
+
+  calc = ((color_dwn & 0b111100000000) >> 8) * c_br;
+  _red2 = calc & 0b11111111;
+  calc = ((color_dwn & 0b11110000) >> 4) * c_br;
+  _green2 = calc & 0b11111111;
+  calc = (color_dwn & 0b1111) * c_br;
+  _blue2 = calc & 0b11111111;
+
   for (uint8_t x = 0; x < 32; x++) {
     uint8_t dt = 0b1;
     for (uint8_t y = 0; y < 8; y++) {
@@ -270,11 +285,11 @@ void MyDspHW::m3216_ramFormer(byte *in, uint8_t c_br, uint8_t t_size) {
           uint8_t _y = (y * t_size) + yz;
           uint8_t _yy = _y + (8 * t_size);
 #if defined(__AVR_ATmega2560__)
-          m3216->drawPixel(_x, _y, (in[x] & dt << y) ? m3216->ColorHSV(700, 255, c_br, true) : 0);
-          m3216->drawPixel(_x, _yy, (in[x + 32] & dt << y) ? m3216->ColorHSV(400, 255, c_br, true) : 0);
+          m3216->drawPixel(_x, _y, (in[x] & dt << y) ? m3216->ColorHSV(700, 255, c_br * 16, true) : 0);
+          m3216->drawPixel(_x, _yy, (in[x + 32] & dt << y) ? m3216->ColorHSV(400, 255, c_br * 16, true) : 0);
 #elif CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
-          m3216->drawPixel(_x, _y, (in[x] & dt << y) ? m3216->color565(c_br, 0, 0) : 0);
-          m3216->drawPixel(_x, _yy, (in[x + 32] & dt << y) ? m3216->color565(0, c_br, 0) : 0);
+          m3216->drawPixel(_x, _y, (in[x] & dt << y) ? m3216->color565(_red1, _green1, _blue1) : 0);
+          m3216->drawPixel(_x, _yy, (in[x + 32] & dt << y) ? m3216->color565(_red2, _green2, _blue2) : 0);
 #endif
         }
       }
@@ -471,9 +486,9 @@ void MyDspHW::roll_seg(byte &in)  //переворот сегмента
 */
 
 {
-  byte b = (in & B00000111) << 3;
-  b |= (in & B00111000) >> 3;
-  b |= in & B11000000;
+  byte b = (in & 0b00000111) << 3;
+  b |= (in & 0b00111000) >> 3;
+  b |= in & 0b11000000;
   in = b;
 }
 
@@ -584,7 +599,7 @@ int8_t MyDspHW::getWifiQuality() {
 }
 
 
-void MyDspHW::_write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_size, uint8_t color_up, uint8_t color_dwn, byte *screen) {
+void MyDspHW::_write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_size, int color_up, int color_dwn, byte *screen) {
   switch (vdrv_t) {
     case 0:
       //SERIAL
@@ -606,7 +621,7 @@ void MyDspHW::_write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_si
       //595
       if (dsp_t == 23 || dsp_t == 24 || dsp_t == 25) {
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
-        m3216_ramFormer(screen, br, text_size);
+        m3216_ramFormer(screen, br, text_size, color_up, color_dwn);
 #else
         DBG_OUT_PORT.print(F("This MSU does not support this type of display!!!"));
 #endif
@@ -622,7 +637,7 @@ void MyDspHW::_write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br, uint8_t text_si
       //ORANGE = 3 RED = 0 GREEN = 1
       ht1632->clear();
       ht1632_ramFormer(screen, color_up, color_dwn, text_size);
-      ht1632->setBrightness(br,0b1111);
+      ht1632->setBrightness(br, 0b1111);
       ht1632->render();
     case 6:
       //ILI9341
@@ -670,7 +685,7 @@ void MyDspHW::_off(byte vdrv_t) // Dsp off
       break;
     case 5:
       ht1632->clear();
-      ht1632->setBrightness(0,0b1111);
+      ht1632->setBrightness(0, 0b1111);
       ht1632->render();
       break;
     case 12:

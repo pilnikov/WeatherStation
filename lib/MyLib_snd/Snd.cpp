@@ -24,10 +24,10 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
   uint16_t freq;
   uint8_t octave;
 
-#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
+//#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
 //  ledcSetup(2, 2000, 8);
-  ledcAttach(out, 2000, 8);
-#endif
+//  ledcAttach(out, 5000, 12);
+//#endif
 
   if (millis() > dela)
   {
@@ -36,13 +36,13 @@ void Synt::soundNote(uint8_t note, uint16_t dur, uint8_t out, bool pola)
     freq = pgm_read_word_near(&Freqs[note]);
     freq >>= (11 - octave);
 
-#if !defined(ARDUINO_ARCH_ESP32)
+//#if !defined(ARDUINO_ARCH_ESP32)
     tone(out, freq, dur);
     noTone(out);
-#else
-    ledcWriteTone(2, freq);
-    ledcWriteTone(2, 0);
-#endif
+//#else
+//    ledcWriteTone(2, freq);
+//    ledcWriteTone(2, 0);
+//#endif
     dela = millis() + dur;
     digitalWrite(out, pola ? HIGH : LOW);
   }
@@ -79,10 +79,10 @@ bool Synt::play(uint8_t mel_n, uint8_t out, bool set_up, bool pola)
     p = _ptr;
 
 
-#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
+//#if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
 //    ledcSetup(2, 2000, 8);
-    ledcAttach(out, 2000, 8);
-#endif
+//    ledcAttach(out, 5000, 12);
+//#endif
 
     // get default duration -------------------------------
     while (cp(p) != 'd') p = inc_p(p); // find 'd', skip ":"
@@ -140,11 +140,11 @@ bool Synt::play(uint8_t mel_n, uint8_t out, bool set_up, bool pola)
     is_played = false; //End of playing
     if (millis() > dela)
     {
-#if !defined(ARDUINO_ARCH_ESP32)
+//#if !defined(ARDUINO_ARCH_ESP32)
       noTone(out);
-#else
-      ledcWriteTone(2, 0);
-#endif
+//#else
+//      ledcWriteTone(2, 0);
+//#endif
       digitalWrite(out, pola ? HIGH : LOW);
     }
   }
@@ -236,11 +236,11 @@ bool Synt::play(uint8_t mel_n, uint8_t out, bool set_up, bool pola)
       DBG_OUT_PORT.print(F(") "));
       DBG_OUT_PORT.println(duration, 10);
 #endif
-#if !defined(ARDUINO_ARCH_ESP32)
+//#if !defined(ARDUINO_ARCH_ESP32)
       tone(out, _tone);
-#else
+//#else
       ledcWriteTone(2, _tone);
-#endif
+//endif
       dela = millis() + duration;
     }
     else
@@ -250,11 +250,11 @@ bool Synt::play(uint8_t mel_n, uint8_t out, bool set_up, bool pola)
       DBG_OUT_PORT.print(F("Pausing: "));  //  "Пауза:"
       DBG_OUT_PORT.println(duration, 10);
 #endif
-#if !defined(ARDUINO_ARCH_ESP32)
+//#if !defined(ARDUINO_ARCH_ESP32)
       noTone(out);
-#else
-      ledcWriteTone(2, 0);
-#endif
+//#else
+ //     ledcWriteTone(2, 0);
+//#endif
     }
   }
   return is_played;

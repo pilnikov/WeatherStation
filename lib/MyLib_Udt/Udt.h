@@ -58,8 +58,6 @@ typedef struct
   use_es = 0,
   man_br = 0,
   nmd_br = 0,
-  color_up = 0,
-  color_dwn = 0,
   font_t = 0,
   vdrv_t = 0,
   dsp_t = 0,
@@ -71,6 +69,8 @@ typedef struct
   time_zone;
   
   int
+  color_up = 0,
+  color_dwn = 0,
   lb_thermo,
   hb_thermo;
 

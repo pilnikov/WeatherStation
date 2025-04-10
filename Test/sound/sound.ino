@@ -9,7 +9,7 @@
 
 bool snd_pola = false;
 #if defined(__xtensa__) || CONFIG_IDF_TARGET_ESP32C3
-static const int         BUZ_PIN  PROGMEM =  2;  // Канал PWM (буззер)
+static const int         BUZ_PIN  PROGMEM =  4;  // Канал PWM (буззер)
 #elif  defined (__AVR__)
 static const int         BUZ_PIN  PROGMEM =  A7;  // Канал PWM (буззер)
 #endif

@@ -86,7 +86,7 @@ class MyDspHW {
   public:
     void
     _write(uint8_t vdrv_t, uint8_t dsp_t, uint16_t br,
-           uint8_t text_size, uint8_t color_up, uint8_t color_dwn, byte *screen),
+           uint8_t text_size, int color_up, int color_dwn, byte *screen),
                    _off(byte),
                    _on(byte),
                    out_vbuf_frm(bool time_up, byte *tm_in, byte *sc_in, byte *_out); //out video buffer former
@@ -106,7 +106,7 @@ class MyDspHW {
 
 #if defined(__AVR_ATmega2560__) || CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
                 a595_init(byte, byte &, uint8_t &),
-                m3216_ramFormer(byte *, uint8_t, uint8_t),
+                m3216_ramFormer(byte *, uint8_t, uint8_t,  int, int),
 #endif
 
                 m7219_ramFormer(byte *),

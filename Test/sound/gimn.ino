@@ -3,8 +3,8 @@ uint16_t freq, dur;
 
 
 #if defined(ARDUINO_ARCH_ESP32) || CONFIG_IDF_TARGET_ESP32C3
-ledcSetup(2, 2000, 8);
-ledcAttachPin(BUZ_PIN, 2);
+//ledcSetup(4, 2000, 8);
+//ledcAttachPin(BUZ_PIN, 4);
 #endif
 /*
   #if !defined(ARDUINO_ARCH_ESP32)
