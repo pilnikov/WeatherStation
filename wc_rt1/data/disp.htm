@@ -75,19 +75,19 @@
 				<td>Время сверху</td><td><input type='checkbox' id='tup' 	name='tup'	 /></td>
 			</tr>
 			<tr>
-				<td>Цвет верх	</td><td><input type='text' maxlength='3' size='3' id='colu' name='colu'/></td>
+				<td>Цвет верх	</td><td><input type='text' maxlength='5' size='5' id='colu' name='colu'/></td>
 			</tr>
 			<tr>
-				<td>Цвет  низ 	</td><td><input type='text' maxlength='3' size='3' id='cold' name='cold'/></td>
+				<td>Цвет  низ 	</td><td><input type='text' maxlength='5' size='5' id='cold' name='cold'/></td>
 			</tr>
 			<tr>
 				<td colspan='2' class='h'>Яркость</td>
 			</tr>
 			<tr>
-				<td>Ручная уставка яркости дисплея         </td><td><input type='range' min=0 max=255 id='mbrd' name='mbrd'/> = <output id='rmbrd' name='rmbrd'></output></td>
+				<td>Ручная уставка яркости дисплея         </td><td><input type='range' min=0 max=15 id='mbrd' name='mbrd'/> = <output id='rmbrd' name='rmbrd'></output></td>
 			</tr>
 			<tr>
-				<td>Уставка яркости дисплея в ночном режиме</td><td><input type='range' min=0 max=255 id='nbrd' name='nbrd'/> = <output id='rnbrd' name='rnbrd'></output></td>
+				<td>Уставка яркости дисплея в ночном режиме</td><td><input type='range' min=0 max=15 id='nbrd' name='nbrd'/> = <output id='rnbrd' name='rnbrd'></output></td>
 			</tr>
 			<tr>
 				<td>Авто яркость</td><td><input type='checkbox' id='abrd' name='abrd' onclick='show_abr();'/></td>
@@ -99,16 +99,16 @@
 				<td colspan='2' class='h'>Уровни для автояркости</td>
 			</tr>
 			<tr>
-				<td>Мин освещенность    </td><td><input type='range' min=0 max=255 id='brd1' name='brd1'/> = <output id='rbrd1' name='rbrd1'></output></td>
+				<td>Мин освещенность    </td><td><input type='range' min=0 max=2048 id='brd1' name='brd1'/> = <output id='rbrd1' name='rbrd1'></output></td>
 			</tr>
 			<tr>
-				<td>Мах освещенность 	</td><td><input type='range' min=0 max=255 id='brd2' name='brd2'/> = <output id='rbrd2' name='rbrd2'></output></td>
+				<td>Мах освещенность 	</td><td><input type='range' min=0 max=2048 id='brd2' name='brd2'/> = <output id='rbrd2' name='rbrd2'></output></td>
 			</tr>
 			<tr>
-				<td>Мин яркость дисплея </td><td><input type='range' min=0 max=255 id='brd3' name='brd3'/> = <output id='rbrd3' name='rbrd3'></output></td>
+				<td>Мин яркость дисплея </td><td><input type='range' min=0 max=15 id='brd3' name='brd3'/> = <output id='rbrd3' name='rbrd3'></output></td>
 			</tr>
 			<tr>
-				<td>Мах яркость дисплея </td><td><input type='range' min=0 max=255 id='brd4' name='brd4'/> = <output id='rbrd4' name='rbrd4'></output></td>
+				<td>Мах яркость дисплея </td><td><input type='range' min=0 max=15 id='brd4' name='brd4'/> = <output id='rbrd4' name='rbrd4'></output></td>
 			</tr>
 			<tr>
 				<td colspan='2' class='h'><button onclick='get_Disp_cfg();'>Записать</button></td>
